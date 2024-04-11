@@ -1,0 +1,12 @@
+{
+	"title": "That's some pig.",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}

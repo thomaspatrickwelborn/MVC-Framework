@@ -1,0 +1,14 @@
+{
+  "name": "mvc-framework",
+  "author": "Thomas Patrick Welborn",
+  "type": "module",
+  "main": "./index.js",
+  "devDependencies": {},
+  "scripts": {},
+  "version": "1.0.0",
+  "license": "ISC",
+  "description": "",
+  "workspaces": [
+  	"demonstrament", "development"
+  ]
+}

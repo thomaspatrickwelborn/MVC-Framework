@@ -1,0 +1,27 @@
+{
+  "name": "mvc-framework-demonstrament",
+  "author": "Thomas Patrick Welborn",
+  "type": "module",
+  "devDependencies": {
+    "browser-sync": "^3.0.2",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2"
+  },
+  "main": "index.js",
+  "scripts": {
+    "save": "pm2 save",
+    "start": "pm2 start ecosystem.config.cjs && npm run save",
+    "restart": "pm2 restart ecosystem.config.cjs",
+    "stop": "pm2 stop ecosystem.config.cjs && npm run save",
+    "delete": "pm2 delete ecosystem.config.cjs && npm run save"
+  },
+  "version": "1.0.0",
+  "license": "ISC",
+  "description": "",
+  "imports": {
+    "#utils/*": "./utils/*",
+    "#views/*": "./views/*",
+    "#templates/*": "./templates/*",
+    "#routes/*": "./routes/*"
+  }
+}

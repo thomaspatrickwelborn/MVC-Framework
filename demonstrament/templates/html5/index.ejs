@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="" type="" href="">
+  <% for(const $script of $data.styles) { -%>
+    <link 
+      rel="<%= $script.rel %>" 
+      type="<%= $script.type %>" 
+      href="<%= $script.href %>"
+    >
+  <% } -%>
+</head>
+<body>
+  <% for(const $script of $data.scripts) { -%>
+    <script 
+      type="<%= $script.type %>" 
+      src="<%= $script.src %>"
+    ></script>
+  <% } -%>
+</body>
+</html>
