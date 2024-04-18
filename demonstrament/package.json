@@ -5,7 +5,8 @@
   "devDependencies": {
     "browser-sync": "^3.0.2",
     "ejs": "^3.1.9",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "js-beautify": "^1.15.1"
   },
   "main": "index.js",
   "scripts": {
@@ -20,8 +21,7 @@
   "description": "",
   "imports": {
     "#utils/*": "./utils/*",
-    "#views/*": "./views/*",
-    "#templates/*": "./templates/*",
-    "#routes/*": "./routes/*"
+    "#tests/*": "./tests/*",
+    "#templates/*": "./templates/*"
   }
 }

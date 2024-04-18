@@ -2,20 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <link rel="" type="" href="">
-  <% for(const $script of $data.styles) { -%>
+  <% for(const $style of $data.styles) { -%>
     <link 
-      rel="<%= $script.rel %>" 
-      type="<%= $script.type %>" 
-      href="<%= $script.href %>"
+      rel="<%= $style.rel %>" 
+      type="<%= $style.type %>" 
+      href="<%= $style.href %>"
     >
   <% } -%>
 </head>
 <body>
+  <%- await include('./structure.ejs', {
+    structure: $data.structure
+  }, { async: true }) %>
   <% for(const $script of $data.scripts) { -%>
     <script 
-      type="<%= $script.type %>" 
       src="<%= $script.src %>"
+      type="<%= $script.type %>"
     ></script>
   <% } -%>
 </body>

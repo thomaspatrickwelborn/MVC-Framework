@@ -1,0 +1,23 @@
+{
+	"title": "MVC Framework - Views 001",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+
+	"structure": [{
+		"tag": "h1",
+		"content": 	"MVC Framework - Views 001"
+	}, {
+		"tag": "app",
+		"attributes": {
+			"id": "app"
+		}
+	}],
+
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}

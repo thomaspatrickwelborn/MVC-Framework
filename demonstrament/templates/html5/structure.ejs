@@ -1,0 +1,19 @@
+<% for(const $structure of $data.structure) { -%>
+  <<%= $structure.tag %> 
+    <% if($structure.attributes) { %>
+      <% for(const [
+        $attributeKey, $attributeVal
+      ] of Object.entries($structure.attributes)) { -%>
+      <%= $attributeKey %>="<%= $attributeVal %>" 
+    <% } -%>
+  <% } -%>>
+  <% if($structure.textContent) { -%>
+    <%= $structure.textContent %>
+  <% } -%>
+  <% if($structure.structure) { %>
+	  <%- await include('./structure.ejs', {
+	    structure: $structure.structure
+	  }) %>
+  <% } %>
+  </<%= $structure.tag -%>>
+<% } -%>

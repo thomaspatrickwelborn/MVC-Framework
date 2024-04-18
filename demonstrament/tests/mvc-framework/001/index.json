@@ -1,0 +1,42 @@
+{
+	"title": "MVC Framework - Views 001",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+
+	"structure": [{
+		"tag": "h1",
+		"textContent": 	"MVC Framework - Views 001"
+	}, {
+		"tag": "app",
+		"attributes": {
+			"id": "app"
+		},
+		"structure": [{
+			"tag": "header",
+			"attributes": {
+				"class": "header"
+			},
+			"textContent": "HEADER"
+		}, {
+			"tag": "main",
+			"attributes": {
+				"class": "main"
+			},
+			"textContent": "MAIN"
+		}, {
+			"tag": "footer",
+			"attributes": {
+				"class": "footer"
+			},
+			"textContent": "FOOTER"
+		}]
+	}],
+
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}

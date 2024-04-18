@@ -1,27 +1,52 @@
+import { readFile } from 'node:fs/promises'
 import '#utils/persist/index.js'
 import express, { Router } from 'express'
+import beautify from 'js-beautify'
 import ejs from 'ejs'
+// App Router Definitions
 const router = Router({ strict: true })
-const viewNames = [
-	'a', 'b', 'c', 'd', 'e',
-	'f', 'g', 'h', 'i',
+// Test Routes
+const testRoutePath = [
+	// 'mvc-framework/___'
+	'mvc-framework/001',
 ]
-for(const $viewName of viewNames) {
-	router.get(`/${$viewName}/`, async ($req, $res, $next) => {
-		const pageData = await import('./views/a/index.json', {
-			assert: { type: 'json' }
-		}).then(($module) => $module.default)
-		const pageView = await ejs.renderFile('./templates/html5/index.ejs', pageData, {
-			localsName: '$data',
-			async: true,
+// Route Definitions
+for(const $testRoutePath of testRoutePath) {
+	// Route Definition
+	router.get(`/${$testRoutePath}/`, async ($req, $res, $next) => {
+		// Page Data
+		const pageDataPath = `./tests/${$testRoutePath}/index.json`
+		const pageData = await readFile(pageDataPath).then(
+			($data) => JSON.parse($data.toString())
+		)
+		// Page View
+		const pageView = await ejs.renderFile(
+			'./templates/html5/index.ejs', 
+			pageData, {
+				localsName: '$data',
+				async: true,
+			}
+		)
+		// Page View Beautify
+		const pageViewBeautify = beautify.html(pageView, {
+			indent_size: 2,
+			indent_char: " ",
+			max_preserve_newlines: 0,
+			brace_style: 'collapse',
 		})
-		$res.send(pageView)
+		// Response Send
+		$res.send(pageViewBeautify)
 	})
 }
-const app = express()
-app.use(express.static('views'))
-app.use(express.static('test'))
-app.use(router)
-app.listen(3000, () => {
+// App Definition
+const application = express()
+// Static Tests Filesystem
+application.use(express.static('tests'))
+// Static Temporary Filesystem
+application.use(express.static('temporary'))
+// Route Application
+application.use(router)
+// Poll Application
+application.listen(3000, () => {
 	console.log('Listen To The Sound Of Silence')
 })

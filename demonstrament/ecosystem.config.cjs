@@ -3,7 +3,11 @@ module.exports = {
     name   : "mvc-framework-demonstrament",
     script : "index.js",
     watch: [
-      "index.js", "templates", "test", "utils", "views"
+      "index.js", 
+      "temporary", 
+      "tests", 
+      "templates",
+      "utils",
     ],
     node_args: "--inspect --trace-deprecation",
     execMode: "fork"
