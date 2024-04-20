@@ -1,5 +1,5 @@
 {
-	"title": "MVC Framework - Views 000",
+	"title": "MVC Framework - Views 002",
 	"styles": [{
 		"rel": "stylesheet",
 		"type": "text/css",
@@ -8,7 +8,7 @@
 
 	"structure": [{
 		"tag": "h1",
-		"content": 	"MVC Framework - Views 000"
+		"content": 	"MVC Framework - Views 002"
 	}, {
 		"tag": "app",
 		"attributes": {

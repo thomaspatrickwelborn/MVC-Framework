@@ -8,7 +8,95 @@ export default class Content extends EventTarget {
 		this.#schema = $schema
 		this.addProps($content, $schema)
 	}
-	#schema
+	#_schema
+	get #schema() { return this.#_schema }
+	set #schema($schema) { this.#_schema = $schema }
+	get() {
+		const context = this
+		const schema = this.#schema
+		const args = [...arguments]
+		switch(args.length) {
+		case 0:
+			return this.toObject()
+			break
+		case 1:
+			const propKey = args[0]
+			var propVal = context
+			const propKeyData = propKey.split('.')
+			for(const $propKey of propKeyData) {
+				propVal = propVal[$propKey]
+			}
+			if(propVal instanceof Content) {
+				return propVal.toObject()
+			} else {
+				return propVal
+			}
+			break
+		}
+	}
+	set() {
+		var validate
+		var context = this
+		var schema = this.#schema
+		const args = [...arguments]
+		switch(args.length) {
+		case 0:
+			return this
+		case 1:
+			if(typeOf(args[0]) === 'object') {
+				iteratePropKeys: for(var [
+					$propKey, $propVal
+				] of Object.entries(
+					args[0]
+				)) {
+					const propKeyData = $propKey.split('.')
+					for(const $propKey of propKeyData) {
+						if(
+							context[$propKey] instanceof Content &&
+							typeOf($propVal) === 'object'
+						) {
+							context[$propKey].set($propVal)
+						} else {
+							validate = Validate({
+								schemaKey: $propKey,
+								schemaVal: schema[$propKey],
+								contentKey: $propKey,
+								contentVal: $propVal,
+							})
+							if(validate.type.valid === false) break
+							context[$propKey] = $propVal
+						}
+					}
+				}
+			}
+			break
+		case 2:
+			var propKey = args[0]
+			var propVal = args[1]
+			const propKeyData = propKey.split('.')
+			for(const $propKey of propKeyData) {
+				if(
+					context[$propKey] instanceof Content &&
+					typeOf(propVal) === 'object'
+				) {
+					context[$propKey].set(propVal)
+				} else {
+
+					validate = Validate({
+						schemaKey: $propKey,
+						schemaVal: schema[$propKey],
+						contentKey: $propKey,
+						contentVal: propVal,
+					})
+					if(validate.type.valid === false) break
+					context[$propKey] = propVal
+				}
+			}	
+			break
+		}
+		return this
+	}
+	delete() {}
 	// Add Props
 	addProps($addProps, $schemaProps) {
 		$schemaProps = $schemaProps || this.#schema
@@ -49,14 +137,16 @@ export default class Content extends EventTarget {
 	}
 	// Remove Props
 	removeProps($removeProps, $content) {
-		$removeProps = $removeProps || this.toObject()
-		$content = $content || this.toObject()
+		$removeProps = $removeProps || this
+		$content = $content || this
 		iterateRemoveProps: for(const [
 			$removePropKey, $removePropVal
 		] of Object.entries($removeProps)) {
 			if(typeOf($removePropVal) === 'object') {
-				if($content[$removePropKey] instanceof Content) {
-					$content[$removePropKey] = this.removeProps(
+				if(
+					$content[$removePropKey] instanceof Schema
+				) {
+					$content[$removePropKey].removeProps(
 						$removePropVal, $content[$removePropKey]
 					)
 				}

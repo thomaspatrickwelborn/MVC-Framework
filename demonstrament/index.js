@@ -9,6 +9,7 @@ const router = Router({ strict: true })
 const testRoutePath = [
 	// 'mvc-framework/___'
 	'mvc-framework/001',
+	'mvc-framework/002',
 ]
 // Route Definitions
 for(const $testRoutePath of testRoutePath) {

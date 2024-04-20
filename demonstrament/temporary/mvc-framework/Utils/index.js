@@ -1,2 +1,5 @@
 import typeOf from './typeOf/index.js'
-export { typeOf }
+import parseShortenedPropEvents from './parseShortenedPropEvents/index.js'
+export {
+	typeOf, parseShortenedPropEvents
+}
