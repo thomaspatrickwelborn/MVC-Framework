@@ -1,9 +1,11 @@
 import testA from './testA.js'
 import testB from './testB.js'
 import testC from './testC.js'
+import testD from './testD.js'
 
 function DOMContentLoaded($event) {
-	testC()
+	testD()
+	// testC()
 	// testB()
 	// testA()
 }

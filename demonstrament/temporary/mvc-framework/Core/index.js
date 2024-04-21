@@ -29,25 +29,22 @@ export default class Core extends EventTarget {
 			_options[$optionKey] = $optionVal
 		}
 	}
-	#_events = {}
+	#_events = []
 	get events() { return this.#_events }
 	set events($events) { this.addEvents($events) }
 	addEvents($events = {}, $enable = false) {
-		const _events = this.#_events
-		const events = []
-		iterateProps: for(var [
-			$propName, $propEvents
-		] of Object.entries($events)) {
-			if(typeOf($propEvents) === 'object') {
-				$propEvents = parseShortenedPropEvents($propEvents)
-			}
-			iteratePropEvents: for(
-				const $propEvent of $propEvents
-			) {
-				$propEvent.enabled = false
-				_events[$propName] = _events[$propName] || []
-				_events[$propName].push($propEvent)
-			}
+	const _events = this.#_events
+	const events = []
+	var $propEvents = $events
+		if(typeOf($propEvents) === 'object') {
+			$propEvents = parseShortenedPropEvents($propEvents)
+		}
+		iteratePropEvents: for(
+			const $propEvent of $propEvents
+		) {
+			$propEvent.enabled = false
+			_events.push($propEvent)
+			events.push($propEvent)
 		}
 		if($enable === true) this.enableEvents($events)
 		return this
@@ -55,33 +52,30 @@ export default class Core extends EventTarget {
 	removeEvents($events = {}) {
 		const _events = this.#_events
 		const events = []
-		for(var [
-			$propName, $propEvents
-		] of Object.entries($events)) {
-			if(typeOf($propEvents) === 'object') {
-				$propEvents = parseShortenedPropEvents($propEvents)
-			}
-			const propEventsLength = $propEvents.length
-			var propEventsIndex = 0
-			while(propEventsIndex < propEventsLength) {
-				const propEvent = $propEvents[propEventsIndex]
-				const eventsLength = _events[$propName].length
-				var eventsIndex = eventsLength - 1
-				while(eventsIndex > -1) {
-					const _event = _events[$propName][eventsIndex]
-					if(
-						_event.name === propEvent.name &&
-						_event.target === propEvent.target &&
-						_event.callback === propEvent.callback
-					) {
-						events.push(
-							_events[$propName].splice(eventsIndex, 1)
-						)
-					}
-					eventsIndex--
+		var $propEvents = $events
+		if(typeOf($propEvents) === 'object') {
+			$propEvents = parseShortenedPropEvents($propEvents)
+		}
+		const propEventsLength = $propEvents.length
+		var propEventsIndex = 0
+		while(propEventsIndex < propEventsLength) {
+			const propEvent = $propEvents[propEventsIndex]
+			const eventsLength = _events.length
+			var eventsIndex = eventsLength - 1
+			while(eventsIndex > -1) {
+				const _event = _events[eventsIndex]
+				if(
+					_event.name === propEvent.name &&
+					_event.target === propEvent.target &&
+					_event.callback === propEvent.callback
+				) {
+					events.push(
+						..._events.splice(eventsIndex, 1)
+					)
 				}
-				propEventsIndex++
+				eventsIndex--
 			}
+			propEventsIndex++
 		}
 		this.disableEvents($events)
 		return this

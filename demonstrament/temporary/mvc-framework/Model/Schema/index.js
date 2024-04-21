@@ -11,7 +11,6 @@ export default class Schema extends EventTarget {
 		iterateProps: for(const [
 			$addPropKey, $addPropVal
 		] of Object.entries($addProps)) {
-			console.log($addPropKey, $addPropVal)
 			if(typeOf($addPropVal) === 'object') {
 				if($schema[$addPropKey] instanceof Schema) {
 					$schema[$addPropKey] = this.addProps(

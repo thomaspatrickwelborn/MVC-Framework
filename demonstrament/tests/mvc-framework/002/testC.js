@@ -4,6 +4,9 @@ export default function testC() {
 	function setAAA($event) {
 		console.log($event)
 	}
+	function setBBB($event) {
+		console.log($event)
+	}
 	const model = new Model()
 	model.addProps({
 		aaa: "AAA",
@@ -11,15 +14,15 @@ export default function testC() {
 		ccc: false
 	})
 	model.addEvents({
-		content: {
+		// content: {
 			'set:aaa': setAAA
-		}
+		// }
 	}, true)
 	model.set('aaa', "AAAAAA")
 	model.removeEvents({
-		content: {
+		// content: {
 			'set:aaa': setAAA
-		}
+		// }
 	})
 	model.set('aaa', "AAAAAAAAAA")
 	model.removeProps({
@@ -29,5 +32,17 @@ export default function testC() {
 	model.addProps({
 		aaa: "AAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH"
 	})
-	console.log(model.content)
+	model.addEvents({
+		'set:bbb': setBBB
+	}, true)
+	model.set('bbb', 333)
+	model.removeEvents({
+		'set:bbb': setBBB
+	})
+	model.set('bbb', 444)
+	console.log(model.get('bbb'))
+	model.removeProps({
+		bbb: null
+	})
+	console.log(model.get('bbb'))
 }

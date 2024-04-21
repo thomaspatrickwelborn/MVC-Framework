@@ -100,92 +100,84 @@ export default class Model extends Core {
 	}
 	enableEvents($events) {
 		$events = $events || this.events
-		iterateProps: for(var [
-			$propName, $propEvents
-		] of Object.entries($events)) {
-			if(typeOf($propEvents) === 'object') {
-				$propEvents = parseShortenedPropEvents($propEvents)
-			}
-			iteratePropEvents: for(
-				const $propEvent of $propEvents
+		const $propName = 'content'
+		var $propEvents = $events
+		if(typeOf($propEvents) === 'object') {
+			$propEvents = parseShortenedPropEvents($propEvents)
+		}
+		iteratePropEvents: for(
+			const $propEvent of $propEvents
+		) {
+			let prop = this.#_content
+			if(prop === undefined) break iteratePropEvents
+			const propEventTargetKeys = $propEvent.target.split('.')
+			iteratePropEventTargetKeys: for(
+				const $propEventTargetKey of propEventTargetKeys
 			) {
-				let prop
-				if($propName === 'content') prop = this.#_content
-				if(prop === undefined) break iteratePropEvents
-				const propEventTargetKeys = $propEvent.target.split('.')
-				iteratePropEventTargetKeys: for(
-					const $propEventTargetKey of propEventTargetKeys
-				) {
-					if($propEventTargetKey === ':scope') {
-						continue iteratePropEventTargetKeys
-					}
-					prop = prop[$propEventTargetKey]
+				if($propEventTargetKey === ':scope') {
+					continue iteratePropEventTargetKeys
 				}
-				if(
-					prop instanceof EventTarget ||
-					prop instanceof NodeList
-				) {
-					if(prop instanceof NodeList) {
-						for(const $prop of prop) {
-							$prop.addEventListener(
-								$propEvent.name, 
-								$propEvent.callback,
-							)
-						}
-					} else {
-						prop.addEventListener(
+				prop = prop[$propEventTargetKey]
+			}
+			if(
+				prop instanceof EventTarget ||
+				prop instanceof NodeList
+			) {
+				if(prop instanceof NodeList) {
+					for(const $prop of prop) {
+						$prop.addEventListener(
 							$propEvent.name, 
 							$propEvent.callback,
 						)
 					}
+				} else {
+					prop.addEventListener(
+						$propEvent.name, 
+						$propEvent.callback,
+					)
 				}
-				$propEvent.enabled = true
 			}
+			$propEvent.enabled = true
 		}
 		return this
 	}
 	disableEvents($events) {
 		$events = $events || this.events
-		iterateProps: for(var [
-			$propName, $propEvents
-		] of Object.entries($events)) {
-			if(typeOf($propEvents) === 'object') {
-				$propEvents = parseShortenedPropEvents($propEvents)
-			}
-			iteratePropEvents: for(const $propEvent of $propEvents) {
-				// let prop = this[$propName]
-				let prop
-				if($propName === 'content') prop = this.#_content
-				if(prop === undefined) break iteratePropEvents
-				const propEventTargetKeys = $propEvent.target.split('.')
-				iteratePropEventTargetKeys: for(
-					const $propEventTargetKey of propEventTargetKeys
-				) {
-					if($propEventTargetKey === ':scope') {
-						continue iteratePropEventTargetKeys
-					}
-					prop = prop[$propEventTargetKey]
+		const $propName = 'content'
+		var $propEvents = $events
+		if(typeOf($propEvents) === 'object') {
+			$propEvents = parseShortenedPropEvents($propEvents)
+		}
+		iteratePropEvents: for(const $propEvent of $propEvents) {
+			let prop = this.#_content
+			const propEventTargetKeys = $propEvent.target.split('.')
+			iteratePropEventTargetKeys: for(
+				const $propEventTargetKey of propEventTargetKeys
+			) {
+				if($propEventTargetKey === ':scope') {
+					continue iteratePropEventTargetKeys
 				}
-				if(
-					prop instanceof EventTarget ||
-					prop instanceof NodeList
-				) {
-					if(prop instanceof NodeList) {
-						for(const $prop of prop) {
-							$prop.removeEventListener(
-								$propEvent.name, 
-								$propEvent.callback,
-							)
-						}
-					} else if(prop instanceof EventTarget) {
-						prop.removeEventListener(
+				prop = prop[$propEventTargetKey]
+			}
+			if(
+				prop instanceof EventTarget ||
+				prop instanceof NodeList
+			) {
+				if(prop instanceof NodeList) {
+					for(const $prop of prop) {
+						$prop.removeEventListener(
 							$propEvent.name, 
 							$propEvent.callback,
 						)
 					}
+				} else if(prop instanceof EventTarget) {
+					prop.removeEventListener(
+						$propEvent.name, 
+						$propEvent.callback,
+					)
 				}
-				$propEvent.enabled = false
 			}
+			$propEvent.enabled = false
 		}
 		return this
 	}
