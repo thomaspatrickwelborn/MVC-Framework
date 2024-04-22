@@ -6,9 +6,7 @@ const Settings = {
 	element: document.createElement('template'),
 	templates: { default: () => `` },
 	selectors: {},
-	events: {
-		selectors: {},
-	},
+	events: {},
 }
 Object.freeze(Settings)
 const Options = {
@@ -156,6 +154,7 @@ export default class View extends Core {
 		iteratePropEvents: for(
 			const $propEvent of $propEvents
 		) {
+			if($propEvent.enabled === true) continue iteratePropEvents
 			let prop = this.#_querySelectors
 			if(prop === undefined) break iteratePropEvents
 			const propEventTargetKeys = $propEvent.target.split('.')
@@ -175,13 +174,13 @@ export default class View extends Core {
 					for(const $prop of prop) {
 						$prop.addEventListener(
 							$propEvent.name, 
-							$propEvent.callback,
+							$propEvent.callback.bind(this),
 						)
 					}
 				} else {
 					prop.addEventListener(
 						$propEvent.name, 
-						$propEvent.callback,
+						$propEvent.callback.bind(this),
 					)
 				}
 			}
@@ -198,6 +197,7 @@ export default class View extends Core {
 			$propEvents = parseShortenedPropEvents($propEvents)
 		}
 		iteratePropEvents: for(const $propEvent of $propEvents) {
+			if($propEvent.enabled === false) continue iteratePropEvents
 			let prop = this.#_querySelectors
 			const propEventTargetKeys = $propEvent.target.split('.')
 			iteratePropEventTargetKeys: for(

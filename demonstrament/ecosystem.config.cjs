@@ -4,10 +4,10 @@ module.exports = {
     script : "index.js",
     watch: [
       "index.js", 
+      "application",
       "temporary", 
-      "tests", 
-      "templates",
-      "utils",
+      "tensils", 
+      "localhost"
     ],
     node_args: "--inspect --trace-deprecation",
     execMode: "fork"

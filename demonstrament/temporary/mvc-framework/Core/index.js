@@ -33,9 +33,9 @@ export default class Core extends EventTarget {
 	get events() { return this.#_events }
 	set events($events) { this.addEvents($events) }
 	addEvents($events = {}, $enable = false) {
-	const _events = this.#_events
-	const events = []
-	var $propEvents = $events
+		const _events = this.#_events
+		const events = []
+		var $propEvents = $events
 		if(typeOf($propEvents) === 'object') {
 			$propEvents = parseShortenedPropEvents($propEvents)
 		}

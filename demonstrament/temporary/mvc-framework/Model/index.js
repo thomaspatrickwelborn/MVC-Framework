@@ -27,7 +27,7 @@ export default class Model extends Core {
 		}
 		content = $settings.content
 		this.#_schema = new Schema(schema)
-		this.#_content = new Content(content, this.#_schema)
+		this.#_content = new Content(content, this.#_schema, this)
 		this.events = $settings.events
 		if($options.enable === true) this.enableEvents(this.events)
 		if($options.freeze === true) Object.freeze(this)
@@ -108,6 +108,7 @@ export default class Model extends Core {
 		iteratePropEvents: for(
 			const $propEvent of $propEvents
 		) {
+			if($propEvent.enabled === true) continue iteratePropEvents
 			let prop = this.#_content
 			if(prop === undefined) break iteratePropEvents
 			const propEventTargetKeys = $propEvent.target.split('.')
@@ -149,6 +150,7 @@ export default class Model extends Core {
 			$propEvents = parseShortenedPropEvents($propEvents)
 		}
 		iteratePropEvents: for(const $propEvent of $propEvents) {
+			if($propEvent.enabled === false) continue iteratePropEvents
 			let prop = this.#_content
 			const propEventTargetKeys = $propEvent.target.split('.')
 			iteratePropEventTargetKeys: for(

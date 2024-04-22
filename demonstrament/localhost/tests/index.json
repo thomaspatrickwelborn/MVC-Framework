@@ -1,0 +1,44 @@
+{
+	"title": "MVC Framework",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+
+	"structure": [{
+		"tag": "h1",
+		"textContent": 	"MVC Framework"
+	}, {
+		"tag": "main",
+		"structure": [{
+			"tag": "h2",
+			"textContent": "MVC Framework Tests"
+		}, {
+			"tag": "ul",
+			"structure": [{
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./000"
+					},
+					"textContent": "MVC Framework Test 000"
+				}]
+			}, {
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./001"
+					},
+					"textContent": "MVC Framework Test 001"
+				}]
+			}]
+		}]
+	}],
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}

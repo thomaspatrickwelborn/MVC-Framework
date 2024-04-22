@@ -1,5 +1,5 @@
 {
-	"title": "MVC Framework 002 ",
+	"title": "MVC Framework 001",
 	"styles": [{
 		"rel": "stylesheet",
 		"type": "text/css",
@@ -8,11 +8,11 @@
 
 	"structure": [{
 		"tag": "h1",
-		"content": 	"MVC Framework 002"
+		"textContent": 	"MVC Framework 001"
 	}, {
-		"tag": "app",
+		"tag": "application",
 		"attributes": {
-			"id": "app"
+			"id": "application"
 		}
 	}],
 

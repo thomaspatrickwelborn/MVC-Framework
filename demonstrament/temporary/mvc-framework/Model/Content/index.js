@@ -195,20 +195,24 @@ export default class Content extends EventTarget {
 					} else {
 						contentVal = $val
 					}
-					context.dispatchEvent(new CustomEvent('set', {
+					const setEvent = new CustomEvent('set', {
+						bubbles: true,
 						detail: {
 							key: contentKey,
 							val: contentVal,
 							path: contentKey,
 						}
-					}))
-					context.dispatchEvent(new CustomEvent(`set:${contentKey}`, {
+					})
+					const setPropEvent = new CustomEvent(`set:${contentKey}`, {
+						bubbles: true,
 						detail: {
 							key: contentKey,
 							val: contentVal,
 							path: contentKey,
 						}
-					}))
+					})
+					context.dispatchEvent(setEvent)
+					context.dispatchEvent(setPropEvent)
 				}
 			}
 		})
@@ -222,20 +226,22 @@ export default class Content extends EventTarget {
 		contentVal.addEventListener('set', function($event) {
 			const path = [$event.detail.path]
 			path.unshift(contentKey)
-			context.dispatchEvent(new CustomEvent('set', {
+			const setEvent = new CustomEvent('set', {
 				detail: {
 					key: contentKey,
 					val: contentVal,
 					path: path.join('.')
 				}
-			}))
-			context.dispatchEvent(new CustomEvent(`set:${path.join('.')}`, {
+			})
+			const setPropEvent = new CustomEvent(`set:${path.join('.')}`, {
 				detail: {
 					key: contentKey,
 					val: contentVal,
 					path: path.join('.'),
 				}
-			}))
+			})
+			context.dispatchEvent(setEvent)
+			context.dispatchEvent(setPropEvent)
 		})
 		return contentVal
 	}
