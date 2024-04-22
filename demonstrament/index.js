@@ -7,9 +7,10 @@ import ejs from 'ejs'
 const router = Router({ strict: true })
 // Test Routes
 const testRoutePath = [
-	// 'mvc-framework/___'
+	// 'mvc-framework/___',
 	'mvc-framework/001',
 	'mvc-framework/002',
+	'mvc-framework/003',
 ]
 // Route Definitions
 for(const $testRoutePath of testRoutePath) {

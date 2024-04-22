@@ -1,0 +1,38 @@
+body {
+	background-color: steelblue;
+	width: 100%;
+	height: 100%;
+	h1 {
+		color: darkorange;
+	}
+}
+
+app {
+	width: 100%;
+	height: 100%;
+	& > header {
+		min-height: 4em;
+		width: 100%;
+		background-color: darkred;
+		& > menu[data-pan="ex"] {
+			ul {
+				display: default;
+			}
+		}
+		& > menu[data-pan="im"] {
+			ul {
+				display: none;
+			}
+		}
+	}
+	& > main {
+		min-height: 12em;
+		width: 100%;
+		background-color: antiquewhite;
+	}
+	& > footer {
+		min-height: 2em;
+		width: 100%;
+		background-color: darkblue;
+	}
+}

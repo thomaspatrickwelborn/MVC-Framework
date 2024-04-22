@@ -30,15 +30,15 @@ export default class View extends Core {
 		if($settings.element instanceof HTMLElement) {
 			// Static View
 			this.element = $settings.element
-			this.parent = $settings.element.parent
+			this.parentElement = $settings.element.parentElement
 			this.type = 'static'
 		} else if(
 			!$settings.element instanceof HTMLElement &&
-			$settings.parent instanceof HTMLElement
+			$settings.parentElement instanceof HTMLElement
 		) {
 			// Dynamic View (Parent)
 			this.element = document.createElement('template')
-			this.parent = this.settings.parent
+			this.parentElement = this.settings.parentElement
 			this.type = 'dynamic'
 		} else {
 			// Dynamic View (No Parent)
@@ -55,9 +55,9 @@ export default class View extends Core {
 	get type() { return this.#_type }
 	set type($type) { this.#_type = $type }
 	// Parent
-	#_parent
-	get parent() { return this.#_parent }
-	set parent($parent) { this.#_parent = $parent }
+	#_parentElement
+	get parentElement() { return this.#_parentElement }
+	set parentElement($parentElement) { this.#_parentElement = $parentElement }
 	// Element
 	#_element
 	get element() { return this.#_element }
@@ -144,21 +144,113 @@ export default class View extends Core {
 		}
 		return this
 	}
-	// Unrender
-	unrender() {
-		this.parent.replaceChildren()
+
+	// Enable Events
+	enableEvents($events) {
+		$events = $events || this.events
+		const $propName = 'selectors'
+		var $propEvents = $events
+		if(typeOf($propEvents) === 'object') {
+			$propEvents = parseShortenedPropEvents($propEvents)
+		}
+		iteratePropEvents: for(
+			const $propEvent of $propEvents
+		) {
+			let prop = this.#_querySelectors
+			if(prop === undefined) break iteratePropEvents
+			const propEventTargetKeys = $propEvent.target.split('.')
+			iteratePropEventTargetKeys: for(
+				const $propEventTargetKey of propEventTargetKeys
+			) {
+				if($propEventTargetKey === ':scope') {
+					continue iteratePropEventTargetKeys
+				}
+				prop = prop[$propEventTargetKey]
+			}
+			if(
+				prop instanceof EventTarget ||
+				prop instanceof NodeList
+			) {
+				if(prop instanceof NodeList) {
+					for(const $prop of prop) {
+						$prop.addEventListener(
+							$propEvent.name, 
+							$propEvent.callback,
+						)
+					}
+				} else {
+					prop.addEventListener(
+						$propEvent.name, 
+						$propEvent.callback,
+					)
+				}
+			}
+			$propEvent.enabled = true
+		}
 		return this
 	}
-	// Render
-	render(
+	// Disable Events
+	disableEvents($events) {
+		$events = $events || this.events
+		const $propName = 'selectors'
+		var $propEvents = $events
+		if(typeOf($propEvents) === 'object') {
+			$propEvents = parseShortenedPropEvents($propEvents)
+		}
+		iteratePropEvents: for(const $propEvent of $propEvents) {
+			let prop = this.#_querySelectors
+			const propEventTargetKeys = $propEvent.target.split('.')
+			iteratePropEventTargetKeys: for(
+				const $propEventTargetKey of propEventTargetKeys
+			) {
+				if($propEventTargetKey === ':scope') {
+					continue iteratePropEventTargetKeys
+				}
+				prop = prop[$propEventTargetKey]
+			}
+			if(
+				prop instanceof EventTarget ||
+				prop instanceof NodeList
+			) {
+				if(prop instanceof NodeList) {
+					for(const $prop of prop) {
+						$prop.removeEventListener(
+							$propEvent.name, 
+							$propEvent.callback,
+						)
+					}
+				} else if(prop instanceof EventTarget) {
+					prop.removeEventListener(
+						$propEvent.name, 
+						$propEvent.callback,
+					)
+				}
+			}
+			$propEvent.enabled = false
+		}
+		return this
+	}
+	enable() {
+		this.enableSelectors()
+		this.enableEvents()
+		return this
+	}
+	disable() {
+		this.disableSelectors()
+		this.disableEvents()
+		return this
+	}
+	// Render Element
+	renderElement(
 		$settings = RenderSettings, 
 		$options = RenderOptions,
 	) {
+		const element = this.element
+		if(!element instanceof HTMLTemplateElement) return this
 		const { name, data } = $settings
 		const {
 			enableSelectors, enableEvents,
 		}	= $options
-		const element = this.element
 		const template = this.templates[name]
 		if(
 			template !== undefined &&
@@ -169,20 +261,10 @@ export default class View extends Core {
 			element.innerHTML = templateContent
 			if(enableSelectors === true) this.enableSelectors()
 			if(enableEvents === true) this.enableEvents()
-			if(this.parent !== undefined) {
-				this.parent.replaceChildren(
-					...element.content.children
-				)
-			}
+			this.dispatchEvent(new CustomEvent('render', {
+				detail: this
+			}))
 			return this
 		}
-	}
-	enable() {
-		this.enableSelectors()
-		this.enableEvents()
-	}
-	disable() {
-		this.disableSelectors()
-		this.disableEvents()
 	}
 }

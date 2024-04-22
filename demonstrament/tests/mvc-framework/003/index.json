@@ -1,5 +1,5 @@
 {
-	"title": "MVC Framework 001",
+	"title": "MVC Framework - Views 003",
 	"styles": [{
 		"rel": "stylesheet",
 		"type": "text/css",
@@ -8,7 +8,7 @@
 
 	"structure": [{
 		"tag": "h1",
-		"textContent": 	"MVC Framework 001"
+		"textContent": 	"MVC Framework - Views 003"
 	}, {
 		"tag": "app",
 		"attributes": {
@@ -17,21 +17,18 @@
 		"structure": [{
 			"tag": "header",
 			"attributes": {
-				"class": "header"
-			},
-			"textContent": "HEADER"
+				"data-clicked": false
+			}
 		}, {
 			"tag": "main",
 			"attributes": {
-				"class": "main"
-			},
-			"textContent": "MAIN"
+				"data-clicked": false
+			}
 		}, {
 			"tag": "footer",
 			"attributes": {
-				"class": "footer"
-			},
-			"textContent": "FOOTER"
+				"data-clicked": false
+			}
 		}]
 	}],
 
