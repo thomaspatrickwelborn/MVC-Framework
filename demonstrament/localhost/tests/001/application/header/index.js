@@ -20,7 +20,7 @@ export default class Header extends Control {
 							},
 						}
 					}
-				})
+				}, { enable: true })
 			},
 			views: {
 				default: new View({
@@ -77,7 +77,7 @@ export default class Header extends Control {
 						menu: { pan }
 					})
 				},
-			} }
+			} },
 		})
 		this.views.default.renderElement({
 			name: 'default', 

@@ -4,12 +4,14 @@ import {
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import View from '../View/index.js'
+import StaticRouter from '../Router/index.js'
 
 const EventsSettings = () => {
 	return {
 		models: {},
 		views: {},
 		controls: {},
+		routers: {},
 	}
 }
 
@@ -17,6 +19,7 @@ const Settings = {
 	models: {},
 	views: {},
 	controls: {},
+	routers: {},
 	events: EventsSettings(),
 }
 export default class Control extends EventTarget {
@@ -27,7 +30,9 @@ export default class Control extends EventTarget {
 		this.models = $settings.models
 		this.views = $settings.views
 		this.controls = $settings.controls
+		this.routers = $settings.routers
 		this.events = $settings.events
+		if($options.enableEvents === true) this.enableEvents()
 	}
 	#_settings = {}
 	get settings() { return this.#_settings }
@@ -89,6 +94,22 @@ export default class Control extends EventTarget {
 			}
 		}
 	}
+	
+	#_routers = {}
+	get routers() { return this.#_routers }
+	set routers($routers = {}) {
+		// routers
+		for(const [
+			$routerName, $router
+		] of Object.entries($routers)) {
+			if($router instanceof StaticRouter) {
+				this.#_routers[$routerName] = $router
+			} else if(typeOf($router) === 'object') {
+				this.#_routers[$routerName] = new StaticRouter($router)
+			}
+		}
+	}
+
 	#_events = EventsSettings()
 	get events() { return this.#_events }
 	set events($events) { this.addEvents($events) }
@@ -97,6 +118,7 @@ export default class Control extends EventTarget {
 			models: Model,
 			views: View,
 			controls: Control,
+			routers: StaticRouter,
 		}
 		iterateClasses: for(const [
 			$className, $classInstances
@@ -141,6 +163,9 @@ export default class Control extends EventTarget {
 						case 'views': prop = this.#_views[$classInstanceName]
 						break
 						case 'controls': prop = this.#_controls[$classInstanceName]
+						break
+						case 'routers': prop = this.#_routers[$classInstanceName]
+						break
 					}
 					prop.addEvents([$propEvent], false)
 					events[$className][$classInstanceName] = events[$className][$classInstanceName] || []
@@ -172,6 +197,9 @@ export default class Control extends EventTarget {
 						case 'views': prop = this.#_views[$classInstanceName]
 						break
 						case 'controls': prop = this.#_controls[$classInstanceName]
+						break
+						case 'routers': prop = this.#_controls[$classInstanceName]
+						break
 					}
 					prop.removeEvents([$propEvent])
 					events[$className][$classInstanceName] = events[$className][$classInstanceName] || []
@@ -211,6 +239,9 @@ export default class Control extends EventTarget {
 						case 'views': prop = this.#_views[$classInstanceName]
 						break
 						case 'controls': prop = this.#_controls[$classInstanceName]
+						break
+						case 'routers': prop = this.#_routers[$classInstanceName]
+						break
 					}
 					if(
 						prop instanceof EventTarget ||
@@ -253,6 +284,9 @@ export default class Control extends EventTarget {
 						case 'views': prop = this.#_views[eventTargetClassInstanceName]
 						break
 						case 'controls': prop = this.#_controls[eventTargetClassInstanceName]
+						break
+						case 'routers': prop = this.#_routers[$classInstanceName]
+						break
 					}
 					if(
 						prop instanceof EventTarget ||
