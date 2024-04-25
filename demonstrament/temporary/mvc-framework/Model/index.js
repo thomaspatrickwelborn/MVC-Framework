@@ -1,5 +1,5 @@
 import {
-	typeOf, parseShortenedPropEvents
+	typeOf, parseShortenedEvents
 } from '../Utils/index.js'
 import Core from '../Core/index.js'
 import Schema from './Schema/index.js'
@@ -35,7 +35,7 @@ export default class Model extends Core {
 	// Get
 	get() { return this.#_content.get(...arguments) }
 	// Set
-	set() { return this.#_content.set(...arguments) }
+	set() { this.#_content.set(...arguments) }
 	// Unset
 	delete() { this.#_content.delete(...arguments) }
 	// Model Schema
@@ -65,7 +65,7 @@ export default class Model extends Core {
 	}
 	// Model Content
 	#_content
-	get content() { return this.#_content.toObject() }
+	get content() { return this.#_content }
 	// Model Schema/Content Add Props
 	addProps($content, $schema) {
 		if($schema !== undefined) {
@@ -95,91 +95,6 @@ export default class Model extends Core {
 		}
 		if($content !== undefined) {
 			this.#_content.removeProps($content)
-		}
-		return this
-	}
-	enableEvents($events) {
-		$events = $events || this.events
-		const $propName = 'content'
-		var $propEvents = $events
-		if(typeOf($propEvents) === 'object') {
-			$propEvents = parseShortenedPropEvents($propEvents)
-		}
-		iteratePropEvents: for(
-			const $propEvent of $propEvents
-		) {
-			if($propEvent.enabled === true) continue iteratePropEvents
-			let prop = this.#_content
-			if(prop === undefined) break iteratePropEvents
-			const propEventTargetKeys = $propEvent.target.split('.')
-			iteratePropEventTargetKeys: for(
-				const $propEventTargetKey of propEventTargetKeys
-			) {
-				if($propEventTargetKey === ':scope') {
-					continue iteratePropEventTargetKeys
-				}
-				prop = prop[$propEventTargetKey]
-			}
-			if(
-				prop instanceof EventTarget ||
-				prop instanceof NodeList
-			) {
-				if(prop instanceof NodeList) {
-					for(const $prop of prop) {
-						$prop.addEventListener(
-							$propEvent.name, 
-							$propEvent.callback,
-						)
-					}
-				} else {
-					prop.addEventListener(
-						$propEvent.name, 
-						$propEvent.callback,
-					)
-				}
-			}
-			$propEvent.enabled = true
-		}
-		return this
-	}
-	disableEvents($events) {
-		$events = $events || this.events
-		const $propName = 'content'
-		var $propEvents = $events
-		if(typeOf($propEvents) === 'object') {
-			$propEvents = parseShortenedPropEvents($propEvents)
-		}
-		iteratePropEvents: for(const $propEvent of $propEvents) {
-			if($propEvent.enabled === false) continue iteratePropEvents
-			let prop = this.#_content
-			const propEventTargetKeys = $propEvent.target.split('.')
-			iteratePropEventTargetKeys: for(
-				const $propEventTargetKey of propEventTargetKeys
-			) {
-				if($propEventTargetKey === ':scope') {
-					continue iteratePropEventTargetKeys
-				}
-				prop = prop[$propEventTargetKey]
-			}
-			if(
-				prop instanceof EventTarget ||
-				prop instanceof NodeList
-			) {
-				if(prop instanceof NodeList) {
-					for(const $prop of prop) {
-						$prop.removeEventListener(
-							$propEvent.name, 
-							$propEvent.callback,
-						)
-					}
-				} else if(prop instanceof EventTarget) {
-					prop.removeEventListener(
-						$propEvent.name, 
-						$propEvent.callback,
-					)
-				}
-			}
-			$propEvent.enabled = false
 		}
 		return this
 	}

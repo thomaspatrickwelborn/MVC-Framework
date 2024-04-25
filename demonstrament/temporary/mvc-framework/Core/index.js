@@ -1,6 +1,4 @@
-import {
-	typeOf, parseShortenedPropEvents
-} from '../Utils/index.js'
+import { typeOf, parseShortenedEvents } from '../Utils/index.js'
 
 export default class Core extends EventTarget {
 	constructor($settings = {}, $options = {}) {
@@ -29,55 +27,82 @@ export default class Core extends EventTarget {
 			_options[$optionKey] = $optionVal
 		}
 	}
-	#_events = []
+	#_events = {}
 	get events() { return this.#_events }
 	set events($events) { this.addEvents($events) }
 	addEvents($events = {}, $enable = false) {
 		const _events = this.#_events
-		const events = []
-		var $propEvents = $events
-		if(typeOf($propEvents) === 'object') {
-			$propEvents = parseShortenedPropEvents($propEvents)
-		}
-		iteratePropEvents: for(
-			const $propEvent of $propEvents
-		) {
-			$propEvent.enabled = false
-			_events.push($propEvent)
-			events.push($propEvent)
+		for(var [
+			$propPath, $propPathEvents
+		] of Object.entries($events)) {
+			$propPathEvents = parseShortenedEvents($propPathEvents)
+			_events[$propPath] = _events[$propPath] || []
+			_events[$propPath] = _events[$propPath].concat($propPathEvents)
 		}
 		if($enable === true) this.enableEvents($events)
 		return this
 	}
-	removeEvents($events = {}) {
+	removeEvents($events) {
+		$events = $events || this.events
 		const _events = this.#_events
-		const events = []
-		var $propEvents = $events
-		if(typeOf($propEvents) === 'object') {
-			$propEvents = parseShortenedPropEvents($propEvents)
-		}
-		const propEventsLength = $propEvents.length
-		var propEventsIndex = 0
-		while(propEventsIndex < propEventsLength) {
-			const propEvent = $propEvents[propEventsIndex]
-			const eventsLength = _events.length
-			var eventsIndex = eventsLength - 1
-			while(eventsIndex > -1) {
-				const _event = _events[eventsIndex]
-				if(
-					_event.name === propEvent.name &&
-					_event.target === propEvent.target &&
-					_event.callback === propEvent.callback
-				) {
-					events.push(
-						..._events.splice(eventsIndex, 1)
-					)
-				}
-				eventsIndex--
+		for(var [
+			$propPath, $propPathEvents
+		] of Object.entries($events)) {
+			$propPathEvents = parseShortenedEvents($propPathEvents)
+			for(const $propPathEvent of $propPathEvents) {
+				const removeEventIndex = _events[$propPath]
+				.findIndex(($event) => (
+						$event.type === $propPathEvent.type &&
+						$event.callback === $propPathEvent.callback
+					))
+				_events[$propPath].splice(removeEventIndex, 1)
 			}
-			propEventsIndex++
 		}
 		this.disableEvents($events)
+		return this
+	}
+	enableEvents($events) {
+		$events = $events || this.events
+		iteratePropPaths: for(var [
+			$propPath, $propEvents
+		] of Object.entries($events)) {
+			$propEvents = parseShortenedEvents($propEvents)
+			const prop = $propPath.split('.')
+			.reduce(($prop, $propPathFrag) => $prop[$propPathFrag], this)
+			iteratePropEvents: for(const $propEvent of $propEvents) {
+				if($propEvent.enabled === true) continue iteratePropEvents
+				if(prop instanceof NodeList) {
+					for(const $prop of prop) {
+						$prop.addEventListener($propEvent.type, $propEvent.callback)
+					}
+				} else if(prop instanceof EventTarget) {
+					prop.addEventListener($propEvent.type, $propEvent.callback)
+				}
+				$propEvent.enabled = true
+			}
+		}
+		return this
+	}
+	disableEvents($events) {
+		$events = $events || this.events
+		iteratePropPaths: for(var [
+			$propPath, $propEvents
+		] of Object.entries($events)) {
+			$propEvents = parseShortenedEvents($propEvents)
+			const prop = $propPath.split('.')
+			.reduce(($prop, $propPathFrag) => $prop[$propPathFrag], this)
+			iteratePropEvents: for(const $propEvent of $propEvents) {
+				if($propEvent.enabled === true) continue iteratePropEvents
+				if(prop instanceof NodeList) {
+					for(const $prop of prop) {
+						$prop.removeEventListener($propEvent.type, $propEvent.callback)
+					}
+				} else if(prop instanceof EventTarget) {
+					prop.removeEventListener($propEvent.type, $propEvent.callback)
+				}
+				$propEvent.enabled = true
+			}
+		}
 		return this
 	}
 }

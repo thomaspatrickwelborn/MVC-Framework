@@ -1,0 +1,23 @@
+{
+	"title": "MVC Framework 000",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+
+	"structure": [{
+		"tag": "h1",
+		"textContent": 	"MVC Framework 000"
+	}, {
+		"tag": "app",
+		"attributes": {
+			"id": "app"
+		}
+	}],
+
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}

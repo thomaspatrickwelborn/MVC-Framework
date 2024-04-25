@@ -33,6 +33,14 @@
 						"href": "./001"
 					},
 					"textContent": "MVC Framework Test 001"
+				}, {
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./002"
+					},
+					"textContent": "MVC Framework Test 002"
 				}]
 			}]
 		}]

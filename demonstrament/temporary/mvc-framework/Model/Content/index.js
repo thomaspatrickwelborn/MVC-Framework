@@ -8,9 +8,11 @@ export default class Content extends EventTarget {
 		this.#schema = $schema
 		this.addProps($content, $schema)
 	}
+	// Schema
 	#_schema
 	get #schema() { return this.#_schema }
 	set #schema($schema) { this.#_schema = $schema }
+	// Get
 	get() {
 		const context = this
 		const schema = this.#schema
@@ -34,6 +36,7 @@ export default class Content extends EventTarget {
 			break
 		}
 	}
+	// Set
 	set() {
 		var validate
 		var context = this
@@ -96,6 +99,7 @@ export default class Content extends EventTarget {
 		}
 		return this
 	}
+	// Delete
 	delete() {}
 	// Add Props
 	addProps($addProps, $schemaProps) {
@@ -195,14 +199,14 @@ export default class Content extends EventTarget {
 					} else {
 						contentVal = $val
 					}
-					const setEvent = new CustomEvent('set', {
-						bubbles: true,
-						detail: {
-							key: contentKey,
-							val: contentVal,
-							path: contentKey,
-						}
-					})
+					// const setEvent = new CustomEvent('set', {
+					// 	bubbles: true,
+					// 	detail: {
+					// 		key: contentKey,
+					// 		val: contentVal,
+					// 		path: contentKey,
+					// 	}
+					// })
 					const setPropEvent = new CustomEvent(`set:${contentKey}`, {
 						bubbles: true,
 						detail: {
@@ -211,8 +215,8 @@ export default class Content extends EventTarget {
 							path: contentKey,
 						}
 					})
-					context.dispatchEvent(setEvent)
-					context.dispatchEvent(setPropEvent)
+					// context.dispatchEvent(setEvent, context)
+					context.dispatchEvent(setPropEvent, context)
 				}
 			}
 		})
@@ -226,22 +230,24 @@ export default class Content extends EventTarget {
 		contentVal.addEventListener('set', function($event) {
 			const path = [$event.detail.path]
 			path.unshift(contentKey)
-			const setEvent = new CustomEvent('set', {
-				detail: {
-					key: contentKey,
-					val: contentVal,
-					path: path.join('.')
-				}
-			})
+			// const setEvent = new CustomEvent('set', {
+			// 	detail: {
+			// 		// key: contentKey,
+			// 		key: $event.detail.key,
+			// 		val: contentVal,
+			// 		path: path.join('.')
+			// 	}
+			// })
 			const setPropEvent = new CustomEvent(`set:${path.join('.')}`, {
 				detail: {
-					key: contentKey,
+					// key: contentKey,
+					key: $event.detail.key,
 					val: contentVal,
 					path: path.join('.'),
 				}
 			})
-			context.dispatchEvent(setEvent)
-			context.dispatchEvent(setPropEvent)
+			// context.dispatchEvent(setEvent, context)
+			context.dispatchEvent(setPropEvent, context)
 		})
 		return contentVal
 	}

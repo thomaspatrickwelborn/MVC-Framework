@@ -1,3 +1,4 @@
+import { typeOf, parseShortenedEvents } from '../Utils/index.js'
 import { Core } from '/mvc-framework/index.js'
 const Settings = {
 	routes: {},
@@ -16,7 +17,6 @@ export default class StaticRouter extends Core {
 	get route() { return this.#_route }
 	set route($route) {
 		this.#_route = $route
-		console.log(this.#_route)
 		this.dispatchEvent(new CustomEvent('routeChange', {
 			detail: $route
 		}))

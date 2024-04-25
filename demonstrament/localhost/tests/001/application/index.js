@@ -1,5 +1,6 @@
 import { Model, View, Control, StaticRouter } from '/mvc-framework/index.js'
 import Header from './header/index.js'
+import Main from './main/index.js'
 import {  } from '/mvc-framework/index.js'
 // const router = 
 export default class Application extends Control {
@@ -13,14 +14,14 @@ export default class Application extends Control {
 			},
 			controls: {
 				header: new Header(),
+				main: new Main(),
 			},
 			routers: {
 				default: new StaticRouter({
 					routes: {
 						'link-a': {
-							name: "Link C",
+							name: "Link A",
 							path: 'link-a',
-							class: "Main",
 							content: {
 								header: "SUBJECT A",
 								subheader: "SUBJECT A EXTENDED",
@@ -28,9 +29,8 @@ export default class Application extends Control {
 							}
 						},
 						'link-b': {
-							name: "Link C",
+							name: "Link B",
 							path: 'link-b',
-							class: "Main",
 							content: {
 								header: "SUBJECT B",
 								subheader: "SUBJECT B EXTENDED",
@@ -40,10 +40,9 @@ export default class Application extends Control {
 						'link-c': {
 							name: "Link C",
 							path: 'link-c',
-							class: "Main",
 							content: {
-								header: "SUBJECT B",
-								subheader: "SUBJECT B EXTENDED",
+								header: "SUBJECT C",
+								subheader: "SUBJECT C EXTENDED",
 								author: "SOME AUTHOR NAME",
 							}
 						},
@@ -54,13 +53,26 @@ export default class Application extends Control {
 		this.addEvents({
 			routers: {
 				default: {
-					'routeChange': ($event) => { console.log($event) }
+					'routeChange': ($event) => {
+						this.controls.main.routeChange($event.detail)
+					}
 				}
 			}
 		}, true)
-		console.log(this.events)
-		this.views.default.element.insertAdjacentElement(
-			'afterbegin', this.controls.header.views.default.element.content.firstElementChild
+		this.#defaultViewElement.replaceChildren(
+			this.#headerDefaultViewElement,
+			this.#mainDefaultViewElement,
 		)
+	}
+	get #defaultViewElement() {
+		return this.views.default.element
+	}
+	get #headerDefaultViewElement() {
+		return this.controls.header.views.default.element
+		.content.firstElementChild
+	}
+	get #mainDefaultViewElement() {
+		return this.controls.main.views.default.element
+		.content.firstElementChild
 	}
 }
