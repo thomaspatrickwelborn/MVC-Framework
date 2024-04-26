@@ -62,28 +62,20 @@ export default class Core extends EventTarget {
 		return this
 	}
 	enableEvents($events) {
-		$events = $events || this.events
-		iteratePropPaths: for(var [
-			$propPath, $propEvents
-		] of Object.entries($events)) {
-			$propEvents = parseShortenedEvents($propEvents)
-			const prop = $propPath.split('.')
-			.reduce(($prop, $propPathFrag) => $prop[$propPathFrag], this)
-			iteratePropEvents: for(const $propEvent of $propEvents) {
-				if($propEvent.enabled === true) continue iteratePropEvents
-				if(prop instanceof NodeList) {
-					for(const $prop of prop) {
-						$prop.addEventListener($propEvent.type, $propEvent.callback)
-					}
-				} else if(prop instanceof EventTarget) {
-					prop.addEventListener($propEvent.type, $propEvent.callback)
-				}
-				$propEvent.enabled = true
-			}
-		}
-		return this
+		return this.toggleEvents('addEventListener', $events)
 	}
 	disableEvents($events) {
+		return this.toggleEvents('removeEventListener', $events)
+	}
+	toggleEvents($eventListenerMethod, $events) {
+		const enability = (
+			$eventListenerMethod === 'addEventListener'
+		) ? true
+		  : (
+	  	$eventListenerMethod === 'removeEventListener'
+  	) ? false
+		  : undefined
+	  if(enability === undefined) return this
 		$events = $events || this.events
 		iteratePropPaths: for(var [
 			$propPath, $propEvents
@@ -92,15 +84,15 @@ export default class Core extends EventTarget {
 			const prop = $propPath.split('.')
 			.reduce(($prop, $propPathFrag) => $prop[$propPathFrag], this)
 			iteratePropEvents: for(const $propEvent of $propEvents) {
-				if($propEvent.enabled === true) continue iteratePropEvents
+				if($propEvent.enabled === enability) continue iteratePropEvents
 				if(prop instanceof NodeList) {
 					for(const $prop of prop) {
-						$prop.removeEventListener($propEvent.type, $propEvent.callback)
+						$prop[$eventListenerMethod]($propEvent.type, $propEvent.callback)
 					}
 				} else if(prop instanceof EventTarget) {
-					prop.removeEventListener($propEvent.type, $propEvent.callback)
+					prop[$eventListenerMethod]($propEvent.type, $propEvent.callback)
 				}
-				$propEvent.enabled = true
+				$propEvent.enabled = enability
 			}
 		}
 		return this

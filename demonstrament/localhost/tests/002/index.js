@@ -1,18 +1,24 @@
 import { Model, Control } from '/mvc-framework/index.js'
 
 function DOMContentLoaded($event) {
-	function setEventCallback($event) { console.log($event.detail) }
+	function setEventCallback($event) {
+		console.log($event.type, $event.detail)
+	}
+	function deleteEventCallback($event) {
+		console.log($event.type, $event.detail)
+		// console.log($event)
+	}
 	var control = new Control({
 		models: {
 			model: new Model({
 				content: {
 					aaa: 'aaa',
-					bbb: 'bbb',
-					ccc: 'ccc,',
+					bbb: 222,
+					ccc: false,
 					ddd: {
 						eee: 'eee',
-						fff: 'fff',
-						ggg: 'ggg,'
+						fff: 666,
+						ggg: true
 					},
 				},
 			})
@@ -20,21 +26,17 @@ function DOMContentLoaded($event) {
 		events: {
 			'models.model.content': {
 				'set': setEventCallback,
-				// 'set:aaa': setEventCallback,
-				// 'set:ddd.eee': setEventCallback
+				'delete': deleteEventCallback,
 			},
 		},
 	}, { enableEvents: true })
-	// control.models.model.set('aaa', 'AAAAAA')
-	control.models.model.set({
-		ddd: {}
-	})
-	// control.removeEvents({
-	// 	'models.model.content': {
-	// 		'set:aaa': setAAA
-	// 	}
-	// })
-	// control.models.model.set('aaa', 'aaaaaa')
+	const controlModel = control.models.model
+	controlModel.delete('aaa')
+	controlModel.delete('ddd.eee')
+	controlModel.set('aaa', 'AAA')
+	controlModel.set('ddd.eee', 'EEE')
 }
 
-document.addEventListener('DOMContentLoaded', DOMContentLoaded)
+document.addEventListener(
+	'DOMContentLoaded', DOMContentLoaded
+)

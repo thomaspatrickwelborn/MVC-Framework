@@ -52,55 +52,70 @@ export default class Content extends EventTarget {
 				] of Object.entries(
 					args[0]
 				)) {
-					const propKeyData = $propKey.split('.')
-					for(const $propKey of propKeyData) {
-						if(
-							context[$propKey] instanceof Content &&
-							typeOf($propVal) === 'object'
-						) {
-							context[$propKey].set($propVal)
-						} else {
-							validate = Validate({
-								schemaKey: $propKey,
-								schemaVal: schema[$propKey],
-								contentKey: $propKey,
-								contentVal: $propVal,
-							})
-							if(validate.type.valid === false) break
-							context[$propKey] = $propVal
-						}
-					}
+					this.set($propKey, $propVal)
 				}
 			}
 			break
 		case 2:
 			var propKey = args[0]
 			var propVal = args[1]
-			const propKeyData = propKey.split('.')
-			for(const $propKey of propKeyData) {
-				if(
-					context[$propKey] instanceof Content &&
-					typeOf(propVal) === 'object'
-				) {
-					context[$propKey].set(propVal)
-				} else {
-
-					validate = Validate({
-						schemaKey: $propKey,
-						schemaVal: schema[$propKey],
-						contentKey: $propKey,
-						contentVal: propVal,
-					})
-					if(validate.type.valid === false) break
-					context[$propKey] = propVal
-				}
-			}	
+			const propKeyFrags = propKey.split('.')
+			propKey = propKeyFrags.pop()
+			for(const $propKeyFrag of propKeyFrags) {
+				context = context[$propKeyFrag]
+				schema = schema[$propKeyFrag]
+			}
+			validate = Validate({
+				schemaKey: propKey,
+				schemaVal: schema[propKey],
+				contentKey: propKey,
+				contentVal: propVal,
+			})
+			if(validate.type.valid === false) break
+			context[propKey] = propVal
 			break
 		}
 		return this
 	}
 	// Delete
-	delete() {}
+	delete() {
+		const args = [...arguments]
+		var context = this
+		switch(typeOf(args[0])) {
+		case 'string':
+			const propKeyFrags = args[0].split('.')
+			const propKey = propKeyFrags.pop()
+			for(const $propKeyFrag of propKeyFrags) {
+				context = context[$propKeyFrag]
+			}
+			if(context === undefined) break
+			context[propKey] = undefined
+			const deleteEvent = new CustomEvent('delete', {
+				detail: {
+					key: propKey,
+					path: propKey,
+				}
+			})
+			const deletePropEvent = new CustomEvent(`delete:${propKey}`, {
+				detail: {
+					key: propKey,
+					path: propKey,
+				}
+			})
+			context.dispatchEvent(deleteEvent, context)
+			context.dispatchEvent(deletePropEvent, context)
+			break
+		case 'array':
+			const propKeys = args[0]
+			for(const $propKey of propKeys) {
+				this.delete($propKey)
+			}
+			break
+		case 'undefined':
+			this.delete(Object.keys(this.toObject()))
+			break
+		}
+	}
 	// Add Props
 	addProps($addProps, $schemaProps) {
 		$schemaProps = $schemaProps || this.#schema
@@ -123,13 +138,13 @@ export default class Content extends EventTarget {
 			let typeOfSchemaVal = validate.type.schemaVal
 			if(typeOfContentVal === 'object') {
 				contentVal = new Content($contentVal, schemaVal)
-				contentVal = this.enableSetContentValEventListener({
+				contentVal = this.#enableSetContentValEventListener({
 					context, contentKey, contentVal,
 				})
 			} else {
 				contentVal = $contentVal
 			}
-			context = this.defineProps({
+			context = this.#defineProps({
 				context, 
 				schemaKey, 
 				schemaVal, 
@@ -140,28 +155,34 @@ export default class Content extends EventTarget {
 		return this
 	}
 	// Remove Props
-	removeProps($removeProps, $content) {
-		$removeProps = $removeProps || this
-		$content = $content || this
-		iterateRemoveProps: for(const [
-			$removePropKey, $removePropVal
-		] of Object.entries($removeProps)) {
-			if(typeOf($removePropVal) === 'object') {
-				if(
-					$content[$removePropKey] instanceof Schema
-				) {
-					$content[$removePropKey].removeProps(
-						$removePropVal, $content[$removePropKey]
-					)
-				}
-			} else {
-				delete $content[$removePropKey]
+	removeProps() {
+		const args = [...arguments]
+		var context = this
+		var schema = this.#_schema
+		switch(typeOf(args[0])) {
+		case 'string':
+			const propKeyFrags = args[0].split('.')
+			const propKey = propKeyFrags.pop()
+			for(const $propKeyFrag of propKeyFrags) {
+				context = context[$propKeyFrag]
+				schema = context[$propKeyFrag]
 			}
+			if(context !== undefined) delete context[propKey]
+			if(schema !== undefined) delete schema[propKey]
+			break
+		case 'array':
+			const propKeys = args[0]
+			for(const $propKey of propKeys) {
+				this.delete($propKey)
+			}
+			break
+		case 'undefined':
+			this.delete(Object.keys(this.toObject()))
+			break
 		}
-		return this
 	}
 	// Define Props
-	defineProps($settings) {
+	#defineProps($settings) {
 		let {
 			context,
 			contentKey,
@@ -174,6 +195,10 @@ export default class Content extends EventTarget {
 				configurable: true,
 				get() { return contentVal },
 				set($val) {
+					if(typeOf($val) === 'undefined') {
+						contentVal = undefined
+						return
+					}
 					const validate = Validate({
 						contentKey, 
 						contentVal: $val,
@@ -192,30 +217,28 @@ export default class Content extends EventTarget {
 							}
 						} else {
 							contentVal = new Content($val, schemaVal)
-							contentVal = this.enableSetContentValEventListener({
+							contentVal = this.#enableSetContentValEventListener({
 								context, contentKey, contentVal,
 							})
 						}
 					} else {
 						contentVal = $val
 					}
-					// const setEvent = new CustomEvent('set', {
-					// 	bubbles: true,
-					// 	detail: {
-					// 		key: contentKey,
-					// 		val: contentVal,
-					// 		path: contentKey,
-					// 	}
-					// })
-					const setPropEvent = new CustomEvent(`set:${contentKey}`, {
-						bubbles: true,
+					const setEvent = new CustomEvent('set', {
 						detail: {
 							key: contentKey,
 							val: contentVal,
 							path: contentKey,
 						}
 					})
-					// context.dispatchEvent(setEvent, context)
+					const setPropEvent = new CustomEvent(`set:${contentKey}`, {
+						detail: {
+							key: contentKey,
+							val: contentVal,
+							path: contentKey,
+						}
+					})
+					context.dispatchEvent(setEvent, context)
 					context.dispatchEvent(setPropEvent, context)
 				}
 			}
@@ -223,30 +246,46 @@ export default class Content extends EventTarget {
 		return context
 	}
 	// Enable SetContentValEventListener
-	enableSetContentValEventListener($settings) {
+	#enableSetContentValEventListener($settings) {
 		const {
 			context, contentKey, contentVal,
 		} = $settings
+		contentVal.addEventListener('delete', function($event) {
+			const path = [$event.detail.path]
+			path.unshift(contentKey)
+			const deleteEvent = new CustomEvent('delete', {
+				detail: {
+					key: $event.detail.key,
+					path: path.join('.'),
+				},
+			})
+			const deletePropEvent = new CustomEvent(`delete:${path.join('.')}`, {
+				detail: {
+					key: $event.detail.key,
+					path: path.join('.'),
+				},
+			})
+			context.dispatchEvent(deleteEvent, context)
+			context.dispatchEvent(deletePropEvent, context)
+		})
 		contentVal.addEventListener('set', function($event) {
 			const path = [$event.detail.path]
 			path.unshift(contentKey)
-			// const setEvent = new CustomEvent('set', {
-			// 	detail: {
-			// 		// key: contentKey,
-			// 		key: $event.detail.key,
-			// 		val: contentVal,
-			// 		path: path.join('.')
-			// 	}
-			// })
-			const setPropEvent = new CustomEvent(`set:${path.join('.')}`, {
+			const setEvent = new CustomEvent('set', {
 				detail: {
-					// key: contentKey,
 					key: $event.detail.key,
-					val: contentVal,
+					val: $event.detail.val,
 					path: path.join('.'),
 				}
 			})
-			// context.dispatchEvent(setEvent, context)
+			const setPropEvent = new CustomEvent(`set:${path.join('.')}`, {
+				detail: {
+					key: $event.detail.key,
+					val: $event.detail.val,
+					path: path.join('.'),
+				}
+			})
+			context.dispatchEvent(setEvent, context)
 			context.dispatchEvent(setPropEvent, context)
 		})
 		return contentVal

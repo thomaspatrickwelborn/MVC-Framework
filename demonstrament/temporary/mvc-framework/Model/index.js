@@ -68,35 +68,50 @@ export default class Model extends Core {
 	get content() { return this.#_content }
 	// Model Schema/Content Add Props
 	addProps($content, $schema) {
-		if($schema !== undefined) {
-			this.#_schema.addProps($schema)
-		} else if(
-			$schema === undefined &&
-			$content !== undefined
-		) {
-			this.#_schema.addProps(
-				this.#inferSchemaFromContent($content)
-			)
-		}
-		if($content !== undefined) {
-			this.#_content.addProps($content, this.#_schema)
-		}
-		return this
+		return this.#toggleProps('addProps', ...arguments)
 	}
 	// Model Schema/Content Remove Props
 	removeProps($content, $schema) {
+		return this.#toggleProps('removeProps', ...arguments)
+	}
+	// Model Schema/Content Toggle Props
+	#toggleProps($toggleMethod, $content, $schema) {
 		if($schema !== undefined) {
-			this.#_schema.removeProps($schema)
+			switch($toggleMethod) {
+			case 'addProps': 
+				this.#_schema.addProps($schema)
+				break
+				case 'removeProps':
+				this.#_schema.removeProps($schema)
+				break
+			}
 		} else if(
 			$schema === undefined &&
 			$content !== undefined
 		) {
-			this.#_schema.removeProps($content)
+			switch($toggleMethod) {
+			case 'addProps': 
+				this.#_schema.addProps(
+					this.#inferSchemaFromContent($content)
+				)
+				break
+			case 'removeProps':
+				this.#_schema.removeProps($content)
+				break
+			}
 		}
 		if($content !== undefined) {
-			this.#_content.removeProps($content)
+			switch($toggleMethod) {
+			case 'addProps': 
+				this.#_content.addProps($content, this.#_schema)
+				break
+			case 'removeProps':
+				this.#_content.removeProps($content)
+				break
+			}
 		}
 		return this
 	}
+	// To Object
 	toObject() { return this.#_content.toObject() }
 }
