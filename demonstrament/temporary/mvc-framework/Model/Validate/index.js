@@ -20,11 +20,12 @@ export default function Validate($settings = {}) {
 	  	contentVal === undefined
   	) ? 'undefined'
 	    : typeOf(contentVal)
+  const typeValid = (typeOfSchemaVal === typeOfContentVal)
 	return {
 		type: {
 			schemaVal: typeOfSchemaVal,
 			contentVal: typeOfContentVal,
-			valid: (typeOfSchemaVal === typeOfContentVal),
+			valid: typeValid,
 		},
 	}
 }

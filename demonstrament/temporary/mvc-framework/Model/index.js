@@ -4,6 +4,7 @@ import {
 import Core from '../Core/index.js'
 import Schema from './Schema/index.js'
 import Content from './Content/index.js'
+import ArrayContent from './Content/ArrayContent.js'
 
 export default class Model extends Core {
 	constructor($settings = {
@@ -78,36 +79,36 @@ export default class Model extends Core {
 	#toggleProps($toggleMethod, $content, $schema) {
 		if($schema !== undefined) {
 			switch($toggleMethod) {
-			case 'addProps': 
-				this.#_schema.addProps($schema)
-				break
-				case 'removeProps':
-				this.#_schema.removeProps($schema)
-				break
+				case 'addProps': 
+					this.#_schema.addProps($schema)
+					break
+					case 'removeProps':
+					this.#_schema.removeProps($schema)
+					break
 			}
 		} else if(
 			$schema === undefined &&
 			$content !== undefined
 		) {
 			switch($toggleMethod) {
-			case 'addProps': 
-				this.#_schema.addProps(
-					this.#inferSchemaFromContent($content)
-				)
-				break
-			case 'removeProps':
-				this.#_schema.removeProps($content)
-				break
+				case 'addProps': 
+					this.#_schema.addProps(
+						this.#inferSchemaFromContent($content)
+					)
+					break
+				case 'removeProps':
+					this.#_schema.removeProps($content)
+					break
 			}
 		}
 		if($content !== undefined) {
 			switch($toggleMethod) {
-			case 'addProps': 
-				this.#_content.addProps($content, this.#_schema)
-				break
-			case 'removeProps':
-				this.#_content.removeProps($content)
-				break
+				case 'addProps': 
+					this.#_content.addProps($content, this.#_schema)
+					break
+				case 'removeProps':
+					this.#_content.removeProps($content)
+					break
 			}
 		}
 		return this

@@ -1,40 +1,39 @@
-import { Model, Control } from '/mvc-framework/index.js'
+import Schema from '/mvc-framework/Model/Schema/index.js'
 
 function DOMContentLoaded($event) {
-	function setEventCallback($event) {
-		console.log($event.type, $event.detail)
-	}
-	function deleteEventCallback($event) {
-		console.log($event.type, $event.detail)
-		// console.log($event)
-	}
-	var control = new Control({
-		models: {
-			model: new Model({
-				content: {
-					aaa: 'aaa',
-					bbb: 222,
-					ccc: false,
-					ddd: {
-						eee: 'eee',
-						fff: 666,
-						ggg: true
-					},
-				},
-			})
-		},
-		events: {
-			'models.model.content': {
-				'set': setEventCallback,
-				'delete': deleteEventCallback,
-			},
-		},
-	}, { enableEvents: true })
-	const controlModel = control.models.model
-	controlModel.delete('aaa')
-	controlModel.delete('ddd.eee')
-	controlModel.set('aaa', 'AAA')
-	controlModel.set('ddd.eee', 'EEE')
+	const schema = new Schema({
+		aaa: Array,
+		bbb: [{
+			ccc: String,
+			ddd: Number,
+			eee: Boolean,
+		}]
+	})
+	// schema.removeProps({
+	// 	bbb: [{
+	// 		ccc: String,
+	// 		ddd: Number,
+	// 		eee: Boolean,
+	// 	}]
+	// })
+	schema.removeProps([
+		'bbb.0'
+	])
+	console.log(schema)
+	schema.removeProps(['bbb'])
+	console.log(schema)
+	schema.addProps({
+		bbb: []
+	})
+	console.log(schema)
+	schema.addProps({
+		bbb: [{
+			ccc: String,
+			ddd: Number,
+			eee: Boolean,
+		}]
+	})
+	console.log(schema)
 }
 
 document.addEventListener(

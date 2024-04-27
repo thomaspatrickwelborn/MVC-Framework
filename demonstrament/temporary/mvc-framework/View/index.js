@@ -108,6 +108,12 @@ export default class View extends Core {
 		}
 		return this
 	}
+	// Enable
+	enable() {
+		this.enableSelectors()
+		this.enableEvents()
+		return this
+	}
 	// Enable  Selectors
 	enableSelectors($selectors) {
 		$selectors = (
@@ -128,6 +134,12 @@ export default class View extends Core {
 		}
 		return this
 	}
+	// Disable
+	disable() {
+		this.disableSelectors()
+		this.disableEvents()
+		return this
+	}
 	// Disable Selectors
 	disableSelectors($selectors) {
 		$selectors = (
@@ -140,16 +152,6 @@ export default class View extends Core {
 		] of Object.entries($selectors)) {
 			delete querySelectors[$selectorName]
 		}
-		return this
-	}
-	enable() {
-		this.enableSelectors()
-		this.enableEvents()
-		return this
-	}
-	disable() {
-		this.disableSelectors()
-		this.disableEvents()
 		return this
 	}
 	// Render Element
