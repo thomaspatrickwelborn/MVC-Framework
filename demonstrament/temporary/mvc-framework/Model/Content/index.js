@@ -22,12 +22,13 @@ export default class Content extends EventTarget {
 			return this.toObject()
 			break
 		case 1:
-			const propKey = args[0]
+			const propPath = args[0].split('.')
+			const propKey = propPath.pop()
 			var propVal = context
-			const propKeyData = propKey.split('.')
-			for(const $propKey of propKeyData) {
-				propVal = propVal[$propKey]
+			for(const $propPathFrag of propPath) {
+				propVal = propVal[$propPathFrag]
 			}
+			propVal = propKey[propKey]
 			if(propVal instanceof Content) {
 				return propVal.toObject()
 			} else {

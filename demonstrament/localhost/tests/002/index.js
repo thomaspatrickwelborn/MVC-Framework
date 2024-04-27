@@ -1,4 +1,5 @@
 import Schema from '/mvc-framework/Model/Schema/index.js'
+import Content from '/mvc-framework/Model/Content/index.js'
 
 function DOMContentLoaded($event) {
 	const schema = new Schema({
@@ -9,31 +10,19 @@ function DOMContentLoaded($event) {
 			eee: Boolean,
 		}]
 	})
-	// schema.removeProps({
+	console.log(schema)
+	// const content = new Content({
+	// 	aaa: [1, 2, 3, 4, 5],
 	// 	bbb: [{
-	// 		ccc: String,
-	// 		ddd: Number,
-	// 		eee: Boolean,
+	// 		ccc: 'CCC',
+	// 		ddd: 444,
+	// 		eee: false
+	// 	}, {
+	// 		ccc: 'CCCCCC',
+	// 		ddd: 444444,
+	// 		eee: true
 	// 	}]
-	// })
-	schema.removeProps([
-		'bbb.0'
-	])
-	console.log(schema)
-	schema.removeProps(['bbb'])
-	console.log(schema)
-	schema.addProps({
-		bbb: []
-	})
-	console.log(schema)
-	schema.addProps({
-		bbb: [{
-			ccc: String,
-			ddd: Number,
-			eee: Boolean,
-		}]
-	})
-	console.log(schema)
+	// }, schema)
 }
 
 document.addEventListener(

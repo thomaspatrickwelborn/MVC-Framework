@@ -8,29 +8,28 @@ export default class Schema extends EventTarget {
 	}
 	addProps($addProps) {
 		$addProps = $addProps || {}
-		$schema = $schema || this
 		iterateProps: for(const [
 			$addPropKey, $addPropVal
 		] of Object.entries($addProps)) {
 			const typeOfAddPropVal = typeOf($addPropVal)
 			if(typeOfAddPropVal === 'object') {
-				if($schema[$addPropKey] instanceof Schema) {
-					$schema[$addPropKey].addProps($addPropVal)
+				if(this[$addPropKey] instanceof Schema) {
+					this[$addPropKey].addProps($addPropVal)
 				} else {
-					$schema[$addPropKey] = new Schema($addPropVal)
+					this[$addPropKey] = new Schema($addPropVal)
 				}
 			} else if(typeOfAddPropVal === 'array') {
-				$schema[$addPropKey] = $schema[$addPropKey] || []
+				this[$addPropKey] = this[$addPropKey] || []
 				for(const $addPropArrayItem of $addPropVal) {
 					if($addPropArrayItem instanceof Schema) {
 						if(arrayIncludesObject(
-							$schema[$addPropKey], $addPropArrayItem
-						) === false) $schema[$addPropKey]
+							this[$addPropKey], $addPropArrayItem
+						) === false) this[$addPropKey]
 						.push($addPropArrayItem)
 					} else if(typeOf($addPropArrayItem) === 'object') {
 						if(arrayIncludesObject(
-							$schema[$addPropKey], $addPropArrayItem
-						) === false) $schema[$addPropKey]
+							this[$addPropKey], $addPropArrayItem
+						) === false) this[$addPropKey]
 						.push(new Schema($addPropArrayItem))
 					}
 				}
@@ -40,7 +39,7 @@ export default class Schema extends EventTarget {
 				$addPropVal === Boolean ||
 				$addPropVal === Array
 			) {
-				$schema[$addPropKey] = $addPropVal
+				this[$addPropKey] = $addPropVal
 			}
 		}
 		return this
