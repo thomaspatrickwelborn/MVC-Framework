@@ -1,28 +1,53 @@
 import Schema from '/mvc-framework/Model/Schema/index.js'
+import SchemaArray from '/mvc-framework/Model/Schema/SchemaArray/index.js'
+// import PrimitiveArray from '/mvc-framework/Model/Schema/PrimitiveArray/index.js'
 import Content from '/mvc-framework/Model/Content/index.js'
 
 function DOMContentLoaded($event) {
-	const schema = new Schema({
-		aaa: Array,
-		bbb: [{
-			ccc: String,
-			ddd: Number,
-			eee: Boolean,
-		}]
+	const SchemaA = new Schema({
+		aaa: String,
+		bbb: Number,
+		ccc: Boolean,
 	})
-	console.log(schema)
-	// const content = new Content({
-	// 	aaa: [1, 2, 3, 4, 5],
-	// 	bbb: [{
-	// 		ccc: 'CCC',
-	// 		ddd: 444,
-	// 		eee: false
-	// 	}, {
-	// 		ccc: 'CCCCCC',
-	// 		ddd: 444444,
-	// 		eee: true
-	// 	}]
-	// }, schema)
+	const SchemaB = new Schema({
+		ddd: String,
+		eee: Number,
+		fff: Boolean,
+	})
+	const schema = new Schema({
+		ggg: new SchemaArray({
+			SchemaA,
+			SchemaB,
+		}),
+		hhh: new SchemaArray({
+			String, 
+			Number, 
+			Boolean
+		}),
+		iii: String,
+		jjj: Number,
+		kkk: Boolean,
+	})
+	console.log(schema.iii)
+	schema.removeProps('iii')
+	console.log(schema.iii)
+	console.log(schema.ggg)
+	schema.ggg.removeProps({
+		SchemaA
+	})
+	console.log(schema.ggg)
+	// console.log('-----')
+	// console.log(schema.kkk)
+	// schema.removeProps('kkk')
+	// console.log(schema.kkk)
+	// console.log('-----')
+	// console.log(schema.hhh)
+	// schema.hhh.removeProps({ Boolean })
+	// console.log(schema.hhh)
+	// console.log(schema.ggg)
+	// schema.ggg.removeProps({ SchemaB })
+	// console.log(schema.ggg)
+
 }
 
 document.addEventListener(

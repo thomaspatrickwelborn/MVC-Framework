@@ -1,76 +1,55 @@
-import { typeOf, parsePropFrag } from '../../Utils/index.js'
+import { typeOf, parsePropFrag, propFromPropPath } from '../../Utils/index.js'
 import arrayIncludesObject from './arrayIncludesObject.js'
+import SchemaArray from './SchemaArray/index.js'
 
 export default class Schema extends EventTarget {
 	constructor($props = {}) {
 		super()
 		this.addProps($props)
 	}
-	addProps($addProps) {
-		$addProps = $addProps || {}
-		iterateProps: for(const [
-			$addPropKey, $addPropVal
-		] of Object.entries($addProps)) {
-			const typeOfAddPropVal = typeOf($addPropVal)
-			if(typeOfAddPropVal === 'object') {
-				if(this[$addPropKey] instanceof Schema) {
-					this[$addPropKey].addProps($addPropVal)
-				} else {
-					this[$addPropKey] = new Schema($addPropVal)
+	#validProps = [
+		String, Number, Boolean, Array, Object, 
+		Schema, SchemaArray,
+	]
+	addProps() {
+		const props = arguments[0] || {}
+		iterateProps: for(var [
+			$propKey, $propVal
+		] of Object.entries(props)) {
+			var { propKey, context } = propFromPropPath(this, $propKey)
+			// Valid Props Includes Prop Val
+			for(const $validProp of this.#validProps) {
+				if(
+					$propVal === $validProp ||
+					$propVal instanceof $validProp
+				) {
+					context[propKey] = $propVal
 				}
-			} else if(typeOfAddPropVal === 'array') {
-				this[$addPropKey] = this[$addPropKey] || []
-				for(const $addPropArrayItem of $addPropVal) {
-					if($addPropArrayItem instanceof Schema) {
-						if(arrayIncludesObject(
-							this[$addPropKey], $addPropArrayItem
-						) === false) this[$addPropKey]
-						.push($addPropArrayItem)
-					} else if(typeOf($addPropArrayItem) === 'object') {
-						if(arrayIncludesObject(
-							this[$addPropKey], $addPropArrayItem
-						) === false) this[$addPropKey]
-						.push(new Schema($addPropArrayItem))
-					}
-				}
-			} else if(
-				$addPropVal === String ||
-				$addPropVal === Number ||
-				$addPropVal === Boolean ||
-				$addPropVal === Array
-			) {
-				this[$addPropKey] = $addPropVal
 			}
 		}
 		return this
 	}
-	removeProps($removeProps) {
-		const args = [...arguments]
-		var context = this
-		switch(typeOf(args[0])) {
+	removeProps() {
+		const props = arguments[0] || Object.keys(this.toObject())
+		// Switch Type Of Props 
+		switch(typeOf(props)) {
 		case 'string':
-			const removePropPath = args[0].split('.')
-			const removePropKey = parsePropFrag(removePropPath.pop())
-			const typeOfRemovePropKey = typeOf(removePropKey)
-			for(var $removePropPathFrag of removePropPath) {
-				$removePropPathFrag = parsePropFrag($removePropPathFrag)
-				context = context[$removePropPathFrag]
-			}
-			if(typeOfRemovePropKey === 'string') {
-				delete context[removePropKey]
-			} else if(typeOfRemovePropKey === 'number') {
-				context.splice(removePropKey, 1)
+			var propPath = props
+			var { propKey, context } = propFromPropPath(this, propPath)
+			const typeOfPropKey = typeOf(propKey)
+			if(typeOfPropKey === 'string') {
+				delete context[propKey]
 			}
 			break
 		case 'array':
-			for(const $removePropPathFrag of $removeProps) {
-				this.removeProps($removePropPathFrag)
+			for(const $propPath of props) {
+				this.removeProps($propPath)
 			}
 			break
-		case 'undefined':
-			$removeProps = this.removeProps(
-				Object.keys(this.toObject())
-			)
+		case 'object':
+			for(const $propPath of Object.keys(props)) {
+				this.removeProps($propPath)
+			}
 			break
 		}
 		return this

@@ -142,7 +142,36 @@ export default class Content extends EventTarget {
 				contentVal = this.#enableSetContentValEventListener({
 					context, contentKey, contentVal,
 				})
-			} else {
+			} else if(typeOfContentVal === 'array') {
+				let contentValItemIndex = 0
+				iterateContentValItems: for(
+					const $contentValItem of contentVal
+				) {
+					console.log('-----')
+					console.log('$contentValItem', $contentValItem)
+					if(typeOfSchemaVal === 'array') {
+						iterateSchemaValItems: for(
+							const $schemaValItem of schemaVal
+						) {
+							const validateArrayItem = Validate({
+								schemaKey, schemaVal: $schemaValItem,
+								contentKey, contentVal: $contentValItem
+							})
+							if(validateArrayItem.type.valid === false) {
+								continue iterateContentValItems
+							}
+							console.log($contentValItem, $schemaValItem)
+							contentVal[contentValItemIndex] = new Content(
+								$contentValItem, $schemaValItem
+							)
+						}
+					}
+					contentValItemIndex++
+				}
+			} else if(schemaVal === Array) {
+				// console.log(schemaKey, schemaVal)
+				// console.log(contentKey, contentVal)
+			} else{
 				contentVal = $contentVal
 			}
 			context = this.#defineProps({

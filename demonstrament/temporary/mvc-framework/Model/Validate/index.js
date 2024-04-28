@@ -10,6 +10,9 @@ export default function Validate($settings = {}) {
 		schemaVal instanceof Schema
 	) ? 'object'
 	  : (
+	  	typeOf(schemaVal) === 'array' 
+  	) ? 'array'
+  	  : (
 	  	schemaVal === undefined
   	) ? 'undefined'
   	  : typeOf(schemaVal())
