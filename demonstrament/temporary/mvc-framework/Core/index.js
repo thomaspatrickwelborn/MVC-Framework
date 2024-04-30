@@ -1,8 +1,11 @@
 import { typeOf, parseShortenedEvents } from '../Utils/index.js'
+import DynamicEventTarget from './DynamicEventTarget/index.js'
+const Settings = {}
+const Options = { eventTargetRoot: {} }
 
-export default class Core extends EventTarget {
-	constructor($settings = {}, $options = {}) {
-		super()
+export default class Core extends DynamicEventTarget {
+	constructor($settings = Settings, $options = Options) {
+		super($options.eventTargetRoot)
 		this.options = $options
 		this.settings = $settings
 		this.events = $settings.events
