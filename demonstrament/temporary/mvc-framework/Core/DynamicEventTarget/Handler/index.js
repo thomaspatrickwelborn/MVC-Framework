@@ -2,76 +2,73 @@ import ObjectTrap from './ObjectTrap/index.js'
 import ArrayTrap from './ArrayTrap/index.js'
 const EventTargetClassPropertyNames = Object.getOwnPropertyNames(EventTarget.prototype)
 const ArrayClassPropertyNames = Object.getOwnPropertyNames(Array.prototype)
+const MapClassPropertyNames = Object.getOwnPropertyNames(Map.prototype)
 const ObjectClassPropertyNames = Object.getOwnPropertyNames(Object.prototype)
-const DynamicEventTargetNames = ['get', 'set', 'deleteProperty', 'toObject']
+const DynamicEventTargetNames = ['get', 'set', 'delete', 'toObject']
 
 export default class Handler {
   constructor($aliases) {
     this.#aliases = $aliases
     this.#objectTrap = new ObjectTrap(this.#aliases)
-    console.log(this.#objectTrap)
+    this.#arrayTrap = new ArrayTrap(this.#aliases)
   }
   #aliases
   #objectTrap
+  #arrayTrap
   // Get
-  get #get() {
-    /*
-    const { $this, $root, $rootAlias } = this.#aliases
+  get get() {
+    const { $eventTarget, $root, $rootAlias } = this.#aliases
     const RootClassPropertyNames = Object.getOwnPropertyNames(
       $root.constructor.prototype
     )
     return function get($target, $property, $receiver) {
       // Root Properties (Object Instance, Array Instance)
-      if($property === $rootAlias) return $this.#root
+      if($property === $rootAlias) return $root
       // Event Target Class Properties
       if(
         EventTargetClassPropertyNames.includes($property)
       ) {
-        if(typeof $this[$property] === 'function') {
-          return $this[$property].bind($this)
+        if(typeof $eventTarget[$property] === 'function') {
+          return $eventTarget[$property].bind($eventTarget)
         }
-        return $this[$property]
+        return $eventTarget[$property]
       }
+      // Object Class Properties (Use Map Class Property Names)
+      // After initial implementation differentiate between 
+      // Map and Object Class Property Names
       if(
-        DynamicEventTargetNames.includes($property)
+        MapClassPropertyNames.includes($property)
       ) {
         // Object Get
-        if($property === 'get') return $this.#get(...arguments)
+        if($property === 'get') return this.#objectTrap.get(...arguments)
         // Object Set
-        if($property === 'set') return $this.#set(...arguments)
+        if($property === 'set') return this.#objectTrap.set(...arguments)
         // Object DeleteProperty
-        if($property === 'deleteProperty') return $this.#deleteProperty(...arguments)
+        if($property === 'delete') return this.#objectTrap.delete(...arguments)
         // Object To Object
-        if($property === 'toObject') return $this.#toObject(...arguments)
+        if($property === 'toObject') return this.#objectTrap.toObject(...arguments)
       }
-      // Root Class Properties
-      if(RootClassPropertyNames.includes($property)) {
+      // Array Class Properties
+      if(ArrayClassPropertyNames.includes($property)) {
         // Array Splice
-        if($property === 'splice') return $this.#splice(...arguments)
+        if($property === 'splice') return this.#arrayTrap.splice(...arguments)
         // Array Pop
-        if($property === 'pop') return $this.#pop(...arguments)
+        if($property === 'pop') return this.#arrayTrap.pop(...arguments)
         // Array Shift
-        if($property === 'shift') return $this.#shift(...arguments)
+        if($property === 'shift') return this.#arrayTrap.shift(...arguments)
         // Array Unshift
-        if($property === 'unshift') return $this.#unshift(...arguments)
+        if($property === 'unshift') return this.#arrayTrap.unshift(...arguments)
         // Array Push
-        if($property === 'push') return $this.#push(...arguments)
+        if($property === 'push') return this.#arrayTrap.push(...arguments)
         // Array Fill
-        if($property === 'fill') return $this.#fill(...arguments)
-        // Default
-        if(typeof $root[$property] === 'function') {
-          $root[$property].bind($root)
-        }
-        return $root[$property]
+        if($property === 'fill') return this.#arrayTrap.fill(...arguments)
       }
       return undefined
     }
-    */
   }
   // Set
-  get #set() {
-    /*
-    const { $this, $root, $rootAlias } = this.#aliases
+  get set() {
+    const { $eventTarget, $root, $rootAlias } = this.#aliases
     const RootClassPropertyNames = Object.getOwnPropertyNames(
       $root.constructor.prototype
     )
@@ -82,11 +79,11 @@ export default class Handler {
         // Value Is Object
         return true
       }
-      // Property Is Root Class Property
+      // Array Class Property
       if(RootClassPropertyNames.includes($property)) {
         // Array Length
         if($property === 'length') {
-          $root[$property] = $this.#length(...arguments)
+          $root[$property] = this.#arrayTrap.length(...arguments)
           return true
         }
         $root[$property] = $value
@@ -94,22 +91,5 @@ export default class Handler {
       }
       return true
     }
-    */
-  }
-  // Delete
-  get #deleteProperty() {
-    /*
-    const { $this, $root, $rootAlias } = this.#aliases
-    return function deleteProperty($target, $property) {
-      // Delete Property Event
-      const deleteEvent = $this.#createEvent(
-        'deleteProperty', $property, $root[$property]
-      )
-      delete $root[$property]
-      $this.dispatchEvent(deleteEvent.event, $this)
-      $this.dispatchEvent(deleteEvent.propEvent, $this)
-      return true
-    }
-    */
   }
 }

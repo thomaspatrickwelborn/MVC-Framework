@@ -5,7 +5,8 @@ export default class ObjectTrap extends Trap {
     Object.freeze(this)
   }
   get($target, $property, $receiver) {
-    const { $this, $root, $rootAlias, $proxy } = this.aliases
+    const $this = this
+    const { $eventTarget, $root, $rootAlias, $proxy } = this.aliases
     return function get() {
       const $arguments = [...arguments]
       // Get Object
@@ -20,40 +21,42 @@ export default class ObjectTrap extends Trap {
     }
   }
   set($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function set($property, $value) {
       if(typeof $value === 'object') {
         // Value Is Dynamic Event Target
         $value = new DynamicEventTarget($value, $rootAlias)
         // Dynamic Event Target Delete Event
-        $value.addEventListener('deleteProperty', function eventBubbleDelete($event) {
-          const deleteEvent = $this.createBubbleEvent(
-            $event, 'deleteProperty', $property
+        $value.addEventListener('delete', function eventBubbleDelete($event) {
+          const deleteEvent = $eventTarget.createBubbleEvent(
+            $event, 'delete', $property
           )
-          $this.dispatchEvent(deleteEvent.event, $this)
-          $this.dispatchEvent(deleteEvent.propEvent, $this)
+          $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
+          $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
         })
         // Dynamic Event Target Set Event
         $value.addEventListener('set', function eventBubbleSet($event) {
-          const setEvent = $this.createBubbleEvent(
+          const setEvent = $eventTarget.createBubbleEvent(
             $event, 'set', $property
           )
-          $this.dispatchEvent(setEvent.event, $this)
-          $this.dispatchEvent(setEvent.propEvent, $this)
+          $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
+          $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
         })
       }
       $root[$property] = $value
       // Dynamic Event Target Set Event
       const setEvent = $this.createEvent('set', $property, $value)
-      $this.dispatchEvent(setEvent.event, $this)
-      $this.dispatchEvent(setEvent.propEvent, $this)
+      $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
+      $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
       $root[$property] = $value
       return $root
     }
   }
-  deleteProperty($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
-    return function deleteProperty() {
+  delete($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
+    return function () { // Function name "delete" generates Syntax Error 
       const $arguments = [...arguments]
       if($arguments.length === 0) {
         for(const [
@@ -67,9 +70,9 @@ export default class ObjectTrap extends Trap {
         // 
         delete $root[$property]
       }
-      const deletePropertyEvent = $this.createEvent('delete', $property, $value)
-      $this.dispatchEvent(deletePropertyEvent.event, $this)
-      $this.dispatchEvent(deletePropertyEvent.propEvent, $this)
+      const deleteEvent = $this.createEvent('delete', $property, $value)
+      $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
+      $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
       delete this[$rootAlias][$property]
       return true
     }

@@ -1,12 +1,13 @@
 import Trap from '../Trap/index.js'
-export default class ObjectTrap extends Trap {
+export default class ArrayTrap extends Trap {
   constructor($aliases) {
     super($aliases)
     Object.freeze(this)
   }
   // Root (Array) Length
-  get #length() {
-    const { $this, $root, $rootAlias } = this.aliases
+  length() {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function length($target, $property, $value, $receiver) {
       const preterLength = $root[$property]
       const anterLength = $value
@@ -31,8 +32,8 @@ export default class ObjectTrap extends Trap {
           const deleteEvent = $this.createEvent(
             'deleteProperty', elementIndex, $root[elementIndex]
           )
-          $this.dispatchEvent(deleteEvent.event, $this)
-          $this.dispatchEvent(deleteEvent.propEvent, $this)
+          $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
+          $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
           elementIndex--
         }
       } else 
@@ -42,8 +43,8 @@ export default class ObjectTrap extends Trap {
           const setEvent = $this.createEvent(
             'set', elementIndex
           )
-          $this.dispatchEvent(setEvent.event, $this)
-          $this.dispatchEvent(setEvent.propEvent, $this)
+          $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
+          $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
           elementIndex++
         }
       }
@@ -51,8 +52,9 @@ export default class ObjectTrap extends Trap {
     }
   }
   // Root (Array) Splice
-  #splice($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
+  splice($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function splice($startIndex, $deleteCount) {
       var deleteIndex = $startIndex
       const deleteStopIndex = $startIndex + ($deleteCount - 1)
@@ -60,29 +62,31 @@ export default class ObjectTrap extends Trap {
         const deleteEvent = $this.createEvent(
           'deleteProperty', deleteIndex, $root[deleteIndex]
         )
-        $this.dispatchEvent(deleteEvent.event, $this)
-        $this.dispatchEvent(deleteEvent.propEvent, $this)
+        $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
+        $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
         deleteIndex++
       }
       return $root[$property](...arguments)
     }
   }
   // Root (Array) Shift
-  #shift($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
+  shift($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function shift() {
       const deleteIndex = 0
       const deleteEvent = $this.createEvent(
         'deleteProperty', deleteIndex, $root[deleteIndex]
       )
-      $this.dispatchEvent(deleteEvent.event, $this)
-      $this.dispatchEvent(deleteEvent.propEvent, $this)
+      $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
+      $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
       return $root[$property](...arguments)
     }
   }
   // Root (Array) Unshift
-  #unshift($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
+  unshift($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function unshift() {
       const $arguments = [...arguments]
       var addIndex = 0
@@ -95,16 +99,17 @@ export default class ObjectTrap extends Trap {
         const setEvent = $this.createEvent(
           'set', addIndex, addValue
         )
-        $this.dispatchEvent(setEvent.event, $this)
-        $this.dispatchEvent(setEvent.propEvent, $this)
+        $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
+        $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
         addIndex++
       }
       return $root[$property](...arguments)
     }
   }
   // Root (Array) Push
-  #push($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
+  push($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function push() {
       const $arguments = [...arguments]
       var addIndex = (
@@ -117,29 +122,32 @@ export default class ObjectTrap extends Trap {
         const setEvent = $this.createEvent(
           'set', addIndex, addValue
         )
-        $this.dispatchEvent(setEvent.event, $this)
-        $this.dispatchEvent(setEvent.propEvent, $this)
+        $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
+        $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
         addIndex++
       }
+      console.log($root, $property)
       return $root[$property](...arguments)
     }
   }
   // Root (Array) Pop
-  #pop($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
+  pop($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function pop() {
       const deleteIndex = $root.length - 1
       const deleteEvent = $this.createEvent(
         'deleteProperty', deleteIndex, $root[deleteIndex]
       )
-      $this.dispatchEvent(deleteEvent.event, $this)
-      $this.dispatchEvent(deleteEvent.propEvent, $this)
+      $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
+      $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
       return $root[$property](...arguments)
     }
   }
   // Root (Array) Fill
-  #fill($target, $property, $receiver) {
-    const { $this, $root, $rootAlias } = this.aliases
+  fill($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     return function fill($value, $start, $end) {
       $start = $start || 0
       $end = $end || $start + ($root.length - 1)
@@ -148,8 +156,8 @@ export default class ObjectTrap extends Trap {
         const setEvent = $this.createEvent(
           'set', addIndex, $value
         )
-        $this.dispatchEvent(setEvent.event, $this)
-        $this.dispatchEvent(setEvent.propEvent, $this)
+        $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
+        $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
         addIndex++
       }
       return $root[$property](...arguments)

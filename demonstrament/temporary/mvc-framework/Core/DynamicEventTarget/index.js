@@ -31,39 +31,12 @@ export default class DynamicEventTarget extends EventTarget {
       : 'content'
   }
   // Root
-  #_root = {} // []
-  get #root() {
-    var root
-    // Root Array
-    if(this.#type === 'array') {
-      root = []
-      for(const $property of this.#_root) {
-        if($property instanceof DynamicEventTarget) {
-          root.push($property[this.#rootAlias])
-        } else {
-          root.push($property)
-        }
-      }
-    } else
-    // Root
-    if(this.#type === 'object') {
-      root = {}
-      for(const [
-        $propertyKey, $propertyValue
-      ] of Object.entries(this.#_root)) {
-        if($propertyValue instanceof DynamicEventTarget) {
-          root[$propertyKey] = $propertyValue[this.#rootAlias]
-        } else {
-          root[$propertyKey] = $propertyValue
-        }
-      }
-    }
-    return root
-  }
+  #_root
+  get #root() { return this.#_root }
   set #root($type) {
     if(this.#_root !== undefined) return
     this.#_root = (
-      $type === 'array'
+      this.#type === 'array'
     ) ? []
       : {}
   }
@@ -72,6 +45,7 @@ export default class DynamicEventTarget extends EventTarget {
   get #proxy() { return this.#_proxy }
   set #proxy($target) {
     if(this.#_proxy !== undefined) return
+    console.log(this.#handler)
     this.#_proxy = new Proxy($target, this.#handler)
   }
   // Handler
@@ -86,9 +60,10 @@ export default class DynamicEventTarget extends EventTarget {
   get #aliases() {
     if(this.#_aliases !== undefined) return this.#_aliases
     this.#_aliases = {
-      $this: this,
+      $eventTarget: this,
       $rootAlias: this.#_rootAlias,
       $root: this.#_root,
+      $proxy: this.#_proxy,
     }
     return this.#_aliases
   }
