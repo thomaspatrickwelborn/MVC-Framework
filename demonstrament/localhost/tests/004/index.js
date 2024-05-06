@@ -1,10 +1,34 @@
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestD()
+	subtestE()
+	// subtestD()
 	// subtestC()
 	// subtestB()
 	// subtestA()
+}
+
+function subtestE() {
+	const object = new DynamicEventTarget({})
+	object.addEventListener(
+		'set', ($event) => console.log($event.detail)
+	)
+	object.addEventListener(
+		'deleteProperty', ($event) => console.log($event.detail)
+	)
+	object.assign({
+		false: false,
+		true: true,
+		c: "C",
+		zero: 0
+	})
+	object.assign({
+		zero: {
+			aaa: 111,
+			bbb: 222,
+			ccc: 333,
+		}
+	})
 }
 
 function subtestD() {

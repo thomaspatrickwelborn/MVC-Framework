@@ -10,7 +10,7 @@ const EventTargetClassPropertyTrapNames = [
 ]
 // Object Class Properties
 const ObjectClassPropertyNames = Object.getOwnPropertyNames(
-  Object.prototype
+  Object
 )
 const ObjectClassPropertyTrapNames = [
   'assign', 'defineProperties', 'defineProperty'

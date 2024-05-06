@@ -1,3 +1,4 @@
+import DynamicEventTarget from '../../index.js'
 import Trap from '../Trap/index.js'
 export default class ObjectTrap extends Trap {
   constructor($aliases) {
@@ -10,8 +11,21 @@ export default class ObjectTrap extends Trap {
     return function assign() {
       const $sources = [...arguments]
       for(const $source of $sources) {
-        console.log()
+        for(var [
+          $sourceKey, $sourceVal
+        ] of Object.entries($source)) {
+          if(typeof $sourceVal === 'object') {
+            $sourceVal = new DynamicEventTarget($sourceVal)
+          }
+          const setEvent = $this.createEvent(
+            'set', $sourceKey, $sourceVal
+          )
+          $eventTarget.dispatchEvent(setEvent.event)
+          $eventTarget.dispatchEvent(setEvent.propEvent)
+          $root[$sourceKey] = $sourceVal
+        }
       }
+      return $root
     }
   }
   defineProperties($target, $property, $receiver) {

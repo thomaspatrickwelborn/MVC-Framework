@@ -32,8 +32,8 @@ export default class ArrayTrap extends Trap {
           const deleteEvent = $this.createEvent(
             'deleteProperty', elementIndex, $root[elementIndex]
           )
-          $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
-          $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
+          $eventTarget.dispatchEvent(deleteEvent.event)
+          $eventTarget.dispatchEvent(deleteEvent.propEvent)
           elementIndex--
         }
       } else 
@@ -43,8 +43,8 @@ export default class ArrayTrap extends Trap {
           const setEvent = $this.createEvent(
             'set', elementIndex
           )
-          $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
-          $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
+          $eventTarget.dispatchEvent(setEvent.event)
+          $eventTarget.dispatchEvent(setEvent.propEvent)
           elementIndex++
         }
       }
@@ -62,8 +62,8 @@ export default class ArrayTrap extends Trap {
         const deleteEvent = $this.createEvent(
           'deleteProperty', deleteIndex, $root[deleteIndex]
         )
-        $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
-        $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
+        $eventTarget.dispatchEvent(deleteEvent.event)
+        $eventTarget.dispatchEvent(deleteEvent.propEvent)
         deleteIndex++
       }
       return $root[$property](...arguments)
@@ -78,8 +78,8 @@ export default class ArrayTrap extends Trap {
       const deleteEvent = $this.createEvent(
         'deleteProperty', deleteIndex, $root[deleteIndex]
       )
-      $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
-      $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
+      $eventTarget.dispatchEvent(deleteEvent.event)
+      $eventTarget.dispatchEvent(deleteEvent.propEvent)
       return $root[$property](...arguments)
     }
   }
@@ -99,8 +99,8 @@ export default class ArrayTrap extends Trap {
         const setEvent = $this.createEvent(
           'set', addIndex, addValue
         )
-        $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
-        $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
+        $eventTarget.dispatchEvent(setEvent.event)
+        $eventTarget.dispatchEvent(setEvent.propEvent)
         addIndex++
       }
       return $root[$property](...arguments)
@@ -122,8 +122,8 @@ export default class ArrayTrap extends Trap {
         const setEvent = $this.createEvent(
           'set', addIndex, addValue
         )
-        $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
-        $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
+        $eventTarget.dispatchEvent(setEvent.event)
+        $eventTarget.dispatchEvent(setEvent.propEvent)
         addIndex++
       }
       console.log($root, $property)
@@ -139,8 +139,8 @@ export default class ArrayTrap extends Trap {
       const deleteEvent = $this.createEvent(
         'deleteProperty', deleteIndex, $root[deleteIndex]
       )
-      $eventTarget.dispatchEvent(deleteEvent.event, $eventTarget)
-      $eventTarget.dispatchEvent(deleteEvent.propEvent, $eventTarget)
+      $eventTarget.dispatchEvent(deleteEvent.event)
+      $eventTarget.dispatchEvent(deleteEvent.propEvent)
       return $root[$property](...arguments)
     }
   }
@@ -156,8 +156,8 @@ export default class ArrayTrap extends Trap {
         const setEvent = $this.createEvent(
           'set', addIndex, $value
         )
-        $eventTarget.dispatchEvent(setEvent.event, $eventTarget)
-        $eventTarget.dispatchEvent(setEvent.propEvent, $eventTarget)
+        $eventTarget.dispatchEvent(setEvent.event)
+        $eventTarget.dispatchEvent(setEvent.propEvent)
         addIndex++
       }
       return $root[$property](...arguments)

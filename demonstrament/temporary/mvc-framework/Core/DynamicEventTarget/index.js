@@ -33,19 +33,19 @@ export default class DynamicEventTarget extends EventTarget {
   // Root
   #_root
   get #root() { return this.#_root }
-  set #root($type) {
+  set #root($root) {
     if(this.#_root !== undefined) return
     this.#_root = (
       this.#type === 'array'
     ) ? []
       : {}
+    Object.assign(this.#_root, $root)
   }
   // Proxy
   #_proxy
   get #proxy() { return this.#_proxy }
   set #proxy($target) {
     if(this.#_proxy !== undefined) return
-    console.log(this.#handler)
     this.#_proxy = new Proxy($target, this.#handler)
   }
   // Handler
