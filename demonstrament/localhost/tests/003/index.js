@@ -1,6 +1,7 @@
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
+  subtestT()
   // subtestS()
   // subtestR()
   // subtestQ()
@@ -13,6 +14,21 @@ function DOMContentLoaded($event) {
   // subtestJ()
   // subtestI()
   // subtestH()
+}
+
+function subtestT() {
+  var object = new DynamicEventTarget({})
+  object.content.addEventListener = "meh"
+  console.log(object.content)
+  console.log(object.addEventListener)
+  console.log(object.content.addEventListener)
+  object.addEventListener = "meh"
+  console.log(object.content)
+  console.log(object.addEventListener)
+  console.log(object.content.addEventListener)
+  object.meh = "Meh"
+  console.log(object.meh)
+  console.log(object.content.meh)
 }
 
 function subtestS() {

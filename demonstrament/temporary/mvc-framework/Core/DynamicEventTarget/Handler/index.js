@@ -1,20 +1,45 @@
 import ObjectTrap from './ObjectTrap/index.js'
 import ArrayTrap from './ArrayTrap/index.js'
-const EventTargetClassPropertyNames = Object.getOwnPropertyNames(EventTarget.prototype)
-const ArrayClassPropertyNames = Object.getOwnPropertyNames(Array.prototype)
-const MapClassPropertyNames = Object.getOwnPropertyNames(Map.prototype)
-const ObjectClassPropertyNames = Object.getOwnPropertyNames(Object.prototype)
-const DynamicEventTargetNames = ['get', 'set', 'delete', 'toObject']
+import MapTrap from './MapTrap/index.js'
+// Event Class Properties
+const EventTargetClassPropertyNames = Object.getOwnPropertyNames(
+  EventTarget.prototype
+)
+const EventTargetClassPropertyTrapNames = [
+  'addEventListener', 'removeEventListener', 'dispatchEvent'
+]
+// Object Class Properties
+const ObjectClassPropertyNames = Object.getOwnPropertyNames(
+  Object.prototype
+)
+const ObjectClassPropertyTrapNames = [
+  'assign', 'defineProperties', 'defineProperty'
+]
+// Array Class Properties
+const ArrayClassPropertyNames = Object.getOwnPropertyNames(
+  Array.prototype
+)
+const ArrayClassPropertyTrapNames = [
+  'splice', 'pop', 'shift', 'unshift', 'push', 'fill'
+]
+// Map Class Properties
+const MapClassPropertyNames = Object.getOwnPropertyNames(
+  Map.prototype
+)
+const MapClassPropertyTrapNames = [
+  'get', 'set', 'delete', 'toObject'
+]
 
 export default class Handler {
   constructor($aliases) {
     this.#aliases = $aliases
-    this.#objectTrap = new ObjectTrap(this.#aliases)
-    this.#arrayTrap = new ArrayTrap(this.#aliases)
+    this.objectTrap = new ObjectTrap(this.#aliases)
+    this.arrayTrap = new ArrayTrap(this.#aliases)
+    this.mapTrap = new MapTrap(this.#aliases)
   }
   #aliases
-  #objectTrap
-  #arrayTrap
+  objectTrap
+  mapTrap
   // Get
   get get() {
     const { $eventTarget, $root, $rootAlias } = this.#aliases
@@ -22,7 +47,7 @@ export default class Handler {
       $root.constructor.prototype
     )
     return function get($target, $property, $receiver) {
-      // Root Properties (Object Instance, Array Instance)
+      // Root Property
       if($property === $rootAlias) return $root
       // Event Target Class Properties
       if(
@@ -33,36 +58,21 @@ export default class Handler {
         }
         return $eventTarget[$property]
       }
-      // Object Class Properties (Use Map Class Property Names)
-      // After initial implementation differentiate between 
-      // Map and Object Class Property Names
+      // Object Class Property Traps
       if(
-        MapClassPropertyNames.includes($property)
-      ) {
-        // Object Get
-        if($property === 'get') return this.#objectTrap.get(...arguments)
-        // Object Set
-        if($property === 'set') return this.#objectTrap.set(...arguments)
-        // Object DeleteProperty
-        if($property === 'delete') return this.#objectTrap.delete(...arguments)
-        // Object To Object
-        if($property === 'toObject') return this.#objectTrap.toObject(...arguments)
-      }
-      // Array Class Properties
-      if(ArrayClassPropertyNames.includes($property)) {
-        // Array Splice
-        if($property === 'splice') return this.#arrayTrap.splice(...arguments)
-        // Array Pop
-        if($property === 'pop') return this.#arrayTrap.pop(...arguments)
-        // Array Shift
-        if($property === 'shift') return this.#arrayTrap.shift(...arguments)
-        // Array Unshift
-        if($property === 'unshift') return this.#arrayTrap.unshift(...arguments)
-        // Array Push
-        if($property === 'push') return this.#arrayTrap.push(...arguments)
-        // Array Fill
-        if($property === 'fill') return this.#arrayTrap.fill(...arguments)
-      }
+        ObjectClassPropertyNames.includes($property) &&
+        ObjectClassPropertyTrapNames.includes($property)
+      ) return this.objectTrap[$property](...arguments)
+      // Array Class Property Traps
+      if(
+        ArrayClassPropertyNames.includes($property) &&
+        ArrayClassPropertyTrapNames.includes($property)
+      ) return this.arrayTrap[$property](...arguments)
+      // Map Class Property Traps
+      if(
+        MapClassPropertyNames.includes($property) &&
+        MapClassPropertyTrapNames.includes($property)
+      ) return this.objectTrap[$property](...arguments)
       return undefined
     }
   }
@@ -83,7 +93,7 @@ export default class Handler {
       if(RootClassPropertyNames.includes($property)) {
         // Array Length
         if($property === 'length') {
-          $root[$property] = this.#arrayTrap.length(...arguments)
+          $root[$property] = this.arrayTrap.length(...arguments)
           return true
         }
         $root[$property] = $value
