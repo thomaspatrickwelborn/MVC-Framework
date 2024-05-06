@@ -31,15 +31,49 @@ export default class ObjectTrap extends Trap {
   defineProperties($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
-    return function defineProperties() {
-
+    return function defineProperties($props) {
+      for(var [
+        $property, $descriptor
+      ] of Object.entries($props)) {
+        const propertyDescriptor = {}
+        for(const [
+          $descriptorProperty, $descriptorValue
+        ] of Object.entries($descriptor)) {
+          propertyDescriptor[$descriptorProperty] = $descriptorValue
+        }
+        if(typeof propertyDescriptor.value === 'object') {
+          propertyDescriptor.value = new DynamicEventTarget(propertyDescriptor.value)
+        }
+        const setEvent = $this.createEvent(
+          'set', $property, propertyDescriptor.value
+        )
+        $eventTarget.dispatchEvent(setEvent.event)
+        $eventTarget.dispatchEvent(setEvent.propEvent)
+        Object.defineProperty($root, $property, propertyDescriptor)
+      }
+      return $root
     }
   }
   defineProperty($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
-    return function defineProperty() {
-
+    return function defineProperty($property, $descriptor) {
+      const propertyDescriptor = {}
+      for(const [
+        $descriptorProperty, $descriptorValue
+      ] of Object.entries($descriptor)) {
+        propertyDescriptor[$descriptorProperty] = $descriptorValue
+      }
+      if(typeof propertyDescriptor.value === 'object') {
+        propertyDescriptor.value = new DynamicEventTarget(propertyDescriptor.value)
+      }
+      const setEvent = $this.createEvent(
+        'set', $property, propertyDescriptor.value
+      )
+      $eventTarget.dispatchEvent(setEvent.event)
+      $eventTarget.dispatchEvent(setEvent.propEvent)
+      Object.defineProperty($root, $property, propertyDescriptor)
+      return $root
     }
   }
 }
