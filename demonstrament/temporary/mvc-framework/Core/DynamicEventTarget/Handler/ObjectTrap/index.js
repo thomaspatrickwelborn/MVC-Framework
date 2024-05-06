@@ -7,7 +7,7 @@ export default class ObjectTrap extends Trap {
   }
   assign($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root, $rootAlias } = this.aliases
+    const { $eventTarget, $root } = this.aliases
     return function assign() {
       const $sources = [...arguments]
       for(const $source of $sources) {
@@ -30,7 +30,7 @@ export default class ObjectTrap extends Trap {
   }
   defineProperties($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root, $rootAlias } = this.aliases
+    const { $eventTarget, $root } = this.aliases
     return function defineProperties($props) {
       for(var [
         $property, $descriptor
@@ -56,7 +56,7 @@ export default class ObjectTrap extends Trap {
   }
   defineProperty($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root, $rootAlias } = this.aliases
+    const { $eventTarget, $root, $proxy } = this.aliases
     return function defineProperty($property, $descriptor) {
       const propertyDescriptor = {}
       for(const [
@@ -74,6 +74,13 @@ export default class ObjectTrap extends Trap {
       $eventTarget.dispatchEvent(setEvent.propEvent)
       Object.defineProperty($root, $property, propertyDescriptor)
       return $root
+    }
+  }
+  create($target, $property, $receiver) {
+    const $this = this
+    const { $eventTarget, $root, $rootAlias } = this.aliases
+    return function create($propertiesObject = {}) {
+      return Object.create($root, $propertiesObject)
     }
   }
 }

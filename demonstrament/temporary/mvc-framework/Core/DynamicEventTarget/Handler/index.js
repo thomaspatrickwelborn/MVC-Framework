@@ -1,3 +1,4 @@
+import DynamicEventTarget from '../index.js'
 import ObjectTrap from './ObjectTrap/index.js'
 import ArrayTrap from './ArrayTrap/index.js'
 import MapTrap from './MapTrap/index.js'
@@ -13,7 +14,8 @@ const ObjectClassPropertyNames = Object.getOwnPropertyNames(
   Object
 )
 const ObjectClassPropertyTrapNames = [
-  'assign', 'defineProperties', 'defineProperty'
+  'assign', 'defineProperties', 'defineProperty',
+  'create',
 ]
 // Array Class Properties
 const ArrayClassPropertyNames = Object.getOwnPropertyNames(
@@ -42,13 +44,30 @@ export default class Handler {
   mapTrap
   // Get
   get get() {
-    const { $eventTarget, $root, $rootAlias } = this.#aliases
+    const { $eventTarget, $root, $rootAlias, $type } = this.#aliases
     const RootClassPropertyNames = Object.getOwnPropertyNames(
       $root.constructor.prototype
     )
     return function get($target, $property, $receiver) {
       // Root Property
-      if($property === $rootAlias) return $root
+      if($property === $rootAlias) {
+        var root = (
+          $type === 'array'
+        ) ? []
+          : (
+          $type === 'object'
+        ) ? {}
+          : {}
+        for(var [
+          $propertyKey, $propertyValue
+        ] of Object.entries($root)) {
+          if($propertyValue instanceof DynamicEventTarget) {
+            $propertyValue = $propertyValue[$rootAlias]
+          }
+          root[$propertyKey] = $propertyValue
+        }
+        return root
+      }
       // Event Target Class Properties
       if(
         EventTargetClassPropertyNames.includes($property)

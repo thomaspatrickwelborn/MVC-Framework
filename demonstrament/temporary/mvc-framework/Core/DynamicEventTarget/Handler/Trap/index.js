@@ -1,3 +1,4 @@
+import DynamicEventTarget from '../index.js'
 export default class Trap {
   constructor($aliases) {
     this.aliases = $aliases
@@ -28,8 +29,9 @@ export default class Trap {
   } 
   // Create Event
   createEvent($eventType, $property, $value) {
+    const { $rootAlias } = this.aliases
     if(typeof $property === 'number') $property = String($property)
-    // if($value instanceof DynamicEventTarget) $value = $value[this.#rootAlias]
+    if(typeof $value === 'object') $value = $value[$rootAlias]
     const eventDetail = {
       key: $property,
       val: $value,
