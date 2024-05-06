@@ -1,6 +1,7 @@
 const EventTargetClassPropertyNames = Object.getOwnPropertyNames(EventTarget.prototype)
 const ArrayClassPropertyNames = Object.getOwnPropertyNames(Array.prototype)
 const ObjectClassPropertyNames = Object.getOwnPropertyNames(Object.prototype)
+const DynamicEventTargetNames = ['get', 'set', 'deleteProperty', 'toObject']
 
 export default class DynamicEventTarget extends EventTarget {
   constructor($root = {}, $rootAlias) {
@@ -15,41 +16,69 @@ export default class DynamicEventTarget extends EventTarget {
   // Aliases
   #_aliases
   get #aliases() {
-    if(this.#_aliases === undefined) {
-      this.#_aliases = {
-        $this: this,
-        $rootAlias: this.#rootAlias,
-        $root: this.#root,
-      }
+    if(this.#_aliases !== undefined) return this.#_aliases
+    this.#_aliases = {
+      $this: this,
+      $rootAlias: this.#_rootAlias,
+      $root: this.#_root,
+      $proxy: this.#_proxy,
     }
     return this.#_aliases
   }
   // Type
-  #_type = 'object' // 'array'
+  #_type // = 'object' // 'array'
   get #type() { return this.#_type }
   set #type($root) {
+    if(this.#_type !== undefined) return
     this.#_type = (
       Array.isArray($root)
     ) ? 'array'
-      : (
-      typeof $root === 'object'
-    ) ? 'object'
-      : this.#_type
+      : 'object'
   }
   // Root Alias
-  #_rootAlias = 'content'
+  #_rootAlias
   get #rootAlias() { return this.#_rootAlias }
   set #rootAlias($rootAlias) {
+    if(this.#_rootAlias !== undefined) return
     this.#_rootAlias = (
       typeof $rootAlias === 'string' &&
       $rootAlias.length > 0
     ) ? $rootAlias
-      : this.#_rootAlias
+      : 'content'
   }
   // Root
   #_root = {} // []
-  get #root() { return this.#_root }
+  get #root() {
+    var root
+    // Root Array
+    if(this.#type === 'array') {
+      root = []
+      for(const $property of this.#_root) {
+        if($property instanceof DynamicEventTarget) {
+          root.push($property[this.#rootAlias])
+        } else {
+          root.push($property)
+        }
+      }
+    } else
+    // Root Object
+    if(this.#type === 'object') {
+      root = {}
+      for(const [
+        $propertyKey, $propertyValue
+      ] of Object.entries(this.#_root)) {
+        if($propertyValue instanceof DynamicEventTarget) {
+          root[$propertyKey] = $propertyValue[this.#rootAlias]
+        } else {
+          root[$propertyKey] = $propertyValue
+        }
+      }
+    }
+    // Object.seal(root)
+    return root
+  }
   set #root($type) {
+    if(this.#_root !== undefined) return
     this.#_root = (
       $type === 'array'
     ) ? []
@@ -59,36 +88,31 @@ export default class DynamicEventTarget extends EventTarget {
   #_proxy // Proxy
   get #proxy() { return this.#_proxy }
   set #proxy($root) {
-    if(this.#_proxy) return this.#_proxy
-    this.#_proxy = new Proxy(this, {
-      get: this.#get,
-      set: this.#set,
-      deleteProperty: this.#deleteProperty,
-    })
+    if(this.#_proxy !== undefined) return
+    this.#_proxy = new Proxy(this, this.#handler)
     Object.assign(this.#_proxy, $root)
-    return this.#_proxy
+    Object.freeze(this.#_proxy)
+  }
+  // Handler
+  #_handler
+  get #handler() {
+    if(this.#_handler !== undefined) return this.#_handler
+    this.#_handler = {
+      get: this.#getHandler,
+      set: this.#setHandler,
+      deleteProperty: this.#deletePropertyHandler,
+    }
+    return this.#_handler
   }
   // Proxy Get
-  get #get() {
+  get #getHandler() {
     const { $this, $root, $rootAlias } = this.#aliases
-    const ThisClassPropertyNames = Object.getOwnPropertyNames(
-      $this.constructor.prototype
-    )
     const RootClassPropertyNames = Object.getOwnPropertyNames(
       $root.constructor.prototype
     )
-    return function get($target, $property, $receiver) {
-      // This Class Properties (Event Target Instance)
-      if(
-        ThisClassPropertyNames.includes($property)
-      ) {
-        if(typeof $this[$property] === 'function') {
-          return $this[$property].bind($this)
-        }
-        return $this[$property]
-      }
-      // Root Properties (Object, Array Instance)
-      if($property === $rootAlias) return $root
+    return function getHandler($target, $property, $receiver) {
+      // Root Properties (Object Instance, Array Instance)
+      if($property === $rootAlias) return $this.#root
       // Event Target Class Properties
       if(
         EventTargetClassPropertyNames.includes($property)
@@ -98,43 +122,155 @@ export default class DynamicEventTarget extends EventTarget {
         }
         return $this[$property]
       }
+      if(
+        DynamicEventTargetNames.includes($property)
+      ) {
+        // Object Get
+        if($property === 'get') return $this.#get(...arguments)
+        // Object Set
+        if($property === 'set') return $this.#set(...arguments)
+        // Object DeleteProperty
+        if($property === 'deleteProperty') return $this.#deleteProperty(...arguments)
+        // Object To Object
+        if($property === 'toObject') return $this.#toObject(...arguments)
+      }
       // Root Class Properties
       if(RootClassPropertyNames.includes($property)) {
+        // Array Splice
+        if($property === 'splice') return $this.#splice(...arguments)
+        // Array Pop
+        if($property === 'pop') return $this.#pop(...arguments)
+        // Array Shift
+        if($property === 'shift') return $this.#shift(...arguments)
+        // Array Unshift
+        if($property === 'unshift') return $this.#unshift(...arguments)
+        // Array Push
+        if($property === 'push') return $this.#push(...arguments)
+        // Array Fill
+        if($property === 'fill') return $this.#fill(...arguments)
+        // Default
         if(typeof $root[$property] === 'function') {
           $root[$property].bind($root)
         }
-        // Array Splice
-        if($property === 'splice') {
-          return $this.#splice(...arguments)
-        } else
-        // Array Pop
-        if($property === 'pop') {
-          return $this.#pop(...arguments)
-        } else
-        // Array Shift
-        if($property === 'shift') {
-          return $this.#shift(...arguments)
-        } else
-        // Array Unshift
-        if($property === 'unshift') {
-          return $this.#unshift(...arguments)
-        } else
-        // Array Push
-        if($property === 'push') {
-          return $this.#push(...arguments)
-        } else
-        // Array Fill
-        if($property === 'fill') {
-          return $this.#fill(...arguments)
-        }
+        return $root[$property]
       }
-      if(typeof $root[$property] === 'function') {
-        $root[$property].bind($root)
-      }
-      return $root[$property]
+      return undefined
     }
   }
-  // Array Length
+  // Proxy Set
+  get #setHandler() {
+    const { $this, $root, $rootAlias } = this.#aliases
+    const RootClassPropertyNames = Object.getOwnPropertyNames(
+      $root.constructor.prototype
+    )
+    // Set Root Properties
+    return function setHandler($target, $property, $value, $receiver) {
+      // Property Is Root
+      if($property === $rootAlias) {
+        // Value Is Object
+        return true
+      }
+      // Property Is Root Class Property
+      if(RootClassPropertyNames.includes($property)) {
+        // Array Length
+        if($property === 'length') {
+          $root[$property] = $this.#length(...arguments)
+          return true
+        }
+        $root[$property] = $value
+        return true
+      }
+      return true
+    }
+  }
+  // Proxy Delete
+  get #deletePropertyHandler() {
+    const { $this, $root, $rootAlias } = this.#aliases
+    return function deletePropertyHandler($target, $property) {
+      // Delete Property Event
+      const deleteEvent = $this.#createEvent(
+        'deleteProperty', $property, $root[$property]
+      )
+      delete $root[$property]
+      $this.dispatchEvent(deleteEvent.event, $this)
+      $this.dispatchEvent(deleteEvent.propEvent, $this)
+      return true
+    }
+  }
+  // Root (Object) Get
+  #get($target, $property, $receiver) {
+    const { $this, $root, $rootAlias, $proxy } = this.#aliases
+    return function get() {
+      const $arguments = [...arguments]
+      // Get Object
+      if($arguments.length === 0) {
+        return $root
+      } else
+      // Get Property
+      if($arguments.length === 1) {
+        const property = $arguments[0]
+        return $root[property]
+      }
+    }
+  }
+  // Root (Object) Set
+  #set($target, $property, $receiver) {
+    const { $this, $root, $rootAlias } = this.#aliases
+    return function set($property, $value) {
+      if(typeof $value === 'object') {
+        // Value Is Dynamic Event Target
+        $value = new DynamicEventTarget($value, $rootAlias)
+        // Dynamic Event Target Delete Event
+        $value.addEventListener('deleteProperty', function eventBubbleDelete($event) {
+          const deleteEvent = $this.#createBubbleEvent(
+            $event, 'deleteProperty', $property
+          )
+          $this.dispatchEvent(deleteEvent.event, $this)
+          $this.dispatchEvent(deleteEvent.propEvent, $this)
+        })
+        // Dynamic Event Target Set Event
+        $value.addEventListener('set', function eventBubbleSet($event) {
+          const setEvent = $this.#createBubbleEvent(
+            $event, 'set', $property
+          )
+          $this.dispatchEvent(setEvent.event, $this)
+          $this.dispatchEvent(setEvent.propEvent, $this)
+        })
+      }
+      $root[$property] = $value
+      // Dynamic Event Target Set Event
+      const setEvent = $this.#createEvent('set', $property, $value)
+      $this.dispatchEvent(setEvent.event, $this)
+      $this.dispatchEvent(setEvent.propEvent, $this)
+      $root[$property] = $value
+      return $root
+    }
+  }
+  // Root (Object) Delete Property
+  #deleteProperty($target, $property, $receiver) {
+    const { $this, $root, $rootAlias } = this.#aliases
+    return function deleteProperty() {
+      const $arguments = [...arguments]
+      if($arguments.length === 0) {
+        for(const [
+          $deletePropKey, $deletePropVal
+        ] of Object.entries($root)) {
+          // 
+          delete $root[$deletePropKey]
+        }
+      } else
+      if($arguments.length === 1) {
+        // 
+        delete $root[$property]
+      }
+      const deletePropertyEvent = $this.#createEvent('delete', $property, $value)
+      $this.dispatchEvent(deletePropertyEvent.event, $this)
+      $this.dispatchEvent(deletePropertyEvent.propEvent, $this)
+      delete this[$rootAlias][$property]
+      return true
+    }
+  }
+  // Root (Array) Length
   get #length() {
     const { $this, $root, $rootAlias } = this.#aliases
     return function length($target, $property, $value, $receiver) {
@@ -180,70 +316,6 @@ export default class DynamicEventTarget extends EventTarget {
       return $value
     }
   }
-  // Proxy Set
-  get #set() {
-    const { $this, $root, $rootAlias } = this.#aliases
-    const RootClassPropertyNames = Object.getOwnPropertyNames(
-      $root.constructor.prototype
-    )
-    // Set Root Properties
-    return function set($target, $property, $value, $receiver) {
-      // Property Is Root Class Property
-      if(RootClassPropertyNames.includes($property)) {
-        // Array Length
-        if($property === 'length') {
-          $root[$property] = $this.#length(...arguments)
-          return true
-        }
-        $root[$property] = $value
-        return true
-      }
-      // Value Is Object
-      if(typeof $value === 'object') {
-        // Value Is Dynamic Event Target
-        $value = new DynamicEventTarget($value, $rootAlias)
-        // Dynamic Event Target Delete Event
-        $value.addEventListener('deleteProperty', function eventBubbleDelete($event) {
-          const deleteEvent = $this.#createEventBubble(
-            $event, 'deleteProperty', $property
-          )
-          $this.dispatchEvent(deleteEvent.event, $this)
-          $this.dispatchEvent(deleteEvent.propEvent, $this)
-        })
-        // Dynamic Event Target Set Event
-        $value.addEventListener('set', function eventBubbleSet($event) {
-          const setEvent = $this.#createEventBubble(
-            $event, 'set', $property
-          )
-          $this.dispatchEvent(setEvent.event, $this)
-          $this.dispatchEvent(setEvent.propEvent, $this)
-        })
-      }
-      $root[$property] = $value
-      // Dynamic Event Target Set Event
-      const setEvent = $this.#createEvent('set', $property, $value)
-      $this.dispatchEvent(setEvent.event, $this)
-      $this.dispatchEvent(setEvent.propEvent, $this)
-      return true
-    }
-  }
-  // Proxy Delete
-  get #deleteProperty() {
-    const { $this, $root, $rootAlias } = this.#aliases
-    const RootClassPropertyNames = Object.getOwnPropertyNames(
-      this.#root.constructor.prototype
-    )
-    return function deleteProperty($target, $property) {
-      // Delete Property Event
-      const deleteEvent = $this.#createEvent(
-        'deleteProperty', $property, $this.#root[$property]
-      )
-      delete $root[$property]
-      $this.dispatchEvent(deleteEvent.event, $this)
-      $this.dispatchEvent(deleteEvent.propEvent, $this)
-      return true
-    }
-  }
   // Root (Array) Splice
   #splice($target, $property, $receiver) {
     const { $this, $root, $rootAlias } = this.#aliases
@@ -280,8 +352,11 @@ export default class DynamicEventTarget extends EventTarget {
     return function unshift() {
       const $arguments = [...arguments]
       var addIndex = 0
-      const addStopIndex = $arguments.length - 1
-      while(addIndex < addStopIndex) {
+      const addStopIndex = (
+        $arguments.length === 0
+      ) ? 0
+        : $arguments.length - 1
+      while(addIndex <= addStopIndex) {
         const addValue = $arguments[addIndex]
         const setEvent = $this.#createEvent(
           'set', addIndex, addValue
@@ -298,8 +373,11 @@ export default class DynamicEventTarget extends EventTarget {
     const { $this, $root, $rootAlias } = this.#aliases
     return function push() {
       const $arguments = [...arguments]
-      var addIndex = $root.length - 1
-      const addStopIndex = addIndex + ($arguments.length - 1)
+      var addIndex = (
+        $root.length === 0
+      ) ? 0 
+        : $root.length - 1
+      const addStopIndex = addIndex + $arguments.length
       while(addIndex < addStopIndex) {
         const addValue = $arguments[addIndex]
         const setEvent = $this.#createEvent(
@@ -344,7 +422,7 @@ export default class DynamicEventTarget extends EventTarget {
     }
   }
   // Create Event Bubble
-  #createEventBubble($event, $eventType, $property) {
+  #createBubbleEvent($event, $eventType, $property) {
     const path = [$event.detail.path]
     path.unshift($property)
     const eventDetailPath = path.join('.')
@@ -368,7 +446,7 @@ export default class DynamicEventTarget extends EventTarget {
   // Create Event
   #createEvent($eventType, $property, $value) {
     if(typeof $property === 'number') $property = String($property)
-    if($value instanceof DynamicEventTarget) $value = $value.toObject()
+    if($value instanceof DynamicEventTarget) $value = $value[this.#rootAlias]
     const eventDetail = {
       key: $property,
       val: $value,
@@ -388,14 +466,14 @@ export default class DynamicEventTarget extends EventTarget {
     }
   }
   // To Object
-  toObject() {
+  #toObject() {
     var object
     // Array
     if(this.#type === 'array') {
       object = []
       for(const $property of this.#root) {
         if($property instanceof DynamicEventTarget) {
-          object.push($property.toObject())
+          object.push($property[this.#rootAlias])
         } else {
           object.push($property)
         }
@@ -408,7 +486,7 @@ export default class DynamicEventTarget extends EventTarget {
         $propertyKey, $propertyValue
       ] of Object.entries(this.#root)) {
         if($propertyValue instanceof DynamicEventTarget) {
-          object[$propertyKey] = $propertyValue.toObject()
+          object[$propertyKey] = $propertyValue[this.#rootAlias]
         } else {
           object[$propertyKey] = $propertyValue
         }
