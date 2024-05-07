@@ -1,13 +1,42 @@
 import Handler from './Handler/index.js'
 export default class DynamicEventTarget extends EventTarget {
-  constructor($root = {}, $rootAlias) {
+  constructor($root = {}, $rootAlias = 'content', $recur = false) {
     super()
+    const $arguments = [...arguments]
+    var $root, $rootAlias, $recur
+    if($arguments.length === 0) {
+      $root = {}
+      $rootAlias = 'content'
+      $recur = false
+    } else
+    if($arguments.length === 1) {
+      $root = $arguments[0]
+      $rootAlias = 'content'
+      $recur = false
+    } else
+    if($arguments.length === 2) {
+      if(typeof $arguments[1] === 'boolean') {
+        // 
+      } else
+      if(typeof $arguments[1] === 'object') {
+        // 
+      }
+    }
+    this.#recur = $recur
     this.#type = $root
     this.#rootAlias = $rootAlias
     this.#root = $root
     this.#proxy = this
     Object.freeze(this)
     return this.#proxy
+  }
+
+  // Recur
+  #_recur
+  get #recur() { return this.#_recur }
+  set #recur($recur) {
+    if(this.#_recur !== undefined) return
+    this.#_recur = $recur
   }
   // Type
   #_type // = 'object' // 'array'
@@ -76,9 +105,10 @@ export default class DynamicEventTarget extends EventTarget {
     if(this.#_aliases !== undefined) return this.#_aliases
     this.#_aliases = {
       $eventTarget: this,
+      $type: this.#_type,
+      $recur: this.#_recur,
       $rootAlias: this.#_rootAlias,
       $root: this.#_root,
-      $type: this.#_type,
     }
     return this.#_aliases
   }

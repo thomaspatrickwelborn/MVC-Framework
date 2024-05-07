@@ -14,8 +14,8 @@ const ObjectClassPropertyNames = Object.getOwnPropertyNames(
   Object
 )
 const ObjectClassPropertyTrapNames = [
-  'assign', 'defineProperties', 'defineProperty',
-  'create', 'entries', 'freeze', 'fromEntries',
+  'assign', 'create', 'defineProperties', 'defineProperty',
+  'entries', 'freeze', 'fromEntries',
   'getOwnPropertyDescriptor', 'getOwnPropertyDescriptors', 
   'getOwnPropertyNames', 'getOwnPropertySymbols', 
   'getPrototypeOf', 'hasOwn', 'is', 'isExtensible', 

@@ -7,9 +7,9 @@ export default class ObjectTrap extends Trap {
   }
   assign($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur } = this.aliases
     return function assign() {
-      return Object.assign($root, ...arguments)
+      if($recur === false) return Object.assign($root, ...arguments)
     }
   }
   create($target, $property, $receiver) {
