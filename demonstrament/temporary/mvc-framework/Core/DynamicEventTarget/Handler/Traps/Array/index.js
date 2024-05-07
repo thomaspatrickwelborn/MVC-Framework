@@ -1,11 +1,15 @@
+import DynamicEventTarget from '../../../index.js'
 import Trap from '../Trap/index.js'
+// Array Traps Are Array Class Instance Methods
 export default class ArrayTrap extends Trap {
   constructor($aliases) {
     super($aliases)
     Object.freeze(this)
   }
-  // Root (Array) Length
-  length() {
+  /*
+
+  // Length
+  get length() {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
     return function length($target, $property, $value, $receiver) {
@@ -27,31 +31,23 @@ export default class ArrayTrap extends Trap {
       ) ? 0
         : preterLength - 1
       // Decrement
-      if(crement === -1) {
-        while(elementIndex >= stopIndex) {
-          const deleteEvent = $this.createEvent(
-            'deleteProperty', elementIndex, $root[elementIndex]
-          )
-          $eventTarget.dispatchEvent(deleteEvent.event)
-          $eventTarget.dispatchEvent(deleteEvent.propEvent)
-          elementIndex--
-        }
-      } else 
-      // Increment
-      if(crement === 1) {
-        while(elementIndex <= stopIndex) {
-          const setEvent = $this.createEvent(
-            'set', elementIndex
-          )
-          $eventTarget.dispatchEvent(setEvent.event)
-          $eventTarget.dispatchEvent(setEvent.propEvent)
-          elementIndex++
-        }
+      while(elementIndex !== stopIndex) {
+        const eventType = (
+          crement === -1
+        ) ? 'deleteProperty'
+          : 'set'
+        const { event, propEvent } = $this.createEvent(
+          eventType, elementIndex, $value
+        )
+        $eventTarget.dispatchEvent(event)
+        $eventTarget.dispatchEvent(propEvent)
+        elementIndex += crement
       }
       return $value
     }
   }
-  // Root (Array) Splice
+  */
+  // Splice
   splice($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
@@ -69,7 +65,7 @@ export default class ArrayTrap extends Trap {
       return $root[$property](...arguments)
     }
   }
-  // Root (Array) Shift
+  // Shift
   shift($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
@@ -83,7 +79,7 @@ export default class ArrayTrap extends Trap {
       return $root[$property](...arguments)
     }
   }
-  // Root (Array) Unshift
+  // Unshift
   unshift($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
@@ -106,7 +102,7 @@ export default class ArrayTrap extends Trap {
       return $root[$property](...arguments)
     }
   }
-  // Root (Array) Push
+  // Push
   push($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
@@ -126,11 +122,10 @@ export default class ArrayTrap extends Trap {
         $eventTarget.dispatchEvent(setEvent.propEvent)
         addIndex++
       }
-      console.log($root, $property)
       return $root[$property](...arguments)
     }
   }
-  // Root (Array) Pop
+  // Pop
   pop($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
@@ -144,7 +139,7 @@ export default class ArrayTrap extends Trap {
       return $root[$property](...arguments)
     }
   }
-  // Root (Array) Fill
+  // Fill
   fill($target, $property, $receiver) {
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases

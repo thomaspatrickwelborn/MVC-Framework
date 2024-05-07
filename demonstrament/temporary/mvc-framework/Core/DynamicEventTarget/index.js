@@ -9,9 +9,9 @@ export default class DynamicEventTarget extends EventTarget {
     const { rootAlias, recur } = Object.assign({}, Options, $options)
     this.#recur = recur
     this.#rootAlias = rootAlias
-    this.#type = $root
+    this.type = $root
     this.#root = $root
-    this.#proxy = $root
+    this.#proxy = this.#_root
     Object.freeze(this)
     return this.#proxy
   }
@@ -25,8 +25,8 @@ export default class DynamicEventTarget extends EventTarget {
   }
   // Type
   #_type // = 'object' // 'array'
-  get #type() { return this.#_type }
-  set #type($root) {
+  get type() { return this.#_type }
+  set type($root) {
     if(this.#_type !== undefined) return
     this.#_type = (
       Array.isArray($root)
@@ -49,7 +49,7 @@ export default class DynamicEventTarget extends EventTarget {
   get #root() {
     const _root = this.#_root
     const root = (
-      this.#type === 'array'
+      this.type === 'array'
     ) ? []
       : {}
     for(const [
@@ -65,7 +65,7 @@ export default class DynamicEventTarget extends EventTarget {
   set #root($root) {
     if(this.#_root !== undefined) return
     this.#_root = (
-      this.#type === 'array'
+      this.type === 'array'
     ) ? []
       : {}
     Object.assign(this.#_root, $root)

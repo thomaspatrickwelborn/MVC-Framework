@@ -1,3 +1,4 @@
+import DynamicEventTarget from '../../../index.js'
 import Trap from '../Trap/index.js'
 export default class MapTrap extends Trap {
   constructor($aliases) {

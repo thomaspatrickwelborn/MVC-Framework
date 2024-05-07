@@ -1,4 +1,4 @@
-import DynamicEventTarget from '../index.js'
+import DynamicEventTarget from '../../../index.js'
 export default class Trap {
   constructor($aliases) {
     this.aliases = $aliases

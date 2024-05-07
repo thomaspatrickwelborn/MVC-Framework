@@ -1,7 +1,11 @@
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestH()
+	// subtestL()
+	subtestK()
+	// subtestJ()
+	// subtestI()
+	// subtestH()
 	// subtestG()
 	// subtestF()
 	// subtestE()
@@ -10,8 +14,132 @@ function DOMContentLoaded($event) {
 	// subtestB()
 	// subtestA()
 }
+
+function subtestL() {
+	// 
+}
+
+function subtestK() {
+	const object = new DynamicEventTarget({}, { recur: true })
+	object.assign({
+		a: {
+			b: 2,
+			c: 3,
+			d: 4,
+		}
+	})
+	object.assign({
+		a: {
+			e: 5
+		}
+	})
+	object.assign({
+		a: { e: undefined }
+	})
+	console.log(object.content.a)
+	// object.assign({
+	// 	a: 1, b: 2, c: 3, d: {
+	// 		e: 5, f: 6, g: 7
+	// 	},
+	// })
+	// console.log(object)
+	// object.assign({ d: { g: 777 }})
+	// console.log(object)
+	// console.log(object.getOwnPropertyDescriptors())
+	// console.log(object.getOwnPropertyNames())
+	// console.log(object.values())
+}
+
+function subtestJ() {
+	const object = new DynamicEventTarget({}, { recur: true })
+	object.assign({
+		a: 1,
+		b: 2,
+		c: 3,
+	})
+	object.defineProperties({
+		_d: {
+			enumerable: false,
+			writable: true,
+			value: 4,
+		},
+		d: {
+			enumerable: true,
+			get() { return this._d },
+			set($d) { this._d = $d }
+		}
+	})
+	console.log(object.d)
+	object.assign({ d: 5 })
+	console.log(object.d)
+	object.d = 6
+	console.log(object.content.d)
+	object.content.d = 7
+	console.log(object.content.d)
+	object.assign({
+		d: 8
+	})	
+	console.log(object.content.d)
+	object.defineProperty('_e', {
+		enumerable: false,
+		writable: true,
+		value: 5,
+	})
+	object.defineProperty('e', {
+		enumerable: true,
+		get() { return this._e },
+		set($e) { this._e = $e }
+	})
+	console.log(object.content.e)
+}
+
+function subtestI() {
+	const array = new DynamicEventTarget([], {
+		recur: true
+	})
+	array.addEventListener(
+		'set', ($event) => console.log($event.detail)
+	)
+	array.addEventListener(
+		'deleteProperty', ($event) => console.log($event.detail)
+	)
+	// array.assign([1,2,3,45])
+	// console.log(array.content)
+	// array.assign([undefined, undefined, undefined, 4455])
+	array.length = 5
+	array.assign({ 3: 5 })
+	array.assign({5: [1,23,4,5]})
+	console.log(array.length)
+	array.forEach((
+		$arrayItem, $arrayItemIndex
+	) => console.log($arrayItemIndex, $arrayItem))
+	array.defineProperties({
+		'0': {
+			get() { return 'meh' },
+			set($0) {
+				console.log('heh')
+			},
+		}
+	})
+	// array[3] = 5
+	// Object.assign(array.content, { 3: 5 })
+	array.assign({
+		'0': 555
+	})
+	console.log(array[0])
+	console.log(array.content)
+	console.log(array.entries())
+	console.log(array.fromEntries())
+	console.log(array.values())
+	console.log(array.keys())
+	array.seal()
+	array.push(0)
+}
+
 function subtestH() {
-	const object = new DynamicEventTarget({})
+	const object = new DynamicEventTarget({}, {
+		recur: true
+	})
 	object.addEventListener(
 		'set', ($event) => console.log($event.detail)
 	)
