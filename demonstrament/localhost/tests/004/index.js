@@ -1,11 +1,82 @@
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestE()
+	subtestH()
+	// subtestG()
+	// subtestF()
+	// subtestE()
 	// subtestD()
 	// subtestC()
 	// subtestB()
 	// subtestA()
+}
+function subtestH() {
+	const object = new DynamicEventTarget({})
+	object.addEventListener(
+		'set', ($event) => console.log($event.detail)
+	)
+	object.addEventListener(
+		'deleteProperty', ($event) => console.log($event.detail)
+	)
+	console.log(object.content)
+	console.log(object.assign({
+		a: 1, b: 2, c: 3, d: {
+			e: 5, f: 6, g: 7
+		}, h: {
+			i: 9, j: 10, k: 11,
+		}
+	}))
+	console.log(object.content)
+	console.log(object.assign({ a: { b: 3, c: 4 } }))
+	console.log(object)
+}
+function subtestG() {
+	const object = new DynamicEventTarget({})
+	object.addEventListener(
+		'set', ($event) => console.log($event.detail)
+	)
+	object.addEventListener(
+		'deleteProperty', ($event) => console.log($event.detail)
+	)
+	object.assign({
+		a: 1,
+		b: 2,
+		c: 3,
+		d: {
+			e: 5,
+			f: 6,
+			g: 7,
+		},
+	})
+	console.log(object.entries())
+}
+
+function subtestF() {
+	const object = new DynamicEventTarget({})
+	object.addEventListener(
+		'set', ($event) => console.log($event.detail)
+	)
+	object.addEventListener(
+		'deleteProperty', ($event) => console.log($event.detail)
+	)
+	object.assign({
+		a: "1",
+		b: "2",
+		c: "3",
+		d: {
+			e: 5,
+			f: 6,
+			g: 7,
+			h: [8, 9, 10, 11, 12],
+		},
+	})
+	object.defineProperty('i', {
+		get() { return 'i' },
+		set($i) {}
+	})
+	console.log(object.content)
+	const newObject = object.create(object)
+	console.log(newObject)
 }
 
 function subtestE() {
@@ -29,6 +100,27 @@ function subtestE() {
 			ccc: 333,
 		}
 	})
+	object.defineProperty('aaa', {
+		value: 3521356
+	})
+	object.defineProperties({
+		bbb: { value: 5245266, writable: true },
+		ccc: {
+			get() { return this.bbb },
+		}
+	})
+	object.assign({
+		bbb: 22222222,
+	})
+	const newObject = object.create(object)
+	console.log(newObject.false)
+	console.log(newObject.true)
+	console.log(newObject.c)
+	console.log(newObject.zero)
+	console.log(newObject.aaa)
+	console.log(newObject.bbb)
+	console.log(newObject.ccc)
+
 }
 
 function subtestD() {
