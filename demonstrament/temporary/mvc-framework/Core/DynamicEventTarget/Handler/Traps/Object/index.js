@@ -63,15 +63,33 @@ export default class ObjectTrap extends Trap {
   // Entries
   entries($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur } = this.aliases
     return function entries() {
-      return Object.entries($root)
+      if($recur === false) return Object.entries($root)
+      const entries = []
+      iterateEntries: for(var [
+        $entryKey, $entryVal
+      ] of Object.entries($root)) {
+        if(typeof $entryVal === 'object') {
+          $entryVal = $entryVal.entries()
+        }
+        entries.push([$entryKey, $entryVal])
+      }
+      return entries
     }
   }
   // Freeze
   freeze($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur } = this.aliases
     return function freeze() {
+      if($recur === false) return Object.freeze($root)
+      iterateEntries: for(var [
+        $entryKey, $entryVal
+      ] of Object.entries($root)) {
+        if(typeof $entryVal === 'object') {
+          $root[$entryKey].freeze()
+        }
+      }
       return Object.freeze($root)
     }
   }
@@ -176,8 +194,16 @@ export default class ObjectTrap extends Trap {
   }
   // Seal
   seal($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur } = this.aliases
     return function seal() {
+      if($recur === false) return Object.seal($root)
+      iterateEntries: for(var [
+        $entryKey, $entryVal
+      ] of Object.entries($root)) {
+        if(typeof $entryVal === 'object') {
+          $root[$entryKey].seal()
+        }
+      }
       return Object.seal($root)
     }
   }
@@ -190,9 +216,17 @@ export default class ObjectTrap extends Trap {
   }
   // Values
   values($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur } = this.aliases
     return function values() {
-      return Object.values($root)
+      if($recur === false) return Object.values($root)
+      const values = []
+      for(const $rootVal of Object.values($root)) {
+        if(typeof $rootVal === 'object') {
+          values.push($rootVal.values())
+        } else {
+          values.push($rootVal)
+        }
+      }
     }
   }
 }

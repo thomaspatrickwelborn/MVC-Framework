@@ -33,21 +33,16 @@ function subtestK() {
 			e: 5
 		}
 	})
-	object.assign({
-		a: { e: undefined }
-	})
 	console.log(object.content.a)
-	// object.assign({
-	// 	a: 1, b: 2, c: 3, d: {
-	// 		e: 5, f: 6, g: 7
-	// 	},
-	// })
-	// console.log(object)
-	// object.assign({ d: { g: 777 }})
-	// console.log(object)
-	// console.log(object.getOwnPropertyDescriptors())
-	// console.log(object.getOwnPropertyNames())
-	// console.log(object.values())
+	console.log(object.entries())
+	// console.log(object.freeze())
+	console.log(object.seal())
+	object.assign({
+		a: {
+			b: 222
+		}
+	})
+	console.log(object.content.a.b)
 }
 
 function subtestJ() {
