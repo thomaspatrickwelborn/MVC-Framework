@@ -15,7 +15,6 @@ export default class DynamicEventTarget extends EventTarget {
     this.#root = $root
     this.#proxy = this.#_root
     this.#proxy.assign($root)
-    Object.freeze(this)
     return this.#proxy
   }
   // Recur
