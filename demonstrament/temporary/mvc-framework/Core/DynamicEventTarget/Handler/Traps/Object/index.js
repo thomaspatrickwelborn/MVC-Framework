@@ -43,7 +43,7 @@ export default class ObjectTrap extends Trap {
       return Object.create($root, $propertiesObject)
     }
   }
-  // Define Properties
+  // Define Properties - Recur
   // Assign Type Of Object Property Values As Dynamic Event Target Instances
   defineProperties($target, $property, $receiver) {
     const $this = this
@@ -66,7 +66,7 @@ export default class ObjectTrap extends Trap {
       return Object.defineProperties($root, $props)
     }
   }
-  // Define Property
+  // Define Property - Recur
   // Assign Type Of Object Property Values As Dynamic Event Target Instances
   defineProperty($target, $property, $receiver) {
     const $this = this
@@ -104,8 +104,15 @@ export default class ObjectTrap extends Trap {
   }
   // Freeze - Recur
   freeze($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur, $rootAlias } = this.aliases
     return function freeze() {
+      if($recur === false) return Object.freeze($root)
+      iterateRootProps:
+      for(var $rootPropVal of Object.values($root)) {
+        if(typeof $rootPropVal === 'object') {
+          $rootPropVal.freeze()
+        }
+      }
       return Object.freeze($root)
     }
   }
@@ -129,21 +136,21 @@ export default class ObjectTrap extends Trap {
       return Object.fromEntries(entries)
     }
   }
-  // Get Own Property Descriptor
+  // Get Own Property Descriptor - Recur
   getOwnPropertyDescriptor($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getOwnPropertyDescriptor($prop) {
       return Object.getOwnPropertyDescriptor($root, $prop)
     }
   }
-  // Get Own Property Descriptors
+  // Get Own Property Descriptors - Recur
   getOwnPropertyDescriptors($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getOwnPropertyDescriptors() {
       return Object.getOwnPropertyDescriptors($root)
     }
   }
-  // Get Own Property Names
+  // Get Own Property Names - Recur
   getOwnPropertyNames($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getOwnPropertyNames() {
@@ -157,35 +164,35 @@ export default class ObjectTrap extends Trap {
       return Object.getOwnPropertySymbols($root)
     }
   }
-  // Get Prototype Of
+  // Get Prototype Of - Recur
   getPrototypeOf($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getPrototypeOf() {
       return Object.getPrototypeOf($root)
     }
   }
-  // Group By (Unknown Recurse)
+  // Group By - Unknown Recur
   groupBy($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function groupBy(callbackFn) {
       return Object.groupBy($root, callbackFn)
     }    
   }
-  // Has Own
+  // Has Own - Unknown Recur
   hasOwn($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function hasOwn($prop) {
       return Object.hasOwn($root, $prop)
     }
   }
-  // Is
+  // Is - Unknown Recur
   is($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function is($value) {
       return Object.is($root, $value)
     }
   }
-  // Is Extensible
+  // Is Extensible - Recur
   isExtensible($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function isExtensible() {
@@ -208,22 +215,49 @@ export default class ObjectTrap extends Trap {
   }
   // Keys - Recur
   keys($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur, $rootAlias } = this.aliases
     return function keys() {
-      return Object.keys($root)
+      if($recur === false) return Object.keys($root)
+      const keys = []
+      iterateRootEntries:
+      for(var [
+        $rootPropKey, $rootPropVal
+      ] of Object.entries($root)) {
+        if(typeof $rootPropVal === 'object') {
+          $rootPropVal = $rootPropVal.keys()
+          keys.push([$rootPropKey, $rootPropVal])
+          continue iterateRootEntries
+        }
+        keys.push($rootPropKey)
+      }
+      return keys
     }
   }
-  // Prevent Extensions
+  // Prevent Extensions - Recur
   preventExtensions($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur, $rootAlias } = this.aliases
     return function preventExtensions() {
+      if($recur === false) return Object.preventExtensions($root)
+      iterateRootProps:
+      for(var $rootPropVal of Object.values($root)) {
+        if(typeof $rootPropVal === 'object') {
+          $rootPropVal.preventExtensions()
+        }
+      }
       return Object.preventExtensions($root)
     }
   }
   // Seal - Recur
   seal($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur, $rootAlias } = this.aliases
     return function seal() {
+      if($recur === false) return Object.seal($root)
+      iterateRootProps:
+      for(var $rootPropVal of Object.values($root)) {
+        if(typeof $rootPropVal === 'object') {
+          $rootPropVal.seal()
+        }
+      }
       return Object.seal($root)
     }
   }
@@ -236,9 +270,18 @@ export default class ObjectTrap extends Trap {
   }
   // Values - Recur
   values($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur, $rootAlias } = this.aliases
     return function values() {
-      return Object.values($root)
+      if($recur === false) return Object.values($root)
+      const values = []
+      iterateRootEntries:
+      for(var $rootPropVal of Object.values($root)) {
+        if(typeof $rootPropVal === 'object') {
+          $rootPropVal = $rootPropVal.values()
+        }
+        values.push($rootPropVal)
+      }
+      return values
     }
   }
 }
