@@ -19,10 +19,19 @@ function subtestL() {
 	const object = new DynamicEventTarget({}, { recur: true })
 	object.assign({
 		a: {
-			b: { c: 'd' }
+			b: { c: 'd', e: 'f', g: 'h' }
+		},
+		i: false,
+		j: true,
+		k: {
+			l: 'm', n: 'o', p: 'p'
 		}
 	})
-	console.log(object.getOwnPropertyDescriptors())
+	console.log(object.fromEntries())
+	// console.log(object.content.a.b.getOwnPropertyDescriptor('c'))
+	// console.log(object.getOwnPropertyDescriptors())
+	// console.log(object.getOwnPropertyNames())
+	// console.log(object.getOwnPropertyDescriptor('a'))
 }
 
 function subtestK() {
