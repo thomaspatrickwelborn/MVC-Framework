@@ -7,7 +7,8 @@ export default class ObjectTrap extends Trap {
     super($aliases)
     Object.freeze(this)
   }
-  // Assign
+  // Assign - Recur
+  // Assign Type Of Object Property Values As Dynamic Event Target Instances
   assign($target, $property, $receiver) {
     const $this = this
     const {
@@ -23,7 +24,8 @@ export default class ObjectTrap extends Trap {
           if(typeof $sourcePropertyVal === 'object') {
             $sourcePropertyVal = new DynamicEventTarget(
               $sourcePropertyVal, {
-                $rootAlias, $recur,
+                rootAlias: $rootAlias,
+                recur: $recur,
               }
             )
           }
@@ -42,72 +44,120 @@ export default class ObjectTrap extends Trap {
     }
   }
   // Define Properties
+  // Assign Type Of Object Property Values As Dynamic Event Target Instances
   defineProperties($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $rootAlias, $recur } = this.aliases
     return function defineProperties($props) {
+      iterateProps:
+      for(var [
+        $propertyKey,
+        $propertyDescriptor,
+      ] of Object.entries($props)) {
+        if(typeof $propertyDescriptor.value === 'object') {
+          $propertyDescriptor.value = new DynamicEventTarget(
+            $propertyDescriptor.value, {
+              rootAlias: $rootAlias,
+              recur: $recur,
+            }
+          )
+        }
+      }
       return Object.defineProperties($root, $props)
     }
   }
   // Define Property
+  // Assign Type Of Object Property Values As Dynamic Event Target Instances
   defineProperty($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $rootAlias, $recur } = this.aliases
     return function defineProperty($property, $descriptor) {
+      if(typeof $descriptor.value === 'object') {
+        $descriptor.value = new DynamicEventTarget(
+          $descriptor.value, {
+            rootAlias: $rootAlias,
+            recur: $recur,
+          }
+        )
+      }
       return Object.defineProperty($root, $property, $descriptor)
     }
   }
-  // Entries
+  // Entries - Recur
   entries($target, $property, $receiver) {
     const $this = this
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur, $rootAlias } = this.aliases
     return function entries() {
-      return Object.entries($root)
+      if($recur === false) return Object.entries($root)
+      const entries = []
+      iterateRootEntries: 
+      for(var [
+        $rootEntryKey, $rootEntryVal
+      ] of Object.entries($root)) {
+        if(typeof $rootEntryVal === 'object') {
+          $rootEntryVal = $rootEntryVal.entries()
+        }
+        entries.push([$rootEntryKey, $rootEntryVal])
+      }
+      return entries
     }
   }
-  // Freeze
+  // Freeze - Recur
   freeze($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function freeze() {
       return Object.freeze($root)
     }
   }
-  // From Entries (Recurse)
+  // From Entries - Recur
   fromEntries($target, $property, $receiver) {
-    const { $eventTarget, $root } = this.aliases
+    const { $eventTarget, $root, $recur } = this.aliases
     return function fromEntries() {
-      return Object.fromEntries(Object.entries($root))
+      if($recur === false) return Object.fromEntries(
+        Object.entries($root)
+      )
+      const entries = []
+      iterateRootProps:
+      for(var [
+        $rootPropKey, $rootPropVal
+      ] of Object.entries($root)) {
+        if(typeof $rootPropVal === 'object') {
+          $rootPropVal = $rootPropVal.fromEntries()
+        }
+        entries.push([$rootPropKey, $rootPropVal])
+      }
+      return Object.fromEntries(entries)
     }
   }
-  // Get Own Property Descriptor (No Recurse)
+  // Get Own Property Descriptor
   getOwnPropertyDescriptor($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getOwnPropertyDescriptor($prop) {
       return Object.getOwnPropertyDescriptor($root, $prop)
     }
   }
-  // Get Own Property Descriptors (No Recurse)
+  // Get Own Property Descriptors
   getOwnPropertyDescriptors($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getOwnPropertyDescriptors() {
       return Object.getOwnPropertyDescriptors($root)
     }
   }
-  // Get Own Property Names (No Recurse)
+  // Get Own Property Names
   getOwnPropertyNames($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getOwnPropertyNames() {
       return Object.getOwnPropertyNames($root)
     }
   }
-  // Get Own Property Symbols (No Recurse)
+  // Get Own Property Symbols
   getOwnPropertySymbols($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getOwnPropertySymbols() {
       return Object.getOwnPropertySymbols($root)
     }
   }
-  // Get Prototype Of (No Recurse)
+  // Get Prototype Of
   getPrototypeOf($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function getPrototypeOf() {
@@ -121,70 +171,70 @@ export default class ObjectTrap extends Trap {
       return Object.groupBy($root, callbackFn)
     }    
   }
-  // Has Own (No Recurse)
+  // Has Own
   hasOwn($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function hasOwn($prop) {
       return Object.hasOwn($root, $prop)
     }
   }
-  // Is (No Recurse)
+  // Is
   is($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function is($value) {
       return Object.is($root, $value)
     }
   }
-  // Is Extensible (No Recurse)
+  // Is Extensible
   isExtensible($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function isExtensible() {
       return Object.isExtensible($root)
     }
   }
-  // Is Frozen (No Recurse)
+  // Is Frozen - Recur
   isFrozen($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function isFrozen() {
       return Object.isFrozen($root)
     }
   }
-  // Is Sealed (No Recurse)
+  // Is Sealed - Recur
   isSealed($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function isSealed() {
       return Object.isSealed($root)
     }
   }
-  // Keys (Recurse)
+  // Keys - Recur
   keys($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function keys() {
       return Object.keys($root)
     }
   }
-  // Prevent Extensions (Unknown Recurse)
+  // Prevent Extensions
   preventExtensions($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function preventExtensions() {
       return Object.preventExtensions($root)
     }
   }
-  // Seal (Recurse)
+  // Seal - Recur
   seal($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function seal() {
       return Object.seal($root)
     }
   }
-  // Set Prototype Of (No Recurse)
+  // Set Prototype Of
   setPrototypeOf($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function setPrototypeOf($prototype) {
       return Object.setPrototypeOf($root, $prototype)
     }
   }
-  // Values (Recurse)
+  // Values - Recur
   values($target, $property, $receiver) {
     const { $eventTarget, $root } = this.aliases
     return function values() {

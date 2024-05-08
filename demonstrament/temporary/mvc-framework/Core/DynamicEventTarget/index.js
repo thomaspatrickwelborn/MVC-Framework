@@ -1,8 +1,8 @@
 import Handler from './Handler/index.js'
-const Options = {
+const Options = Object.freeze({
   rootAlias: 'content', 
   recur: false,
-}
+})
 export default class DynamicEventTarget extends EventTarget {
   constructor($root = {}, $options) {
     super()
