@@ -6,16 +6,18 @@ const Options = {
 export default class DynamicEventTarget extends EventTarget {
   constructor($root = {}, $options) {
     super()
-    const { rootAlias, recur } = Object.assign({}, Options, $options)
+    const { rootAlias, recur } = Object.assign(
+      {}, Options, $options
+    )
     this.#recur = recur
     this.#rootAlias = rootAlias
     this.type = $root
     this.#root = $root
     this.#proxy = this.#_root
+    this.#proxy.assign($root)
     Object.freeze(this)
     return this.#proxy
   }
-
   // Recur
   #_recur
   get #recur() { return this.#_recur }
@@ -68,7 +70,6 @@ export default class DynamicEventTarget extends EventTarget {
       this.type === 'array'
     ) ? []
       : {}
-    Object.assign(this.#_root, $root)
   }
   // Proxy
   #_proxy

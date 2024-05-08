@@ -36,7 +36,7 @@ export default class Handler {
   }
   // Get
   get get() {
-    const { $eventTarget, $root, $rootAlias, $type } = this.#aliases
+    const { $eventTarget, $root, $rootAlias, $type, $proxy } = this.#aliases
     return function get($target, $property, $receiver) {
       // 1. Root Alias Property
       if($property === $rootAlias) {

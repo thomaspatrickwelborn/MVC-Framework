@@ -1,8 +1,8 @@
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	// subtestL()
-	subtestK()
+	subtestL()
+	// subtestK()
 	// subtestJ()
 	// subtestI()
 	// subtestH()
@@ -16,7 +16,13 @@ function DOMContentLoaded($event) {
 }
 
 function subtestL() {
-	// 
+	const object = new DynamicEventTarget({}, { recur: true })
+	object.assign({
+		a: {
+			b: { c: 'd' }
+		}
+	})
+	console.log(object.getOwnPropertyDescriptors())
 }
 
 function subtestK() {
