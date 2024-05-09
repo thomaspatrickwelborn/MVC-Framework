@@ -12,7 +12,7 @@ export default class ArrayTrap extends Trap {
       Object.defineProperty(this, $methodName, {
         get() { return function() {
           return $root[$methodName](...arguments)
-        } }
+        } },
       })
     }
     Object.freeze(this)

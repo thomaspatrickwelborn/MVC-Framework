@@ -7,11 +7,11 @@ export default class ObjectTrap extends Trap {
     const $this = this
     const { $root } = this.aliases
     for(var $methodName of Object.getOwnPropertyNames(
-      Array.prototype
+      Object
     )) {
       Object.defineProperty(this, $methodName, {
         get() { return function() {
-          return $root[$methodName](...arguments)
+          return Object[$methodName]($root, ...arguments)
         } }
       })
     }

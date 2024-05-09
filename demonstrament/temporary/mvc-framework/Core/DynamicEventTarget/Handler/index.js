@@ -50,21 +50,18 @@ export default class Handler {
         return $eventTarget[$property]
       }
       // 3. Object Class Property Traps
-      if(Properties.Object.Names.includes($property)) {
-        // Object Class Property Traps
-        if(Properties.Object.TrapNames.includes($property)) {
-          return this.objectTrap[$property](...arguments)
-        }
+      if(
+        $type === 'object' &&
+        Properties.Object.Names.includes($property)
+      ) {
+        return this.objectTrap[$property](...arguments)
       }
       // 4. Array Class Property
-      if(Properties.Array.Names.includes($property)) {
-        // Array Class Property Traps
-        if(Properties.Array.TrapNames.includes($property)) {
-          return this.arrayTrap[$property](...arguments)
-        }
-        if($property === 'length') {
-          return $root[$property]
-        }
+      if(
+        $type === 'array' &&
+        Properties.Array.Names.includes($property)
+      ) {
+        return this.arrayTrap[$property](...arguments)
       }
       // 5. Root Property
       return $root[$property]
