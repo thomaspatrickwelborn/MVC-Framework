@@ -1,5 +1,4 @@
 import DynamicEventTarget from '../index.js'
-import Properties from './Properties/index.js'
 import {
   ObjectTrap, ArrayTrap, MapTrap
 } from './Traps/index.js'
@@ -36,14 +35,19 @@ export default class Handler {
   }
   // Get
   get get() {
+    console.log(...arguments)
     const { $eventTarget, $root, $rootAlias, $type, $proxy } = this.#aliases
+    const $this = this
     return function get($target, $property, $receiver) {
       // 1. Root Alias Property
       if($property === $rootAlias) {
         return this.#getRoot(...arguments)
       }
       // 2. Event Target Class Properties
-      if(Properties.EventTarget.Names.includes($property)) {
+      if(
+        Object.getOwnPropertyNames(EventTarget.prototype)
+        .includes($property)
+      ) {
         if(typeof $eventTarget[$property] === 'function') {
           return $eventTarget[$property].bind($eventTarget)
         }
@@ -52,16 +56,19 @@ export default class Handler {
       // 3. Object Class Property Traps
       if(
         $type === 'object' &&
-        Properties.Object.Names.includes($property)
+        Object.getOwnPropertyNames(Object)
+        .includes($property)
       ) {
-        return this.objectTrap[$property](...arguments)
+        return $this.objectTrap[$property](...arguments)
       }
       // 4. Array Class Property
       if(
         $type === 'array' &&
-        Properties.Array.Names.includes($property)
+        Object.getOwnPropertyNames(Array.prototype)
+        .includes($property)
       ) {
-        return this.arrayTrap[$property](...arguments)
+        console.log($property, $this.arrayTrap[$property])
+        return $this.arrayTrap[$property](...arguments)
       }
       // 5. Root Property
       return $root[$property]
@@ -69,23 +76,16 @@ export default class Handler {
   }
   // Set
   get set() {
+    const $this = this
     const { $eventTarget, $root, $rootAlias } = this.#aliases
-    // Set Root Properties
     return function set($target, $property, $value, $receiver) {
-      // Array Class Property
-      if(Properties.Array.Names.includes($property)) {
-        if($property === 'length') {
-          $root[$property] = $value
-          return true
-        }
-        $root[$property] = $value
-        return true
-      }
+      $root[$property] = $value
       return true
     }
   }
   // Delete
   get delete() {
+    const $this = this
     const { $eventTarget, $root, $rootAlias, $type, $proxy } = this.#aliases
     return function deleteProperty($target, $property) {
       delete $root[$property]

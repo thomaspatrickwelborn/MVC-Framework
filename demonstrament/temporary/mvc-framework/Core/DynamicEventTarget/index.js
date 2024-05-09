@@ -11,8 +11,7 @@ export default class DynamicEventTarget extends EventTarget {
     this.#rootAlias = rootAlias
     this.type = $root
     this.#root = $root
-    this.#proxy = this.#_root
-    this.#proxy.assign($root)
+    this.#proxy = this.#root
     return this.#proxy
   }
   // Type
@@ -39,34 +38,18 @@ export default class DynamicEventTarget extends EventTarget {
   // Root
   #_root
   get #root() {
-    const _root = this.#_root
-    const root = (
-      this.type === 'array'
-    ) ? []
-      : {}
-    for(const [
-      $propKey, $propVal
-    ] of Object.entries(_root)) {
-      if($propVal instanceof DynamicEventTarget) {
-        $propVal = $propVal[this.#rootAlias]
-      }
-      root[$propKey] = $propVal
-    }
-    return root
+    return this.#_root
   }
   set #root($root) {
     if(this.#_root !== undefined) return
-    this.#_root = (
-      this.type === 'array'
-    ) ? []
-      : {}
+    this.#_root = $root
   }
   // Proxy
   #_proxy
   get #proxy() { return this.#_proxy }
-  set #proxy($target) {
+  set #proxy($root) {
     if(this.#_proxy !== undefined) return
-    this.#_proxy = new Proxy($target, this.#handler)
+    this.#_proxy = new Proxy($root, this.#handler)
   }
   // Handler
   #_handler
