@@ -1,28 +1,19 @@
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content', 
-  recur: false,
 })
 export default class DynamicEventTarget extends EventTarget {
   constructor($root = {}, $options) {
     super()
-    const { rootAlias, recur } = Object.assign(
+    const { rootAlias } = Object.assign(
       {}, Options, $options
     )
-    this.#recur = recur
     this.#rootAlias = rootAlias
     this.type = $root
     this.#root = $root
     this.#proxy = this.#_root
     this.#proxy.assign($root)
     return this.#proxy
-  }
-  // Recur
-  #_recur
-  get #recur() { return this.#_recur }
-  set #recur($recur) {
-    if(this.#_recur !== undefined) return
-    this.#_recur = $recur
   }
   // Type
   #_type // = 'object' // 'array'
@@ -91,7 +82,6 @@ export default class DynamicEventTarget extends EventTarget {
     this.#_aliases = {
       $eventTarget: this,
       $type: this.#_type,
-      $recur: this.#_recur,
       $rootAlias: this.#_rootAlias,
       $root: this.#_root,
     }

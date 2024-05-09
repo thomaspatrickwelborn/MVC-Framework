@@ -87,4 +87,12 @@ export default class Handler {
       return true
     }
   }
+  // Delete
+  get delete() {
+    const { $eventTarget, $root, $rootAlias, $type, $proxy } = this.#aliases
+    return function deleteProperty($target, $property) {
+      delete $root[$property]
+      return true
+    }
+  }
 }
