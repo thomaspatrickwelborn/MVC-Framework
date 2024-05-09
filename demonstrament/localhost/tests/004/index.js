@@ -1,7 +1,8 @@
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestL()
+	subtestM()
+	// subtestL()
 	// subtestK()
 	// subtestJ()
 	// subtestI()
@@ -15,19 +16,96 @@ function DOMContentLoaded($event) {
 	// subtestA()
 }
 
-function subtestL() {
-	const object = new DynamicEventTarget({}, { recur: true })
-	object.assign({
-		a: {
-			b: { c: 'd', e: 'f', g: 'h' }
+function subtestM() {
+	const object = new DynamicEventTarget({
+		aaa: {
+			bbb: true,
+			ccc: false,
 		},
-		i: false,
-		j: true,
-		k: {
-			l: 'm', n: 'o', p: 'p'
-		}
+		ddd: {
+			eee: {
+				fff: false,
+				ggg: true
+			},
+			hhh: {
+				iii: false,
+				jjj: true,
+			},
+		},
+		kkk: [{
+			lll: false,
+			mmm: true,
+			nnn: false
+		}, true, false]
 	})
-	console.log(object.fromEntries())
+	console.log(object.keys())
+	console.log(object.aaa.keys())
+	console.log(object.kkk.keys())
+	console.log(object.values())
+	console.log(object.aaa.values())
+	console.log(object.kkk.values())
+	// object.freeze()
+	// const objectIsFrozen = object.isFrozen()
+	// console.log(objectIsFrozen)
+	// const object = new DynamicEventTarget({
+	// 	aaa: {
+	// 		bbb: 222,
+	// 		ccc: 333,
+	// 		ddd: 444,
+	// 		eee: {
+	// 			fff: 666,
+	// 			ggg: 777,
+	// 			hhh: 888,
+	// 		},
+	// 	},
+	// 	iii: 999,
+	// 	jjj: 101010,
+	// 	kkk: 111111,
+	// }, { recur: true })
+	// const objectKeys = object.keys()
+	// console.log(objectKeys)
+	// object.keys().forEach(($key) => {
+	// 	console.log($key.valueOf())
+	// })
+	// console.log(object.keys())
+	// console.log([0].valueOf())
+	// console.log(object.entries())
+	// console.log(object.keys())
+	// object.seal()
+	// const objectIsSealed = object.isSealed()
+	// console.log(objectIsSealed)
+	// console.log(objectIsSealed.aaa)
+	// console.log(objectIsSealed.valueOf())
+	// console.log(objectIsSealed.aaa.valueOf())
+}
+
+function subtestL() {
+	const object = new DynamicEventTarget({
+		aaa: {
+			bbb: 222,
+			ccc: 333,
+			ddd: 444,
+		},
+	}, { recur: true })
+	// console.log(object.entries())
+	// console.log(object.keys())
+	object.seal()
+	console.log(object.isSealed())
+	// delete object.addEventListener
+	// console.log(object.content.aaa)
+	// console.log(object.keys())
+	// object.assign({
+	// 	a: {
+	// 		b: { c: 'd', e: 'f', g: 'h' }
+	// 	},
+	// 	i: false,
+	// 	j: true,
+	// 	k: {
+	// 		l: 'm', n: 'o', p: 'p'
+	// 	}
+	// })
+	// console.log(object.fromEntries())
+	// console.log(object.content.a.b.fromEntries())
 	// console.log(object.content.a.b.getOwnPropertyDescriptor('c'))
 	// console.log(object.getOwnPropertyDescriptors())
 	// console.log(object.getOwnPropertyNames())
