@@ -54,7 +54,7 @@ export default class Handler {
       }
       // 3. Object Class Property Traps
       if(
-        $type === 'object' &&
+        // $type === 'object' &&
         Object.getOwnPropertyNames(Object)
         .includes($property)
       ) {
@@ -62,7 +62,7 @@ export default class Handler {
       }
       // 4. Array Class Property
       if(
-        $type === 'array' &&
+        // $type === 'array' &&
         Object.getOwnPropertyNames(Array.prototype)
         .includes($property)
       ) {
