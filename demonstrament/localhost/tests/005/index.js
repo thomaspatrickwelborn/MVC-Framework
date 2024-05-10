@@ -8,9 +8,21 @@ function DOMContentLoaded($event) {
 function subtestB() {
 	const object = new DynamicEventTarget({})
 	object['a'] = 0
+	console.log(object.a)
+	object.content.a = 0
 	console.log(object.content.a)
-	object.assign({ a: 0 })
-	console.log(object.content.a)
+	object.defineProperty('b', { value: 5, enumerable: true })
+	console.log(object.content.b)
+	object.assign({ c: 777 })
+	console.log(object.content.c)
+	console.log(object.content)
+	console.log(object.fromEntries())
+	// console.log(object.defineProperties({
+	// 	a: { value: 3 }
+	// }))
+	// console.log(object.content.a)
+	// object.assign({ a: 0 })
+	// console.log(object.content.a)
 }
 
 function subtestA() {

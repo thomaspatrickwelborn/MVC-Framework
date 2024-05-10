@@ -14,8 +14,10 @@ export default class Handler {
   arrayTrap
   // Get
   get get() {
-    const { $eventTarget, $root, $rootAlias, $type, $proxy } = this.#aliases
     const $this = this
+    const {
+      $eventTarget, $root, $rootAlias, $type, $proxy
+    } = this.#aliases
     return function get($target, $property, $receiver) {
       // 1. Root Alias Property
       if($property === $rootAlias) return $root
@@ -47,4 +49,14 @@ export default class Handler {
       return undefined
     }
   }
+  // get set() {
+  //   return function set($target, $property, $value) {
+  //     return true
+  //   }
+  // }
+  // get deleteProperty() {
+  //   return function deleteProperty($target, $property) {
+  //     return true
+  //   }
+  // }
 }

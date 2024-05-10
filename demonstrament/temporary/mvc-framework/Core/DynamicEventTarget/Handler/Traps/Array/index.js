@@ -10,16 +10,17 @@ export default class ArrayTrap extends Trap {
     for(let $arrayPrototypePropertyName of Object.getOwnPropertyNames(
       Array.prototype
     )) { switch($arrayPrototypePropertyName) {
-    // Iterative Methods
-    case 'every':
-    case 'filter':
-    case 'find':
-    case 'findIndex':
-    case 'findLast':
-    case 'findLastIndex':
-    case 'flatMap':
-    case 'forEach':
-    case 'map':
+    // Array Modification
+    case 'copyWithin':
+    case 'fill':
+    case 'length':
+    case 'push':
+    case 'pop':
+    case 'reverse':
+    case 'shift':
+    case 'sort':
+    case 'splice':
+    case 'unshift':
     // No Array Modification
     case 'at':
     case 'concat':
@@ -39,17 +40,16 @@ export default class ArrayTrap extends Trap {
     case 'toSpliced':
     case 'toString':
     case 'slice':
-    // Array Modification
-    case 'copyWithin':
-    case 'fill':
-    case 'length':
-    case 'push':
-    case 'pop':
-    case 'reverse':
-    case 'shift':
-    case 'sort':
-    case 'splice':
-    case 'unshift':
+    // Iterative Methods
+    case 'every':
+    case 'filter':
+    case 'find':
+    case 'findIndex':
+    case 'findLast':
+    case 'findLastIndex':
+    case 'flatMap':
+    case 'forEach':
+    case 'map':
     default:
       Object.defineProperty(this, $arrayPrototypePropertyName, {
         get() {
