@@ -7,9 +7,7 @@ export default class Handler {
   constructor($aliases) {
     this.#aliases = $aliases
     this.objectTrap = new ObjectTrap(this.#aliases)
-    console.log('this.objectTrap', Object.getOwnPropertyDescriptors(this.objectTrap))
     this.arrayTrap = new ArrayTrap(this.#aliases)
-    console.log('this.arrayTrap', Object.getOwnPropertyDescriptors(this.arrayTrap))
     // this.mapTrap = new MapTrap(this.#aliases)
   }
   #aliases

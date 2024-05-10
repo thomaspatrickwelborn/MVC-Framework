@@ -8,7 +8,30 @@ export default class ObjectTrap extends Trap {
     const { $root } = this.aliases
     for(let $objectPropertyName of Object.getOwnPropertyNames(
       Object
-    )) {
+    )) { switch($objectPropertyName) {
+    case 'assign':
+    case 'defineProperties':
+    case 'defineProperty':
+    case 'entries':
+    case 'freeze':
+    case 'fromEntries':
+    case 'getOwnPropertyDescriptor':
+    case 'getOwnPropertyDescriptors':
+    case 'getOwnPropertyNames':
+    case 'getOwnPropertySymbols':
+    case 'getPrototypeOf':
+    case 'getOwnPropertySymbols':
+    case 'hasOwn':
+    case 'is':
+    case 'isExtensible':
+    case 'isFrozen':
+    case 'isSealed':
+    case 'keys':
+    case 'preventExtensions':
+    case 'seal':
+    case 'setPrototypeOf':
+    case 'values':
+    default:
       Object.defineProperty(this, $objectPropertyName, {
         get() {
           return function () {
@@ -19,6 +42,7 @@ export default class ObjectTrap extends Trap {
           $root[$objectPropertyName] = $value
         },
       })
-    }
+      break
+    }}
   }
 }
