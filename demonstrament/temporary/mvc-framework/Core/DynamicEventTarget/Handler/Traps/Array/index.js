@@ -6,15 +6,21 @@ export default class ArrayTrap extends Trap {
     super($aliases)
     const $this = this
     const { $root } = this.aliases
-    for(var $methodName of Object.getOwnPropertyNames(
+    iterateArrayPrototypeProperties: 
+    for(let $arrayPrototypePropertyName of Object.getOwnPropertyNames(
       Array.prototype
-    )) {
-      Object.defineProperty(this, $methodName, {
-        get() { return function() {
-          return $root[$methodName](...arguments)
-        } },
+    )) { switch($arrayPrototypePropertyName) {
+    default:
+      Object.defineProperty(this, $arrayPrototypePropertyName, {
+        get() {
+          return function () {
+            return $root[$arrayPrototypePropertyName](...arguments)
+          }
+        },
+        set($value) {
+          $root[$arrayPrototypePropertyName] = $value
+        },
       })
-    }
-    Object.freeze(this)
+    }}
   }
 }

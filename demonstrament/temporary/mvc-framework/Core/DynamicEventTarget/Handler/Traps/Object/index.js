@@ -6,15 +6,19 @@ export default class ObjectTrap extends Trap {
     super($aliases)
     const $this = this
     const { $root } = this.aliases
-    for(var $methodName of Object.getOwnPropertyNames(
+    for(let $objectPropertyName of Object.getOwnPropertyNames(
       Object
     )) {
-      Object.defineProperty(this, $methodName, {
-        get() { return function() {
-          return Object[$methodName]($root, ...arguments)
-        } }
+      Object.defineProperty(this, $objectPropertyName, {
+        get() {
+          return function () {
+            return Object[$objectPropertyName]($root, ...arguments)
+          }
+        },
+        set($value) {
+          $root[$objectPropertyName] = $value
+        },
       })
     }
-    Object.freeze(this)
   }
 }

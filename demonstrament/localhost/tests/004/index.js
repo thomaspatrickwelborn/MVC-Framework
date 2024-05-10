@@ -19,8 +19,33 @@ function DOMContentLoaded($event) {
 
 function subtestN() {
 	// const object = new DynamicEventTarget({})
-	const array = new DynamicEventTarget([1,2,3])
+	const array = new DynamicEventTarget([])
+	array.length = 3
+	console.log('-----')
+	console.log(array.push(1,2,3))
+	array[0] = 3
+	array[1] = 2
+	array[2] = 1
 	console.log(array.length)
+	console.log(array.content)
+	console.log('-----')
+	const object = new DynamicEventTarget({})
+	console.log(object.assign)
+	object.assign({ a: 1, b: 2, c: 3 })
+	console.log(object)
+	// console.log(array.length)
+	// console.log(array)
+	// array.length = 0
+	// console.log(array.length)
+	// console.log(array)
+	// array.length = 3
+	// console.log(array.length)
+	// console.log(array)
+	// console.log('array.push', array.push)
+	// array.push(4,5,6)
+	// console.log('array', array)
+	// console.log('array.length', array.length)
+	// console.log('array.length', array.length)
 	
 }
 

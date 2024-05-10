@@ -7,13 +7,15 @@ export default class Handler {
   constructor($aliases) {
     this.#aliases = $aliases
     this.objectTrap = new ObjectTrap(this.#aliases)
+    console.log('this.objectTrap', Object.getOwnPropertyDescriptors(this.objectTrap))
     this.arrayTrap = new ArrayTrap(this.#aliases)
-    this.mapTrap = new MapTrap(this.#aliases)
+    console.log('this.arrayTrap', Object.getOwnPropertyDescriptors(this.arrayTrap))
+    // this.mapTrap = new MapTrap(this.#aliases)
   }
   #aliases
   objectTrap
   arrayTrap
-  mapTrap
+  // mapTrap
   #getRoot($target, $property, $receiver) {
     const { $eventTarget, $root, $rootAlias, $type } = this.#aliases
     var root = (
@@ -35,13 +37,12 @@ export default class Handler {
   }
   // Get
   get get() {
-    console.log(...arguments)
     const { $eventTarget, $root, $rootAlias, $type, $proxy } = this.#aliases
     const $this = this
     return function get($target, $property, $receiver) {
       // 1. Root Alias Property
       if($property === $rootAlias) {
-        return this.#getRoot(...arguments)
+        return $root
       }
       // 2. Event Target Class Properties
       if(
@@ -59,7 +60,7 @@ export default class Handler {
         Object.getOwnPropertyNames(Object)
         .includes($property)
       ) {
-        return $this.objectTrap[$property](...arguments)
+        return $this.objectTrap[$property]
       }
       // 4. Array Class Property
       if(
@@ -67,8 +68,7 @@ export default class Handler {
         Object.getOwnPropertyNames(Array.prototype)
         .includes($property)
       ) {
-        console.log($property, $this.arrayTrap[$property])
-        return $this.arrayTrap[$property](...arguments)
+        return $this.arrayTrap[$property]
       }
       // 5. Root Property
       return $root[$property]
