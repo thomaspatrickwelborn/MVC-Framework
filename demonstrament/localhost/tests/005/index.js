@@ -1,8 +1,14 @@
 import DynamicEventTarget from '/mvc-framework//Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestB()
+	subtestC()
+	// subtestB()
 	// subtestA()
+}
+
+function subtestC() {
+	const map = new DynamicEventTarget(new Map())
+	console.log(map.set)
 }
 
 function subtestB() {

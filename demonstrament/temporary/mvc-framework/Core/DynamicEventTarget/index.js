@@ -1,3 +1,5 @@
+import { typeOf } from '/mvc-framework/Utils/index.js'
+console.log(typeOf(new Map()))
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content', 

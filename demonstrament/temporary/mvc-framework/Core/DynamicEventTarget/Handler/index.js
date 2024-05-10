@@ -8,10 +8,12 @@ export default class Handler {
     this.#aliases = $aliases
     this.objectTrap = new ObjectTrap(this.#aliases)
     this.arrayTrap = new ArrayTrap(this.#aliases)
+    this.mapTrap = new MapTrap(this.#aliases)
   }
   #aliases
   objectTrap
   arrayTrap
+  mapTrap
   // Get
   get get() {
     const $this = this
@@ -46,6 +48,11 @@ export default class Handler {
         Object.getOwnPropertyNames(Array.prototype)
         .includes($property)
       ) return $this.arrayTrap[$property]
+      // 6. Map Class Instance Property Trap
+      if(
+        Object.getOwnPropertyNames(Map.prototype)
+        .includes($property)
+      ) return $this.mapTrap[$property]
       return undefined
     }
   }
