@@ -1,7 +1,16 @@
 import DynamicEventTarget from '/mvc-framework//Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestA()
+	subtestB()
+	// subtestA()
+}
+
+function subtestB() {
+	const object = new DynamicEventTarget({})
+	object['a'] = 0
+	console.log(object.content.a)
+	object.assign({ a: 0 })
+	console.log(object.content.a)
 }
 
 function subtestA() {
@@ -12,7 +21,16 @@ function subtestA() {
 	console.log(array.with(2, 78910))
 	array[2] = 78910
 	console.log(array.assign({ 0: 123123 }))
+	console.log(array.getOwnPropertyDescriptors())
+	array.length = 10
+	array.fill(988877321345, 5, 10)
 	console.log(array)
+	array[4] = 33
+	console.log(array[4])
+	array.addEventListener = 33
+	console.log(array.addEventListener)
+	console.log(array.content.addEventListener)
+
 	// const object = new DynamicEventTarget({})
 	// object.assign({ a: 1, b: 2, c: 3 })
 	// console.log(object.assign)

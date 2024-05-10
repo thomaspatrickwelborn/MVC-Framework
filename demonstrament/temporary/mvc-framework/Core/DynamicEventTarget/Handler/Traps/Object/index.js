@@ -5,20 +5,72 @@ export default class ObjectTrap extends Trap {
   constructor($aliases) {
     super($aliases)
     const $this = this
-    const { $root } = this.aliases
+    const { $root, $rootAlias } = this.aliases
     for(let $objectPropertyName of Object.getOwnPropertyNames(
       Object
     )) { switch($objectPropertyName) {
-      // Object Modification
       case 'assign':
+        Object.defineProperty(this, $objectPropertyName, {
+          value: function() {
+            for(let $source of [...arguments]) {
+              for(let [
+                $sourcePropKey, $sourcePropVal
+              ] of Object.entries($source)) {
+                if(typeof $sourcePropVal === 'object') {
+                  $sourcePropVal = new DynamicEventTarget(
+                    $sourcePropVal, {
+                      $rootAlias
+                    }
+                  )
+                }
+                $root[$sourcePropKey] = $sourcePropVal
+              }
+            }
+            return $root
+          }
+        })
+        break
       case 'defineProperties':
+        Object.defineProperty(this, $objectPropertyName, {
+          value: function() {
+            for(let [
+              $propertyKey, $propertyDescriptor
+            ] of Object.entries(arguments[0])) {
+              if(typeof $propertyDescriptor.value === 'object') {
+                $propertyDescriptor.value = new DynamicEventTarget(
+                  $propertyDescriptor.value, {
+                    $rootAlias
+                  }
+                )
+              }
+              Object.defineProperty(
+                $root, $propertyKey, $propertyDescriptor
+              )
+            }
+            return $root
+          }
+        })
+        break
       case 'defineProperty':
-      case 'freeze':
-      case 'preventExtensions':
-      case 'seal':
-      case 'setPrototypeOf':
-      // No Object Modification
+        Object.defineProperty(this, $objectPropertyName, {
+          value: function() {
+            let propertyKey = arguments[0]
+            let propertyDescriptor = arguments[1]
+            if(typeof propertyDescriptor.value === 'object') {
+              propertyDescriptor.value = new DynamicEventTarget(
+                propertyDescriptor.value, {
+                  $rootAlias
+                }
+              )
+            }
+            return Object.defineProperty(
+              $root, propertyKey, propertyDescriptor
+            )
+          }
+        })
+        break
       case 'entries':
+      case 'freeze':
       case 'fromEntries':
       case 'getOwnPropertyDescriptor':
       case 'getOwnPropertyDescriptors':
@@ -32,6 +84,9 @@ export default class ObjectTrap extends Trap {
       case 'isFrozen':
       case 'isSealed':
       case 'keys':
+      case 'preventExtensions':
+      case 'seal':
+      case 'setPrototypeOf':
       case 'values':
       default:
         Object.defineProperty(this, $objectPropertyName, {

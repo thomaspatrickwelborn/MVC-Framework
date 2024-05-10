@@ -29,7 +29,7 @@ export default class DynamicEventTarget extends EventTarget {
   get #rootAlias() { return this.#_rootAlias }
   set #rootAlias($rootAlias) {
     if(this.#_rootAlias !== undefined) return
-    this.#_rootAlias = (
+    this.#_rootAlias = ( 
       typeof $rootAlias === 'string' &&
       $rootAlias.length > 0
     ) ? $rootAlias
