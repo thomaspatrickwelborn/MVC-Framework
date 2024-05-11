@@ -56,14 +56,14 @@ export default class Handler {
       return undefined
     }
   }
-  // get set() {
-  //   return function set($target, $property, $value) {
-  //     return true
-  //   }
-  // }
-  // get deleteProperty() {
-  //   return function deleteProperty($target, $property) {
-  //     return true
-  //   }
-  // }
+  get set() {
+    return function set($target, $property, $value) {
+      return true
+    }
+  }
+  get deleteProperty() {
+    return function deleteProperty($target, $property) {
+      return true
+    }
+  }
 }

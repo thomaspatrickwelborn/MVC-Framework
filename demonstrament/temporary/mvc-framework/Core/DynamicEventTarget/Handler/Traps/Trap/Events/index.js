@@ -1,87 +1,101 @@
 const Events = {
-  Object: {
-    'assign': ($event) => new CustomEvent(
-      'assign', { 
-        detail: {
-          pretarget: $event.pretarget,
-          target: $event.target
-        },
-      }
-    ),
-    'assign:source': ($event) => new CustomEvent(
+  // Object Events
+  // Object Assign
+  'assign': ($event, $target) => {
+    return new CustomEvent(
+    'assign', { 
+      detail: {},
+    }
+  )
+  },
+  // Object Assign Source
+  'assign:source': ($event, $target) => {
+    return new CustomEvent(
       'assign:source', { 
         detail: {
-          pretarget: $event.pretarget,
-          target: $event.target,
           source: $event.source,
         },
-      }
-    ),
-    'assign:source:key': ($event) => new CustomEvent(
+      },
+      $target
+    )
+  },
+  // Object Assign Source Key
+  'assign:source:key': ($event, $target) => {
+    return new CustomEvent(
       `assign:source:${$event.key}`, { 
         detail: {
-          path: $event.path,
           key: $event.key,
           val: $event.val,
-          pretarget: $event.pretarget,
-          target: $event.target,
-          source: $event.source
+          source: $event.source,
         },
-      }
-    ),
-    'defineProperties': ($event) => new CustomEvent(
-      'defineProperties', {,
+      },
+      $target
+    )
+  },
+  'defineProperties': ($event, $target) => {
+    return new CustomEvent(
+      'defineProperties', {
         detail: {
-          pretarget: $event.pretarget, 
-          target: $event.target,
+          descriptors: $event.descriptors, 
         },
-      }
-    ),
-    'defineProperty': ($event) => new CustomEvent(
-      `defineProperty`, {,
+      },
+      $target
+    )
+  },
+  'defineProperty': ($event, $target) => {
+    return new CustomEvent(
+      `defineProperty`, {
         detail: {
-          path: $event.path,
-          key: $event.key,
-          val: $event.val,
-          pretarget: $event.pretarget,
-          target: $event.target,
+          prop: $event.prop,
+          descriptor: $event.descriptor,
         },
-      }
-    ),
-    'freeze': ($event) => new CustomEvent(
-      'freeze', {,
+      },
+      $target
+    )
+  },
+  'freeze': ($event, $target) => {
+    return new CustomEvent(
+      'freeze', {
         detail: {
           path: $event.path,
           key: $event.key,
           predescriptor: $event.predescriptor,
           descriptor: $event.descriptor,
         },
-      }
-    ),
-    'seal': ($event) => new CustomEvent(
-      'seal', {,
+      },
+      $target
+    )
+  },
+  'seal': ($event, $target) => {
+    return new CustomEvent(
+      'seal', {
         detail: {
           path: $event.path,
           key: $event.key,
           predescriptor: $event.predescriptor,
           descriptor: $event.descriptor,
         },
-      }
-    ),
-    'setPrototypeOf': ($event) => new CustomEvent(
-      'setPrototypeOf', {,
+      },
+      $target
+    )
+  },
+  'setPrototypeOf': ($event, $target) => {
+    return new CustomEvent(
+      'setPrototypeOf', {
         detail: {
           path: $event.path,
           key: $event.key,
           preprototype: $event.preprototype,
           prototype: $event.prototype,
         },
-      }
-    ),
+      },
+      $target
+    )
   },
-  Array: {
-    copyWithin: ($event) => new CustomEvent(
-      'copyWithin', {,
+  // Array Events
+  copyWithin: ($event, $target) => {
+    return new CustomEvent(
+      'copyWithin', {
         detail: {
           start: $event.start,
           end: $event.end,
@@ -89,10 +103,13 @@ const Events = {
           precopy: $event.precopy,
           copy: $event.copy,
         },
-      }
-    ),
-    fill: ($event) => new CustomEvent(
-      'fill', {,
+      },
+      $target
+    )
+  },
+  fill: ($event, $target) => {
+    return new CustomEvent(
+      'fill', {
         detail: {
           start: $event.start,
           end: $event.end,
@@ -100,61 +117,82 @@ const Events = {
           prelength: $event.prelength,
           length: $event.length,
         },
-      }
-    ),
-    length: ($event) => new CustomEvent(
-      'length', {,
+      },
+      $target
+    )
+  },
+  length: ($event, $target) => {
+    return new CustomEvent(
+      'length', {
         detail: {
           prelength: $event.prelength,
           length: $event.length,
         },
-      }
-    ),
-    push: ($event) => new CustomEvent(
-      'push', {,
+      },
+      $target
+    )
+  },
+  push: ($event, $target) => {
+    return new CustomEvent(
+      'push', {
         detail: {
           elements: $event.elements,
           prelength: $event.prelength,
           length: $event.length,
         },
-      }
-    ),
-    pop: ($event) => new CustomEvent(
-      'pop', {,
+      },
+      $target
+    )
+  },
+  pop: ($event, $target) => {
+    return new CustomEvent(
+      'pop', {
         detail: {
           removedElement: $event.removedElement, 
           prelength: $event.prelength,
           length: $event.length,
         },
-      }
-    ),
-    reverse: ($event) => new CustomEvent(
-      'reverse', {,
+      },
+      $target
+    )
+  },
+  reverse: ($event, $target) => {
+    return new CustomEvent(
+      'reverse', {
         detail: {
           preverse: $event.preverse, 
           reverse: $event.reverse, 
         },
-      }
-    ),
-    shift: ($event) => new CustomEvent(
-      'shift', {,
+      },
+      $target
+    )
+  },
+  shift: ($event, $target) => {
+    return new CustomEvent(
+      'shift', {
         detail: {
           removedElement: $event.removedElement, 
           prelength: $event.prelength, 
           length: $event.length, 
         },
-      }
-    ),
-    sort: ($event) => new CustomEvent(
-      'sort', {,
+      },
+      $target
+    )
+  },
+  sort: ($event, $target) => {
+    return new CustomEvent(
+      'sort', {
         detail: {
           presort: $event.presort, 
           sort: $event.sort, 
         },
-      }
-    ),
-    splice: ($event) => new CustomEvent(
-      'splice', {,
+      },
+      $target
+    )
+  },
+  splice: ($event, $target) => {
+    return new CustomEvent(
+      'splice', {
         detail: {
           start: $event.start, 
           stop: $event.stop, 
@@ -163,82 +201,108 @@ const Events = {
           prelength: $event.prelength, 
           length: $event.length, 
         },
-      }
-    ),
-    unshift: ($event) => new CustomEvent(
-      'unshift', {,
+      },
+      $target
+    )
+  },
+  unshift: ($event, $target) => {
+    return new CustomEvent(
+      'unshift', {
         detail: {
           elements: $event.elements, 
           prelength: $event.prelength, 
           length: $event.length, 
         },
-      }
-    ),
+      },
+      $target
+    )
   },
-  Map: {
-    clear: ($event) => new CustomEvent(
-      'clear', {,
+  // Map Events
+  clear: ($event, $target) => {
+    return new CustomEvent(
+      'clear', {
         detail: {
           presize: $event.presize, 
           size: $event.size, 
         },
-      }
-    ),
-    delete: ($event) => new CustomEvent(
-      'delete', {,
+      },
+      $target
+    )
+  },
+  delete: ($event, $target) => {
+    return new CustomEvent(
+      'delete', {
         detail: {
           path: $event.path, 
           key: $event.key, 
           preval: $event.preval, 
         },
-      }
-    ),
-    deleteProp: ($event) => new CustomEvent(
-      `delete:${$event.key}`, {,
+      },
+      $target
+    )
+  },
+  deleteProp: ($event, $target) => {
+    return new CustomEvent(
+      `delete:${$event.key}`, {
         detail: {
           path: $event.path, 
           key: $event.key, 
           preval: $event.preval, 
         },
-      }
-    ),
-    get: ($event) => new CustomEvent(
-      'get', {,
+      },
+      $target
+    )
+  },
+  get: ($event, $target) => {
+    return new CustomEvent(
+      'get', {
         detail: {
           path: $event.path, 
           key: $event.key, 
           val: $event.val, 
         },
-      }
-    ),
-    getProp: ($event) => new CustomEvent(
-      `get:${$event.key}`, {,
+      },
+      $target
+    )
+  },
+  getProp: ($event, $target) => {
+    return new CustomEvent(
+      `get:${$event.key}`, {
         detail: {
           path: $event.path, 
           key: $event.key, 
           val: $event.val, 
         },
-      }
-    ),
-    set: ($event) => new CustomEvent(
-      'set', {,
+      },
+      $target
+    )
+  },
+  set: ($event, $target) => {
+    return new CustomEvent(
+      'set', {
         detail: {
           path: $event.path, 
           key: $event.key, 
           val: $event.val, 
           preval: $event.preval, 
         },
-      }
-    ),
-    setProp: ($event) => new CustomEvent(
-      `set:${$event.key}`, {,
+      },
+      $target
+    )
+  },
+  setProp: ($event, $target) => {
+    return new CustomEvent(
+      `set:${$event.key}`, {
         detail: {
           path: $event.path, 
           key: $event.key, 
           val: $event.val, 
           preval: $event.preval, 
         },
-      }
-    ),
+      },
+      $target
+    )
   },
 }
+
+export default Events

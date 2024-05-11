@@ -5,14 +5,16 @@ export default class ObjectTrap extends Trap {
   constructor($aliases) {
     super($aliases)
     const $this = this
-    const { $root, $rootAlias } = this.aliases
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     for(let $objectPropertyName of Object.getOwnPropertyNames(
       Object
     )) { switch($objectPropertyName) {
       case 'assign': Object.defineProperty(
         this, $objectPropertyName, {
         value: function() {
+          iterateSources: 
           for(let $source of [...arguments]) {
+            iterateSourceProps:
             for(let [
               $sourcePropKey, $sourcePropVal
             ] of Object.entries($source)) {
@@ -27,8 +29,32 @@ export default class ObjectTrap extends Trap {
                 )
               }
               $root[$sourcePropKey] = $sourcePropVal
+              this.createEvent(
+                $eventTarget, 
+                'assign:source:key',
+                {
+                  key: $sourcePropKey,
+                  val: $sourcePropVal,
+                  source: $source,
+                },
+                $root,
+              )
             }
+            this.createEvent(
+              $eventTarget,
+              'assign:source',
+              {
+                source: $source,
+              },
+              $root,
+            )
           }
+          this.createEvent(
+            $eventTarget,
+            'assign',
+            {},
+            $root,
+          )
           return $root
         }}
       )
@@ -36,9 +62,10 @@ export default class ObjectTrap extends Trap {
       case 'defineProperties': Object.defineProperty(
         this, $objectPropertyName, {
         value: function() {
+          const $propertyDescriptors = arguments[0]
           for(let [
             $propertyKey, $propertyDescriptor
-          ] of Object.entries(arguments[0])) {
+          ] of Object.entries($propertyDescriptors)) {
             if(
               typeof $propertyDescriptor.value === 'object' &&
               !$sourcePropVal instanceof DynamicEventTarget
@@ -52,7 +79,24 @@ export default class ObjectTrap extends Trap {
             Object.defineProperty(
               $root, $propertyKey, $propertyDescriptor
             )
+            this.createEvent(
+              $eventTarget,
+              'defineProperty',
+              {
+                prop: $propertyKey,
+                descriptor: $propertyDescriptor,
+              },
+              $root,
+            )
           }
+          this.createEvent(
+            $eventTarget,
+            'defineProperties',
+            {
+              descriptors: $propertyDescriptors,
+            },
+            $root,
+          )
           return $root
         }}
       )
@@ -72,9 +116,19 @@ export default class ObjectTrap extends Trap {
                 }
               )
             }
-            return Object.defineProperty(
+            Object.defineProperty(
               $root, propertyKey, propertyDescriptor
             )
+            this.createEvent(
+              $eventTarget,
+              'defineProperty',
+              {
+                prop: $propertyKey,
+                descriptor: $propertyDescriptor,
+              },
+              $root,
+            )
+            return $root
           }
         }
       )
