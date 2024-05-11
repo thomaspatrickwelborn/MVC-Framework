@@ -32,6 +32,7 @@ const Events = {
       $target
     )
   },
+  // Object Define Properties
   'defineProperties': ($event, $target) => {
     return new CustomEvent(
       'defineProperties', {
@@ -42,6 +43,7 @@ const Events = {
       $target
     )
   },
+  // Object Define Property
   'defineProperty': ($event, $target) => {
     return new CustomEvent(
       `defineProperty`, {
@@ -53,32 +55,25 @@ const Events = {
       $target
     )
   },
+  // Object Freeze
   'freeze': ($event, $target) => {
     return new CustomEvent(
       'freeze', {
-        detail: {
-          path: $event.path,
-          key: $event.key,
-          predescriptor: $event.predescriptor,
-          descriptor: $event.descriptor,
-        },
+        detail: {},
       },
       $target
     )
   },
+  // Object Seal
   'seal': ($event, $target) => {
     return new CustomEvent(
       'seal', {
-        detail: {
-          path: $event.path,
-          key: $event.key,
-          predescriptor: $event.predescriptor,
-          descriptor: $event.descriptor,
-        },
+        detail: {},
       },
       $target
     )
   },
+  // Object Set Prototype Of
   'setPrototypeOf': ($event, $target) => {
     return new CustomEvent(
       'setPrototypeOf', {

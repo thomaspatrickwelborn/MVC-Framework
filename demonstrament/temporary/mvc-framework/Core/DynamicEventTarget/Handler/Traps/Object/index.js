@@ -143,8 +143,44 @@ export default class ObjectTrap extends Trap {
         }
       )
       break
+      case 'freeze': Object.defineProperty(
+        this, $objectPropertyName, {
+          value: function () {
+            Object.freeze($root)
+            this.createEvent(
+              $eventTarget,
+              'freeze',
+              {},
+              $root
+            )
+            return $root
+          }
+        }
+      )
+      break
+      case 'seal': Object.defineProperty(
+        this, $objectPropertyName, {
+          value: function () {
+            Object.seal($root)
+            this.createEvent(
+              $eventTarget,
+              'seal',
+              {},
+              $root
+            )
+            return $root
+          }
+        }
+      )
+      case 'values': Object.defineProperty(
+        this, $objectPropertyName, {
+          value: function () {
+            return Object[$objectPropertyName]($root, ...arguments)
+          }
+        }
+      )
+      break
       case 'entries':
-      case 'freeze':
       case 'getOwnPropertyDescriptor':
       case 'getOwnPropertyDescriptors':
       case 'getOwnPropertyNames':
@@ -158,16 +194,7 @@ export default class ObjectTrap extends Trap {
       case 'isSealed':
       case 'keys':
       case 'preventExtensions':
-      case 'seal':
       case 'setPrototypeOf':
-      case 'values': Object.defineProperty(
-        this, $objectPropertyName, {
-          value: function () {
-            return Object[$objectPropertyName]($root, ...arguments)
-          }
-        }
-      )
-      break
       default: Object.defineProperty(
         this, $objectPropertyName, {
           get() {
