@@ -16,7 +16,10 @@ export default class ObjectTrap extends Trap {
             for(let [
               $sourcePropKey, $sourcePropVal
             ] of Object.entries($source)) {
-              if(typeof $sourcePropVal === 'object') {
+              if(
+                typeof $sourcePropVal === 'object' &&
+                !$sourcePropVal instanceof DynamicEventTarget
+              ) {
                 $sourcePropVal = new DynamicEventTarget(
                   $sourcePropVal, {
                     $rootAlias
@@ -36,7 +39,10 @@ export default class ObjectTrap extends Trap {
           for(let [
             $propertyKey, $propertyDescriptor
           ] of Object.entries(arguments[0])) {
-            if(typeof $propertyDescriptor.value === 'object') {
+            if(
+              typeof $propertyDescriptor.value === 'object' &&
+              !$sourcePropVal instanceof DynamicEventTarget
+            ) {
               $propertyDescriptor.value = new DynamicEventTarget(
                 $propertyDescriptor.value, {
                   $rootAlias
@@ -56,7 +62,10 @@ export default class ObjectTrap extends Trap {
           value: function() {
             let propertyKey = arguments[0]
             let propertyDescriptor = arguments[1]
-            if(typeof propertyDescriptor.value === 'object') {
+            if(
+              typeof propertyDescriptor.value === 'object' &&
+              !$sourcePropVal instanceof DynamicEventTarget
+            ) {
               propertyDescriptor.value = new DynamicEventTarget(
                 propertyDescriptor.value, {
                   $rootAlias

@@ -8,7 +8,11 @@ function DOMContentLoaded($event) {
 
 function subtestC() {
 	const map = new DynamicEventTarget(new Map())
-	console.log(map.set)
+	map.set('a', 1)
+	map.set('b', 2)
+	console.log(map.content)
+	map.clear()
+	console.log(map.content)
 }
 
 function subtestB() {

@@ -1,4 +1,3 @@
-
 import DynamicEventTarget from '../../../index.js'
 import Trap from '../Trap/index.js'
 export default class MapTrap extends Trap {
@@ -9,15 +8,18 @@ export default class MapTrap extends Trap {
     for(let $mapPrototypePropertyName of Object.getOwnPropertyNames(
       Map.prototype
     )) { switch($mapPrototypePropertyName) {
+      // Map Modification
       case 'clear':
       case 'delete':
+      case 'set':
+      // No Map Modification
       case 'entries':
       case 'forEach':
       case 'get':
       case 'has':
       case 'keys':
-      case 'set':
       case 'values':
+      case 'size':
       default: Object.defineProperty(
         this, $mapPrototypePropertyName, {
         get() {
