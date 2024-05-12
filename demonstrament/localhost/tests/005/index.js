@@ -1,10 +1,18 @@
 import DynamicEventTarget from '/mvc-framework//Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestD()
+	subtestE()
+	// subtestD()
 	// subtestC()
 	// subtestB()
 	// subtestA()
+}
+
+function subtestE() {
+	const array = new DynamicEventTarget([])
+	array.addEventListener('push', ($event) => console.log($event.type, $event.detail))
+	array.addEventListener('pushProp', ($event) => console.log($event.type, $event.detail))
+	array.push(1,2,3,4,5)
 }
 
 function subtestD() {

@@ -9,100 +9,122 @@ export default class ObjectTrap extends Trap {
     for(let $objectPropertyName of Object.getOwnPropertyNames(
       Object
     )) { switch($objectPropertyName) {
+      // Object Assign
       case 'assign': Object.defineProperty(
-        this, $objectPropertyName, {
-        value: function() {
-          iterateSources: 
-          for(let $source of [...arguments]) {
-            iterateSourceProps:
-            for(let [
-              $sourcePropKey, $sourcePropVal
-            ] of Object.entries($source)) {
-              if(
-                typeof $sourcePropVal === 'object' &&
-                !$sourcePropVal instanceof DynamicEventTarget
-              ) {
-                $sourcePropVal = new DynamicEventTarget(
-                  $sourcePropVal, {
-                    $rootAlias
-                  }
+        $this, $objectPropertyName, {
+          value: function() {
+            iterateSources: 
+            for(let $source of [...arguments]) {
+              iterateSourceProps:
+              for(let [
+                $sourcePropKey, $sourcePropVal
+              ] of Object.entries($source)) {
+                if(
+                  typeof $sourcePropVal === 'object' &&
+                  !$sourcePropVal instanceof DynamicEventTarget
+                ) {
+                  $sourcePropVal = new DynamicEventTarget(
+                    $sourcePropVal, {
+                      $rootAlias
+                    }
+                  )
+                }
+                $root[$sourcePropKey] = $sourcePropVal
+                $this.createEvent(
+                  $eventTarget, 
+                  'assignSourceProperty',
+                  {
+                    key: $sourcePropKey,
+                    val: $sourcePropVal,
+                    source: $source,
+                  },
+                  $root,
+                )
+                $this.createEvent(
+                  $eventTarget, 
+                  'assignSourcePropertyKey',
+                  {
+                    key: $sourcePropKey,
+                    val: $sourcePropVal,
+                    source: $source,
+                  },
+                  $root,
                 )
               }
-              $root[$sourcePropKey] = $sourcePropVal
-              this.createEvent(
-                $eventTarget, 
-                'assign:source:key',
+              $this.createEvent(
+                $eventTarget,
+                'assignSource',
                 {
-                  key: $sourcePropKey,
-                  val: $sourcePropVal,
                   source: $source,
                 },
                 $root,
               )
             }
-            this.createEvent(
+            $this.createEvent(
               $eventTarget,
-              'assign:source',
-              {
-                source: $source,
-              },
-              $root,
+              'assign',
+              {},
             )
+            return $root
           }
-          this.createEvent(
-            $eventTarget,
-            'assign',
-            {},
-            $root,
-          )
-          return $root
-        }}
+        }
       )
       break
+      // Object Define Properties
       case 'defineProperties': Object.defineProperty(
-        this, $objectPropertyName, {
-        value: function() {
-          const $propertyDescriptors = arguments[0]
-          for(let [
-            $propertyKey, $propertyDescriptor
-          ] of Object.entries($propertyDescriptors)) {
-            if(
-              typeof $propertyDescriptor.value === 'object' &&
-              !$sourcePropVal instanceof DynamicEventTarget
-            ) {
-              $propertyDescriptor.value = new DynamicEventTarget(
-                $propertyDescriptor.value, {
-                  $rootAlias
-                }
+        $this, $objectPropertyName, {
+          value: function() {
+            const $propertyDescriptors = arguments[0]
+            for(let [
+              $propertyKey, $propertyDescriptor
+            ] of Object.entries($propertyDescriptors)) {
+              if(
+                typeof $propertyDescriptor.value === 'object' &&
+                !$sourcePropVal instanceof DynamicEventTarget
+              ) {
+                $propertyDescriptor.value = new DynamicEventTarget(
+                  $propertyDescriptor.value, {
+                    $rootAlias
+                  }
+                )
+              }
+              Object.defineProperty(
+                $root, $propertyKey, $propertyDescriptor
+              )
+              $this.createEvent(
+                $eventTarget,
+                'defineProperty',
+                {
+                  prop: $propertyKey,
+                  descriptor: $propertyDescriptor,
+                },
+                $root,
+              )
+              $this.createEvent(
+                $eventTarget,
+                'definePropertyKey',
+                {
+                  prop: $propertyKey,
+                  descriptor: $propertyDescriptor,
+                },
+                $root,
               )
             }
-            Object.defineProperty(
-              $root, $propertyKey, $propertyDescriptor
-            )
-            this.createEvent(
+            $this.createEvent(
               $eventTarget,
-              'defineProperty',
+              'defineProperties',
               {
-                prop: $propertyKey,
-                descriptor: $propertyDescriptor,
+                descriptors: $propertyDescriptors,
               },
-              $root,
             )
+            return $root
           }
-          this.createEvent(
-            $eventTarget,
-            'defineProperties',
-            {
-              descriptors: $propertyDescriptors,
-            },
-            $root,
-          )
-          return $root
-        }}
+        }
       )
       break
+      // Object Define Property
       case 'defineProperty': Object.defineProperty(
-        this, $objectPropertyName, {
+        $this, $objectPropertyName, {
           value: function() {
             let propertyKey = arguments[0]
             let propertyDescriptor = arguments[1]
@@ -119,22 +141,30 @@ export default class ObjectTrap extends Trap {
             Object.defineProperty(
               $root, propertyKey, propertyDescriptor
             )
-            this.createEvent(
+            $this.createEvent(
               $eventTarget,
               'defineProperty',
               {
                 prop: $propertyKey,
                 descriptor: $propertyDescriptor,
               },
-              $root,
+            )
+            $this.createEvent(
+              $eventTarget,
+              'definePropertyKey',
+              {
+                prop: $propertyKey,
+                descriptor: $propertyDescriptor,
+              },
             )
             return $root
           }
         }
       )
       break
+      // Object From Entries
       case 'fromEntries': Object.defineProperty(
-        this, $objectPropertyName, {
+        $this, $objectPropertyName, {
           value: function() {
             return Object[$objectPropertyName](
               Object.entries($root)
@@ -143,11 +173,12 @@ export default class ObjectTrap extends Trap {
         }
       )
       break
+      // Object Freeze
       case 'freeze': Object.defineProperty(
-        this, $objectPropertyName, {
+        $this, $objectPropertyName, {
           value: function () {
             Object.freeze($root)
-            this.createEvent(
+            $this.createEvent(
               $eventTarget,
               'freeze',
               {},
@@ -158,11 +189,12 @@ export default class ObjectTrap extends Trap {
         }
       )
       break
+      // Object Seal
       case 'seal': Object.defineProperty(
-        this, $objectPropertyName, {
+        $this, $objectPropertyName, {
           value: function () {
             Object.seal($root)
-            this.createEvent(
+            $this.createEvent(
               $eventTarget,
               'seal',
               {},
@@ -172,8 +204,9 @@ export default class ObjectTrap extends Trap {
           }
         }
       )
+      break
       case 'values': Object.defineProperty(
-        this, $objectPropertyName, {
+        $this, $objectPropertyName, {
           value: function () {
             return Object[$objectPropertyName]($root, ...arguments)
           }
@@ -196,9 +229,9 @@ export default class ObjectTrap extends Trap {
       case 'preventExtensions':
       case 'setPrototypeOf':
       default: Object.defineProperty(
-        this, $objectPropertyName, {
+        $this, $objectPropertyName, {
           get() {
-            return function () {
+            return function() {
               return Object[$objectPropertyName]($root, ...arguments)
             }
           },

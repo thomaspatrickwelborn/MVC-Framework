@@ -145,8 +145,16 @@ const Events = {
       'push', {
         detail: {
           elements: $event.elements,
-          prelength: $event.prelength,
-          length: $event.length,
+        }
+      }
+    )
+  },
+  pushProp: ($event, $target) => {
+    return new CustomEvent(
+      `pushProp`, {
+        detail: {
+          element: $event.element,
+          elementIndex: $event.elementIndex,
         }
       }
     )

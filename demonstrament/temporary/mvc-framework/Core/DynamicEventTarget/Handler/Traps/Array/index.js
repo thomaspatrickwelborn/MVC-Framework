@@ -5,7 +5,7 @@ export default class ArrayTrap extends Trap {
   constructor($aliases) {
     super($aliases)
     const $this = this
-    const { $root } = this.aliases
+    const { $eventTarget, $root, $rootAlias } = this.aliases
     iterateArrayPrototypeProperties: 
     for(let $arrayPrototypePropertyName of Object.getOwnPropertyNames(
       Array.prototype
@@ -14,7 +14,44 @@ export default class ArrayTrap extends Trap {
       case 'copyWithin':
       case 'fill':
       case 'length':
-      case 'push':
+      case 'push': Object.defineProperty(
+        $this, $arrayPrototypePropertyName, {
+          value: function() {
+            const elements = []
+            let elementIndex = 0
+            iterateElements:
+            for(let $element of arguments) {
+              if(typeof $element === 'object') {
+                $element = new DynamicEventTarget($element, {
+                  rootAlias: $rootAlias,
+                })
+              }
+              elements.push($element)
+              $root.push($element)
+              // Push Prop Event
+              $this.createEvent(
+                $eventTarget,
+                'pushProp',
+                {
+                  elementIndex, 
+                  element: $element,
+                },
+                $root,
+              )
+              elementIndex++
+            }
+            // Push Event
+            $this.createEvent(
+              $eventTarget,
+              'push',
+              { elements },
+              $root,
+            )
+            return $root.length
+          }
+        }  
+      )
+      break
       case 'pop':
       case 'reverse':
       case 'shift':
@@ -51,7 +88,7 @@ export default class ArrayTrap extends Trap {
       case 'forEach':
       case 'map':
       default: Object.defineProperty(
-        this, $arrayPrototypePropertyName, {
+        $this, $arrayPrototypePropertyName, {
         get() {
           if(typeof $root[$arrayPrototypePropertyName] === 'function') {
             return function () {
