@@ -9,10 +9,19 @@ function DOMContentLoaded($event) {
 }
 
 function subtestE() {
+	const testArraySet = [0,1,2,3,4,5,6,7,8,9]
 	const array = new DynamicEventTarget([])
-	array.addEventListener('push', ($event) => console.log($event.type, $event.detail))
-	array.addEventListener('pushProp', ($event) => console.log($event.type, $event.detail))
-	array.push(1,2,3,4,5)
+	const array2 = []
+	// array.addEventListener('push', ($event) => console.log($event.type, $event.detail))
+	// array.addEventListener('pushProp', ($event) => console.log($event.type, $event.detail))
+	array.push(...testArraySet)
+	array2.push(...testArraySet)
+	console.log('-----')
+	console.log("array.splice(2)", array.splice(2))
+	console.log("array.length", array.length)
+	console.log('-----')
+	console.log("array2.splice(2)", array2.splice(2))
+	console.log("array2.length", array2.length)
 }
 
 function subtestD() {

@@ -163,9 +163,8 @@ const Events = {
     return new CustomEvent(
       'pop', {
         detail: {
-          removedElement: $event.removedElement, 
-          prelength: $event.prelength,
-          length: $event.length,
+          element: $event.removedElement, 
+          elementIndex: $event.elementIndex,
         }
       }
     )
@@ -201,15 +200,33 @@ const Events = {
       }
     )
   },
+  'splice:deleteItem': ($event, $target) => {
+    return new CustomEvent(
+      'splice', {
+        detail: {
+          // 
+        }
+      }
+    )
+  },
+  'splice:addItem': ($event, $target) => {
+    return new CustomEvent(
+      'splice', {
+        detail: {
+          // 
+        }
+      }
+    )
+  },
   splice: ($event, $target) => {
     return new CustomEvent(
       'splice', {
         detail: {
+          // 
           start: $event.start, 
-          stop: $event.stop, 
+          deleteCount: $event.stop, 
           deleted: $event.deleted, 
           added: $event.added, 
-          prelength: $event.prelength, 
           length: $event.length, 
         }
       }
@@ -219,9 +236,17 @@ const Events = {
     return new CustomEvent(
       'unshift', {
         detail: {
-          elements: $event.elements, 
-          prelength: $event.prelength, 
-          length: $event.length, 
+          elements: $event.elements,
+        }
+      }
+    )
+  },
+  unshiftProp: ($event, $target) => {
+    return new CustomEvent(
+      `unshiftProp`, {
+        detail: {
+          element: $event.element,
+          elementIndex: $event.elementIndex,
         }
       }
     )
