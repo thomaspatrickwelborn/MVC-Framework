@@ -1,11 +1,21 @@
 import DynamicEventTarget from '/mvc-framework//Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestE()
+	subtestF()
+	// subtestE()
 	// subtestD()
 	// subtestC()
 	// subtestB()
 	// subtestA()
+}
+
+function subtestF() {
+	const array = new DynamicEventTarget([])
+	array.addEventListener('fillIndex', ($event) => console.log($event.type, $event.detail))
+	array.addEventListener('fill', ($event) => console.log($event.type, $event.detail))
+	array.length = 10
+	array.fill(123, 8, 12)
+	console.log(array.content)
 }
 
 function subtestE() {
@@ -14,14 +24,25 @@ function subtestE() {
 	const array2 = []
 	// array.addEventListener('push', ($event) => console.log($event.type, $event.detail))
 	// array.addEventListener('pushProp', ($event) => console.log($event.type, $event.detail))
-	array.push(...testArraySet)
-	array2.push(...testArraySet)
-	console.log('-----')
-	console.log("array.splice(2)", array.splice(2))
-	console.log("array.length", array.length)
-	console.log('-----')
-	console.log("array2.splice(2)", array2.splice(2))
-	console.log("array2.length", array2.length)
+	array.addEventListener('spliceAdd', ($event) => console.log($event.type, $event.detail))
+	array.addEventListener('spliceDelete', ($event) => console.log($event.type, $event.detail))
+	array.addEventListener('splice', ($event) => console.log($event.type, $event.detail))
+	array.splice(0, 0, 123, 456, 789)
+	array2.splice(0, 0, 123, 456, 789)
+	array.splice(0, 1, 112233)
+	array2.splice(0, 1, 112233)
+	array.splice(1, 1, 445566)
+	array2.splice(1, 1, 445566)
+	array.splice(2, 1, 778899)
+	array2.splice(2, 1, 778899)
+	array.splice(3, 0, 101112)
+	array2.splice(3, 0, 101112)
+	array.splice(4, 0, 131415)
+	array2.splice(4, 0, 131415)
+	array.splice(3)
+	array2.splice(3)
+	console.log(array.content)
+	console.log(array2)
 }
 
 function subtestD() {

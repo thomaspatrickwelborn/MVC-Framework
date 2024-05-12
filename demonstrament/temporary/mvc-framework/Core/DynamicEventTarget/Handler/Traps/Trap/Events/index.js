@@ -123,9 +123,18 @@ const Events = {
         detail: {
           start: $event.start,
           end: $event.end,
-          items: $event.items,
-          prelength: $event.prelength,
-          length: $event.length,
+          value: $event.value,
+        }
+      }
+    )
+  },
+  fillIndex: ($event, $target) => {
+    return new CustomEvent(
+      'fillIndex', {
+        detail: {
+          start: $event.start,
+          end: $event.end,
+          value: $event.value,
         }
       }
     )
@@ -200,20 +209,22 @@ const Events = {
       }
     )
   },
-  'splice:deleteItem': ($event, $target) => {
+  'spliceDelete': ($event, $target) => {
     return new CustomEvent(
-      'splice', {
+      'spliceDelete', {
         detail: {
-          // 
+          deleteIndex: $event.deleteIndex,
+          deleteItem: $event.deleteItem,
         }
       }
     )
   },
-  'splice:addItem': ($event, $target) => {
+  'spliceAdd': ($event, $target) => {
     return new CustomEvent(
-      'splice', {
+      'spliceAdd', {
         detail: {
-          // 
+          addIndex: $event.addIndex,
+          addItem: $event.addItem,
         }
       }
     )
@@ -222,9 +233,7 @@ const Events = {
     return new CustomEvent(
       'splice', {
         detail: {
-          // 
           start: $event.start, 
-          deleteCount: $event.stop, 
           deleted: $event.deleted, 
           added: $event.added, 
           length: $event.length, 

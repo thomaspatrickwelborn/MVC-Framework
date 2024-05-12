@@ -66,13 +66,28 @@ export default class Handler {
     }
   }
   get set() {
+    const $this = this
+    const {
+      $eventTarget, $root, $rootAlias, $type, $proxy
+    } = this.#aliases
     return function set($target, $property, $value) {
+      if(
+        $type === 'array' &&
+        Object.getOwnPropertyNames(Array.prototype)
+        .includes($property)
+      ) $this.arrayTrap[$property] = $value
+      // 6. Object/Array Intermix
+      if(
+        $type === 'array' &&
+        Object.getOwnPropertyNames(Object.prototype)
+        .includes($property)
+      ) $this.objectTrap[$property] = $value
       return true
     }
   }
-  get deleteProperty() {
-    return function deleteProperty($target, $property) {
-      return true
-    }
-  }
+  // get deleteProperty() {
+  //   return function deleteProperty($target, $property) {
+  //     return true
+  //   }
+  // }
 }

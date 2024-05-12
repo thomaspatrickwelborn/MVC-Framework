@@ -11,7 +11,46 @@ export default class ArrayTrap extends Trap {
       Array.prototype
     )) { switch($arrayPrototypePropertyName) {
       // Array Modification
-      // Array Push
+      // Array Fill
+      case 'fill': Object.defineProperty(
+        $this, $arrayPrototypePropertyName, {
+          value: function() {
+            const $arguments = [...arguments]
+            const value = $arguments[0]
+            const start = (
+              $arguments[1] >= 0
+            ) ? $arguments[1]
+              : $root.length - $arguments[1]
+            const end = (
+              $arguments[2] >= 0
+            ) ? $arguments[2]
+              : $root.length - $arguments[2]
+            let fillIndex = start
+            while(
+              fillIndex < $root.length &&
+              fillIndex < end
+            ) {
+              $root.fill(value, fillIndex, fillIndex + 1)
+              $this.createEvent(
+                $eventTarget,
+                'fillIndex',
+                {
+                  start: fillIndex,
+                  end: fillIndex + 1,
+                  value,
+                },
+              )
+              fillIndex++
+            }
+            $this.createEvent(
+              $eventTarget,
+              'fill',
+              { start, end, value },
+            )
+          }
+        }
+      )
+      break
       case 'push': Object.defineProperty(
         $this, $arrayPrototypePropertyName, {
           value: function() {
@@ -86,41 +125,71 @@ export default class ArrayTrap extends Trap {
         }
       )
       break
+      // Array Splice
       case 'splice':  Object.defineProperty(
         $this, $arrayPrototypePropertyName, {
           value: function() {
             const $arguments = [...arguments]
-            const start = $arguments[0]
-            const deleteCount = $arguments[1] || $root.length - start
-            const items = $arguments.slice(2) || []
-            const deletedItems = []
-            let deleteCountIndex = 0
-            // Delete Items
-            while(deleteCountIndex < deleteCount) {
-              const spliceItem = $root.splice(start, 1)
-              if(spliceItem.length !== 0) {
-                deletedItems.push(
-                  spliceItem[0]
-                )
-                // Splice Delete Event
-              }
-              deleteCountIndex++
+            const start = (
+              $arguments[0] >= 0
+            ) ? $arguments[0]
+              : $root.length - $arguments[0]
+            const deleteCount = (
+              $arguments[1] <= 0
+            ) ? 0
+              : (
+              $arguments[1] === undefined ||
+              start + $arguments[1] >= $root.length
+            ) ? $root.length - start
+              : $arguments[1]
+            const addItems = $arguments.slice(2)
+            const addCount = addItems.length
+            const deleteItems = []
+            let deleteItemsIndex = 0
+            while(deleteItemsIndex < deleteCount) {
+              const deleteItem = $root.splice(start, 1)[0]
+              deleteItems.push(deleteItem)
+              $this.createEvent(
+                $eventTarget,
+                'spliceDelete',
+                {
+                  deleteIndex: deleteItemsIndex,
+                  deleteItem: deleteItem,
+                },
+              )
+              deleteItemsIndex++
             }
-            // Add Items
-            let addItemIndex = start
-            let itemsIndex = 0
-            while(addItemIndex < items.length) {
-              $root.splice(addItemIndex, 0, items[itemsIndex])
-              // Splice Add Event
-              addItemIndex++
-              itemsIndex++
+            let addItemsIndex = 0
+            while(addItemsIndex < addCount) {
+              const addItem = addItems[addItemsIndex]
+              $root.splice(
+                start + addItemsIndex, 0, addItem
+              )
+              $this.createEvent(
+                $eventTarget,
+                'spliceAdd',
+                {
+                  addIndex: addItemsIndex,
+                  addItem: addItem,
+                },
+              )
+              addItemsIndex++
             }
-            // Splice Event
-            return deletedItems
+            $this.createEvent(
+              $eventTarget,
+              'splice',
+              {
+                start,
+                deleted: deleteItems,
+                added: addItems,
+              },
+            )
+            return deleteItems
           }
         }
       )
       break
+      // Array Unshift
       case 'unshift': Object.defineProperty(
         $this, $arrayPrototypePropertyName, {
           value: function() {
@@ -159,9 +228,18 @@ export default class ArrayTrap extends Trap {
         }  
       )
       break
+      case 'length': Object.defineProperty(
+        $this, $arrayPrototypePropertyName, {
+          get() {
+            return $root.length
+          },
+          set($length) {
+            $root.length = $length
+          }
+        }
+      )
+      break
       // case 'copyWithin':
-      // case 'fill':
-      // case 'length':
       // case 'reverse':
       // case 'sort':
       // No Array Modification
