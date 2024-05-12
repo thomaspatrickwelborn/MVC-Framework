@@ -9,27 +9,37 @@ const Events = {
   )
   },
   // Object Assign Source
-  'assign:source': ($event, $target) => {
+  'assignSource': ($event, $target) => {
     return new CustomEvent(
-      'assign:source', { 
+      'assignSource', { 
         detail: {
           source: $event.source,
-        },
-      },
-      $target
+        }
+      }
     )
   },
   // Object Assign Source Key
-  'assign:source:key': ($event, $target) => {
+  'assignSourceProperty': ($event, $target) => {
     return new CustomEvent(
-      `assign:source:${$event.key}`, { 
+      `assignSourceProperty`, { 
         detail: {
           key: $event.key,
           val: $event.val,
           source: $event.source,
-        },
-      },
-      $target
+        }
+      }
+    )
+  },
+  // Object Assign Source Key
+  'assignSourcePropertyKey': ($event, $target) => {
+    return new CustomEvent(
+      `assignSourceProperty:${$event.key}`, { 
+        detail: {
+          key: $event.key,
+          val: $event.val,
+          source: $event.source,
+        }
+      }
     )
   },
   // Object Define Properties
@@ -38,9 +48,8 @@ const Events = {
       'defineProperties', {
         detail: {
           descriptors: $event.descriptors, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   // Object Define Property
@@ -50,9 +59,19 @@ const Events = {
         detail: {
           prop: $event.prop,
           descriptor: $event.descriptor,
-        },
-      },
-      $target
+        }
+      }
+    )
+  },
+  // Object Define Property
+  'definePropertyKey': ($event, $target) => {
+    return new CustomEvent(
+      `defineProperty:${$event.prop}`, {
+        detail: {
+          prop: $event.prop,
+          descriptor: $event.descriptor,
+        }
+      }
     )
   },
   // Object Freeze
@@ -61,7 +80,6 @@ const Events = {
       'freeze', {
         detail: {},
       },
-      $target
     )
   },
   // Object Seal
@@ -70,7 +88,6 @@ const Events = {
       'seal', {
         detail: {},
       },
-      $target
     )
   },
   // Object Set Prototype Of
@@ -82,9 +99,8 @@ const Events = {
           key: $event.key,
           preprototype: $event.preprototype,
           prototype: $event.prototype,
-        },
-      },
-      $target
+        }
+      }
     )
   },
   // Array Events
@@ -97,9 +113,8 @@ const Events = {
           items: $event.items,
           precopy: $event.precopy,
           copy: $event.copy,
-        },
-      },
-      $target
+        }
+      }
     )
   },
   fill: ($event, $target) => {
@@ -111,9 +126,8 @@ const Events = {
           items: $event.items,
           prelength: $event.prelength,
           length: $event.length,
-        },
-      },
-      $target
+        }
+      }
     )
   },
   length: ($event, $target) => {
@@ -122,9 +136,8 @@ const Events = {
         detail: {
           prelength: $event.prelength,
           length: $event.length,
-        },
-      },
-      $target
+        }
+      }
     )
   },
   push: ($event, $target) => {
@@ -134,9 +147,8 @@ const Events = {
           elements: $event.elements,
           prelength: $event.prelength,
           length: $event.length,
-        },
-      },
-      $target
+        }
+      }
     )
   },
   pop: ($event, $target) => {
@@ -146,9 +158,8 @@ const Events = {
           removedElement: $event.removedElement, 
           prelength: $event.prelength,
           length: $event.length,
-        },
-      },
-      $target
+        }
+      }
     )
   },
   reverse: ($event, $target) => {
@@ -157,9 +168,8 @@ const Events = {
         detail: {
           preverse: $event.preverse, 
           reverse: $event.reverse, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   shift: ($event, $target) => {
@@ -169,9 +179,8 @@ const Events = {
           removedElement: $event.removedElement, 
           prelength: $event.prelength, 
           length: $event.length, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   sort: ($event, $target) => {
@@ -180,9 +189,8 @@ const Events = {
         detail: {
           presort: $event.presort, 
           sort: $event.sort, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   splice: ($event, $target) => {
@@ -195,9 +203,8 @@ const Events = {
           added: $event.added, 
           prelength: $event.prelength, 
           length: $event.length, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   unshift: ($event, $target) => {
@@ -207,9 +214,8 @@ const Events = {
           elements: $event.elements, 
           prelength: $event.prelength, 
           length: $event.length, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   // Map Events
@@ -219,9 +225,8 @@ const Events = {
         detail: {
           presize: $event.presize, 
           size: $event.size, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   delete: ($event, $target) => {
@@ -231,9 +236,8 @@ const Events = {
           path: $event.path, 
           key: $event.key, 
           preval: $event.preval, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   deleteProp: ($event, $target) => {
@@ -243,9 +247,8 @@ const Events = {
           path: $event.path, 
           key: $event.key, 
           preval: $event.preval, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   get: ($event, $target) => {
@@ -255,9 +258,8 @@ const Events = {
           path: $event.path, 
           key: $event.key, 
           val: $event.val, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   getProp: ($event, $target) => {
@@ -267,9 +269,8 @@ const Events = {
           path: $event.path, 
           key: $event.key, 
           val: $event.val, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   set: ($event, $target) => {
@@ -280,9 +281,8 @@ const Events = {
           key: $event.key, 
           val: $event.val, 
           preval: $event.preval, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
   setProp: ($event, $target) => {
@@ -293,9 +293,8 @@ const Events = {
           key: $event.key, 
           val: $event.val, 
           preval: $event.preval, 
-        },
-      },
-      $target
+        }
+      }
     )
   },
 }

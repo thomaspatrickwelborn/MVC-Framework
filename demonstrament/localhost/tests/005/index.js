@@ -1,9 +1,36 @@
 import DynamicEventTarget from '/mvc-framework//Core/DynamicEventTarget/index.js'
 
 function DOMContentLoaded($event) {
-	subtestC()
+	subtestD()
+	// subtestC()
 	// subtestB()
 	// subtestA()
+}
+
+function subtestD() {
+	const object = new DynamicEventTarget({})
+	object.addEventListener('defineProperties', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('defineProperty', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('defineProperty:aaa', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('defineProperty:bbb', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('defineProperty:ccc', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('assign', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('assignSource', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('assignSourceProperty', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('assignSourceProperty:aaa', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('assignSourceProperty:bbb', ($event) => console.log($event.type, $event.detail))
+	object.addEventListener('assignSourceProperty:ccc', ($event) => console.log($event.type, $event.detail))
+
+	object.defineProperties({
+		aaa: { writable: true, value: 111 },
+		bbb: { writable: true, value: 222 },
+		ccc: { writable: true, value: 333 },
+	})
+	object.assign({
+		aaa: 111111,
+		bbb: 222222,
+		ccc: 333333,
+	})
 }
 
 function subtestC() {
