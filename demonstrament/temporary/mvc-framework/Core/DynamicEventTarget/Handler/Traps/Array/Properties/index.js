@@ -6,7 +6,7 @@ import push from './push/index.js'
 import shift from './shift/index.js'
 import splice from './splice/index.js'
 import unshift from './unshift/index.js'
-import generic from './generic/index.js'
+import _default from './default/index.js'
 
 export {
   copyWithin,
@@ -17,5 +17,5 @@ export {
   shift,
   splice,
   unshift,
-  generic,
+  _default,
 }

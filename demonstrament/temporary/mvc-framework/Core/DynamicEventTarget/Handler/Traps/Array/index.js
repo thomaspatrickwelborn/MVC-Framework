@@ -20,7 +20,7 @@ export default class ArrayTrap extends Trap {
           this, $arrayPrototypePropertyName, $aliases
         )
       } else {
-        Properties.generic(
+        Properties._default(
           this, $arrayPrototypePropertyName, $aliases
         )
       }
