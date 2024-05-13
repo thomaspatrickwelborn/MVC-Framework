@@ -11,6 +11,62 @@ export default class ArrayTrap extends Trap {
       Array.prototype
     )) { switch($arrayPrototypePropertyName) {
       // Array Modification
+      // Array Copy Within
+      case 'copyWithin': Object.defineProperty(
+        $this, $arrayPrototypePropertyName, {
+          value: function() {
+            const $arguments = [...arguments]
+            const target = (
+              arguments[0] >= 0
+            ) ? arguments[0]
+              : $root.length = arguments[0]
+            const start = (
+              arguments[1] >= 0
+            ) ? arguments[1]
+              : $root.length + arguments[1]
+            const end = (
+              arguments[2] === undefined
+            ) ? $root.length
+              : (
+              arguments[2] >= 0
+            ) ? arguments[2]
+              : $root.length + arguments[2]
+            const copiedItems = []
+            let copyIndex = start
+            let targetIndex = target
+            while(copyIndex < end) {
+              const copyItem = $root[copyIndex]
+              copiedItems.push(copyItem)
+              $root.copyWithin(
+                targetIndex,
+                copyIndex,
+                copyIndex + 1
+              )
+              $this.createEvent(
+                $eventTarget,
+                'copyWithinIndex', {
+                  target: targetIndex,
+                  start: copyIndex,
+                  end: copyIndex + 1,
+                  item: copyItem,
+                }
+              )
+              copyIndex++
+              targetIndex++
+            }
+            $this.createEvent(
+              $eventTarget,
+              'copyWithin', {
+                target: target,
+                start: start,
+                end: end,
+                items: copiedItems,
+              }
+            )
+          }
+        }
+      )
+      break
       // Array Fill
       case 'fill': Object.defineProperty(
         $this, $arrayPrototypePropertyName, {
@@ -20,11 +76,11 @@ export default class ArrayTrap extends Trap {
             const start = (
               $arguments[1] >= 0
             ) ? $arguments[1]
-              : $root.length - $arguments[1]
+              : $root.length + $arguments[1]
             const end = (
               $arguments[2] >= 0
             ) ? $arguments[2]
-              : $root.length - $arguments[2]
+              : $root.length + $arguments[2]
             let fillIndex = start
             while(
               fillIndex < $root.length &&
@@ -51,6 +107,7 @@ export default class ArrayTrap extends Trap {
         }
       )
       break
+      // Array Push
       case 'push': Object.defineProperty(
         $this, $arrayPrototypePropertyName, {
           value: function() {
@@ -133,7 +190,7 @@ export default class ArrayTrap extends Trap {
             const start = (
               $arguments[0] >= 0
             ) ? $arguments[0]
-              : $root.length - $arguments[0]
+              : $root.length + $arguments[0]
             const deleteCount = (
               $arguments[1] <= 0
             ) ? 0
@@ -228,18 +285,27 @@ export default class ArrayTrap extends Trap {
         }  
       )
       break
+      // Array Length
       case 'length': Object.defineProperty(
         $this, $arrayPrototypePropertyName, {
           get() {
             return $root.length
           },
           set($length) {
+            const prelength = $root.length
             $root.length = $length
+            $this.createEvent(
+              $eventTarget,
+              'lengthSet',
+              {
+                length: $root.length,
+                prelength,
+              }
+            )
           }
         }
       )
       break
-      // case 'copyWithin':
       // case 'reverse':
       // case 'sort':
       // No Array Modification
