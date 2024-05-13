@@ -1,8 +1,22 @@
+import copyWithin from './CopyWithin/index.js'
+import fill from './Fill/index.js'
+import length from './Length/index.js'
+import pop from './Pop/index.js'
+import push from './Push/index.js'
+import shift from './Shift/index.js'
+import splice from './Splice/index.js'
+import unshift from './Unshift/index.js'
+
+const Methods = {}
+const validMethods = [
+  'copyWithin' ,'fill' ,'length' ,'pop' ,'push' ,'shift' ,'splice' ,'unshift'
+]
+
 import DynamicEventTarget from '../../../index.js'
 import Trap from '../Trap/index.js'
 // Array Traps Are Array Class Instance Methods
 export default class ArrayTrap extends Trap {
-  constructor($aliases) {
+  constructor($aliases, $options) {
     super($aliases)
     const $this = this
     const { $eventTarget, $root, $rootAlias } = this.aliases
@@ -12,301 +26,33 @@ export default class ArrayTrap extends Trap {
     )) { switch($arrayPrototypePropertyName) {
       // Array Modification
       // Array Copy Within
-      case 'copyWithin': Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          value: function() {
-            const $arguments = [...arguments]
-            const target = (
-              arguments[0] >= 0
-            ) ? arguments[0]
-              : $root.length = arguments[0]
-            const start = (
-              arguments[1] >= 0
-            ) ? arguments[1]
-              : $root.length + arguments[1]
-            const end = (
-              arguments[2] === undefined
-            ) ? $root.length
-              : (
-              arguments[2] >= 0
-            ) ? arguments[2]
-              : $root.length + arguments[2]
-            const copiedItems = []
-            let copyIndex = start
-            let targetIndex = target
-            while(copyIndex < end) {
-              const copyItem = $root[copyIndex]
-              copiedItems.push(copyItem)
-              $root.copyWithin(
-                targetIndex,
-                copyIndex,
-                copyIndex + 1
-              )
-              $this.createEvent(
-                $eventTarget,
-                'copyWithinIndex', {
-                  target: targetIndex,
-                  start: copyIndex,
-                  end: copyIndex + 1,
-                  item: copyItem,
-                }
-              )
-              copyIndex++
-              targetIndex++
-            }
-            $this.createEvent(
-              $eventTarget,
-              'copyWithin', {
-                target: target,
-                start: start,
-                end: end,
-                items: copiedItems,
-              }
-            )
-          }
-        }
-      )
+      case 'copyWithin': CopyWithin(this, $arrayPrototypePropertyName, $aliases)
       break
       // Array Fill
-      case 'fill': Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          value: function() {
-            const $arguments = [...arguments]
-            const value = $arguments[0]
-            const start = (
-              $arguments[1] >= 0
-            ) ? $arguments[1]
-              : $root.length + $arguments[1]
-            const end = (
-              $arguments[2] >= 0
-            ) ? $arguments[2]
-              : $root.length + $arguments[2]
-            let fillIndex = start
-            while(
-              fillIndex < $root.length &&
-              fillIndex < end
-            ) {
-              $root.fill(value, fillIndex, fillIndex + 1)
-              $this.createEvent(
-                $eventTarget,
-                'fillIndex',
-                {
-                  start: fillIndex,
-                  end: fillIndex + 1,
-                  value,
-                },
-              )
-              fillIndex++
-            }
-            $this.createEvent(
-              $eventTarget,
-              'fill',
-              { start, end, value },
-            )
-          }
-        }
-      )
-      break
-      // Array Push
-      case 'push': Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          value: function() {
-            const elements = []
-            let elementIndex = 0
-            iterateElements:
-            for(let $element of arguments) {
-              if(typeof $element === 'object') {
-                $element = new DynamicEventTarget($element, {
-                  rootAlias: $rootAlias,
-                })
-              }
-              elements.push($element)
-              $root.push($element)
-              // Push Prop Event
-              $this.createEvent(
-                $eventTarget,
-                'pushProp',
-                {
-                  elementIndex, 
-                  element: $element,
-                },
-                $root,
-              )
-              elementIndex++
-            }
-            // Push Event
-            $this.createEvent(
-              $eventTarget,
-              'push',
-              { elements },
-              $root,
-            )
-            return $root.length
-          }
-        }  
-      )
-      break
-      // Array Pop
-      case 'pop': Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          value: function() {
-            const popElement = $root.pop()
-            const popElementIndex = $root.length - 1
-            $this.createEvent(
-              $eventTarget,
-              'pop',
-              {
-                element: popElement,
-                elementIndex: popElementIndex,
-              }
-            )
-          }
-        }
-      )
-      break
-      // Array Shift
-      case 'shift': Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          value: function() {
-            const shiftElement = $root.shift()
-            const shiftElementIndex = 0
-            $this.createEvent(
-              $eventTarget,
-              'shift',
-              {
-                element: shiftElement,
-                elementIndex: shiftElementIndex,
-              }
-            )
-          }
-        }
-      )
-      break
-      // Array Splice
-      case 'splice':  Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          value: function() {
-            const $arguments = [...arguments]
-            const start = (
-              $arguments[0] >= 0
-            ) ? $arguments[0]
-              : $root.length + $arguments[0]
-            const deleteCount = (
-              $arguments[1] <= 0
-            ) ? 0
-              : (
-              $arguments[1] === undefined ||
-              start + $arguments[1] >= $root.length
-            ) ? $root.length - start
-              : $arguments[1]
-            const addItems = $arguments.slice(2)
-            const addCount = addItems.length
-            const deleteItems = []
-            let deleteItemsIndex = 0
-            while(deleteItemsIndex < deleteCount) {
-              const deleteItem = $root.splice(start, 1)[0]
-              deleteItems.push(deleteItem)
-              $this.createEvent(
-                $eventTarget,
-                'spliceDelete',
-                {
-                  deleteIndex: deleteItemsIndex,
-                  deleteItem: deleteItem,
-                },
-              )
-              deleteItemsIndex++
-            }
-            let addItemsIndex = 0
-            while(addItemsIndex < addCount) {
-              const addItem = addItems[addItemsIndex]
-              $root.splice(
-                start + addItemsIndex, 0, addItem
-              )
-              $this.createEvent(
-                $eventTarget,
-                'spliceAdd',
-                {
-                  addIndex: addItemsIndex,
-                  addItem: addItem,
-                },
-              )
-              addItemsIndex++
-            }
-            $this.createEvent(
-              $eventTarget,
-              'splice',
-              {
-                start,
-                deleted: deleteItems,
-                added: addItems,
-              },
-            )
-            return deleteItems
-          }
-        }
-      )
-      break
-      // Array Unshift
-      case 'unshift': Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          value: function() {
-            const elements = []
-            let elementIndex = 0
-            iterateElements:
-            for(let $element of arguments) {
-              if(typeof $element === 'object') {
-                $element = new DynamicEventTarget($element, {
-                  rootAlias: $rootAlias,
-                })
-              }
-              elements.unshift($element)
-              $root.unshift($element)
-              // Unshift Prop Event
-              $this.createEvent(
-                $eventTarget,
-                'unshiftProp',
-                {
-                  elementIndex, 
-                  element: $element,
-                },
-                $root,
-              )
-              elementIndex++
-            }
-            // Unshift Event
-            $this.createEvent(
-              $eventTarget,
-              'unshift',
-              { elements },
-              $root,
-            )
-            return $root.length
-          }
-        }  
-      )
+      case 'fill': Fill(this, $arrayPrototypePropertyName, $aliases)
       break
       // Array Length
-      case 'length': Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-          get() {
-            return $root.length
-          },
-          set($length) {
-            const prelength = $root.length
-            $root.length = $length
-            $this.createEvent(
-              $eventTarget,
-              'lengthSet',
-              {
-                length: $root.length,
-                prelength,
-              }
-            )
-          }
-        }
-      )
+      case 'length': Length(this, $arrayPrototypePropertyName, $aliases)
       break
-      // case 'reverse':
+      // Array Pop
+      case 'pop': Pop(this, $arrayPrototypePropertyName, $aliases)
+      break
+      // Array Push
+      case 'push': Push(this, $arrayPrototypePropertyName, $aliases)
+      break
+      // Array Shift
+      case 'shift': Shift(this, $arrayPrototypePropertyName, $aliases)
+      break
+      // Array Splice
+      case 'splice':  Splice(this. $arrayPrototypePropertyName, $aliases)
+      break
+      // Array Unshift
+      case 'unshift': Unshift(this, $arrayPrototypePropertyName, $aliases)
+      break
+      // case 'reverse': Object.defineProperty(
+      //   $this, $arrayPrototypePropertyName, {}
+      // )
+      // break
       // case 'sort':
       // No Array Modification
       // case 'at':
@@ -337,20 +83,7 @@ export default class ArrayTrap extends Trap {
       // case 'flatMap':
       // case 'forEach':
       // case 'map':
-      default: Object.defineProperty(
-        $this, $arrayPrototypePropertyName, {
-        get() {
-          if(typeof $root[$arrayPrototypePropertyName] === 'function') {
-            return function () {
-              return $root[$arrayPrototypePropertyName](...arguments)
-            }
-          }
-          return $root[$arrayPrototypePropertyName]
-        },
-        set($value) {
-          $root[$arrayPrototypePropertyName] = $value
-        },
-      })
+      default: Default(this, $arrayPrototypePropertyName, $aliases)
       break
     }}
   }

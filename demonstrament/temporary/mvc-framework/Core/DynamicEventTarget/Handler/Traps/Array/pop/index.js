@@ -1,0 +1,22 @@
+export default function Pop(
+  $trap, $trapPropertyName, $aliases
+) {
+  const { $eventTarget, $root } = $aliases
+  return Object.defineProperty(
+    $trap, $trapPropertyName, {
+      value: function() {
+        const popElement = $root.pop()
+        const popElementIndex = $root.length - 1
+        // Array Pop Event
+        $this.createEvent(
+          $eventTarget,
+          'pop',
+          {
+            element: popElement,
+            elementIndex: popElementIndex,
+          }
+        )
+      }
+    }
+  )
+}
