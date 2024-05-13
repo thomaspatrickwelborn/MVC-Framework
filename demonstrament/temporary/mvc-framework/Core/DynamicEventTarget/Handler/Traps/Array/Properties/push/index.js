@@ -17,7 +17,7 @@ export default function Push(
           elements.push($element)
           $root.push($element)
           // Push Prop Event
-          $this.createEvent(
+          $trap.createEvent(
             $eventTarget,
             'pushProp',
             {
@@ -29,7 +29,7 @@ export default function Push(
           elementIndex++
         }
         // Push Event
-        $this.createEvent(
+        $trap.createEvent(
           $eventTarget,
           'push',
           { elements },

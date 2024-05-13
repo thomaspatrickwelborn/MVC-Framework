@@ -3,7 +3,7 @@ export default function Unshift(
 ) {
   const { $eventTarget, $root } = $aliases
   return Object.defineProperty(
-    $this, $arrayPrototypePropertyName, {
+    $trap, $trapPropertyName, {
       value: function() {
         const elements = []
         let elementIndex = 0
@@ -17,7 +17,7 @@ export default function Unshift(
           elements.unshift($element)
           $root.unshift($element)
           // Array Unshift Prop Event
-          $this.createEvent(
+          $trap.createEvent(
             $eventTarget,
             'unshiftProp',
             {
@@ -29,7 +29,7 @@ export default function Unshift(
           elementIndex++
         }
         // Array Unshift Event
-        $this.createEvent(
+        $trap.createEvent(
           $eventTarget,
           'unshift',
           { elements },

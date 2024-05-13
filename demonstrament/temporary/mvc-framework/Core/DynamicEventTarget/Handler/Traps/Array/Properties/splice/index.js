@@ -3,7 +3,7 @@ export default function Splice(
 ) {
   const { $eventTarget, $root } = $aliases
   return Object.defineProperty(
-    $this, $arrayPrototypePropertyName, {
+    $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments]
         const start = (
@@ -27,7 +27,7 @@ export default function Splice(
           const deleteItem = $root.splice(start, 1)[0]
           deleteItems.push(deleteItem)
           // Array Splice Delete Event
-          $this.createEvent(
+          $trap.createEvent(
             $eventTarget,
             'spliceDelete',
             {
@@ -45,7 +45,7 @@ export default function Splice(
             start + addItemsIndex, 0, addItem
           )
           // Array Splice Add Event
-          $this.createEvent(
+          $trap.createEvent(
             $eventTarget,
             'spliceAdd',
             {
@@ -56,7 +56,7 @@ export default function Splice(
           addItemsIndex++
         }
         // Array Splice Event
-        $this.createEvent(
+        $trap.createEvent(
           $eventTarget,
           'splice',
           {

@@ -3,7 +3,7 @@ export default function Default(
 ) {
   const { $eventTarget, $root } = $aliases
   return Object.defineProperty(
-    $this, $arrayPrototypePropertyName, {
+    $trap, $trapPropertyName, {
       get() {
         if(typeof $root[$arrayPrototypePropertyName] === 'function') {
           return function () {

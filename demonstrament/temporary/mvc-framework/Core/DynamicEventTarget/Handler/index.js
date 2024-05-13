@@ -4,11 +4,12 @@ import {
 } from './Traps/index.js'
 
 export default class Handler {
-  constructor($aliases) {
+  constructor($aliases, $options) {
     this.#aliases = $aliases
     this.objectTrap = new ObjectTrap(this.#aliases)
     this.arrayTrap = new ArrayTrap(this.#aliases)
     this.mapTrap = new MapTrap(this.#aliases)
+    return this
   }
   #aliases
   objectTrap
