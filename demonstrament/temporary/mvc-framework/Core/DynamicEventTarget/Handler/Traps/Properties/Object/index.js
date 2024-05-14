@@ -12,5 +12,5 @@ export default {
   freeze,
   fromEntries,
   seal,
-  _default,
+  default: _default,
 }

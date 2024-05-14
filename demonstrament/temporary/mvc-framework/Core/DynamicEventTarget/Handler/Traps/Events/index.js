@@ -220,6 +220,7 @@ const Events = {
     }
   ),
   // Map Events
+  // Map Clear Event
   clear: ($event, $target) => new CustomEvent(
     'clear', {
       detail: {
@@ -228,56 +229,56 @@ const Events = {
       }
     }
   ),
+  // Map Clear Event
   delete: ($event, $target) => new CustomEvent(
     'delete', {
       detail: {
-        path: $event.path, 
         key: $event.key, 
         preval: $event.preval, 
       }
     }
   ),
-  deleteProp: ($event, $target) => new CustomEvent(
+  // Map Delete Key Event
+  deleteKey: ($event, $target) => new CustomEvent(
     `delete:${$event.key}`, {
       detail: {
-        path: $event.path, 
         key: $event.key, 
         preval: $event.preval, 
       }
     }
   ),
+  // Map Get Event
   get: ($event, $target) => new CustomEvent(
     'get', {
       detail: {
-        path: $event.path, 
         key: $event.key, 
         val: $event.val, 
       }
     }
   ),
-  getProp: ($event, $target) => new CustomEvent(
+  // Map Get Key Event
+  getKey: ($event, $target) => new CustomEvent(
     `get:${$event.key}`, {
       detail: {
-        path: $event.path, 
         key: $event.key, 
         val: $event.val, 
       }
     }
   ),
+  // Map Set Event
   set: ($event, $target) => new CustomEvent(
     'set', {
       detail: {
-        path: $event.path, 
         key: $event.key, 
         val: $event.val, 
         preval: $event.preval, 
       }
     }
   ),
-  setProp: ($event, $target) => new CustomEvent(
+  // Map Set Key Event
+  setKey: ($event, $target) => new CustomEvent(
     `set:${$event.key}`, {
       detail: {
-        path: $event.path, 
         key: $event.key, 
         val: $event.val, 
         preval: $event.preval, 

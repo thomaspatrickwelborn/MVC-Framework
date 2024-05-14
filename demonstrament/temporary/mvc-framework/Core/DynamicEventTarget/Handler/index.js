@@ -38,25 +38,29 @@ export default class Handler {
         $type === 'object' &&
         Object.getOwnPropertyNames(Object)
         .includes($property)
-      ) return $this.traps['Object'][$property]
+      ) return $this.traps['Object'][$property] || 
+        $this.traps['Object']['default']
       // 5. Array Class Instance Property Trap
       if(
         $type === 'array' &&
         Object.getOwnPropertyNames(Array.prototype)
         .includes($property)
-      ) return $this.traps['Array'][$property]
+      ) return $this.traps['Array'][$property] || 
+        $this.traps['Array']['default']
       // 6. Object/Array Intermix
       if(
         $type === 'array' &&
         Object.getOwnPropertyNames(Object.prototype)
         .includes($property)
-      ) return $this.traps['Object'][$property]
+      ) return $this.traps['Object'][$property] || 
+        $this.traps['Object']['default']
       // 7. Map Class Instance Property Trap
       if(
         $type === 'map' &&
         Object.getOwnPropertyNames(Map.prototype)
         .includes($property)
-      ) return $this.traps['Map'][$property]
+      ) return $this.traps['Map'][$property] || 
+        $this.traps['Map']['default']
       return undefined
     }
   }

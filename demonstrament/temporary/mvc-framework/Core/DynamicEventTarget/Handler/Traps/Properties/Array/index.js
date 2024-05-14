@@ -16,5 +16,5 @@ export default {
   shift,
   splice,
   unshift,
-  _default,
+  default: _default,
 }

@@ -7,6 +7,6 @@ export default {
   clear,
   get,
   set,
-  _delete,
-  _default,
+  delete: _delete,
+  default: _default,
 }
