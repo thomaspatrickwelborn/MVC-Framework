@@ -43,8 +43,12 @@ export default class Handler {
       // 5. Array Class Instance Property Trap
       if(
         $type === 'array' &&
-        Object.getOwnPropertyNames(Array.prototype)
-        .includes($property)
+        (
+          Object.getOwnPropertyNames(Array.prototype)
+          .includes($property) ||
+          Object.getOwnPropertyNames(Array)
+          .includes($property)
+        )
       ) return $this.traps['Array'][$property] || 
         $this.traps['Array']['default']
       // 6. Object/Array Intermix

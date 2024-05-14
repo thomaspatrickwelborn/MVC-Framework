@@ -1,0 +1,23 @@
+{
+	"title": "DynamicEventTarget (Map)",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+
+	"structure": [{
+		"tag": "h1",
+		"textContent": 	"DynamicEventTarget (Map)"
+	}, {
+		"tag": "app",
+		"attributes": {
+			"id": "app"
+		}
+	}],
+
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}

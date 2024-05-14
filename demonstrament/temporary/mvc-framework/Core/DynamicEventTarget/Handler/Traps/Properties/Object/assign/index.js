@@ -21,7 +21,9 @@ export default function Assign(
                 }
               )
             }
-            $root[$sourcePropKey] = $sourcePropVal
+            Object.assign($root, {
+              [$sourcePropKey]: $sourcePropVal
+            })
             $trap.createEvent(
               $eventTarget, 
               'assignSourceProperty',

@@ -1,0 +1,53 @@
+{
+	"title": "DynamicEventTarget",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+
+	"structure": [{
+		"tag": "h1",
+		"textContent": 	"DynamicEventTarget"
+	}, {
+		"tag": "app",
+		"attributes": {
+			"id": "app"
+		}
+	}, {
+		"tag": "ul",
+		"structure": [{
+			"tag": "li",
+			"structure": [{
+				"tag": "a",
+				"attributes": {
+					"href": "./Array"
+				},
+				"textContent": "Array"
+			}]
+		}, {
+			"tag": "li",
+			"structure": [{
+				"tag": "a",
+				"attributes": {
+					"href": "./Object"
+				},
+				"textContent": "Object"
+			}]
+		}, {
+			"tag": "li",
+			"structure": [{
+				"tag": "a",
+				"attributes": {
+					"href": "./Map"
+				},
+				"textContent": "Map"
+			}]
+		}]
+	}],
+
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}
