@@ -31,6 +31,7 @@ export default function Splice(
             $eventTarget,
             'spliceDelete',
             {
+              index: start + deleteItemsIndex,
               deleteIndex: deleteItemsIndex,
               deleteItem: deleteItem,
             },
@@ -49,6 +50,7 @@ export default function Splice(
             $eventTarget,
             'spliceAdd',
             {
+              index: start + addItemsIndex,
               addIndex: addItemsIndex,
               addItem: addItem,
             },
@@ -63,6 +65,7 @@ export default function Splice(
             start,
             deleted: deleteItems,
             added: addItems,
+            length: $root.length,
           },
         )
         return deleteItems

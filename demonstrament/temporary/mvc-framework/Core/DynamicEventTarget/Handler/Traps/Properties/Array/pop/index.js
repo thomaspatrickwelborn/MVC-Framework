@@ -16,6 +16,7 @@ export default function Pop(
             elementIndex: popElementIndex,
           }
         )
+        return popElement
       }
     }
   )

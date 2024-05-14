@@ -16,6 +16,7 @@ export default function Shift(
             elementIndex: shiftElementIndex,
           }
         )
+        return shiftElement
       }
     }
   )

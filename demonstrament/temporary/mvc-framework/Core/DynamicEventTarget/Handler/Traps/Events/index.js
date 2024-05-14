@@ -148,7 +148,7 @@ const Events = {
   pop: ($event, $target) => new CustomEvent(
     'pop', {
       detail: {
-        element: $event.removedElement, 
+        element: $event.element, 
         elementIndex: $event.elementIndex,
       }
     }
@@ -164,9 +164,8 @@ const Events = {
   shift: ($event, $target) => new CustomEvent(
     'shift', {
       detail: {
-        removedElement: $event.removedElement, 
-        prelength: $event.prelength, 
-        length: $event.length, 
+        element: $event.element,
+        elementIndex: $event.elementIndex,
       }
     }
   ),
@@ -181,6 +180,7 @@ const Events = {
   'spliceDelete': ($event, $target) => new CustomEvent(
     'spliceDelete', {
       detail: {
+        index: $event.index,
         deleteIndex: $event.deleteIndex,
         deleteItem: $event.deleteItem,
       }
@@ -189,6 +189,7 @@ const Events = {
   'spliceAdd': ($event, $target) => new CustomEvent(
     'spliceAdd', {
       detail: {
+        index: $event.index,
         addIndex: $event.addIndex,
         addItem: $event.addItem,
       }

@@ -84,9 +84,9 @@ export default class Handler {
       return true
     }
   }
-  // get deleteProperty() {
-  //   return function deleteProperty($target, $property) {
-  //     return true
-  //   }
-  // }
+  get deleteProperty() {
+    return function deleteProperty($target, $property) {
+      return true
+    }
+  }
 }

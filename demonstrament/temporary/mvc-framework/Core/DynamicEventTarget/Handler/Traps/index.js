@@ -2,6 +2,9 @@ import Trap from './Trap/index.js'
 import PropertyClasses from './Properties/index.js'
 
 export default class Traps {
+  Object
+  Array
+  Map
   constructor($aliases) {
     // Iterate Property Classes
     iteratePropertyClasses:
@@ -11,12 +14,9 @@ export default class Traps {
       const trap = new Trap(PropertyClassMethods, $aliases)
       Object.defineProperty(
         this, PropertyClassName, {
-          value: new Trap(PropertyClassMethods, $aliases)
+          value: trap
         }
       )
     }
   }
-  Object
-  Array
-  Map
 }

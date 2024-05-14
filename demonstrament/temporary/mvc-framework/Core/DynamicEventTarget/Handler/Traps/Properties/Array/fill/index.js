@@ -39,6 +39,7 @@ export default function Fill(
           'fill',
           { start, end, value },
         )
+        return $root
       }
     }
   )

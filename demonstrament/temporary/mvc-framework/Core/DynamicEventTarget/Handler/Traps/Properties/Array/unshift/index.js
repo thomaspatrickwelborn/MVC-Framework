@@ -5,28 +5,32 @@ export default function Unshift(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
+        const $arguments = [...arguments]
         const elements = []
-        let elementIndex = 0
+        const elementsLength = $arguments.length
+        let elementIndex = elementsLength - 1
         iterateElements:
-        for(let $element of arguments) {
-          if(typeof $element === 'object') {
-            $element = new DynamicEventTarget($element, {
+        while(elementIndex > -1) {
+        const elementsLength = $arguments.length
+          const element = $arguments[elementIndex]
+          if(typeof element === 'object') {
+            element = new DynamicEventTarget(element, {
               rootAlias: $rootAlias,
             })
           }
-          elements.unshift($element)
-          $root.unshift($element)
+          elements.unshift(element)
+          $root.unshift(element)
           // Array Unshift Prop Event
           $trap.createEvent(
             $eventTarget,
             'unshiftProp',
             {
               elementIndex, 
-              element: $element,
+              element: element,
             },
             $root,
           )
-          elementIndex++
+          elementIndex--
         }
         // Array Unshift Event
         $trap.createEvent(
