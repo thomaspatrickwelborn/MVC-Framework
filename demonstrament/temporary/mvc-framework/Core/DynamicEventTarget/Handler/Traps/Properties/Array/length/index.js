@@ -11,7 +11,7 @@ export default function Length(
         const prelength = $root.length
         $root.length = $length
         // Array Length Set Event
-        $this.createEvent(
+        $trap.createEvent(
           $eventTarget,
           'lengthSet',
           {

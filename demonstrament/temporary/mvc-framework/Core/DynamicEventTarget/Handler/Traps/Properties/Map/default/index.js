@@ -5,15 +5,15 @@ export default function Default(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       get() {
-        if(typeof $root[$arrayPrototypePropertyName] === 'function') {
+        if(typeof $root[$trapPropertyName] === 'function') {
           return function () {
-            return $root[$arrayPrototypePropertyName](...arguments)
+            return $root[$trapPropertyName](...arguments)
           }
         }
-        return $root[$arrayPrototypePropertyName]
+        return $root[$trapPropertyName]
       },
       set($value) {
-        $root[$arrayPrototypePropertyName] = $value
+        $root[$trapPropertyName] = $value
       },
     }
   )

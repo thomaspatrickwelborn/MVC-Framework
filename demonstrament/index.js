@@ -4,6 +4,7 @@ import Application from './application/index.js'
 const application = Application({
 	paths: {
 		'tests': 'localhost/tests',
+		'tests/006': 'localhost/tests/006',
 		'tests/005': 'localhost/tests/005',
 		'tests/004': 'localhost/tests/004',
 		'tests/003': 'localhost/tests/003',

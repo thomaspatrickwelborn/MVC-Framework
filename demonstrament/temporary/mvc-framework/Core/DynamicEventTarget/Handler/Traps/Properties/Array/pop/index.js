@@ -8,7 +8,7 @@ export default function Pop(
         const popElement = $root.pop()
         const popElementIndex = $root.length - 1
         // Array Pop Event
-        $this.createEvent(
+        $trap.createEvent(
           $eventTarget,
           'pop',
           {

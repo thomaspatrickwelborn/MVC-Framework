@@ -8,7 +8,7 @@ export default function Shift(
         const shiftElement = $root.shift()
         const shiftElementIndex = 0
         // Array Shift Event
-        $this.createEvent(
+        $trap.createEvent(
           $eventTarget,
           'shift',
           {

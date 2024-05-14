@@ -4,7 +4,7 @@ import defineProperty from './defineProperty/index.js'
 import freeze from './freeze/index.js'
 import fromEntries from './fromEntries/index.js'
 import seal from './seal/index.js'
-import values from './values/index.js'
+import _default from './default/index.js'
 export default {
   assign,
   defineProperties,
@@ -12,5 +12,5 @@ export default {
   freeze,
   fromEntries,
   seal,
-  values,
+  _default,
 }

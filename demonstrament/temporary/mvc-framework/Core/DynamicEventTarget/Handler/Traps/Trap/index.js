@@ -1,12 +1,14 @@
-import Events from './Events/index.js'
-import DynamicEventTarget from '../../../index.js'
+import Events from '../Events/index.js'
 export default class Trap {
-  constructor($aliases) {
-    this.aliases = $aliases
+  constructor($methods, $aliases) {
+    for(let [
+      $methodName, $definePropertyMethod
+    ] of Object.entries($methods)) {
+      $definePropertyMethod(
+        this, $methodName, $aliases
+      )
+    }
   }
-  #_aliases
-  get aliases() { return this.#_aliases }
-  set aliases($aliases) { this.#_aliases = $aliases }
   createEvent($eventTarget, $eventType, $event, $target) {
     const event = Events[$eventType]($event, $target)
     $eventTarget.dispatchEvent(event)

@@ -22,7 +22,7 @@ export default function Fill(
         ) {
           $root.fill(value, fillIndex, fillIndex + 1)
           // Array Fill Index Event
-          $this.createEvent(
+          $trap.createEvent(
             $eventTarget,
             'fillIndex',
             {
@@ -34,7 +34,7 @@ export default function Fill(
           fillIndex++
         }
         // Array Fill Event
-        $this.createEvent(
+        $trap.createEvent(
           $eventTarget,
           'fill',
           { start, end, value },

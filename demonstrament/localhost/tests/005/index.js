@@ -2,8 +2,8 @@ import DynamicEventTarget from '/mvc-framework//Core/DynamicEventTarget/index.js
 
 function DOMContentLoaded($event) {
 	subtestG()
-	// subtestF()
-	// subtestE()
+	subtestF()
+	subtestE()
 	// subtestD()
 	// subtestC()
 	// subtestB()
@@ -17,8 +17,8 @@ function subtestG() {
 	console.log('-----')
 	console.log('array2', array2)
 	const array = new DynamicEventTarget([])
-	array.addEventListener('copyWithin', ($event) => console.log($event.type, $event.detail))
-	array.addEventListener('copyWithinIndex', ($event) => console.log($event.type, $event.detail))
+	// array.addEventListener('copyWithin', ($event) => console.log($event.type, $event.detail))
+	// array.addEventListener('copyWithinIndex', ($event) => console.log($event.type, $event.detail))
 	array.push(0,1,2,3,4,5,6,7,8,9)
 	array.copyWithin(0, 3)
 	console.log('-----')

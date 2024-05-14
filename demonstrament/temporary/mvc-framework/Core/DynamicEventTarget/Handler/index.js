@@ -1,20 +1,14 @@
 import DynamicEventTarget from '../index.js'
-import {
-  ObjectTrap, ArrayTrap, MapTrap
-} from './Traps/index.js'
+import Traps from './Traps/index.js'
 
 export default class Handler {
   constructor($aliases, $options) {
     this.#aliases = $aliases
-    this.objectTrap = new ObjectTrap(this.#aliases)
-    this.arrayTrap = new ArrayTrap(this.#aliases)
-    this.mapTrap = new MapTrap(this.#aliases)
+    this.traps = new Traps(this.#aliases)
     return this
   }
   #aliases
-  objectTrap
-  arrayTrap
-  mapTrap
+  traps
   // Get
   get get() {
     const $this = this
@@ -30,9 +24,9 @@ export default class Handler {
         Object.getOwnPropertyNames(EventTarget.prototype)
         .includes($property) ||
         Object.getOwnPropertyNames(DynamicEventTarget.prototype)
-        .includes($property) ||
+        .includes($property) /* ||
         Object.getOwnPropertyNames($eventTarget)
-        .includes($property)
+        .includes($property) */
       ) {
         if(typeof $eventTarget[$property] === 'function') {
           return $eventTarget[$property].bind($eventTarget)
@@ -44,25 +38,25 @@ export default class Handler {
         $type === 'object' &&
         Object.getOwnPropertyNames(Object)
         .includes($property)
-      ) return $this.objectTrap[$property]
+      ) return $this.traps['Object'][$property]
       // 5. Array Class Instance Property Trap
       if(
         $type === 'array' &&
         Object.getOwnPropertyNames(Array.prototype)
         .includes($property)
-      ) return $this.arrayTrap[$property]
+      ) return $this.traps['Array'][$property]
       // 6. Object/Array Intermix
       if(
         $type === 'array' &&
         Object.getOwnPropertyNames(Object.prototype)
         .includes($property)
-      ) return $this.objectTrap[$property]
+      ) return $this.traps['Object'][$property]
       // 7. Map Class Instance Property Trap
       if(
         $type === 'map' &&
         Object.getOwnPropertyNames(Map.prototype)
         .includes($property)
-      ) return $this.mapTrap[$property]
+      ) return $this.traps['Map'][$property]
       return undefined
     }
   }
@@ -76,13 +70,13 @@ export default class Handler {
         $type === 'array' &&
         Object.getOwnPropertyNames(Array.prototype)
         .includes($property)
-      ) $this.arrayTrap[$property] = $value
+      ) $this.traps['Array'][$property] = $value
       // 6. Object/Array Intermix
       if(
         $type === 'array' &&
         Object.getOwnPropertyNames(Object.prototype)
         .includes($property)
-      ) $this.objectTrap[$property] = $value
+      ) $this.traps['Object'][$property] = $value
       return true
     }
   }
