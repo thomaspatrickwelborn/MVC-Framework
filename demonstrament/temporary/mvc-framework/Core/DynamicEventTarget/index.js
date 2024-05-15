@@ -51,6 +51,7 @@ export default class DynamicEventTarget extends EventTarget {
       typeOfRoot === 'map'
     ) ? new Map()
       : new Object()
+    console.log(this.#_root)
   }
   // Proxy
   #_proxy
@@ -63,15 +64,15 @@ export default class DynamicEventTarget extends EventTarget {
     ] of Object.entries($root)) {
       let typeOfRootPropVal = typeOf($rootPropVal)
       switch(typeOfRootPropVal) {
-      case 'object':
-        this.#_proxy.defineProperty($rootPropKey, $rootPropVal)
-      break
-      case 'array':
-        this.#_proxy.push($rootPropVal)
-      break
-      case 'map':
-        this.#_proxy.set($rootPropKey, $rootPropVal)
-      break
+        case 'object':
+          this.#_proxy.defineProperty($rootPropKey, $rootPropVal)
+          break
+        case 'array':
+          this.#_proxy.push($rootPropVal)
+          break
+        case 'map':
+          this.#_proxy.set($rootPropKey, $rootPropVal)
+          break
       }
     }
   }

@@ -1,12 +1,19 @@
+import DynamicEventTarget from '../../../../../index.js'
 export default function Fill(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const { $eventTarget, $root, $rootAlias } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments]
-        const value = $arguments[0]
+        let value = $arguments[0]
+        console.log(value)
+        if(typeof value === 'object') {
+          value = new DynamicEventTarget(value, {
+            rootAlias: $rootAlias,
+          })
+        }
         const start = (
           $arguments[1] >= 0
         ) ? $arguments[1]
@@ -20,8 +27,9 @@ export default function Fill(
           fillIndex < $root.length &&
           fillIndex < end
         ) {
-          // $root.fill(value, fillIndex, fillIndex + 1)
-          Array.prototype.fill.call($root, value, fillIndex, fillIndex + 1)
+          Array.prototype.fill.call(
+            $root, value, fillIndex, fillIndex + 1
+          )
           // Array Fill Index Event
           $trap.createEvent(
             $eventTarget,

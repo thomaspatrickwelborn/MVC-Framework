@@ -8,7 +8,6 @@ export default function Length(
         return $root.length
       },
       set($length) {
-        const prelength = $root.length
         $root.length = $length
         // Array Length Set Event
         $trap.createEvent(
@@ -16,7 +15,6 @@ export default function Length(
           'lengthSet',
           {
             length: $root.length,
-            prelength,
           }
         )
       }

@@ -1,7 +1,8 @@
+import DynamicEventTarget from '../../../../../index.js'
 export default function Push(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const { $eventTarget, $root, $rootAlias } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -24,7 +25,6 @@ export default function Push(
               elementIndex, 
               element: $element,
             },
-            $root,
           )
           elementIndex++
         }
@@ -33,7 +33,6 @@ export default function Push(
           $eventTarget,
           'push',
           { elements },
-          $root,
         )
         return $root.length
       }
