@@ -7,7 +7,7 @@ export default function Default(
       get() {
         if(typeof $root[$trapPropertyName] === 'function') {
           return function () {
-            return $root[$trapPropertyName](...arguments)
+            return Array.prototype[$trapPropertyName].call($root, ...arguments)
           }
         }
         return $root[$trapPropertyName]

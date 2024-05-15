@@ -5,7 +5,7 @@ export default function Shift(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        const shiftElement = $root.shift()
+        const shiftElement = Array.prototype.shift.call($root)
         const shiftElementIndex = 0
         // Array Shift Event
         $trap.createEvent(

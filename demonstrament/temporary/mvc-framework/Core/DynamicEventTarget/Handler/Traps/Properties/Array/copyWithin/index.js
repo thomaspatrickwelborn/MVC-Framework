@@ -27,7 +27,8 @@ export default function CopyWithin(
         while(copyIndex < end) {
           const copyItem = $root[copyIndex]
           copiedItems.push(copyItem)
-          $root.copyWithin(
+          Array.prototype.copyWithin.call(
+            $root,
             targetIndex,
             copyIndex,
             copyIndex + 1

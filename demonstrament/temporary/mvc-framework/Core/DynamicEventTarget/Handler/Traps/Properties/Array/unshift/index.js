@@ -19,7 +19,7 @@ export default function Unshift(
             })
           }
           elements.unshift(element)
-          $root.unshift(element)
+          Array.prototype.unshift.call($root, element)
           // Array Unshift Prop Event
           $trap.createEvent(
             $eventTarget,

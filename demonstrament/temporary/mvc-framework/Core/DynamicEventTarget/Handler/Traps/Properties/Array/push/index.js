@@ -15,7 +15,7 @@ export default function Push(
             })
           }
           elements.push($element)
-          $root.push($element)
+          Array.prototype.push.call($root, $element)
           // Push Prop Event
           $trap.createEvent(
             $eventTarget,

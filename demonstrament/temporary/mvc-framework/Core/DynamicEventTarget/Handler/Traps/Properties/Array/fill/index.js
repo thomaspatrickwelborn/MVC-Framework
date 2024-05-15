@@ -20,7 +20,8 @@ export default function Fill(
           fillIndex < $root.length &&
           fillIndex < end
         ) {
-          $root.fill(value, fillIndex, fillIndex + 1)
+          // $root.fill(value, fillIndex, fillIndex + 1)
+          Array.prototype.fill.call($root, value, fillIndex, fillIndex + 1)
           // Array Fill Index Event
           $trap.createEvent(
             $eventTarget,

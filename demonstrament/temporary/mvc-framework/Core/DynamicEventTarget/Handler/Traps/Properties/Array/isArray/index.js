@@ -5,7 +5,7 @@ export default function IsArray(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.isArray($root)
+        return Array.isArray.call($root)
       },
     }
   )

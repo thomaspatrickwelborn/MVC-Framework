@@ -18,11 +18,11 @@ export default class Handler {
     return function get($target, $property, $receiver) {
       // 1. Root Alias Property
       if($property === $rootAlias) return $root
-      // 2. Event Target Class Instance Methods
-      // 3. Dynamic Event Target Class Instance Methods
       if(
+        // 2. Event Target Class Instance Methods
         Object.getOwnPropertyNames(EventTarget.prototype)
         .includes($property) ||
+        // 3. Dynamic Event Target Class Instance Methods
         Object.getOwnPropertyNames(DynamicEventTarget.prototype)
         .includes($property) /* ||
         Object.getOwnPropertyNames($eventTarget)
@@ -35,30 +35,19 @@ export default class Handler {
       }
       // 4. Object Class Property Trap
       if(
-        $type === 'object' &&
         Object.getOwnPropertyNames(Object)
         .includes($property)
       ) return $this.traps['Object'][$property] || 
         $this.traps['Object']['default']
       // 5. Array Class Instance Property Trap
       if(
-        $type === 'array' &&
-        (
-          Object.getOwnPropertyNames(Array.prototype)
-          .includes($property) ||
-          Object.getOwnPropertyNames(Array)
-          .includes($property)
-        )
+        Object.getOwnPropertyNames(Array.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(Array)
+        .includes($property)
       ) return $this.traps['Array'][$property] || 
         $this.traps['Array']['default']
-      // 6. Object/Array Intermix
-      if(
-        $type === 'array' &&
-        Object.getOwnPropertyNames(Object.prototype)
-        .includes($property)
-      ) return $this.traps['Object'][$property] || 
-        $this.traps['Object']['default']
-      // 7. Map Class Instance Property Trap
+      // 6. Map Class Instance Property Trap
       if(
         $type === 'map' &&
         Object.getOwnPropertyNames(Map.prototype)

@@ -5,7 +5,7 @@ export default function Pop(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        const popElement = $root.pop()
+        const popElement = Array.prototype.pop.call($root)
         const popElementIndex = $root.length - 1
         // Array Pop Event
         $trap.createEvent(

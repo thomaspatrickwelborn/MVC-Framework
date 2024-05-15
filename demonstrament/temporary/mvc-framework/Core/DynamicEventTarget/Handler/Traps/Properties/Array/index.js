@@ -8,6 +8,11 @@ import splice from './splice/index.js'
 import unshift from './unshift/index.js'
 import _default from './default/index.js'
 export default {
+  // Static Properties
+  from,
+  isArray,
+  of,
+  // Instance Properties
   copyWithin,
   fill,
   length,

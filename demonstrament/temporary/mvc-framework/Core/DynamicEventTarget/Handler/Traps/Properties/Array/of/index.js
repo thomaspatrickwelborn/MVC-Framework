@@ -5,7 +5,7 @@ export default function Of(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.of($root)
+        return Array.of.call($root, ...arguments)
       },
     }
   )

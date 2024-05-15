@@ -24,7 +24,7 @@ export default function Splice(
         let deleteItemsIndex = 0
         spliceDelete:
         while(deleteItemsIndex < deleteCount) {
-          const deleteItem = $root.splice(start, 1)[0]
+          const deleteItem = Array.prototype.splice.call($root, start, 1)[0]
           deleteItems.push(deleteItem)
           // Array Splice Delete Event
           $trap.createEvent(
@@ -42,8 +42,8 @@ export default function Splice(
         spliceAdd: 
         while(addItemsIndex < addCount) {
           const addItem = addItems[addItemsIndex]
-          $root.splice(
-            start + addItemsIndex, 0, addItem
+          Array.prototype.splice.call(
+            $root, start + addItemsIndex, 0, addItem
           )
           // Array Splice Add Event
           $trap.createEvent(
