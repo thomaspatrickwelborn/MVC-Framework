@@ -18,7 +18,6 @@ export default class Handler {
     return function get($target, $property, $receiver) {
       // 1. Root Alias Property
       if($property === $rootAlias) return $root
-      if($root[$property] !== undefined) return $root[$property] 
       if(
         // 2. Event Target Class Instance Methods
         Object.getOwnPropertyNames(EventTarget.prototype)
@@ -34,39 +33,44 @@ export default class Handler {
         }
         return $eventTarget[$property]
       }
-      // 4. Object Class Property Trap
+      // 4. Type Object
       if(
-        $type === 'object' &&
-        Object.getOwnPropertyNames(Object)
-        .includes($property)
-      ) return $this.traps['Object'][$property]
-      // 5. Object/Array Intermix Property Trap
-      if(
-        $type === 'object' && (
+        $type === 'object'
+      ) {
+        if(
+          Object.getOwnPropertyNames(Object)
+          .includes($property)
+        ) {
+          return $this.traps['Object'][$property]
+        } else
+        if(
           Object.getOwnPropertyNames(Array.prototype)
           .includes($property) ||
           Object.getOwnPropertyNames(Array)
           .includes($property)
-        )
-      ) return $this.traps['Array'][$property]
-      // 6. Array Class Instance Property Trap
+        ) {
+          return $this.traps['Array'][$property]
+        }
+
+      } 
+      // 5. Type Array
       if(
-        $type === 'array' && (
+        $type === 'array'
+      ) {
+        if(
           Object.getOwnPropertyNames(Array.prototype)
           .includes($property) ||
           Object.getOwnPropertyNames(Array)
           .includes($property)
-        )
-      ) return $this.traps['Array'][$property]
-      // 7. Array/Object Intermix Property Trap
-      if(
-        $type === 'object' && (
-          Object.getOwnPropertyNames(Array.prototype)
-          .includes($property) ||
-          Object.getOwnPropertyNames(Array)
+        ) {
+          return $this.traps['Array'][$property]
+        } else if(
+          Object.getOwnPropertyNames(Object)
           .includes($property)
-        )
-      ) return $this.traps['Object'][$property]
+        ) {
+          return $this.traps['Object'][$property]
+        }
+      }
       // 8. Map Class Instance Property Trap
       if(
         $type === 'map' &&

@@ -6,7 +6,6 @@ export default function Get(
     $trap, $trapPropertyName, {
       value: function ($key) {
         const val = $root.get($key)
-        console.log('val', val)
         $trap.createEvent(
           $eventTarget,
           'get',

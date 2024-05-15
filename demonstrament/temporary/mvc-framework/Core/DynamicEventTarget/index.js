@@ -51,7 +51,6 @@ export default class DynamicEventTarget extends EventTarget {
       typeOfRoot === 'map'
     ) ? new Map()
       : new Object()
-    console.log(this.#_root)
   }
   // Proxy
   #_proxy

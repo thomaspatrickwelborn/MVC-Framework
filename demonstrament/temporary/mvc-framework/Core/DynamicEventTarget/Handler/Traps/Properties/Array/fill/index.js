@@ -8,7 +8,6 @@ export default function Fill(
       value: function() {
         const $arguments = [...arguments]
         let value = $arguments[0]
-        console.log(value)
         if(typeof value === 'object') {
           value = new DynamicEventTarget(value, {
             rootAlias: $rootAlias,

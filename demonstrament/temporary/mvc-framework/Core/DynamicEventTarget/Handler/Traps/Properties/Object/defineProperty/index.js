@@ -24,16 +24,16 @@ export default function DefineProperty(
           $eventTarget,
           'defineProperty',
           {
-            prop: $propertyKey,
-            descriptor: $propertyDescriptor,
+            prop: propertyKey,
+            descriptor: propertyDescriptor,
           },
         )
         $trap.createEvent(
           $eventTarget,
           'definePropertyKey',
           {
-            prop: $propertyKey,
-            descriptor: $propertyDescriptor,
+            prop: propertyKey,
+            descriptor: propertyDescriptor,
           },
         )
         return $root
