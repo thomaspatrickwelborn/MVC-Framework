@@ -5,6 +5,7 @@ export default class Handler {
   constructor($aliases, $options) {
     this.#aliases = $aliases
     this.traps = new Traps(this.#aliases)
+    console.log(this.traps)
     return this
   }
   #aliases
