@@ -1,55 +1,13 @@
-import { typeOf } from '../../Utils/index.js'
+import { typeOf, parseShortenedEvents } from '../../Utils/index.js'
 import Event from './Event/index.js'
 export default class EventSystem extends EventTarget {
-  constructor($root, $events) {
+  constructor($root, $rootAlias) {
     super()
-    this.#root = $root
-    this.#proxy = this.#root
-  	Object.assign(this.#proxy, $root)
-    this.events = $events
-    return this.#proxy
-  }
-  #_root = {}
-  get #root() { return this.#_root }
-  set #root($root) { if(Array.isArray($root)) this.#_root = [] }
-  #_proxy
-  get #proxy() { return this.#_proxy }
-  set #proxy($root) {
-    const $this = this
-    this.#_proxy = new Proxy($root, {
-      get($target, $property, $receiver) {
-        if($this[$property] !== undefined) {
-          if(typeof $this[$property] === 'function') {
-            $this[$property].bind($this)
-          }
-          return $this[$property]
-        }
-        if($target[$property] !== undefined) {
-          if(typeof $target[$property] === 'function') {
-            $target[$property].bind($target)
-          }
-          return $target[$property]
-        }
-        return $target[$property]
-      },
-      set($target, $property, $value) {
-        if(typeof $value === 'object') {
-          $target[$property] = new EventSystem($value)
-        } else {
-          $target[$property] = $value
-        }
-        return true
-      },
-      deleteProperty($target, $property) {
-        delete $target[$property]
-        return true
-      },
-    })
   }
   #_events = []
   get events() { return this.#_events }
   set events($events) { this.addEvents($events) }
-  addExpandedEvents($events, $enable) {
+  #addExpandedEvents($events, $enable) {
   	const $this = this
   	const _events = this.events
   	for(const $event of $events) {
@@ -61,7 +19,7 @@ export default class EventSystem extends EventTarget {
   	}
   	return this
   }
-  addImpandedEvents($events, $enable) {
+  #addImpandedEvents($events, $enable) {
   	const $this = this
   	const _events = this.events
     for(const [
@@ -107,14 +65,14 @@ export default class EventSystem extends EventTarget {
     const typeOfEvents = typeOf($events)
     // Type Of Events Is Array
     if(typeOfEvents === 'array') {
-    	return this.addExpandedEvents($events, $enable)
+    	return this.#addExpandedEvents($events, $enable)
     } else
     // Type Of Events Is Object
     if(typeOfEvents === 'object') {
-    	return this.addImpandedEvents($events, $enable)
+    	return this.#addImpandedEvents($events, $enable)
     }
   }
-  removeExpandedEvents($events) {
+  #removeExpandedEvents($events) {
   	const _events = this.events
     $events = $events || _events
   	let eventsIndex = _events.length - 1
@@ -132,7 +90,7 @@ export default class EventSystem extends EventTarget {
   	}
   	return this
   }
-  removeImpandedEvents($events) {
+  #removeImpandedEvents($events) {
   	const _events = this.events
     $events = $events || _events
     iterateEvents: for(const [
@@ -181,19 +139,47 @@ export default class EventSystem extends EventTarget {
     const typeOfEvents = typeOf($events)
     // Type Of Events Is Array
     if(typeOfEvents === 'array') {
-    	return this.removeExpandedEvents($events)
+    	return this.#removeExpandedEvents($events)
     } else
     // Type Of Events Is Object
     if(typeOfEvents === 'object') {
-    	return this.removeImpandedEvents($events)
-
+    	return this.#removeImpandedEvents($events)
     }
-
   }
   enableEvents($events) {
-    // return this.toggleEventAbility('addEventListener', $events)
+    return this.#toggleEventAbility('addEventListener', $events)
   }
   disableEvents($events) {
-    // return this.toggleEventAbility('removeEventListener', $events)
+    return this.#toggleEventAbility('removeEventListener', $events)
+  }
+  #toggleEventAbility($eventListenerMethod, $events) {
+    const enability = (
+      $eventListenerMethod === 'addEventListener'
+    ) ? true
+      : (
+      $eventListenerMethod === 'removeEventListener'
+    ) ? false
+      : undefined
+    if(enability === undefined) return this
+    $events = $events || this.events
+    iteratePropPaths: for(var [
+      $propPath, $propEvents
+    ] of Object.entries($events)) {
+      $propEvents = parseShortenedEvents($propEvents)
+      const prop = $propPath.split('.')
+      .reduce(($prop, $propPathFrag) => $prop[$propPathFrag], this)
+      iteratePropEvents: for(const $propEvent of $propEvents) {
+        if($propEvent.enabled === enability) continue iteratePropEvents
+        if(prop instanceof NodeList) {
+          for(const $prop of prop) {
+            $prop[$eventListenerMethod]($propEvent.type, $propEvent.callback)
+          }
+        } else if(prop instanceof EventTarget) {
+          prop[$eventListenerMethod]($propEvent.type, $propEvent.callback)
+        }
+        $propEvent.enabled = enability
+      }
+    }
+    return this
   }
 }
