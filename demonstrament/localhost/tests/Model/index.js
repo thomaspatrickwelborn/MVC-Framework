@@ -3,6 +3,8 @@ import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 function DOMContentLoaded($event) {
   var model = new Model()
   console.log(model.assign({a: 1}))
+  console.log(model.addEventListener)
+  console.log(model.keys())
   console.log(model)
 }
 

@@ -4,6 +4,16 @@ import Core from '../Core/index.js'
 import Schema from './Schema/index.js'
 import Validate from './Validate/index.js'
 export default class Model extends Core {
+	#DynamicEventTargetPropertyNames = [].concat(
+		Object.getOwnPropertyNames(EventTarget.prototype),
+	  Object.getOwnPropertyNames(Object.prototype),
+	  Object.getOwnPropertyNames(Array.prototype),
+	  Object.getOwnPropertyNames(Map.prototype),
+		Object.getOwnPropertyNames(EventTarget),
+		Object.getOwnPropertyNames(Object),
+	  Object.getOwnPropertyNames(Array),
+	  Object.getOwnPropertyNames(Map),
+	)
 	constructor($settings = {
 		content: {},
 		schema: {},
@@ -16,45 +26,45 @@ export default class Model extends Core {
 		this.events = $settings.events
 		this.#schema = $settings.schema
 		this.#validate = $settings.validate
-		this.#proxy = $settings.content
+		this.#root = new DynamicEventTarget($settings.content)
+		this.#proxy = this.#root
 		return this.#proxy
 	}
-	#_DETPropertyNames = [].concat(
-		Object.getOwnPropertyNames(EventTarget.prototype),
-	  Object.getOwnPropertyNames(Object.prototype),
-	  Object.getOwnPropertyNames(Array.prototype),
-	  Object.getOwnPropertyNames(Map.prototype),
-		Object.getOwnPropertyNames(EventTarget),
-		Object.getOwnPropertyNames(Object),
-	  Object.getOwnPropertyNames(Array),
-	  Object.getOwnPropertyNames(Map),
-	)
-	get #DETPropertyNames() { return this.#_DETPropertyNames }
 	#schema
 	#root
-	#_content
-	get #proxy() { return this.#_content }
+	#_proxy
+	get #proxy() { return this.#_proxy }
 	set #proxy($content) {
 		const $this = this
-		this.#root = new DynamicEventTarget($content)
-		this.#_content = new Proxy(
+		const $root = this.#root
+		this.#_proxy = new Proxy(
 			this.#root, {
 				get($target, $property) {
+					if(
+						$this.#DynamicEventTargetPropertyNames
+						.includes($property)
+					) {
+						return $root[$property]
+					}
 					if(Object.getOwnPropertyNames($this[$property])) {
 						return $this[$property]
-					} else if($this.#DETPropertyNames.includes($property)) {
-						return $this.#root[$property]
 					}
 				},
 				set($target, $property, $value) {
-					if($this.#DETPropertyNames.includes($property)) {
-						$this.#_content[$property] = $value
+					if(
+						$this.#DynamicEventTargetPropertyNames
+						.includes($property)
+					) {
+						$root[$property] = $value
 					}
 					return true
 				},
 				deleteProperty($target, $property) {
-					if($this.#DETPropertyNames.includes($property)) {
-						delete $this.#_content[$property]
+					if(
+						$this.#DynamicEventTargetPropertyNames
+						.includes($property)
+					) {
+						delete $root[$property]
 					}
 					return true
 				},

@@ -1,5 +1,5 @@
 {
-	"title": "Model",
+	"title": "M.V.C. - Model",
 	"styles": [{
 		"rel": "stylesheet",
 		"type": "text/css",
@@ -8,7 +8,7 @@
 
 	"structure": [{
 		"tag": "h1",
-		"textContent": 	"Model"
+		"textContent": 	"M.V.C. - Model"
 	}, {
 		"tag": "app",
 		"attributes": {
