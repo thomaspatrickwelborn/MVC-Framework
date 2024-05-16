@@ -43,6 +43,15 @@
 					},
 					"textContent": "EventSystem"
 				}]
+			}, {
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./Model"
+					},
+					"textContent": "Model"
+				}]
 			}]
 		}]
 	}],
