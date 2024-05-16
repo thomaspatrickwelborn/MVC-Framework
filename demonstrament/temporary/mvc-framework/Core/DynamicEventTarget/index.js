@@ -12,7 +12,7 @@ export default class DynamicEventTarget extends EventTarget {
     this.#rootAlias = rootAlias
     this.type = $root
     this.#root = $root
-    this.#proxy = $root
+    this.#proxy = this.#root
     return this.#proxy
   }
   // Type
@@ -35,22 +35,10 @@ export default class DynamicEventTarget extends EventTarget {
   }
   // Root
   #_root
-  get #root() {
-    return this.#_root
-  }
+  get #root() { return this.#_root }
   set #root($root) {
     if(this.#_root !== undefined) return
-    const typeOfRoot = typeOf($root)
-    this.#_root = (
-      typeOfRoot === 'object'
-    ) ? new Object()
-      : (
-      typeOfRoot === 'array'
-    ) ? new Array()
-      : (
-      typeOfRoot === 'map'
-    ) ? new Map()
-      : new Object()
+    this.#_root = $root
   }
   // Proxy
   #_proxy
@@ -58,22 +46,6 @@ export default class DynamicEventTarget extends EventTarget {
   set #proxy($root) {
     if(this.#_proxy !== undefined) return
     this.#_proxy = new Proxy($root, this.#handler)
-    for(let [
-      $rootPropKey, $rootPropVal
-    ] of Object.entries($root)) {
-      let typeOfRootPropVal = typeOf($rootPropVal)
-      switch(typeOfRootPropVal) {
-        case 'object':
-          this.#_proxy.defineProperty($rootPropKey, $rootPropVal)
-          break
-        case 'array':
-          this.#_proxy.push($rootPropVal)
-          break
-        case 'map':
-          this.#_proxy.set($rootPropKey, $rootPropVal)
-          break
-      }
-    }
   }
   // Handler
   #_handler

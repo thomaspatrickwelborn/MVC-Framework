@@ -5,7 +5,7 @@ export default function FromAsync(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.fromAsync.call($root, ...arguments)
+        return Array.fromAsync.call($root, $root, ...arguments)
       },
     }
   )

@@ -51,7 +51,6 @@ export default class Handler {
         ) {
           return $this.traps['Array'][$property]
         }
-
       } 
       // 5. Type Array
       if(
@@ -88,16 +87,40 @@ export default class Handler {
     } = this.#aliases
     return function set($target, $property, $value) {
       if(
-        $type === 'array' &&
-        Object.getOwnPropertyNames(Array.prototype)
-        .includes($property)
-      ) $this.traps['Array'][$property] = $value
-      // 6. Object/Array Intermix
+        $type === 'object'
+      ) {
+        if(
+          Object.getOwnPropertyNames(Object)
+          .includes($property)
+        ) {
+          $this.traps['Object'][$property] = $value
+        } else
+        if(
+          Object.getOwnPropertyNames(Array.prototype)
+          .includes($property) ||
+          Object.getOwnPropertyNames(Array)
+          .includes($property)
+        ) {
+          $this.traps['Array'][$property] = $value
+        }
+      } else
       if(
-        $type === 'array' &&
-        Object.getOwnPropertyNames(Object.prototype)
-        .includes($property)
-      ) $this.traps['Object'][$property] = $value
+        $type === 'array'
+      ) {
+        if(
+          Object.getOwnPropertyNames(Array.prototype)
+          .includes($property) ||
+          Object.getOwnPropertyNames(Array)
+          .includes($property)
+        ) {
+          $this.traps['Array'][$property] = $value
+        } else if(
+          Object.getOwnPropertyNames(Object)
+          .includes($property)
+        ) {
+          $this.traps['Object'][$property] = $value
+        }
+      }
       return true
     }
   }
