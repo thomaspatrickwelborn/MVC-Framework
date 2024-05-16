@@ -21,9 +21,27 @@
 				"structure": [{
 					"tag": "a",
 					"attributes": {
+						"href": "./Core"
+					},
+					"textContent": "Core"
+				}]
+			}, {
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
 						"href": "./DynamicEventTarget"
 					},
 					"textContent": "DynamicEventTarget"
+				}]
+			}, {
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./EventSystem"
+					},
+					"textContent": "EventSystem"
 				}]
 			}]
 		}]
