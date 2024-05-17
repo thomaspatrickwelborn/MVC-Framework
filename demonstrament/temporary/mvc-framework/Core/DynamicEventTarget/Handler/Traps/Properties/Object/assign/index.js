@@ -51,13 +51,14 @@ export default function Assign(
             {
               source: $source,
             },
-            $root,
+            $root
           )
         }
         $trap.createEvent(
           $eventTarget,
           'assign',
           {},
+          $root,
         )
         return $root
       }

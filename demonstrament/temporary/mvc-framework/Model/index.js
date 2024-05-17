@@ -1,5 +1,7 @@
 import { typeOf } from '../Utils/index.js'
 import DynamicEventTarget from '../Core/DynamicEventTarget/index.js'
+import Schema from './Schema/index.js'
+import Validate from './Validate/index.js'
 import Core from '../Core/index.js'
 import Handler from './Handler/index.js'
 export default class Model extends Core {
@@ -7,6 +9,7 @@ export default class Model extends Core {
 		content: {},
 		schema: {},
 		validate: {},
+		events: {},
 	}, $options = {
 		enable: true,
 		freeze: false,
@@ -32,8 +35,18 @@ export default class Model extends Core {
     ) ? $rootAlias
       : 'content'
   }
-	#schema
-	#validate
+	#_schema
+	get #schema() { return this.#_schema }
+	set #schema($schema) {
+		if(this.#_schema !== undefined) return
+		this.#_schema = new Schema($schema)
+	}
+	#_validate
+	get #validate() { return this.#_validate }
+	set #validate($validate) {
+		if(this.#_validate !== undefined) return
+		this.#_validate = new Validate($validate)
+	}
   // Root
   #_root
   get #root() { return this.#_root }
@@ -65,6 +78,8 @@ export default class Model extends Core {
       $core: this,
       $rootAlias: this.#_rootAlias,
       $root: this.#_root,
+      $schema: this.#_schema,
+      $validate: this.#_validate,
     }
     return this.#_aliases
   }

@@ -3,7 +3,9 @@ const Events = {
   // Object Assign
   'assign': ($event, $target) => new CustomEvent(
     'assign', { 
-      detail: {},
+      detail: {
+        target: $target
+      },
     }
   ),
   // Object Assign Source
@@ -63,14 +65,18 @@ const Events = {
   // Object Freeze
   'freeze': ($event, $target) => new CustomEvent(
     'freeze', {
-      detail: {},
-    },
+      detail: {
+        target: $target
+      }
+    }
   ),
   // Object Seal
   'seal': ($event, $target) => new CustomEvent(
     'seal', {
-      detail: {},
-    },
+      detail: {
+        target: $target
+      }
+    }
   ),
   // Object Set Prototype Of
   'setPrototypeOf': ($event, $target) => new CustomEvent(
