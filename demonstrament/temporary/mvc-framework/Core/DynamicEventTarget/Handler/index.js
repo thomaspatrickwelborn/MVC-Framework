@@ -2,7 +2,7 @@ import DynamicEventTarget from '../index.js'
 import Traps from './Traps/index.js'
 
 export default class Handler {
-  constructor($aliases, $options) {
+  constructor($aliases) {
     this.#aliases = $aliases
     this.traps = new Traps(this.#aliases)
     return this
