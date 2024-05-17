@@ -74,7 +74,7 @@ export default class Event {
       : 'removeEventListener'
     try {
       this.target[eventAbility](this.type, this.callback)
-    } catch($err) { /* console.log($err) */ }
+    } catch($err) { console.log($err) }
     this.#_enable = $enable
   }
 }

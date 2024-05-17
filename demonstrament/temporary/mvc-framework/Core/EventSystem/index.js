@@ -1,18 +1,18 @@
 import { typeOf, parseShortenedEvents } from '../../Utils/index.js'
 import Event from './Event/index.js'
 export default class EventSystem extends EventTarget {
-  constructor($root, $rootAlias) {
+  constructor($events, $enable) {
     super()
+    this.events = $events
   }
   #_events = []
   get events() { return this.#_events }
   set events($events) { this.addEvents($events) }
   #addExpandedEvents($events, $enable) {
-  	const $this = this
   	const _events = this.events
   	for(const $event of $events) {
   		Object.assign($event, {
-  			context: $this,
+  			context: this,
   			enable: $event.enable || $enable,
   		})
   		_events.push(new Event($event))
@@ -20,7 +20,6 @@ export default class EventSystem extends EventTarget {
   	return this
   }
   #addImpandedEvents($events, $enable) {
-  	const $this = this
   	const _events = this.events
     for(const [
       $eventTargetSettings, $eventCallback
@@ -37,7 +36,7 @@ export default class EventSystem extends EventTarget {
       const typeOfEventCallback = typeOf($eventCallback)
       if(typeOfEventCallback === 'function') {
       	let event = new Event({
-      		context: $this, // this.#proxy
+      		context: this,
           type: eventType,
           target: eventTargetPath,
           callback: $eventCallback,
@@ -47,7 +46,7 @@ export default class EventSystem extends EventTarget {
       } else if(typeOfEventCallback === 'array') {
         for(const $eventCallbackFunction of $eventCallback) {
         	let event = new Event({
-        		context: $this, // this.#proxy
+        		context: this,
             type: eventType,
             target: eventTargetPath,
             callback: $eventCallbackFunction,
@@ -60,7 +59,6 @@ export default class EventSystem extends EventTarget {
     return this
   }
   addEvents($events = {}, $enable = false) {
-  	const $this = this
     const _events = this.events
     const typeOfEvents = typeOf($events)
     // Type Of Events Is Array
@@ -162,23 +160,8 @@ export default class EventSystem extends EventTarget {
       : undefined
     if(enability === undefined) return this
     $events = $events || this.events
-    iteratePropPaths: for(var [
-      $propPath, $propEvents
-    ] of Object.entries($events)) {
-      $propEvents = parseShortenedEvents($propEvents)
-      const prop = $propPath.split('.')
-      .reduce(($prop, $propPathFrag) => $prop[$propPathFrag], this)
-      iteratePropEvents: for(const $propEvent of $propEvents) {
-        if($propEvent.enabled === enability) continue iteratePropEvents
-        if(prop instanceof NodeList) {
-          for(const $prop of prop) {
-            $prop[$eventListenerMethod]($propEvent.type, $propEvent.callback)
-          }
-        } else if(prop instanceof EventTarget) {
-          prop[$eventListenerMethod]($propEvent.type, $propEvent.callback)
-        }
-        $propEvent.enabled = enability
-      }
+    iterateEvents: for(const $event of $events) {
+      $event.enable = enability
     }
     return this
   }

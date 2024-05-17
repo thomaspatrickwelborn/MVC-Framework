@@ -49,7 +49,6 @@ export default class Handler {
           Object.getOwnPropertyNames(Array)
           .includes($property)
         ) {
-          console.log($property, $this.traps['Array'])
           return $this.traps['Array'][$property]
         }
       } 
