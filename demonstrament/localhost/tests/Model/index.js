@@ -1,6 +1,23 @@
 import Model from '/mvc-framework/Model/index.js'
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 function DOMContentLoaded($event) {
+  var model = new Model({
+    content: {
+      aaa: {
+        bbb: {
+          ccc: {
+            ddd: 444
+          }
+        }
+      }
+    },
+    events: {
+      'content.aaa.bbb.ccc assign': ($event) => console.log($event.type, $event.detail)
+    }
+  }, { enable: true })
+  model.content.aaa.bbb.ccc.assign({ ddd: 444444 })
+}
+function SubtestG() {
   var object = new DynamicEventTarget({
     aaa: {
       bbb: {

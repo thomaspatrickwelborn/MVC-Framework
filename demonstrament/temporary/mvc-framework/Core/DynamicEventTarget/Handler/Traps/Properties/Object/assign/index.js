@@ -1,8 +1,9 @@
 import DynamicEventTarget from '../../../../../index.js'
 export default function Assign(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
   const { $eventTarget, $root, $rootAlias } = $aliases
+  const { merge } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -13,7 +14,10 @@ export default function Assign(
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
             if(typeof $sourcePropVal === 'object') {
-              if($root[$sourcePropKey] instanceof DynamicEventTarget) {
+              if(
+                merge === true &&
+                $root[$sourcePropKey] instanceof DynamicEventTarget
+              ) {
                 $sourcePropVal.assign($sourcePropVal)
               } else {
                 Object.assign($root, {

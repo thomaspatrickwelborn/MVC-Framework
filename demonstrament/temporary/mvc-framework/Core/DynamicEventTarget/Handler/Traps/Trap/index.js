@@ -1,11 +1,12 @@
 import Events from '../Events/index.js'
 export default class Trap {
-  constructor($methods, $aliases) {
+  constructor($methods, $aliases, $options = {}) {
     for(let [
       $methodName, $definePropertyMethod
     ] of Object.entries($methods)) {
+      const methodOptions = $options[$methodName]
       $definePropertyMethod(
-        this, $methodName, $aliases
+        this, $methodName, $aliases, methodOptions
       )
     }
   }

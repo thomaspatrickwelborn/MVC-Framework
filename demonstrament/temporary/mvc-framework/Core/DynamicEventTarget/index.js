@@ -1,15 +1,17 @@
 import { typeOf } from '/mvc-framework/Utils/index.js'
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
-  rootAlias: 'content', 
+  rootAlias: 'content',
+  objectAssignMerge: false,
 })
 export default class DynamicEventTarget extends EventTarget {
+  #options
   constructor($root = {}, $options) {
     super()
-    const { rootAlias } = Object.assign(
+    this.#options = Object.assign(
       {}, Options, $options
     )
-    this.#rootAlias = rootAlias
+    this.#rootAlias = this.#options.rootAlias
     this.type = $root
     this.#root = $root
     this.#proxy = $root
@@ -73,7 +75,16 @@ export default class DynamicEventTarget extends EventTarget {
   #_handler
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    this.#_handler = new Handler(this.#aliases)
+    const { objectAssignMerge } = this.#options
+    this.#_handler = new Handler(this.#aliases, {
+      traps: {
+        object: {
+          assign: {
+            merge: objectAssignMerge
+          }
+        }
+      }
+    })
     return this.#_handler
   }
   // Aliases

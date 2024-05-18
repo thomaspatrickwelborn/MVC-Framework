@@ -5,13 +5,14 @@ export default class Traps {
   Object
   Array
   Map
-  constructor($aliases) {
+  constructor($aliases, $options) {
     // Iterate Property Classes
     iteratePropertyClasses:
     for(let [
       PropertyClassName, PropertyClassMethods
     ] of Object.entries(PropertyClasses)) {
-      const trap = new Trap(PropertyClassMethods, $aliases)
+      const trapOptions = $options[PropertyClassName.toLowerCase()]
+      const trap = new Trap(PropertyClassMethods, $aliases, trapOptions)
       Object.defineProperty(
         this, PropertyClassName, {
           value: trap

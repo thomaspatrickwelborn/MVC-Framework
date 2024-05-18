@@ -4,9 +4,9 @@ import Traps from './Traps/index.js'
 export default class Handler {
   #aliases
   traps
-  constructor($aliases) {
+  constructor($aliases, $options) {
     this.#aliases = $aliases
-    this.traps = new Traps(this.#aliases)
+    this.traps = new Traps(this.#aliases, $options.traps)
     return this
   }
   // Get
