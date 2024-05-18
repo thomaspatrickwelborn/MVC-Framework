@@ -60,14 +60,14 @@ export default class DynamicEventTarget extends EventTarget {
     } else
     if(this.type === 'array') {
       this.#_proxy.assign(Object.entries($root))
-    } /*else
+    } else
     if(this.type === 'map') {
       for(const [
         $mapKey, $mapVal
       ] of $root) {
         console.log($mapKey, $mapVal)
       }
-    }*/
+    }
   }
   // Handler
   #_handler

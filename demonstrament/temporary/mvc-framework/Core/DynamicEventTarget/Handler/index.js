@@ -2,13 +2,13 @@ import DynamicEventTarget from '../index.js'
 import Traps from './Traps/index.js'
 
 export default class Handler {
+  #aliases
+  traps
   constructor($aliases) {
     this.#aliases = $aliases
     this.traps = new Traps(this.#aliases)
     return this
   }
-  #aliases
-  traps
   // Get
   get get() {
     const $this = this
@@ -16,7 +16,7 @@ export default class Handler {
       $eventTarget, $root, $rootAlias, $type, $proxy
     } = this.#aliases
     return function get($target, $property, $receiver) {
-      // 1. Root Alias Property
+      // 1. Root Alias
       if($property === $rootAlias) return $root
       if(
         // 2. Event Target Class Instance Methods
@@ -32,6 +32,13 @@ export default class Handler {
           return $eventTarget[$property].bind($eventTarget)
         }
         return $eventTarget[$property]
+      }
+      // 3.5. Root Alias Property
+      if(
+        Object.getOwnPropertyNames($root)
+        .includes($property)
+      ) {
+        return $root[$property]
       }
       // 4. Type Object
       if(
@@ -86,7 +93,7 @@ export default class Handler {
     const {
       $eventTarget, $root, $rootAlias, $type, $proxy
     } = this.#aliases
-    return function set($target, $property, $value) {
+    return function set($target, $property, $value, $receiver) {
       if(
         $type === 'object'
       ) {
@@ -122,11 +129,6 @@ export default class Handler {
           $this.traps['Object'][$property] = $value
         }
       }
-      return true
-    }
-  }
-  get deleteProperty() {
-    return function deleteProperty($target, $property) {
       return true
     }
   }

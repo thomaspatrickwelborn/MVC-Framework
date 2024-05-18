@@ -3,6 +3,44 @@ import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 function DOMContentLoaded($event) {
   var object = new DynamicEventTarget({
     aaa: {
+      bbb: {
+        ccc: {
+          ddd: 444
+        }
+      }
+    }
+  })
+  // console.log(object.content.aaa.content.bbb.content.ccc.content.ddd)
+  // console.log(object.aaa.bbb.ccc.ddd)
+  object.aaa.bbb.ccc.assign({ ddd: 444444 })
+  // console.log(object.aaa.bbb.ccc.ddd)
+  object.aaa.bbb.ccc.assign({ addEventListener: 1445 })
+  // console.log(object.aaa.bbb.ccc.addEventListener)
+  // console.log(object.aaa.bbb.ccc.entries())
+  object.aaa.bbb.ccc.addEventListener(
+    'assign', ($event) => console.log($event.type, $event.detail)
+  )
+  object.aaa.bbb.ccc.assign({ eee: 5555555 })
+  // object.addEventListener
+  // object.content.aaa.addEventListener
+  // object.addEventListener = 33
+}
+function SubtestF() {
+  var model = new Model({
+    content: {
+      aaa: {
+        bbb: 111
+      }
+    },
+    events: {
+      'content assign:aaa': ($event) => console.log($event.type, $event.detail)
+    }
+  })
+  model.content.assign
+}
+function SubtestE() {
+  var object = new DynamicEventTarget({
+    aaa: {
       bbb: 111
     }
   })

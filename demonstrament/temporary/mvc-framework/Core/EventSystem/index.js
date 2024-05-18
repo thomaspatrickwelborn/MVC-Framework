@@ -61,11 +61,9 @@ export default class EventSystem extends EventTarget {
   addEvents($events = {}, $enable = false) {
     const _events = this.events
     const typeOfEvents = typeOf($events)
-    // Type Of Events Is Array
     if(typeOfEvents === 'array') {
     	return this.#addExpandedEvents($events, $enable)
     } else
-    // Type Of Events Is Object
     if(typeOfEvents === 'object') {
     	return this.#addImpandedEvents($events, $enable)
     }
