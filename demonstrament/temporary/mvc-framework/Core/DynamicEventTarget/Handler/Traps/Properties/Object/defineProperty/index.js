@@ -1,7 +1,8 @@
 export default function DefineProperty(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
   const { $eventTarget, $root } = $aliases
+  // const { descriptorTree } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {

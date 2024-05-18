@@ -2,7 +2,9 @@ import { typeOf } from '/mvc-framework/Utils/index.js'
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content',
-  objectAssignMerge: false,
+  objectAssignMerge: true,
+  // objectDefinePropertyDescriptorTree: true,
+  objectDefinePropertyDescriptorValueMerge: true,
 })
 export default class DynamicEventTarget extends EventTarget {
   #options
@@ -75,13 +77,25 @@ export default class DynamicEventTarget extends EventTarget {
   #_handler
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    const { objectAssignMerge } = this.#options
+    const {
+      objectAssignMerge, 
+      // objectDefinePropertyDescriptorTree,
+      objectDefinePropertyDescriptorValueMerge,
+    } = this.#options
     this.#_handler = new Handler(this.#aliases, {
       traps: {
         object: {
           assign: {
-            merge: objectAssignMerge
-          }
+            merge: objectAssignMerge,
+          },
+          defineProperties: {
+            descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
+            // descriptorTree: objectDefinePropertyDescriptorTree,
+          },
+          defineProperty: {
+            descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
+            // descriptorTree: objectDefinePropertyDescriptorTree,
+          },
         }
       }
     })

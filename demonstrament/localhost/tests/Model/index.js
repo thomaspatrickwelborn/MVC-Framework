@@ -1,6 +1,64 @@
 import Model from '/mvc-framework/Model/index.js'
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
 function DOMContentLoaded($event) {
+  var model = new Model({})
+  // A.
+  model.content.defineProperties({
+    ['aaa']: {
+      enumerable: true,
+      value: {
+        ['bbb']: {
+          enumerable: true,
+          value: {
+            ['ccc']: {
+              enumerable: true,
+              value: 333
+            }
+          }
+        }
+      }
+    }
+  })
+  // B.
+  model.content.defineProperties({
+    ['aaa']: {
+      enumerable: true,
+      value: {},
+      defineProperties: {
+        ['bbb']: {
+          enumerable: true,
+          value: {},
+          defineProperties: {
+            ['ccc']: {
+              enumerable: true,
+              value: []
+            }
+          }
+        }
+      }
+    }
+  })
+  // model.content.defineProperties({
+  //   'aaa': {
+  //     value: {
+  //       'bbb': {
+  //         value: {
+  //           'ccc': {
+  //             value: {
+  //               'ddd': {
+  //                 value: 444
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   },
+  // }, {
+  //   // descriptorTree: true,
+  // })
+}
+function SubtestH() {
   var model = new Model({
     content: {
       aaa: {
