@@ -7,19 +7,24 @@ export default function DefineProperty(
       value: function() {
         let propertyKey = arguments[0]
         let propertyDescriptor = arguments[1]
-        if(
-          typeof propertyDescriptor.value === 'object' &&
-          !$sourcePropVal instanceof DynamicEventTarget
-        ) {
-          propertyDescriptor.value = new DynamicEventTarget(
-            propertyDescriptor.value, {
-              $rootAlias
-            }
+        if(typeof propertyDescriptor.value === 'object') {
+          if($root[propertyKey] instanceof DynamicEventTarget) {
+            $root[propertyKey].defineProperty(propertyKey, propertyValu)
+          } else {
+            propertyDescriptor.value = new DynamicEventTarget(
+              propertyDescriptor.value, {
+                $rootAlias
+              }
+            )
+            Object.defineProperty(
+              $root, propertyKey, propertyDescriptor
+            )
+          }
+        } else {
+          Object.defineProperty(
+            $root, propertyKey, propertyDescriptor
           )
         }
-        Object.defineProperty(
-          $root, propertyKey, propertyDescriptor
-        )
         $trap.createEvent(
           $eventTarget,
           'defineProperty',

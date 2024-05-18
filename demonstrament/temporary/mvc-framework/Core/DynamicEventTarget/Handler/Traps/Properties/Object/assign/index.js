@@ -1,7 +1,8 @@
+import DynamicEventTarget from '../../../../../index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const { $eventTarget, $root, $rootAlias } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -11,22 +12,24 @@ export default function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            if(
-              typeof $sourcePropVal === 'object' &&
-              !$sourcePropVal instanceof DynamicEventTarget
-            ) {
-              $sourcePropVal = new DynamicEventTarget(
-                $sourcePropVal, {
-                  $rootAlias
-                }
-              )
+            if(typeof $sourcePropVal === 'object') {
+              if($root[$sourcePropKey] instanceof DynamicEventTarget) {
+                $sourcePropVal.assign($sourcePropVal)
+              } else {
+                Object.assign($root, {
+                  [$sourcePropKey]: new DynamicEventTarget($sourcePropVal, {
+                    $rootAlias,
+                  })
+                })
+              }
+            } else {
+              Object.assign($root, {
+                [$sourcePropKey]: $sourcePropVal
+              })
             }
-            Object.assign($root, {
-              [$sourcePropKey]: $sourcePropVal
-            })
             $trap.createEvent(
               $eventTarget, 
-              'assignSourceProperty',
+              'assignSourcePropertyKey',
               {
                 key: $sourcePropKey,
                 val: $sourcePropVal,
@@ -36,7 +39,7 @@ export default function Assign(
             )
             $trap.createEvent(
               $eventTarget, 
-              'assignSourcePropertyKey',
+              'assignSourceProperty',
               {
                 key: $sourcePropKey,
                 val: $sourcePropVal,

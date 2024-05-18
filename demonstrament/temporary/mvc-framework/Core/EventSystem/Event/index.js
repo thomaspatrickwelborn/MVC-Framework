@@ -41,8 +41,8 @@ export default class Event {
     let target = this.context
     for(const $targetPathKey of this.#_target.split('.')) {
       if($targetPathKey === ':scope') break
-      if(target === undefined) break
-      target = target[$targetPathKey]
+      if(target[$targetPathKey] === undefined) break
+        target = target[$targetPathKey]
     }
     return target
   }
