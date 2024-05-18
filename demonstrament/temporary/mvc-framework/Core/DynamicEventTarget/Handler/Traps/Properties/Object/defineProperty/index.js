@@ -1,31 +1,35 @@
+import { typeOf, typedInstance } from '../../../../../../../Utils/index.js'
+import DynamicEventTarget from '../../../../../index.js'
 export default function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const { $eventTarget, $root } = $aliases
-  // const { descriptorTree } = $options
+  const { descriptorValueMerge } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         let propertyKey = arguments[0]
         let propertyDescriptor = arguments[1]
-        if(typeof propertyDescriptor.value === 'object') {
-          if($root[propertyKey] instanceof DynamicEventTarget) {
-            $root[propertyKey].defineProperty(propertyKey, propertyValu)
+        const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
+          $root, $propertyKey
+        ) || {}
+        if(typeof $propertyDescriptor.value === 'object') {
+          if(
+            descriptorValueMerge === true &&
+            rootPropertyDescriptor.value instanceof DynamicEventTarget
+          ) {
+            rootPropertyDescriptor.value.defineProperties(
+              $propertyDescriptor.value
+            )
           } else {
-            propertyDescriptor.value = new DynamicEventTarget(
-              propertyDescriptor.value, {
-                $rootAlias
+            $propertyDescriptor.value = new DynamicEventTarget(
+              typedInstance(typeOf(rootPropertyDescriptor), {
+                rootAlias: $rootAlias,
               }
-            )
-            Object.defineProperty(
-              $root, propertyKey, propertyDescriptor
-            )
+            ))
           }
-        } else {
-          Object.defineProperty(
-            $root, propertyKey, propertyDescriptor
-          )
         }
+        Object.defineProperty($root, $propertyKey, $propertyDescriptor)
         $trap.createEvent(
           $eventTarget,
           'defineProperty',
