@@ -4,36 +4,44 @@ export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const { $eventTarget, $root, $rootAlias } = $aliases
-  const { /* descriptorTree, */ descriptorValueMerge } = $options
+  const { descriptorValueMerge, descriptorTree } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $propertyDescriptors = arguments[0]
-        for(let [
+        for(const [
           $propertyKey, $propertyDescriptor
         ] of Object.entries($propertyDescriptors)) {
-          const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
-            $root, $propertyKey
-          ) || {}
           if(typeof $propertyDescriptor.value === 'object') {
+            const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
+              $root, $propertyKey
+            ) || {}
+            // Descriptor Value Merge
             if(
               descriptorValueMerge === true &&
               rootPropertyDescriptor.value instanceof DynamicEventTarget
             ) {
-              rootPropertyDescriptor.value.defineProperties(
-                $propertyDescriptor.value
-              )
+              $propertyDescriptor.value = rootPropertyDescriptor.value
             } else {
               $propertyDescriptor.value = new DynamicEventTarget(
-                typedInstance(typeOf(rootPropertyDescriptor), {
+                $propertyDescriptor.value, {
                   rootAlias: $rootAlias,
                 }
-              ))
+              )
             }
           }
           Object.defineProperties($root, {
             [$propertyKey]: $propertyDescriptor
           })
+          // Descriptor Tree
+          if(
+            descriptorTree === true &&
+            $propertyDescriptor.defineProperties !== undefined
+          ) {
+            $propertyDescriptor.value.defineProperties(
+              $propertyDescriptor.defineProperties
+            )
+          }
           $trap.createEvent(
             $eventTarget,
             'defineProperty',

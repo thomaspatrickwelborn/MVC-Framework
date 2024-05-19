@@ -4,32 +4,42 @@ export default function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const { $eventTarget, $root } = $aliases
-  const { descriptorValueMerge } = $options
+  const { descriptorValueMerge, descriptorTree } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         let propertyKey = arguments[0]
         let propertyDescriptor = arguments[1]
-        const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
-          $root, $propertyKey
-        ) || {}
-        if(typeof $propertyDescriptor.value === 'object') {
+        if(typeof propertyDescriptor.value === 'object') {
+          const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
+            $root, $propertyKey
+          ) || {}
+          // Descriptor Value Merge
           if(
             descriptorValueMerge === true &&
             rootPropertyDescriptor.value instanceof DynamicEventTarget
           ) {
-            rootPropertyDescriptor.value.defineProperties(
-              $propertyDescriptor.value
-            )
-          } else {
-            $propertyDescriptor.value = new DynamicEventTarget(
-              typedInstance(typeOf(rootPropertyDescriptor), {
+            propertyDescriptor.value = rootPropertyDescriptor.value
+          }   else {
+            propertyDescriptor.value = new DynamicEventTarget(
+              propertyDescriptor.value, {
                 rootAlias: $rootAlias,
               }
-            ))
+            )
           }
         }
-        Object.defineProperty($root, $propertyKey, $propertyDescriptor)
+        Object.defineProperty($root, propertyKey, propertyDescriptor)
+        // Descriptor Tree
+        if(
+          descriptorTree === true &&
+          propertyDescriptor.defineProperties !== undefined
+        ) {
+          for(let [
+            $subpropertyKey, $subpropertyDescriptor
+          ] of Object.entries(propertyDescriptor.defineProperties)) {
+            propertyDescriptor.defineProperty($subpropertyKey, $subpropertyDescriptor)
+          }
+        }
         $trap.createEvent(
           $eventTarget,
           'defineProperty',

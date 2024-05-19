@@ -1,25 +1,59 @@
 import Model from '/mvc-framework/Model/index.js'
 import DynamicEventTarget from '/mvc-framework/Core/DynamicEventTarget/index.js'
-function DOMContentLoaded($event) {
-  var model = new Model({})
-  // A.
-  model.content.defineProperties({
-    ['aaa']: {
-      enumerable: true,
-      value: {
-        ['bbb']: {
-          enumerable: true,
-          value: {
-            ['ccc']: {
-              enumerable: true,
-              value: 333
-            }
-          }
-        }
-      }
-    }
+function DOMContentLoaded() {
+  var model = new Model({
+    content: [],
   })
-  // B.
+  console.log()
+  model.content.defineProperty('aaa', {
+    get() { return 111 }
+  })
+  model.content.defineProperty('bbb', {
+    get() { return 222 }
+  })
+  model.content.addEventListener(
+    'defineProperty', ($event) => console.log($event.type, $event.detail)
+  )
+
+  model.content.defineProperty('ccc', {
+    get() { return 333 }
+  })
+  model.content.defineProperty('ddd', {
+    get() { return 444 }
+  })
+  model.content.addEventListener(
+    'defineProperty:eee', ($event) => console.log($event.type, $event.detail)
+  )
+
+  model.content.defineProperty('eee', {
+    get() { return 555 }
+  })
+}
+function SubtestI() {
+  var model = new Model({})
+  // model.content.defineProperties({
+  //   ['aaa']: {
+  //     enumerable: true,
+  //     value: {},
+  //     defineProperties: {
+  //       ['bbb']: {
+  //         enumerable: true,
+  //         value: {},
+  //         defineProperties: {
+  //           ['ccc']: {
+  //             enumerable: true,
+  //             value: [],
+  //             defineProperties: {
+  //               0: { value: 444 },
+  //               1: { value: 555 },
+  //               2: { value: 666 },
+  //             },
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // })
   model.content.defineProperties({
     ['aaa']: {
       enumerable: true,
@@ -31,7 +65,7 @@ function DOMContentLoaded($event) {
           defineProperties: {
             ['ccc']: {
               enumerable: true,
-              value: []
+              value: [444,555,666]
             }
           }
         }
@@ -39,24 +73,13 @@ function DOMContentLoaded($event) {
     }
   })
   // model.content.defineProperties({
-  //   'aaa': {
-  //     value: {
-  //       'bbb': {
-  //         value: {
-  //           'ccc': {
-  //             value: {
-  //               'ddd': {
-  //                 value: 444
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   },
-  // }, {
-  //   // descriptorTree: true,
+  //   aaa: {
+  //     value: [1,2,3]
+  //   }
   // })
+  console.log('model', model)
+  console.log(model.content.aaa.bbb.ccc)
+  console.log(model.content.aaa.content.bbb.content.ccc)
 }
 function SubtestH() {
   var model = new Model({

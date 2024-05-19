@@ -3,7 +3,7 @@ import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content',
   objectAssignMerge: true,
-  // objectDefinePropertyDescriptorTree: true,
+  objectDefinePropertyDescriptorTree: true,
   objectDefinePropertyDescriptorValueMerge: true,
 })
 export default class DynamicEventTarget extends EventTarget {
@@ -15,7 +15,7 @@ export default class DynamicEventTarget extends EventTarget {
     )
     this.#rootAlias = this.#options.rootAlias
     this.type = $root
-    this.#root = $root
+    this.#root = this.type
     this.#proxy = $root
     return this.#proxy
   }
@@ -40,16 +40,16 @@ export default class DynamicEventTarget extends EventTarget {
   // Root
   #_root
   get #root() { return this.#_root }
-  set #root($root) {
+  set #root($type) {
     if(this.#_root !== undefined) return
     this.#_root = (
-      this.type === 'object'
+      $type === 'object'
     ) ? new Object()
       : (
-      this.type === 'array'
+      $type === 'array'
     ) ? new Array()
       : (
-      this.type === 'map'
+      $type === 'map'
     ) ? new Map()
       : new Object()
   }
@@ -63,7 +63,7 @@ export default class DynamicEventTarget extends EventTarget {
       this.#_proxy.assign($root)
     } else
     if(this.type === 'array') {
-      this.#_proxy.assign(Object.entries($root))
+      this.#_proxy.assign($root)
     } else
     if(this.type === 'map') {
       for(const [
@@ -79,7 +79,7 @@ export default class DynamicEventTarget extends EventTarget {
     if(this.#_handler !== undefined) return this.#_handler
     const {
       objectAssignMerge, 
-      // objectDefinePropertyDescriptorTree,
+      objectDefinePropertyDescriptorTree,
       objectDefinePropertyDescriptorValueMerge,
     } = this.#options
     this.#_handler = new Handler(this.#aliases, {
@@ -90,11 +90,11 @@ export default class DynamicEventTarget extends EventTarget {
           },
           defineProperties: {
             descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
-            // descriptorTree: objectDefinePropertyDescriptorTree,
+            descriptorTree: objectDefinePropertyDescriptorTree,
           },
           defineProperty: {
             descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
-            // descriptorTree: objectDefinePropertyDescriptorTree,
+            descriptorTree: objectDefinePropertyDescriptorTree,
           },
         }
       }

@@ -18,7 +18,9 @@ export default function Assign(
                 merge === true &&
                 $root[$sourcePropKey] instanceof DynamicEventTarget
               ) {
-                $sourcePropVal.assign($sourcePropVal)
+                $sourcePropVal.assign({
+                  [$sourcePropKey]: $sourcePropVal,
+                })
               } else {
                 Object.assign($root, {
                   [$sourcePropKey]: new DynamicEventTarget($sourcePropVal, {
