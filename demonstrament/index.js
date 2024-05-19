@@ -3,6 +3,8 @@ import Application from './application/index.js'
 
 const application = Application({
 	paths: {
+		'tests/MVC/001': 'localhost/tests/MVC/001',
+		'tests/MVC/000': 'localhost/tests/MVC/000',
 		'tests/MVC': 'localhost/tests/MVC',
 		'tests/Model': 'localhost/tests/Model',
 		'tests/Core': 'localhost/tests/Core',

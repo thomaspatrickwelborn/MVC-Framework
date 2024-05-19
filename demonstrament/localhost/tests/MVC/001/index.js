@@ -1,5 +1,7 @@
 import { Model, View, Control } from '/mvc-framework/index.js'
 
-function DOMContentLoaded() {}
+function DOMContentLoaded() {
+  // 
+}
 
 document.addEventListener('DOMContentLoaded', DOMContentLoaded)
