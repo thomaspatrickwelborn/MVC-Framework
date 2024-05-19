@@ -52,6 +52,15 @@
 					},
 					"textContent": "Model"
 				}]
+			}, {
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./MVC"
+					},
+					"textContent": "MVC"
+				}]
 			}]
 		}]
 	}],

@@ -72,9 +72,18 @@ export default class Event {
       $enable === true
     ) ? 'addEventListener'
       : 'removeEventListener'
-    try {
-      this.target[eventAbility](this.type, this.callback)
-    } catch($err) { console.log($err) }
+    console.log(this.target)
+    if(this.target instanceof NodeList) {
+      for(const $target of this.target) {
+        try {
+          $target[eventAbility](this.type, this.callback)
+        } catch($err) { console.log($err) }
+      }
+    } else {
+      try {
+        this.target[eventAbility](this.type, this.callback)
+      } catch($err) { console.log($err) }
+    }
     this.#_enable = $enable
   }
 }

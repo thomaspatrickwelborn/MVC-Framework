@@ -178,7 +178,7 @@ export default class View extends Core {
 			this.dispatchEvent(new CustomEvent('render', {
 				detail: this
 			}))
-			return this
 		}
+		return this
 	}
 }
