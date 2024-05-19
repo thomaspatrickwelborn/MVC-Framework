@@ -4,7 +4,7 @@ const Settings = {
 	routes: {},
 }
 const Options = {
-	enable: false,
+	enable: true,
 }
 export default class StaticRouter extends Core {
 	constructor($settings = Settings, $options = Options) {

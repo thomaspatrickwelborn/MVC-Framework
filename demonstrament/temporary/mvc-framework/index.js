@@ -1,3 +1,4 @@
+import DynamicEventTarget from './Core/DynamicEventTarget/index.js'
 import Core from './Core/index.js'
 import Model from './Model/index.js'
 import View from './View/index.js'
