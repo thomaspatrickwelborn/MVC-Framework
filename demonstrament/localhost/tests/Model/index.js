@@ -28,6 +28,13 @@ function DOMContentLoaded() {
   model.content.defineProperty('eee', {
     get() { return 555 }
   })
+  model.content.addEventListener(
+    'freeze', ($event) => console.log($event.type, $event.detail)
+  )
+  model.content.freeze()
+  model.content.defineProperty('fff', {
+    get() { return 666 }
+  })
 }
 function SubtestI() {
   var model = new Model({})

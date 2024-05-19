@@ -5,6 +5,8 @@ const Options = Object.freeze({
   objectAssignMerge: true,
   objectDefinePropertyDescriptorTree: true,
   objectDefinePropertyDescriptorValueMerge: true,
+  objectFreezeRecurse: true,
+  objectSealRecurse: true,
 })
 export default class DynamicEventTarget extends EventTarget {
   #options
@@ -81,6 +83,8 @@ export default class DynamicEventTarget extends EventTarget {
       objectAssignMerge, 
       objectDefinePropertyDescriptorTree,
       objectDefinePropertyDescriptorValueMerge,
+      objectFreezeRecurse,
+      objectSealRecurse,
     } = this.#options
     this.#_handler = new Handler(this.#aliases, {
       traps: {
@@ -95,6 +99,12 @@ export default class DynamicEventTarget extends EventTarget {
           defineProperty: {
             descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
             descriptorTree: objectDefinePropertyDescriptorTree,
+          },
+          freeze: {
+            recurse: objectFreezeRecurse,
+          },
+          seal: {
+            recurse: objectSealRecurse,
           },
         }
       }
