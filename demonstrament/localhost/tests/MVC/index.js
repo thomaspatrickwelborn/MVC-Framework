@@ -23,7 +23,12 @@ function DOMContentLoaded() {
           }
         }
       }
-    }
+    },
+    events: {
+      'content.header.menu assignSourceProperty': ($event) => {
+        view.selectors.menu.setAttribute('data-pan', $event.detail.val)
+      },
+    },
   })
   const view = new View({
     element: document.getElementById('app'),
@@ -33,7 +38,13 @@ function DOMContentLoaded() {
       menuNavButton: 'header > menu > nav > button',
     },
     events: {
-      'selectors.menuPanButton click': ($event) => { console.log($event.type) }
+      'selectors.menuPanButton click': function menuPanButtonClick($event) {
+        let pan = (
+          view.selectors.menu.getAttribute('data-pan') === 'in'
+        ) ? 'ex'
+          : 'in'
+        model.content.header.menu.assign({ pan })
+      }
     },
     templates: {
       template: ($data) => {
@@ -61,7 +72,6 @@ function DOMContentLoaded() {
     name: 'template',
     data: model.content, 
   })
-  console.log(view)
 }
 
 document.addEventListener('DOMContentLoaded', DOMContentLoaded)

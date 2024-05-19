@@ -127,9 +127,15 @@ export default class View extends Core {
 			if(this.element instanceof HTMLTemplateElement) {
 				_querySelectors[$selectorName] = this.element.content
 			  .querySelectorAll($selector)
+			  if(_querySelectors[$selectorName].length === 1) {
+			  	_querySelectors[$selectorName] = _querySelectors[$selectorName][0]
+			  }
 			} else {
 				_querySelectors[$selectorName] = this.element
 				.querySelectorAll($selector)
+				if(_querySelectors[$selectorName].length === 1) {
+					_querySelectors[$selectorName] = _querySelectors[$selectorName][0]
+				}
 			}
 		}
 		return this

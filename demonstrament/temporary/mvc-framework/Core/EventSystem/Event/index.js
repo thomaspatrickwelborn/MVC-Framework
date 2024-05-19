@@ -72,7 +72,6 @@ export default class Event {
       $enable === true
     ) ? 'addEventListener'
       : 'removeEventListener'
-    console.log(this.target)
     if(this.target instanceof NodeList) {
       for(const $target of this.target) {
         try {
