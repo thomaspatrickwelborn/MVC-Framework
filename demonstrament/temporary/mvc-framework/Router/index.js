@@ -42,10 +42,7 @@ export default class StaticRouter extends Core {
 		this.route = routeData
 	}
 	navigate($hash) {
-		window.dispatchEvent(new HashChangeEvent('hashchange', {
-			oldURL: null,
-			newURL: $hash
-		}))
+		window.location = $hash
 	}
 	enable() {
 		window.addEventListener('hashchange', this.#hashChange.bind(this))
