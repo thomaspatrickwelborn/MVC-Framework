@@ -1,5 +1,4 @@
 const settings = {
-  element: document.getElementById('app'),
   selectors: {
     menu: 'header > menu',
     menuPanButton: 'header > menu > button',
@@ -8,7 +7,7 @@ const settings = {
   templates: {
     template: ($data) => {
       return `
-      <header>
+      <header class="app-header">
         <h1>${$data.name}</h1>
         <menu data-pan="${$data.menu.pan}">
           <button data-action="pan">${$data.menu.symbol}</button>

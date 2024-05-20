@@ -1,6 +1,5 @@
 const settings = {
-  content: {
-  },
+  content: {},
 }
 const options = {}
 export default [settings, options]

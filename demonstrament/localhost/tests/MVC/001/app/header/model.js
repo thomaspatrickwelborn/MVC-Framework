@@ -8,13 +8,13 @@ const settings = {
       nav: {
         buttons: [{
           textContent: 'Page 1',
-          link: './link-a/',
+          link: '#link-a',
         }, {
           textContent: 'Page 2',
-          link: './link-b/',
+          link: '#link-b',
         }, {
           textContent: 'Page 3',
-          link: './link-c/',
+          link: '#link-c',
         }]
       }
     }

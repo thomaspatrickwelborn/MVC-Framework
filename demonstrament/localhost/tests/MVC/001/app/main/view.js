@@ -1,6 +1,7 @@
 const settings = {
-  content: {
-    
+  templates: { template: () => `<main class="app-main"></main>` },
+  selectors: {
+    'main': 'main',
   },
 }
 const options = {}
