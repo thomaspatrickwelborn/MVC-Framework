@@ -1,8 +1,11 @@
 import '#tensils/persist/index.js'
 import Application from './application/index.js'
 
-const application = Application({
-	paths: {
+const application = await Application({
+	'database': {
+		'/services/topics': ['get']
+	},
+	'documents': {
 		'tests/MVC/001': 'localhost/tests/MVC/001',
 		'tests/MVC/000': 'localhost/tests/MVC/000',
 		'tests/MVC': 'localhost/tests/MVC',

@@ -6,8 +6,9 @@ async function View($settings = {}) {
 	const { viewModel } = $settings
 	const viewTemplatePath = path.join(
 		process.env.PWD,
-		'application/templates/html5/index.ejs'
+		'application/documents/templates/html5/index.ejs'
 	)
+	console.log(viewTemplatePath)
 	const pageView = await ejs.renderFile(
 		viewTemplatePath, 
 		viewModel, {
