@@ -3,18 +3,19 @@ import {
 } from '/mvc-framework/index.js'
 import modelParameters from './model.js'
 import viewParameters from './view.js'
-import eventsParameters from './events.js'
+import routerParameters from './router.js'
+import eventsMap from './events.js'
 const settings = {
-  // Models
   models: {
     model: new Model(...modelParameters)
   },
-  // Views
   views: {
     view: new View(...viewParameters)
   },
-  // Events
-  events: eventsParameters,
+  routers: {
+    router: new StaticRouter(...routerParameters)
+  },
+  events: eventsMap,
 }
 const options = {}
 export default [settings, options]

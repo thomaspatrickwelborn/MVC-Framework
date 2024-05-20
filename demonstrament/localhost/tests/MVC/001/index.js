@@ -1,11 +1,7 @@
-import {
-  Model, View, Control, StaticRouter
-} from '/mvc-framework/index.js'
-import Header from './header/index.js'
-
+import App from './app/index.js'
 function DOMContentLoaded() {
-  const header = new Header()
-  console.log(header.start())
+  const app = new App()
+  app.start()
 }
 
 document.addEventListener(
