@@ -62,7 +62,9 @@ export default class Event {
       return this.#_callback
     }
   }
-  set callback($callback) { this.#_callback = $callback }
+  set callback($callback) {
+    this.#_callback = $callback.bind(this.context)
+  }
   // Enabled
   #_enable = false
   get enable() { return this.#_enable }
