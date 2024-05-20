@@ -4,7 +4,7 @@ import {
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import View from '../View/index.js'
-import StaticRouter from '../Router/index.js'
+import { StaticRouter, ServerRouter } from '../Router/index.js'
 
 const Settings = {
 	models: {},
@@ -25,40 +25,42 @@ export default class Control extends Core {
 	#_models = {}
 	get models() { return this.#_models }
 	set models($models = {}) {
+		const _models = this.#_models
 		for(const [
 			$modelName, $model
 		] of Object.entries($models)) {
 			if($model instanceof Model) {
-				this.#_models[$modelName] = $model
+				_models[$modelName] = $model
 			} else if(typeOf($model) === 'object') {
-				this.#_models[$modelName] = new Model($model)
+				_models[$modelName] = new Model($model)
 			}
 		}
 	}
 	#_views = {}
 	get views() { return this.#_views }
 	set views($views = {}) {
+		const _views = this.#_views
 		for(const [
 			$viewName, $view
 		] of Object.entries($views)) {
 			if($view instanceof View) {
-				this.#_views[$viewName] = $view
+				_views[$viewName] = $view
 			} else if(typeOf($view) === 'object') {
-				this.#_views[$viewName] = new View($view)
+				_views[$viewName] = new View($view)
 			}
 		}
 	}
 	#_controls = {}
 	get controls() { return this.#_controls }
 	set controls($controls = {}) {
-		// controls
+		const _controls = this.#_controls
 		for(const [
 			$controlName, $control
 		] of Object.entries($controls)) {
 			if($control instanceof Control) {
-				this.#_controls[$controlName] = $control
+				_controls[$controlName] = $control
 			} else if(typeOf($control) === 'object') {
-				this.#_controls[$controlName] = new Control($control)
+				_controls[$controlName] = new Control($control)
 			}
 		}
 	}
@@ -66,42 +68,40 @@ export default class Control extends Core {
 	#_routers = {}
 	get routers() { return this.#_routers }
 	set routers($routers = {}) {
-		// routers
+		const _routers = this.#_routers
+		iterateRouterClasses: 
 		for(const [
-			$routerName, $router
+			$routerClass, $routerClassInstances
 		] of Object.entries($routers)) {
-			if($router instanceof StaticRouter) {
-				this.#_routers[$routerName] = $router
-			} else if(typeOf($router) === 'object') {
-				this.#_routers[$routerName] = new StaticRouter($router)
+			_routers[$routerClass] = _routers[$routerClass] || {}
+			iterateRoutes:
+			for(const [
+				$routerName, $router
+			] of Object.entries($routerClassInstances)) {
+				if(
+					$router instanceof StaticRouter ||
+					$router instanceof ServerRouter
+				) {
+					_routers[$routerClass][$routerName] = $router
+				} else
+				if(typeOf($router) === 'object') {
+					const Router = (
+						$routerClass === 'static'
+					) ? StaticRouter
+					  : (
+				  	$routerClass === 'server'
+			  	) ? ServerRouter
+					  : undefined
+				  if(Router !== undefined) _routers[$routerClass][$routerName] = new Router($router)
+				}
 			}
 		}
 	}
 	addClassInstances($classes) {
-		const ValidClasses = {
-			models: Model,
-			views: View,
-			controls: Control,
-			routers: StaticRouter,
-		}
 		iterateClasses: for(const [
 			$className, $classInstances
 		] of Object.entries($classes)) {
-			if(
-				Object.keys(ValidClasses).includes($className) === false
-			) continue iterateClasses
-			var ValidClass = ValidClasses[$className]
-			iterateClassInstances: for(const [
-				$classInstanceName, $classInstance
-			] of Object.entries($classInstances)) {
-				if($classInstance instanceof ValidClass) {
-					this[$className][$classInstanceName] = $classInstance
-				} else if(typeOf($classInstance) === 'object') {
-					this[$className][$classInstanceName] = new ValidClass($classInstance)
-				} else if(typeOf($classInstance) === 'array') {
-					this[$className][$classInstanceName] = new ValidClass(...$classInstance)
-				}
-			}
+			this[$className] = $classInstances
 		}
 		return this
 	}

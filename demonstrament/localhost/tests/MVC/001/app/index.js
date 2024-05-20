@@ -1,40 +1,40 @@
-import { Model, View, Control, StaticRouter } from '/mvc-framework/index.js'
+import { Model, View, Control, StaticRouter, ServerRouter } from '/mvc-framework/index.js'
 import HeaderControl from './header/index.js'
 import MainControl from './main/index.js'
 import modelParameters from './model.js'
 import viewParameters from './view.js'
-import controlParameters from './control.js'
-import routerParameters from './router.js'
+import staticRouterParameters from './static-router.js'
+import serverRouterParameters from './server-router.js'
 export default class AppControl extends Control {
   constructor() {
     super(...arguments)
     this.addClassInstances({
       models: {
-        model: new Model(...modelParameters)
+        model: new Model(...modelParameters),
       },
       views: {
-        view: new View(...viewParameters)
+        view: new View(...viewParameters),
       },
       controls: {
         header: new HeaderControl().start(),
         main: new MainControl().start(),
       },
       routers: {
-        router: new StaticRouter(...routerParameters),
+        static: { router: new StaticRouter(...staticRouterParameters) },
+        server: { router: new ServerRouter(...serverRouterParameters) },
       }
     })
     this.addEvents({
       'controls.header navigate': function headerNavigate($event) {
-        this.routers.router.navigate($event.detail.link)
+        window.location.hash = $event.detail.link
       },
     }, true)
   }
   start() {
-    // console.log(this.views.view.element.replaceChildren)
-    // console.log(this.controls.header.views.view.element.content)
     this.views.view.element.replaceChildren(
       this.controls.header.views.view.element.content,
       this.controls.main.views.view.element.content,
     )
+    console.log(this.routers.serverRouter)
   }
 }

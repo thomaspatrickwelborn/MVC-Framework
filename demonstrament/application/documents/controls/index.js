@@ -9,12 +9,10 @@ function Control($options = {}) {
 		})
 		const viewModel = Models.Model({ viewPath })
 		.then(($viewModel) => {
-			console.log($viewModel)
 			const view = Views.View({
 				viewPath, 
 				viewModel: $viewModel
 			}).then(($view) => {
-				console.log($view)
 				$response.send($view)
 			})
 		})

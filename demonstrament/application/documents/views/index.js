@@ -8,7 +8,6 @@ async function View($settings = {}) {
 		process.env.PWD,
 		'application/documents/templates/html5/index.ejs'
 	)
-	console.log(viewTemplatePath)
 	const pageView = await ejs.renderFile(
 		viewTemplatePath, 
 		viewModel, {

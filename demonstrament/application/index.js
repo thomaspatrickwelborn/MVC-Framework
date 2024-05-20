@@ -6,13 +6,10 @@ import DatabaseRoutes from './database/index.js'
 async function Application($settings = {}) {
 	const { documents, database } = $settings
 	const documentRoutes = await DocumentRoutes({ documents })
-	console.log(documentRoutes)
-	// const databaseRoutes = await DatabaseRoutes({ database })
+	const databaseRoutes = await DatabaseRoutes({ database })
 	const application = express()
-	application.use(express.static('localhost'))
-  application.use(express.static('temporary'))
 	application.use(documentRoutes)
-	// application.use(databaseRoutes)
+	application.use(databaseRoutes)
 	application.listen(3000, () => {
 		console.log('Listen To The Sound Of Silence')
 	})

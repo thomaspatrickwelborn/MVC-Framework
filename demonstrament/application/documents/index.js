@@ -3,7 +3,12 @@ import Routes from './routes/index.js'
 
 async function Documents($settings = {}) {
   const { documents } = $settings
-  return await Routes({ documents })
+  const routes = await Routes({ documents })
+  // Static Local Host Directory
+  routes.use(express.static('localhost'))
+  // Static Temporary Directory (Hosts MVC Framework)
+  routes.use(express.static('temporary'))
+  return routes
 }
 
 export default Documents
