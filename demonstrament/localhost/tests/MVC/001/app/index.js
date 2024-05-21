@@ -22,13 +22,29 @@ export default class AppControl extends Control {
       routers: {
         static: { router: new StaticRouter(...staticRouterParameters) },
         server: { router: new ServerRouter(...serverRouterParameters) },
-      }
+      },
     })
     this.addEvents({
       'controls.header navigate': function headerNavigate($event) {
         window.location.hash = $event.detail.link
       },
+      'routers.server.router ok': async function routerOK($event) {
+        console.log(await $event.detail.json())
+      },
+      'routers.server.router status': async function routerStatus($event) {
+        console.log(await $event.detail.json())
+      },
+      'routers.server.router status:200': async function routerStatus200($event) {
+        console.log(await $event.detail.json())
+      },
+      'routers.server.router statusText': async function routerStatusText($event) {
+        console.log(await $event.detail.json())
+      },
+      'routers.server.router statusText:OK': async function routerStatusTextOK($event) {
+        console.log(await $event.detail.json())
+      },
     }, true)
+    console.log(this)
   }
   start() {
     this.routers.server.router.routes['/services/topics'].get()

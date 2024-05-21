@@ -5,7 +5,7 @@ const settings = {
   routes: {
     '/services/topics': {
       get: {
-        method: 'get'
+        method: 'get',
       }
     }
   }

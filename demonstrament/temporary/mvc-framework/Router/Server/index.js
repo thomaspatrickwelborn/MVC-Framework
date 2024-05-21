@@ -1,3 +1,4 @@
+import Events from './Interfaces/Response/Events/index.js'
 import { Core } from '/mvc-framework/index.js'
 const Settings = {
   routes: {
@@ -54,19 +55,31 @@ export default class ServerRouter extends Core {
         $resourceMethodName, $options
       ] of Object.entries($resourceMethods)) {
         Object.defineProperty(_route, $resourceMethodName, {
-          value: function() {
+          value: async function() {
             const resource = String.prototype.concat(
               $this.#origin, $path
             )
-            const fetchSource = fetch(resource, $options)
-            fetchSource.then(($fetchSource) => {
-              console.log($fetchSource)
+            let fetchSource = await fetch(resource, $options)
+            .then(($fetchSource) => {
+              $this
+              .createEvent($this, 'ok', $fetchSource.clone())
+              .createEvent($this, 'status', $fetchSource.clone())
+              .createEvent($this, 'statusCode', $fetchSource.clone())
+              .createEvent($this, 'statusText', $fetchSource.clone())
+              .createEvent($this, 'statusTextMessage', $fetchSource.clone())
+              return $fetchSource
             })
             return fetchSource
           }
         })
-        // _routes
       }
     }
+    return this
+  }
+  removeRoutes($routes) {}
+  createEvent($eventTarget, $eventType, $response) {
+    const event = Events[$eventType]($response)
+    $eventTarget.dispatchEvent(event)
+    return this
   }
 }
