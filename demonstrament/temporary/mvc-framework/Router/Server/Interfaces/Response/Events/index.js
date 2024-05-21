@@ -1,7 +1,6 @@
 const Events = {
   // Fetch Response Interface Events
   // OK
-    // ok
   'ok': ($response) => new CustomEvent(
     'ok', {
       detail: $response
@@ -9,26 +8,28 @@ const Events = {
   ),
   // Status
   'status': ($response) => new CustomEvent(
-    `status`: {
+    `status`, {
       detail: $response
     }
   ),
   // Status Code
   'statusCode': ($response) => new CustomEvent(
-    `status:${$response.status}`: {
+    `status:${$response.status}`, {
       detail: $response
     }
   ),
   // Status Text
   'statusText': ($response) => new CustomEvent(
-    `statusText`: {
+    `statusText`, {
       detail: $response
     }
   ),
   // Status Text Message
   'statusTextMessage': ($response) => new CustomEvent(
-    `statusText:${$response.statusText}`: {
+    `statusText:${$response.statusText}`, {
       detail: $response
     }
   ),
 }
+
+export default Events

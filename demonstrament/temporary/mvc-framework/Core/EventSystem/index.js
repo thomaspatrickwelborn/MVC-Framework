@@ -34,7 +34,10 @@ export default class EventSystem extends EventTarget {
         eventType = eventTargetSettings[1]
       }
       const typeOfEventCallback = typeOf($eventCallback)
-      if(typeOfEventCallback === 'function') {
+      if(
+        typeOfEventCallback === 'function' || 
+        typeOfEventCallback === 'asyncfunction'
+      ) {
       	let event = new Event({
       		context: this,
           type: eventType,
@@ -105,7 +108,10 @@ export default class EventSystem extends EventTarget {
     	let eventsIndex = _events.length - 1
     	while(eventsIndex > -1) {
     		const event = _events[eventsIndex]
-    		if(typeOfEventCallback === 'function') {
+    		if(
+          typeOfEventCallback === 'function' ||
+          typeOfEventCallback === 'asyncfunction'
+        ) {
 	    		if(
 	      		event.settings.type === eventType &&
 	      		event.settings.target === eventTargetPath &&
