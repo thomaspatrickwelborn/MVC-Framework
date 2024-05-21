@@ -76,7 +76,13 @@ export default class ServerRouter extends Core {
     }
     return this
   }
-  removeRoutes($routes) {}
+  removeRoutes($routes) {
+    const _routes = this.#_routes
+    for(const $path of $routes) {
+      delete _routes[$path]
+    }
+    return this
+  }
   createEvent($eventTarget, $eventType, $response) {
     const event = Events[$eventType]($response)
     $eventTarget.dispatchEvent(event)
