@@ -31,10 +31,10 @@ export default class AppControl extends Control {
     }, true)
   }
   start() {
+    this.routers.server.router.routes['/services/topics'].get()
     this.views.view.element.replaceChildren(
       this.controls.header.views.view.element.content,
       this.controls.main.views.view.element.content,
     )
-    console.log(this.routers.serverRouter)
   }
 }

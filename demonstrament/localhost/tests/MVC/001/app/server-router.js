@@ -1,6 +1,9 @@
 const settings = {
+  scheme: 'http',
+  domain: 'demonstrament.mvc-framework',
+  port: 3000,
   routes: {
-    'http://demonstrament.mvc-framework:3000/services/topics': {
+    '/services/topics': {
       get: {
         method: 'get'
       }
