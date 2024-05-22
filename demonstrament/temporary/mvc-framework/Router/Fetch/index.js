@@ -1,7 +1,7 @@
 import DynamicEventTarget from '../../Core/DynamicEventTarget/index.js'
-import Route from './Route/index.js'
+import FetchRoute from './FetchRoute/index.js'
 import { Core } from '/mvc-framework/index.js'
-export default class ServerRouter extends Core {
+export default class FetchRouter extends Core {
   #scheme
   #domain
   #port
@@ -43,7 +43,7 @@ export default class ServerRouter extends Core {
     ] of Object.entries($routes)) {
       $routeSettings.origin = this.#origin
       $routeSettings.path = $routePath
-      _routes[$routeSettings.name] = new Route($routeSettings)
+      _routes[$routeSettings.name] = new FetchRoute($routeSettings)
     }
     return this
   }

@@ -4,7 +4,7 @@ import {
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import View from '../View/index.js'
-import { StaticRouter, ServerRouter } from '../Router/index.js'
+import { StaticRouter, FetchRouter } from '../Router/index.js'
 
 const Settings = {
 	models: {},
@@ -80,7 +80,7 @@ export default class Control extends Core {
 			] of Object.entries($routerClassInstances)) {
 				if(
 					$router instanceof StaticRouter ||
-					$router instanceof ServerRouter
+					$router instanceof FetchRouter
 				) {
 					_routers[$routerClass][$routerName] = $router
 				} else
@@ -90,7 +90,7 @@ export default class Control extends Core {
 					) ? StaticRouter
 					  : (
 				  	$routerClass === 'server'
-			  	) ? ServerRouter
+			  	) ? FetchRouter
 					  : undefined
 				  if(Router !== undefined) _routers[$routerClass][$routerName] = new Router($router)
 				}

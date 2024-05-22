@@ -1,5 +1,5 @@
 import Events from '../Interfaces/Response/Events/index.js'
-export default class Route extends EventTarget {
+export default class FetchRoute extends EventTarget {
   #settings = {}
   #name
   #origin

@@ -1,12 +1,15 @@
-import { ServerRouter, Model } from '/mvc-framework/index.js'
+import { FetchRouter, Model } from '/mvc-framework/index.js'
 
 function DOMContentLoaded() {
-  const serverModel = new Model({
-    content: {
-      photos: {},
-    }
+  const photosModel = new Model({
+    content: [],
+    events: {
+      'content push': function photosPush($event) {
+        console.log($event.type, $event.detail)
+      },
+    },
   })
-  const serverRouter = new ServerRouter({
+  const fetchRouter = new FetchRouter({
     scheme: 'http',
     domain: 'demonstrament.mvc-framework',
     port: 3000,
@@ -22,12 +25,13 @@ function DOMContentLoaded() {
     },
     events: {
       'routes.photos status': async function photosStatus($event) {
-        console.log($event.type, $event.detail)
-      }
-    }
+        const photos = await $event.detail.json()
+        photosModel.content.push(...photos)
+        console.log('photosModel.content', photosModel.content)
+      },
+    },
   }, { enableEvents: true })
-  serverRouter.routes.photos.get()
-  console.log('serverRouter', serverRouter)
+  fetchRouter.routes.photos.get()
 }
 document.addEventListener(
   'DOMContentLoaded', DOMContentLoaded
