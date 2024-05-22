@@ -7,6 +7,7 @@ async function Database($settings = {}) {
   const databaseConnection = await mongoose.createConnection(
     'mongodb://127.0.0.1:27017/mvc-framework-test-server'
   )
+  console.log(databaseConnection.models)
   const routes = await Routes({ database, databaseConnection })
   return routes
 }

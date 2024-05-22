@@ -23,13 +23,14 @@ export default class ServerRouter extends Core {
     }
     return this.#_origin
   }
-  constructor($settings = Settings, $options = Options) {
+  constructor($settings = {}, $options = { enableEvents: false }) {
     super(...arguments)
-    const { scheme, domain, port, routes} = $settings
+    const { scheme, domain, port, routes } = $settings
     this.#scheme = scheme
     this.#domain = domain
     this.#port = port
     this.routes = routes
+    if($options.enableEvents === true) this.enableEvents()
   }
   #_routes = {}
   get routes() { return this.#_routes }

@@ -1,3 +1,4 @@
 import Topic from './topic.js'
+import Photo from './photo.js'
 
-export { Topic }
+export { Topic, Photo }

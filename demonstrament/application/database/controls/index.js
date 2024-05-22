@@ -3,15 +3,16 @@ import * as Schemata from '../schemata/index.js'
 function Control($options) {
   const { routePath, routeActions, databaseConnection } = $options
   const TopicModel = databaseConnection.model('Topic', Schemata.Topic)
+  const PhotoModel = databaseConnection.model('Photo', Schemata.Photo)
   const ControlMethods = {
     '/services/photos': {
       get: function getPhotos($request, $response, $next) {
-        const topicCollection = TopicModel
+        const photoCollection = PhotoModel
         .find()
-        .then($topicCollection => $topicCollection.map(
-          $topicDocument => $topicDocument.toJSON()
+        .then($photoCollection => $photoCollection.map(
+          $photoDocument => $photoDocument.toJSON()
         ))
-        .then($topicCollection => $response.send($topicCollection))
+        .then($photoCollection => $response.send($photoCollection))
       }
     },
     '/services/topics': {
