@@ -13,7 +13,7 @@ export default class HeaderControl extends Control {
         view: new View(...viewParameters)
       },
     })
-    // this.addEvents(eventsMap)
+    this.addEvents(eventsMap)
   }
   start() {
     const { model } = this.models
