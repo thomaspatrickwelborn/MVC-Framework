@@ -10,7 +10,6 @@ export default class StaticRouter extends Core {
 	constructor($settings = Settings, $options = Options) {
 		super(...arguments)
 		this.routes = $settings.routes
-		// this.navigate(window.location.hash)
 		if($options.enable === true) this.enable()
 	}
 	#_route
