@@ -31,9 +31,17 @@ export default class AppControl extends Control {
       'routers.server.router.routes.topics status:200': async function serverRouterTopicsStatus200($event) {
         console.log(await $event.detail.json())
       },
+      'routers.server.router.routes.topics abort': function serverRouterTopicsAbort($event) {
+        console.log($event.type, $event.detail)
+      },
     }, true)
   }
   start() {
+    this.routers.server.router.routes.topics.get()
+    this.routers.server.router.routes.topics.get()
+    this.routers.server.router.routes.topics.get()
+    this.routers.server.router.routes.topics.get()
+    this.routers.server.router.routes.topics.get()
     this.routers.server.router.routes.topics.get()
     this.views.view.element.replaceChildren(
       this.controls.header.views.view.element.content,

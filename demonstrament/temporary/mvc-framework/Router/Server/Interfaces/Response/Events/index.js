@@ -30,6 +30,12 @@ const Events = {
       detail: $response,
     }
   ),
+  // Abort
+  'abort': ($abortController) => new CustomEvent(
+    'abort', {
+      detail: $abortController,
+    }
+  )
 }
 
 export default Events
