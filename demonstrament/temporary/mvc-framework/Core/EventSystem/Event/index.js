@@ -50,17 +50,7 @@ export default class Event {
   // Callback
   #_callback
   get callback() {
-    if(typeof this.#_callback === 'string') {
-      let callback = this.context
-      for(const $callbackPathKey of this.#_callback.split('.')) {
-        if($callbackPathKey === ':scope') break
-        if(callback === undefined) break
-        callback = callback[$callbackPathKey]
-      }
-      return callback
-    } else if(typeof this.#_callback === 'function') {
-      return this.#_callback
-    }
+    return this.#_callback
   }
   set callback($callback) {
     this.#_callback = $callback.bind(this.context)

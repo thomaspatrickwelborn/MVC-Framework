@@ -3,31 +3,31 @@ const Events = {
   // OK
   'ok': ($response) => new CustomEvent(
     'ok', {
-      detail: $response
+      detail: $response,
     }
   ),
   // Status
   'status': ($response) => new CustomEvent(
     `status`, {
-      detail: $response
+      detail: $response,
     }
   ),
   // Status Code
   'statusCode': ($response) => new CustomEvent(
     `status:${$response.status}`, {
-      detail: $response
+      detail: $response,
     }
   ),
   // Status Text
   'statusText': ($response) => new CustomEvent(
     `statusText`, {
-      detail: $response
+      detail: $response,
     }
   ),
   // Status Text Message
   'statusTextMessage': ($response) => new CustomEvent(
     `statusText:${$response.statusText}`, {
-      detail: $response
+      detail: $response,
     }
   ),
 }

@@ -1,13 +1,6 @@
-import Events from './Interfaces/Response/Events/index.js'
+import DynamicEventTarget from '../../Core/DynamicEventTarget/index.js'
+import Route from './Route/index.js'
 import { Core } from '/mvc-framework/index.js'
-const Settings = {
-  routes: {
-    // [method]: methodOptions
-  },
-}
-const Options = {
-  enable: true,
-}
 export default class ServerRouter extends Core {
   #scheme
   #domain
@@ -44,35 +37,12 @@ export default class ServerRouter extends Core {
   addRoutes($routes) {
     const $this = this
     const _routes = this.#_routes
-    iterateRoutes:
     for(let [
-      $path, $resourceMethods
+      $routeName, $routeSettings
     ] of Object.entries($routes)) {
-      _routes[$path] = _routes[$path] || {}
-      const _route = _routes[$path]
-      iterateResourceMethods:
-      for(let [
-        $resourceMethodName, $options
-      ] of Object.entries($resourceMethods)) {
-        Object.defineProperty(_route, $resourceMethodName, {
-          value: async function() {
-            const resource = String.prototype.concat(
-              $this.#origin, $path
-            )
-            let fetchSource = await fetch(resource, $options)
-            .then(($fetchSource) => {
-              $this
-              .createEvent($this, 'ok', $fetchSource.clone())
-              .createEvent($this, 'status', $fetchSource.clone())
-              .createEvent($this, 'statusCode', $fetchSource.clone())
-              .createEvent($this, 'statusText', $fetchSource.clone())
-              .createEvent($this, 'statusTextMessage', $fetchSource.clone())
-              return $fetchSource
-            })
-            return fetchSource
-          }
-        })
-      }
+      $routeSettings.origin = this.#origin
+      _routes[$routeName] = new Route($routeSettings)
+      const _route = _routes[$routeName]
     }
     return this
   }
@@ -81,11 +51,6 @@ export default class ServerRouter extends Core {
     for(const $path of $routes) {
       delete _routes[$path]
     }
-    return this
-  }
-  createEvent($eventTarget, $eventType, $response) {
-    const event = Events[$eventType]($response)
-    $eventTarget.dispatchEvent(event)
     return this
   }
 }
