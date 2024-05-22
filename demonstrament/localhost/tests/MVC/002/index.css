@@ -11,3 +11,26 @@ body {
 	background: linear-gradient(aliceblue, palegreen);
 	background-repeat: no-repeat;
 }
+app {
+	display: flex;
+	flex-direction: column;
+	& > photos-control {
+		display: flex;
+		background-color: white;
+	}
+	& > photos {
+		display: flex;
+		flex-direction: column;
+		background-color: red;
+		width: 960px;
+		height: 480px;
+		& > photo {
+			display: none;
+		}
+		& > photo[data-active="true"] {
+			display: flex;
+			width: inherit;
+			height: inbherit;
+		}
+	}
+}

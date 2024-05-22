@@ -10,7 +10,13 @@ function Control($options) {
         const photoCollection = PhotoModel
         .find()
         .then($photoCollection => $photoCollection.map(
-          $photoDocument => $photoDocument.toJSON()
+          $photoDocument => {
+            $photoDocument = $photoDocument.toJSON()
+            $photoDocument.img.src = String.prototype.concat(
+              $photoDocument.img.src.origin, $photoDocument.img.src.path
+            )
+            return $photoDocument
+          }
         ))
         .then($photoCollection => $response.send($photoCollection))
       }

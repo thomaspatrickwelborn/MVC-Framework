@@ -58,12 +58,12 @@ export default class Event {
       for(const $target of this.target) {
         try {
           $target[eventAbility](this.type, this.callback)
-        } catch($err) { console.log($err) }
+        } catch($err) { /* console.log($err) */ }
       }
     } else {
       try {
         this.target[eventAbility](this.type, this.callback)
-      } catch($err) { console.log($err) }
+      } catch($err) { /* console.log($err) */ }
     }
     this.#_enable = $enable
   }

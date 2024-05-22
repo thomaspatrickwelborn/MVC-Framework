@@ -1,7 +1,7 @@
 img.src.origin,img.src.path,img.alt,img.width,img.height
-http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_A.jpg,TEST PHOTO A,960,480
-http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_B.jpg,TEST PHOTO B,960,480
-http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_C.jpg,TEST PHOTO C,960,480
-http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_D.jpg,TEST PHOTO D,960,480
-http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_E.jpg,TEST PHOTO E,960,480
-http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_F.jpg,TEST PHOTO F,960,480
+http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_PHOTO_A.jpg,TEST PHOTO A,960,480
+http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_PHOTO_B.jpg,TEST PHOTO B,960,480
+http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_PHOTO_C.jpg,TEST PHOTO C,960,480
+http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_PHOTO_D.jpg,TEST PHOTO D,960,480
+http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_PHOTO_E.jpg,TEST PHOTO E,960,480
+http://demonstrament.mvc-framework:3000,/graphics/photos/TEST_PHOTO_F.jpg,TEST PHOTO F,960,480

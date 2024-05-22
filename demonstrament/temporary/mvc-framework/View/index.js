@@ -30,10 +30,8 @@ export default class View extends Core {
 			this.element = $settings.element
 			this.parentElement = $settings.element.parentElement
 			this.type = 'static'
-		} else if(
-			!$settings.element instanceof HTMLElement &&
-			$settings.parentElement instanceof HTMLElement
-		) {
+		} else 
+		if($settings.parentElement instanceof HTMLElement) {
 			// Dynamic View (Parent)
 			this.element = document.createElement('template')
 			this.parentElement = this.settings.parentElement
@@ -68,7 +66,7 @@ export default class View extends Core {
 		for(const [
 			$templateName, $template
 		] of Object.entries($templates)) { _templates
-			_templates[$templateName] = $template
+			_templates[$templateName] = $template.bind(this)
 		}
 	}
 	// Selectors
