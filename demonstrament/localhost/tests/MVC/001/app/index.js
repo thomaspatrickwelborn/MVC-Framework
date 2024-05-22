@@ -28,26 +28,13 @@ export default class AppControl extends Control {
       'controls.header navigate': function headerNavigate($event) {
         window.location.hash = $event.detail.link
       },
-      'routers.server.router ok': async function routerOK($event) {
-        console.log(await $event.detail.json())
-      },
-      'routers.server.router status': async function routerStatus($event) {
-        console.log(await $event.detail.json())
-      },
-      'routers.server.router status:200': async function routerStatus200($event) {
-        console.log(await $event.detail.json())
-      },
-      'routers.server.router statusText': async function routerStatusText($event) {
-        console.log(await $event.detail.json())
-      },
-      'routers.server.router statusText:OK': async function routerStatusTextOK($event) {
+      'routers.server.router.routes.topics status:200': async function serverRouterTopicsStatus200($event) {
         console.log(await $event.detail.json())
       },
     }, true)
-    console.log(this)
   }
   start() {
-    this.routers.server.router.routes['/services/topics'].get()
+    this.routers.server.router.routes.topics.get()
     this.views.view.element.replaceChildren(
       this.controls.header.views.view.element.content,
       this.controls.main.views.view.element.content,

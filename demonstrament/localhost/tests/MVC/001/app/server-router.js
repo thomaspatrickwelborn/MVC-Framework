@@ -4,8 +4,11 @@ const settings = {
   port: 3000,
   routes: {
     '/services/topics': {
-      get: {
-        method: 'get',
+      name: 'topics',
+      methods: {
+        get: {
+          method: 'get',
+        }
       }
     }
   }
