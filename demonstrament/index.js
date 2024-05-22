@@ -6,6 +6,7 @@ const application = await Application({
 		'/services/topics': ['get']
 	},
 	'documents': {
+		'tests/MVC/002': 'localhost/tests/MVC/002',
 		'tests/MVC/001': 'localhost/tests/MVC/001',
 		'tests/MVC/000': 'localhost/tests/MVC/000',
 		'tests/MVC': 'localhost/tests/MVC',
