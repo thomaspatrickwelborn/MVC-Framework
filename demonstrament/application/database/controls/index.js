@@ -4,8 +4,8 @@ function Control($options) {
   const { routePath, routeActions, databaseConnection } = $options
   const TopicModel = databaseConnection.model('Topic', Schemata.Topic)
   const ControlMethods = {
-    '/services/topics': {
-      get: function control($request, $response, $next) {
+    '/services/photos': {
+      get: function getPhotos($request, $response, $next) {
         const topicCollection = TopicModel
         .find()
         .then($topicCollection => $topicCollection.map(
@@ -13,7 +13,17 @@ function Control($options) {
         ))
         .then($topicCollection => $response.send($topicCollection))
       }
-    }
+    },
+    '/services/topics': {
+      get: function getTopics($request, $response, $next) {
+        const topicCollection = TopicModel
+        .find()
+        .then($topicCollection => $topicCollection.map(
+          $topicDocument => $topicDocument.toJSON()
+        ))
+        .then($topicCollection => $response.send($topicCollection))
+      }
+    },
   }
   const control = {}
   for(const $routeAction of routeActions) {

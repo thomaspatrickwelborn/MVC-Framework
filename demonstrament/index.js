@@ -3,7 +3,8 @@ import Application from './application/index.js'
 
 const application = await Application({
 	'database': {
-		'/services/topics': ['get']
+		'/services/topics': ['get'],
+		'/services/photos': ['get'],
 	},
 	'documents': {
 		'tests/MVC/002': 'localhost/tests/MVC/002',
