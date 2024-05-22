@@ -38,11 +38,11 @@ export default class ServerRouter extends Core {
     const $this = this
     const _routes = this.#_routes
     for(let [
-      $routeName, $routeSettings
+      $routePath, $routeSettings
     ] of Object.entries($routes)) {
       $routeSettings.origin = this.#origin
-      _routes[$routeName] = new Route($routeSettings)
-      const _route = _routes[$routeName]
+      $routeSettings.path = $routePath
+      _routes[$routeSettings.name] = new Route($routeSettings)
     }
     return this
   }

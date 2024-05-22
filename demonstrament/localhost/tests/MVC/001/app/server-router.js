@@ -3,8 +3,8 @@ const settings = {
   domain: 'demonstrament.mvc-framework',
   port: 3000,
   routes: {
-    'topics': {
-      path: '/services/topics',
+    '/services/topics': {
+      name: 'topics',
       methods: {
         get: {
           method: 'get',

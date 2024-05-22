@@ -25,18 +25,24 @@ export default class AppControl extends Control {
       },
     })
     this.addEvents({
-      // 'controls.header navigate': function headerNavigate($event) {
-      //   window.location.hash = $event.detail.link
-      // },
+      'models.model.content assign': function modelAssign($event) {
+        console.log($event.type, $event.detail)
+        this.controls.header.views.view.renderTemplate('template', )
+      },
+      'controls.header navigate': function headerNavigate($event) {
+        window.location.hash = $event.detail.link
+      },
       'routers.server.router.routes.topics status:200': async function serverRouterTopicsStatus200($event) {
-        console.log(await $event.detail.json())
+        console.log(this.models.model.content)
+        this.models.model.content.assign(await $event.detail.json())
+      },
+      'routers.server.router.routes.topics abort': function serverRouterTopicsAbort($event) {
+        console.log($event.type, $event.detail)
       },
     }, true)
+    this.routers.server.router.routes.topics.get()
   }
   start() {
-    // console.log(this.routers.server.router.routes.topics.get)
-    this.routers.server.router.routes.topics.get()
-    // console.log(this.routers.server.router.routes.topics)
     this.views.view.element.replaceChildren(
       this.controls.header.views.view.element.content,
       this.controls.main.views.view.element.content,
