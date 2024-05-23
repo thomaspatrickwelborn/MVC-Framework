@@ -1,55 +1,60 @@
 import { typeOf } from '../Utils/index.js'
 import Core from '../Core/index.js'
 
-const Settings = {
-	type: 'dynamic', // 'static',
-	element: document.createElement('template'),
+const Settings = Object.freeze({
+	parentElement: undefined,
+	element: undefined, // document.createElement('template'),
 	templates: { default: () => `` },
 	selectors: {},
 	events: {},
-}
-Object.freeze(Settings)
-const Options = {
+})
+const Options = Object.freeze({
 	enable: false,
 	freeze: false,	
-}
-Object.freeze(Options)
-const RenderSettings = {
+})
+const RenderSettings = Object.freeze({
 	name: 'default', 
 	data: {},
-}
-const RenderOptions = {
-	enableSelectors: true,
-	enableEvents: true,
-}
+})
 export default class View extends Core {
-	constructor($settings = Settings, $options = Options) {
-		super(...arguments)
-		if($settings.element instanceof HTMLElement) {
-			// Static View
-			this.element = $settings.element
-			this.parentElement = $settings.element.parentElement
-			this.type = 'static'
-		} else 
-		if($settings.parentElement instanceof HTMLElement) {
-			// Dynamic View (Parent)
+	constructor($settings = {}, $options = {}) {
+		super(
+			Object.assign({}, Settings, $settings),
+			Object.assign({}, Options, $options),
+		)
+		const { parentElement, element, templates, selectors } = this.settings
+		const { freeze, enable } = this.options
+		// Parent Element, No Element
+		if(
+			parentElement !== undefined &&
+			element === undefined
+		) {
+			this.parentElement = parentElement
 			this.element = document.createElement('template')
-			this.parentElement = this.settings.parentElement
-			this.type = 'dynamic'
-		} else {
-			// Dynamic View (No Parent)
+		} else
+		// No Parent Element, Element
+		if((
+			parentElement === undefined &&
+			element !== undefined
+		) || (
+			parentElement !== undefined &&
+				element !== undefined
+		)) {
+			this.element = element
+			this.parentElement = element.parentElement
+		} else
+		// No Parent Element, No Element
+		if(
+			parentElement === undefined &&
+			element === undefined
+		) {
 			this.element = document.createElement('template')
-			this.type = 'dynamic'
 		}
 		this.templates = this.settings.templates
 		this.selectors = this.settings.selectors
-		if($options.freeze === true) Object.freeze(this)
-		if($options.enable === true) this.enable()
+		if(this.options.freeze === true) Object.freeze(this)
+		if(this.options.enable === true) this.enable()
 	}
-	// Type
-	#_type
-	get type() { return this.#_type }
-	set type($type) { this.#_type = $type }
 	// Parent
 	#_parentElement
 	get parentElement() { return this.#_parentElement }
@@ -159,16 +164,11 @@ export default class View extends Core {
 		return this
 	}
 	// Render Element
-	renderElement(
-		$settings = RenderSettings, 
-		$options = RenderOptions,
-	) {
+	renderElement($settings = {}) {
+		$settings = Object.assign({}, RenderSettings, $settings)
 		const element = this.element
 		if(!element instanceof HTMLTemplateElement) return this
 		const { name, data } = $settings
-		const {
-			enableSelectors, enableEvents,
-		}	= $options
 		const template = this.templates[name]
 		if(
 			template !== undefined &&
@@ -177,8 +177,7 @@ export default class View extends Core {
 			this.disable()
 			const templateContent = template(data)
 			element.innerHTML = templateContent
-			if(enableSelectors === true) this.enableSelectors()
-			if(enableEvents === true) this.enableEvents()
+			this.enable()
 			this.dispatchEvent(new CustomEvent('render', {
 				detail: this
 			}))

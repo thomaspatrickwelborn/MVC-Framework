@@ -43,7 +43,7 @@ export default class AppControl extends Control {
     this.routers.server.router.routes.topics.get()
   }
   start() {
-    this.views.view.element.replaceChildren(
+    this.views.view.parentElement.replaceChildren(
       this.controls.header.views.view.element.content,
       this.controls.main.views.view.element.content,
     )
