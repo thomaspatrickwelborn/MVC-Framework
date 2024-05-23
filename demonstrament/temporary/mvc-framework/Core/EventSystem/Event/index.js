@@ -33,8 +33,8 @@ export default class Event {
     let target = this.context
     for(const $targetPathKey of this.#_target.split('.')) {
       if($targetPathKey === ':scope') break
-      if(target[$targetPathKey] === undefined) break
-        target = target[$targetPathKey]
+      if(target[$targetPathKey] === undefined) return undefined
+      target = target[$targetPathKey]
     }
     return target
   }
@@ -56,15 +56,17 @@ export default class Event {
       : 'removeEventListener'
     if(this.target instanceof NodeList) {
       for(const $target of this.target) {
-        try {
-          $target[eventAbility](this.type, this.callback)
-        } catch($err) { /* console.log($err) */ }
+        $target[eventAbility](this.type, this.callback)
+        this.#_enable = $enable
       }
+    } else if(this.target instanceof EventTarget) {
+      this.target[eventAbility](this.type, this.callback)
+      this.#_enable = $enable
     } else {
       try {
         this.target[eventAbility](this.type, this.callback)
-      } catch($err) { /* console.log($err) */ }
+        this.#_enable = $enable
+      } catch($err) { console.log(this.type, this.#_target, eventAbility) }
     }
-    this.#_enable = $enable
   }
 }

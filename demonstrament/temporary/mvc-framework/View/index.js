@@ -1,50 +1,40 @@
 import { typeOf } from '../Utils/index.js'
 import Core from '../Core/index.js'
 
-const Settings = {
+const Settings = Object.freeze({
 	type: 'dynamic', // 'static',
+	parentElement: undefined,
 	element: document.createElement('template'),
 	templates: { default: () => `` },
 	selectors: {},
 	events: {},
-}
-Object.freeze(Settings)
-const Options = {
+})
+const Options = Object.freeze({
 	enable: false,
 	freeze: false,	
-}
-Object.freeze(Options)
-const RenderSettings = {
+})
+const RenderSettings = Object.freeze({
 	name: 'default', 
 	data: {},
-}
-const RenderOptions = {
+})
+const RenderOptions = Object.freeze({
 	enableSelectors: true,
 	enableEvents: true,
-}
+	renderMethod: 'replaceChildren',
+	renderTarget: 'parentElement',
+})
 export default class View extends Core {
-	constructor($settings = Settings, $options = Options) {
-		super(...arguments)
-		if($settings.element instanceof HTMLElement) {
-			// Static View
-			this.element = $settings.element
-			this.parentElement = $settings.element.parentElement
-			this.type = 'static'
-		} else 
-		if($settings.parentElement instanceof HTMLElement) {
-			// Dynamic View (Parent)
-			this.element = document.createElement('template')
-			this.parentElement = this.settings.parentElement
-			this.type = 'dynamic'
-		} else {
-			// Dynamic View (No Parent)
-			this.element = document.createElement('template')
-			this.type = 'dynamic'
-		}
+	constructor($settings = {}, $options = {}) {
+		super(
+			Object.assign({}, Settings, $settings),
+			Object.assign({}, Options, $options),
+		)
+		this.parentElement = this.settings.parentElement
+		this.element = this.settings.element
 		this.templates = this.settings.templates
 		this.selectors = this.settings.selectors
-		if($options.freeze === true) Object.freeze(this)
-		if($options.enable === true) this.enable()
+		if(this.options.freeze === true) Object.freeze(this)
+		if(this.options.enable === true) this.enable()
 	}
 	// Type
 	#_type
@@ -160,14 +150,17 @@ export default class View extends Core {
 	}
 	// Render Element
 	renderElement(
-		$settings = RenderSettings, 
-		$options = RenderOptions,
+		$settings = {}, 
+		$options = {},
 	) {
+		$settings = Object.assign({}, RenderSettings, $settings)
+		$options = Object.assign({}, RenderOptions, $options)
 		const element = this.element
 		if(!element instanceof HTMLTemplateElement) return this
 		const { name, data } = $settings
 		const {
 			enableSelectors, enableEvents,
+			renderMethod, renderTarget,
 		}	= $options
 		const template = this.templates[name]
 		if(
@@ -179,6 +172,14 @@ export default class View extends Core {
 			element.innerHTML = templateContent
 			if(enableSelectors === true) this.enableSelectors()
 			if(enableEvents === true) this.enableEvents()
+			if(
+				renderMethod !== undefined &&
+				renderTarget !== undefined
+			) {
+				this[renderTarget][renderMethod](
+          ...element.content.children
+        )
+			}
 			this.dispatchEvent(new CustomEvent('render', {
 				detail: this
 			}))

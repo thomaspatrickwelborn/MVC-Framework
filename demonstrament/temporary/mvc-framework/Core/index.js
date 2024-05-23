@@ -1,7 +1,7 @@
 import { typeOf } from '../Utils/index.js'
 import EventSystem from './EventSystem/index.js'
 const Settings = {}
-const Options = { eventTargetRoot: {} }
+const Options = {}
 
 export default class Core extends EventSystem {
 	constructor($settings = Settings, $options = Options) {
@@ -18,6 +18,7 @@ export default class Core extends EventSystem {
 		] of Object.entries($settings)) {
 			_settings[$settingKey] = $settingVal
 		}
+		Object.freeze(_settings)
 	}
 	#_options = {}
 	get options() { return this.#_options }
@@ -28,5 +29,6 @@ export default class Core extends EventSystem {
 		] of Object.entries($options)) {
 			_options[$optionKey] = $optionVal
 		}
+		Object.freeze(_options)
 	}
 }

@@ -29,7 +29,8 @@ export default class EventSystem extends EventTarget {
       if(eventTargetSettings.length === 1) {
         eventTargetPath = ':scope'
         eventType = eventTargetSettings[0]
-      } else if(eventTargetSettings.length === 2) {
+      } else
+      if(eventTargetSettings.length === 2) {
         eventTargetPath = eventTargetSettings[0]
         eventType = eventTargetSettings[1]
       }

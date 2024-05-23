@@ -6,21 +6,32 @@ import Model from '../Model/index.js'
 import View from '../View/index.js'
 import { StaticRouter, FetchRouter } from '../Router/index.js'
 
-const Settings = {
+const Settings = Object.freeze({
 	models: {},
 	views: {},
 	controls: {},
-	routers: {},
+	routers: {
+		fetch: {},
+		static: {},
+	},
 	events: {},
-}
+})
+
+const Options = Object.freeze({
+	enableEvents: true
+})
+
 export default class Control extends Core {
-	constructor($settings = Settings, $options = { enableEvents: false }) {
-		super(...arguments)
-		this.models = $settings.models
-		this.views = $settings.views
-		this.controls = $settings.controls
-		this.routers = $settings.routers
-		if($options.enableEvents === true) this.enableEvents()
+	constructor($settings = {}, $options = {}) {
+		super(
+			Object.assign({}, Settings, $settings),
+			Object.assign({}, Options, $options),
+		)
+		this.models = this.settings.models
+		this.views = this.settings.views
+		this.controls = this.settings.controls
+		this.routers = this.settings.routers
+		if(this.options.enableEvents === true) this.enableEvents()
 	}
 	#_models = {}
 	get models() { return this.#_models }
@@ -89,10 +100,12 @@ export default class Control extends Core {
 						$routerClass === 'static'
 					) ? StaticRouter
 					  : (
-				  	$routerClass === 'server'
+				  	$routerClass === 'fetch'
 			  	) ? FetchRouter
 					  : undefined
-				  if(Router !== undefined) _routers[$routerClass][$routerName] = new Router($router)
+				  if(Router !== undefined) {
+				  	_routers[$routerClass][$routerName] = new Router($router)
+				  }
 				}
 			}
 		}
