@@ -7,6 +7,7 @@ const application = await Application({
 		'/services/photos': ['get'],
 	},
 	'documents': {
+		'tests/MVC/005': 'localhost/tests/MVC/005',
 		'tests/MVC/004': 'localhost/tests/MVC/004',
 		'tests/MVC/003': 'localhost/tests/MVC/003',
 		'tests/MVC/002': 'localhost/tests/MVC/002',
