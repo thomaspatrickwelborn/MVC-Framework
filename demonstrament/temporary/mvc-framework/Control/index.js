@@ -3,7 +3,7 @@ import {
 } from '../Utils/index.js'
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
-import View from '../View/index.js'
+import { StaticView, DynamicView } from '../View/index.js'
 import { StaticRouter, FetchRouter } from '../Router/index.js'
 
 const Settings = Object.freeze({
@@ -54,10 +54,21 @@ export default class Control extends Core {
 		for(const [
 			$viewName, $view
 		] of Object.entries($views)) {
-			if($view instanceof View) {
+			if(
+				$view instanceof StaticView || 
+				$view instanceof DynamicView
+			) {
 				_views[$viewName] = $view
-			} else if(typeOf($view) === 'object') {
-				_views[$viewName] = new View($view)
+			} else
+			if(
+				typeOf($view) === 'object'
+			) {
+				if($view.type === 'static') {
+					_views[$viewName] = new StaticView($view)
+				} else
+				if($view.type === 'dynamic') {
+					_views[$viewName] = new DynamicView($view)
+				}
 			}
 		}
 	}

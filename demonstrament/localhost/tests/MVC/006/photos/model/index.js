@@ -2,19 +2,15 @@ import { Model } from '/mvc-framework/index.js'
 export default class PhotosModel extends Model {
   constructor($settings = {}, $options = {}) {
     super(Object.assign($settings, {
-      content: [],
+      content: {
+        length: 0,
+        currentIndex: 0,
+      },
     }), $options)
-    this.content.defineProperties({
-      currentIndex: {
-        enumerable: false,
-        writable: true,
-        value: 0,
-      }
-    })
   }
   get currentIndex() { return this.content.currentIndex }
   set currentIndex($currentIndex) {
-    let currentIndex
+    var currentIndex
     if($currentIndex >= this.content.length) {
       currentIndex = 0
     } else 

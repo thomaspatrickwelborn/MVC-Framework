@@ -1,8 +1,9 @@
-import { View } from '/mvc-framework/index.js'
+import { DynamicView } from '/mvc-framework/index.js'
 import * as Templates from './templates/index.js'
-export default class PhotosView extends View {
+export default class PhotosView extends DynamicView {
   constructor($settings = {}, $options = {}) {
     super(Object.assign($settings, {
+      type: 'dynamic',
       parentElement: document.querySelector('app'),
       selectors: {
         photosControl: 'photos-control',

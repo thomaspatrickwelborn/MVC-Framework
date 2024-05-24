@@ -31,6 +31,7 @@ export default class PhotosControl extends Control {
         // A.3. Render Photos View
         'views.photosView render': function photosViewRender($event) {
           this.enableEvents()
+          console.log(this.views.photosView)
           this.views.photosView.parentElement.replaceChildren(
             ...this.views.photosView.element.content.children
           )

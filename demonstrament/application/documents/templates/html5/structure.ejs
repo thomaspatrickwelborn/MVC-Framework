@@ -6,7 +6,7 @@
       ] of Object.entries($structure.attributes)) { -%>
       <%= $attributeKey %>="<%= $attributeVal %>" 
     <% } -%>
-  <% } -%>>
+  <% } -%><% if($structure.selfClose === true) { %>/<% } %>>
   <% if($structure.textContent) { -%>
     <%= $structure.textContent %>
   <% } -%>
@@ -15,5 +15,7 @@
 	    structure: $structure.structure
 	  }) %>
   <% } %>
-  </<%= $structure.tag -%>>
+  <% if($structure.selfClose !== true) { %>
+    </<%= $structure.tag -%>>
+  <% } %>
 <% } -%>
