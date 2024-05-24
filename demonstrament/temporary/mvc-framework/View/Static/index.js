@@ -21,7 +21,6 @@ export default class StaticView extends View {
     if(enableSelectors === true) this.enableSelectors()
     if(enableEvents === true) this.enableEvents()
   }
-  get parentElement() { return this.element.parentElement }
   // Element
   #_element
   get element() { return this.#_element }

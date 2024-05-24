@@ -1,3 +1,4 @@
+import path from 'node:path'
 import mongoose from 'mongoose'
 import express from 'express'
 import DocumentRoutes from './documents/index.js'

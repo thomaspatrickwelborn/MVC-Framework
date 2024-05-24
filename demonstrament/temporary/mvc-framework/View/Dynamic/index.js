@@ -10,8 +10,8 @@ const Settings = Object.freeze({
 })
 const Options = Object.freeze({})
 const RenderSettings = Object.freeze({
-  name: 'default', 
-  data: {},
+  templateName: 'default', 
+  content: {},
 })
 export default class DynamicView extends View {
   constructor($settings = {}, $options = {}) {
@@ -36,14 +36,14 @@ export default class DynamicView extends View {
     $settings = Object.assign({}, RenderSettings, $settings)
     const element = this.element
     if(!element instanceof HTMLTemplateElement) return this
-    const { name, data } = $settings
-    const template = this.templates[name]
+    const { templateName, content } = $settings
+    const template = this.templates[templateName]
     if(
       template !== undefined &&
       typeOf(template) === 'function'
     ) {
       this.disable()
-      const templateContent = template(data)
+      const templateContent = template(content)
       element.innerHTML = templateContent
       this.enable()
       this.dispatchEvent(new CustomEvent('render', {

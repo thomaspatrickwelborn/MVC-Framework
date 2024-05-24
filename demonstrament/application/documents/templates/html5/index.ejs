@@ -21,5 +21,6 @@
       type="<%= $script.type %>"
     ></script>
   <% } -%>
+  <%- await include('./livereload.ejs', {}, { async: true }) %>
 </body>
 </html>

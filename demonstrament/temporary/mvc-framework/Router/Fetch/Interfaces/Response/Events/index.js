@@ -1,41 +1,65 @@
 const Events = {
   // Fetch Response Interface Events
   // OK
-  'ok': ($response) => new CustomEvent(
-    'ok', {
-      detail: $response,
-    }
-  ),
+  'ok': ($response, $requestMethod) => {
+    const eventType = `${$requestMethod}:ok`
+    const event = new CustomEvent(eventType, {
+      detail: {
+        response: $response,
+      },
+    })
+    return event
+  },
   // Status
-  'status': ($response) => new CustomEvent(
-    `status`, {
-      detail: $response,
-    }
-  ),
+  'status': ($response, $requestMethod) => {
+    const eventType = `${$requestMethod}:status`
+    const event = new CustomEvent(eventType, {
+      detail: {
+        response: $response,
+      },
+    })
+    return event
+  },
   // Status Code
-  'statusCode': ($response) => new CustomEvent(
-    `status:${$response.status}`, {
-      detail: $response,
-    }
-  ),
+  'statusCode': ($response, $requestMethod) => {
+    const eventType = `${$requestMethod}:status:${$response.status}`
+    const event = new CustomEvent(eventType, {
+      detail: {
+        response: $response,
+      },
+    })
+    return event
+  },
   // Status Text
-  'statusText': ($response) => new CustomEvent(
-    `statusText`, {
-      detail: $response,
-    }
-  ),
+  'statusText': ($response, $requestMethod) => {
+    const eventType = `${$requestMethod}:statusText`
+    const event = new CustomEvent(eventType, {
+      detail: {
+        response: $response,
+      },
+    })
+    return event
+  },
   // Status Text Message
-  'statusTextMessage': ($response) => new CustomEvent(
-    `statusText:${$response.statusText}`, {
-      detail: $response,
-    }
-  ),
+  'statusTextMessage': ($response, $requestMethod) => {
+    const eventType = `${$requestMethod}:statusText:${$response.statusText}`
+    const event = new CustomEvent(eventType, {
+      detail: {
+        response: $response,
+      },
+    })
+    return event
+  },
   // Abort
-  'abort': ($abortController) => new CustomEvent(
-    'abort', {
-      detail: $abortController,
-    }
-  )
+  'abort': ($abortController) => {
+    const eventType = 'abort'
+    const event = new CustomEvent(eventType, {
+      detail: {
+        abortController: $abortController,
+      },
+    })
+    return event
+  },
 }
 
 export default Events

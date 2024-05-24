@@ -1,0 +1,5 @@
+photos-editor > photo-selector {
+	display: flex;
+	flex-direction: row;
+	background-color: darkorange;
+}
