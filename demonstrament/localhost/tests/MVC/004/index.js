@@ -91,8 +91,10 @@ function DOMContentLoaded() {
     },
     events: {
       'views.photosView render': function photosViewRender($event) {
-        // this.enableEvents()
-        console.log(this.events)
+        this.enableEvents()
+        this.views.photosView.parentElement.replaceChildren(
+          ...this.views.photosView.element.content.children
+        )
       },
       'views.photosView.selectors.photosControlButton click': function photosControlButtonClick($event) {
         const crement = Number($event.target.getAttribute('data-crement'))
@@ -102,10 +104,9 @@ function DOMContentLoaded() {
         this.views.photosView.renderElement({
           name: 'default', 
           data: this.models.photosModel.content,
+        }, {
+          enable: true,
         })
-        // this.views.photosView.parentElement.replaceChildren(
-        //   ...this.views.photosView.element.content.children
-        // )
         this.enableEvents()
       },
       'models.photosModel.content setCurrentIndex': function setCurrentIndex($event) {
