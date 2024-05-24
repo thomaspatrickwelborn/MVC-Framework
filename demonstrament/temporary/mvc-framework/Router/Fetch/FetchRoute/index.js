@@ -1,9 +1,12 @@
+import { typeOf } from '../../../Utils/index.js'
 import Events from '../Interfaces/Response/Events/index.js'
 export default class FetchRoute extends EventTarget {
   #settings = {}
   #name
   #origin
   #path
+  addRoutes
+  removeRoutes
   constructor($settings = {}) {
     super()
     this.#settings = $settings
@@ -26,17 +29,24 @@ export default class FetchRoute extends EventTarget {
           enumerable: true,
           writable: false,
           configurable: false,
-          value: async function() {
+          value: async function($resourceOptions = {}) {
+            const resourceOptions = Object.assign({}, $methodOptions)
+            let { urlSearchParams, headers, body, priority } = $resourceOptions
+            let pathParameters = new URLSearchParams(urlSearchParams).toString()
+            if(pathParameters.length > 0) pathParameters = '?'.concat(pathParameters)
+            if(headers !== undefined) resourceOptions.headers = new Headers(headers)
+            if(body !== undefined) resourceOptions.body = body
+            if(priority !== undefined) resourceOptions.priority = priority
             const resource = String.prototype.concat(
-              $this.#origin, $this.#path
+              $this.#origin, $this.#path, pathParameters
             )
             if($this[abortSignalKey] !== undefined) {
               $this[abortSignalKey].abort()
               $this.#createEvent($this, 'abort', $this[abortSignalKey])
             }
             $this[abortSignalKey] = new AbortController()
-            $methodOptions.signal = $this[abortSignalKey].signal
-            let fetchSource = await fetch(resource, $methodOptions)
+            resourceOptions.signal = $this[abortSignalKey].signal
+            let fetchSource = await fetch(resource, resourceOptions)
             .then(($fetchSource) => {
               $this
               .#createEvent($this, 'ok', $fetchSource.clone())
