@@ -33,6 +33,9 @@ export default class PhotoSelector extends Control {
               return this.templates.photoSelector($content)
             },
           },
+          selectors: {
+            photoSelector: 'photo-selector',
+          },
         }
       },
       routers: { fetch: {
@@ -51,7 +54,7 @@ export default class PhotoSelector extends Control {
               },
             }
           },
-        }
+        },
       }},
       events: {
         'routers.fetch.default.routes.photos get:status:200': async function photosStatus($event) {
@@ -63,9 +66,6 @@ export default class PhotoSelector extends Control {
             templateName: 'default',
             content: this.models.default.content,
           })
-          // this.views.default.parentElement.replaceChildren(
-          //   ...this.views.default.element.content.children
-          // )
         },
       },
     }), Object.assign($options, {}))

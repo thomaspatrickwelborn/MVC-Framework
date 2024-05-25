@@ -2,4 +2,19 @@ photos-editor > photo-selector {
 	display: flex;
 	flex-direction: row;
 	background-color: darkorange;
+	width: 30%;
+	& > photos {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		& > photo {
+			display: flex;
+			flex-direction: row;
+			width: inherit;
+			& > img {
+				width: 100%;
+				height: auto;
+			}
+		}
+	}
 }

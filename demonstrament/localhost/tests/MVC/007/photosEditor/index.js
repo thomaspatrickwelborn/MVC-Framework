@@ -31,6 +31,32 @@ export default class PhotosEditor extends Control {
           photoEditor: new PhotoEditor(),
           photoSelector: new PhotoSelector(),
         },
+        events: {
+          'controls.photoSelector.views.default render': function photosSelectorDefaultViewRender($event) {
+            if(this.views.default.selectors.photosEditor.children.length > 0) {
+              this.views.default.selectors.photosEditor.children[0].replaceWith(
+                this.controls.photoSelector.views.default.element.content.children[0]
+              )
+            } else {
+              this.views.default.selectors.photosEditor.prepend(
+                ...this.controls.photoSelector.views.default
+                .element.content.children
+              )
+            }
+          },
+          'controls.photoEditor.views.default render': function photoEditorDefaultViewRender($event) {
+            if(this.views.default.selectors.photosEditor.children.length > 0) {
+              this.views.default.selectors.photosEditor.children[0].replaceWith(
+                this.controls.photoEditor.views.default.element.content.children[0]
+              )
+            } else {
+              this.views.default.selectors.photosEditor.append(
+                ...this.controls.photoEditor.views.default
+                .element.content.children
+              )
+            }
+          },
+        },
       }),
       Object.assign($options, {})
     )
@@ -41,10 +67,6 @@ export default class PhotosEditor extends Control {
       templateName: 'default',
       content: {},
     })
-    this.views.default.selectors.photosEditor.replaceChildren(
-      ...this.controls.photoSelector.views.default
-      .element.content.children
-    )
     return this
   }
 }
