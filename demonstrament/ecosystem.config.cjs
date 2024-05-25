@@ -6,8 +6,7 @@ module.exports = {
       "index.js", 
       "application",
       "temporary", 
-      "tensils", 
-      "localhost"
+      "tensils"
     ],
     node_args: "--inspect --trace-deprecation",
     execMode: "fork"

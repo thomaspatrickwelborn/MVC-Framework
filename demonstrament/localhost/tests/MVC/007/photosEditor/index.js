@@ -17,7 +17,6 @@ export default class PhotosEditor extends Control {
           // Photos Editor View
           default: {
             type: 'dynamic',
-            parentElement: document.querySelector('app'),
             templates: {
               default: ($content) => {
                 return `<photos-editor></photos-editor>`
@@ -42,7 +41,7 @@ export default class PhotosEditor extends Control {
       templateName: 'default',
       content: {},
     })
-    this.views.default.parentElement.replaceChildren(
+    this.views.default.selectors.photosEditor.replaceChildren(
       ...this.controls.photoSelector.views.default
       .element.content.children
     )
