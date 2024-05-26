@@ -30,7 +30,7 @@ export default class PhotosEditor extends Control {
           // A.1. Photo Selector Default View Render
           'controls.photoSelector.views.default render': 
           function photosSelectorDefaultViewRender($event) {
-            if(this.views.default.selectors.photosEditor.children.length > 0) {
+            if(this.views.default.selectors.photosEditor.children.length === 1) {
               this.views.default.selectors.photosEditor.children[0].replaceWith(
                 this.controls.photoSelector.views.default.element.content.children[0]
               )
@@ -48,10 +48,10 @@ export default class PhotosEditor extends Control {
             this.controls.photoEditor.models.default.content.assign({ _id: $event.detail.val })
           },
           // B. Photo Editor Control Events
-          // B.!. Photo Editor Default View Render
+          // B.1. Photo Editor Default View Render
           'controls.photoEditor.views.default render': 
           function photoEditorDefaultViewRender($event) {
-            if(this.views.default.selectors.photosEditor.children.length > 0) {
+            if(this.views.default.selectors.photosEditor.children.length === 2) {
               this.views.default.selectors.photosEditor.children[1].replaceWith(
                 this.controls.photoEditor.views.default.element.content.children[0]
               )

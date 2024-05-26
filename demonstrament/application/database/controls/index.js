@@ -9,7 +9,7 @@ function Control($options) {
       get: function getPhotos($request, $response, $next) {
         const photoCollection = PhotoModel
         .find()
-        .then($photoCollection => $photoCollection.map(
+        .then(($photoCollection) => $photoCollection.map(
           $photoDocument => {
             $photoDocument = $photoDocument.toJSON()
             $photoDocument.img.src = String.prototype.concat(
@@ -23,8 +23,16 @@ function Control($options) {
     },
     '/services/photos/:photoID': {
       get: function getPhoto($request, $response, $next) {
-        console.log($request)
-        $response.send('meh')
+        const _id = $request.params.photoID
+        const photoCollection = PhotoModel
+        .findOne({ _id })
+        .then(($photoModel) => {
+          $photoModel = $photoModel.toJSON()
+          $photoModel.img.src = String.prototype.concat(
+            $photoModel.img.src.origin, $photoModel.img.src.path
+          )
+          $response.send($photoModel)
+        })
       },
       post: function postPhoto($request, $response, $next) {},
     },
@@ -32,7 +40,7 @@ function Control($options) {
       get: function getTopics($request, $response, $next) {
         const topicCollection = TopicModel
         .find()
-        .then($topicCollection => $topicCollection.map(
+        .then(($topicCollection) => $topicCollection.map(
           $topicDocument => $topicDocument.toJSON()
         ))
         .then($topicCollection => $response.send($topicCollection))
@@ -40,7 +48,6 @@ function Control($options) {
     },
   }
   const control = {}
-  console.log(ControlMethods[routePath])
   for(const $routeAction of routeActions) {
     control[$routeAction] = ControlMethods[routePath][$routeAction]
   }
