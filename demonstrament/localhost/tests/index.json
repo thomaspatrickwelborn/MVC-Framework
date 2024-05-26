@@ -21,42 +21,6 @@
 				"structure": [{
 					"tag": "a",
 					"attributes": {
-						"href": "./Core"
-					},
-					"textContent": "Core"
-				}]
-			}, {
-				"tag": "li",
-				"structure": [{
-					"tag": "a",
-					"attributes": {
-						"href": "./DynamicEventTarget"
-					},
-					"textContent": "DynamicEventTarget"
-				}]
-			}, {
-				"tag": "li",
-				"structure": [{
-					"tag": "a",
-					"attributes": {
-						"href": "./EventSystem"
-					},
-					"textContent": "EventSystem"
-				}]
-			}, {
-				"tag": "li",
-				"structure": [{
-					"tag": "a",
-					"attributes": {
-						"href": "./Model"
-					},
-					"textContent": "Model"
-				}]
-			}, {
-				"tag": "li",
-				"structure": [{
-					"tag": "a",
-					"attributes": {
 						"href": "./MVC"
 					},
 					"textContent": "MVC"
