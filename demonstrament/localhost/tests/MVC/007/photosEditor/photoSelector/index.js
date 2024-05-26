@@ -5,7 +5,7 @@ export default class PhotoSelector extends Control {
       models: {
         default: {
           content: {
-            selectorIndex: 0,
+            index: 0,
             photos: [],
           },
         },
@@ -23,11 +23,15 @@ export default class PhotoSelector extends Control {
             }" height="${
               $img.height
             }" />` },
-            photo: function($photo) { return `<photo>${
+            photo: function($photo, $photoIndex) { return `<photo data-id="${
+              $photo._id
+            }" data-index="${
+              $photoIndex
+            }">${
               this.templates.img($photo.img)
             }</photo>` },
             photos: function($photos) { return `<photos>${
-              $photos.map(($photo) => this.templates.photo($photo)).join('\n')
+              $photos.map(($photo, $photoIndex) => this.templates.photo($photo, $photoIndex)).join('\n')
             }</photos>` },
             photoSelector: function($content) { return `<photo-selector>${
               this.templates.photos($content)
@@ -64,24 +68,27 @@ export default class PhotoSelector extends Control {
       }},
       events: {
         'views.default render': function renderDefaultView($event) {
-          for(const $event of this.getEventsByEventSettings({
-            type: 'click',
-            target: 'views.default.selectors.photoSelector',
-          })) {
-            $event.enable = true
-          }
+          this.enableEvents(
+            this.getEvents({
+              type: 'click',
+              target: 'views.default.selectors.photoSelector',
+            })
+          )
         },
-        'views.default.selectors.photoSelector click': function defaultViewPhotoSelectorClick($event) {
-          console.log($event.type, $event.detail)
+        'views.default.selectors.photo click': function defaultViewPhotoClick($event) {
+          const index = Number(
+            $event.currentTarget.getAttribute('data-index')
+          )
+          this.models.default.content.assign({ index })
         },
         'routers.fetch.default.routes.photos get:status:200': async function photosStatus($event) {
           const content = await $event.detail.response.json()
           this.models.default.content.photos.push(...content)
         },
-        'models.default.content assignSourceProperty:selectorIndex': function defaultModelSelectorIndexAssignSourceProperty($event) {
+        'models.default.content assignSourceProperty:index': function defaultModelSelectorIndexAssignSourceProperty($event) {
           this.views.default.selectors.photo.forEach(($photo, $photoIndex) => {
-            const selectorIndex = $event.detail.val
-            if($photoIndex === selectorIndex) {
+            const index = $event.detail.val
+            if($photoIndex === index) {
               $photo.setAttribute('data-selected', true)
             } else {
               $photo.removeAttribute('data-selected')
@@ -93,6 +100,7 @@ export default class PhotoSelector extends Control {
             templateName: 'default',
             content: this.models.default.content,
           })
+          this.models.default.content.assign({ index: 0 })
         },
       },
     }), Object.assign($options, {}))

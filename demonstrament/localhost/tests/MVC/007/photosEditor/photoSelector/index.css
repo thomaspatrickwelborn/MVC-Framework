@@ -19,5 +19,8 @@ photos-editor > photo-selector {
 				height: auto;
 			}
 		}
+		& > photo[data-selected="true"] {
+			border: white 1px solid;
+		}
 	}
 }
