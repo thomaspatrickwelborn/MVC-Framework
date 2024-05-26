@@ -11,7 +11,7 @@ export default class PhotoEditor extends Control {
         },
       },
       views: {
-        photoEditorView: {
+        default: {
           type: 'dynamic', 
           templates: {
             photo: function photoTemplate($content) {
@@ -27,39 +27,44 @@ export default class PhotoEditor extends Control {
               return this.templates.photoEditor($content)
             },
           },
-        },
-        routers: { fetch: {
-          // Photos Editor Router
-          default: {
-            scheme: 'http',
-            domain: 'demonstrament.mvc-framework',
-            port: 3000,
-            routes: {
-              '/services/photos/photo': {
-                name: 'photo',
-                methods: {
-                  // Photos GET Method
-                  get: {
-                    method: 'get',
-                  },
-                  // Photos POST Method
-                  post: {
-                    method: 'post',
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
+        }
+      },
+      routers: { fetch: {
+        // Photos Editor Router
+        default: {
+          scheme: 'http',
+          domain: 'demonstrament.mvc-framework',
+          port: 3000,
+          routes: {
+            '/services/photos/:_id': {
+              name: 'photo',
+              methods: {
+                // Photos GET Method
+                get: {
+                  method: 'get',
+                },
+                // Photos POST Method
+                post: {
+                  method: 'post',
+                  headers: {
+                    "Content-Type": "application/json",
                   },
                 },
-              }
-            },
-          }
-        }},
-        events: {
-          'models.default.content assignSourceProperty:_id': 
-          function defaultModelAssignSourcePropertyID($event) {
-            console.log($event.type, $event.detail)
-          }
+              },
+            }
+          },
+        }
+      }},
+      events: {
+        'routers.fetch.default.routes.photo get:status:200':
+        function defaultFetchRouterPhotoGetStatus200($event) {
+          console.log($event)
         },
+        'models.default.content assignSourceProperty:_id': 
+        function defaultModelAssignSourcePropertyID($event) {
+          console.log($event)
+          this.routers.fetch.default.routes.photo.get(`/services/photos/${$event.detail.val}`)
+        }
       },
     }), Object.assign($options, {}))
   }

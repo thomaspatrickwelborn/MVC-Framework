@@ -5,6 +5,7 @@ const application = await Application({
 	'database': {
 		'/services/topics': ['get'],
 		'/services/photos': ['get'],
+		'/services/photos/:photoID': ['get'],
 	},
 	'documents': {
 		'tests/MVC/007': 'localhost/tests/MVC/007',

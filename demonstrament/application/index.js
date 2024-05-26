@@ -23,9 +23,9 @@ async function Application($settings = {}) {
     path.join(process.env.PWD, 'temporary/mvc-framework'),
     path.join(process.env.PWD, 'application'),
   ])
-  application.use(connectLiveReload())
-	application.use(documentRoutes)
 	application.use(databaseRoutes)
+	application.use(documentRoutes)
+  application.use(connectLiveReload())
 	application.listen(3000, () => {
 		console.log('Listen To The Sound Of Silence')
 	})

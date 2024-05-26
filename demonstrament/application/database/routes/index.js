@@ -14,7 +14,8 @@ function Routes($settings = {}) {
       routeActions: $routeActions,
     })
     for(const $routeAction of $routeActions) {
-      routes[$routeAction]($routePath, routeControl[$routeAction])
+      const route = routes.route($routePath)
+      route[$routeAction](routeControl[$routeAction])
     }
   }
   return routes

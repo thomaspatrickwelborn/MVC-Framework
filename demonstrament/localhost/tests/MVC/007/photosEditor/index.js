@@ -45,7 +45,6 @@ export default class PhotosEditor extends Control {
           // Photo Selector Default Model Assign Source Property "ID"
           'controls.photoSelector.models.default.content assignSourceProperty:_id': 
           function photoSelectorControlDefaultModelAssignSourcePropertyID($event) {
-            console.log($event.type, $event.detail)
             this.controls.photoEditor.models.default.content.assign({ _id: $event.detail.val })
           },
           // B. Photo Editor Control Events
@@ -76,6 +75,6 @@ export default class PhotosEditor extends Control {
       templateName: 'default',
       content: {},
     })
-    return this
+      return this
   }
 }

@@ -21,7 +21,7 @@ function Control($options) {
         .then($photoCollection => $response.send($photoCollection))
       },
     },
-    '/services/photos/photo': {
+    '/services/photos/:photoID': {
       get: function getPhoto($request, $response, $next) {
         console.log($request)
         $response.send('meh')
@@ -40,6 +40,7 @@ function Control($options) {
     },
   }
   const control = {}
+  console.log(ControlMethods[routePath])
   for(const $routeAction of routeActions) {
     control[$routeAction] = ControlMethods[routePath][$routeAction]
   }

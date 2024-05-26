@@ -8,7 +8,6 @@ export default class FetchRoute extends EventTarget {
   constructor($settings = {}) {
     super()
     this.#settings = $settings
-    Object.freeze(this.#settings)
     this.#name = this.#settings.name
     this.#origin = this.#settings.origin
     this.#path = this.#settings.path
@@ -99,7 +98,7 @@ export default class FetchRoute extends EventTarget {
     let pathFragmentsIndex = 0
     iteratePathFragments: 
     while(pathFragmentsIndex < pathFragments.length) {
-      const pathFragment = pathFragments[pathFragmentsIndex]
+      let pathFragment = pathFragments[pathFragmentsIndex]
       const resourcePathFragment = resourcePathFragments[pathFragmentsIndex]
       if(pathFragment.includes(':')) {
         pathFragment = resourcePathFragments[pathFragmentsIndex]
