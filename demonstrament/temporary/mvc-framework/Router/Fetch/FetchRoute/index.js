@@ -31,7 +31,31 @@ export default class FetchRoute extends EventTarget {
           enumerable: true,
           writable: false,
           configurable: false,
-          value: async function($resourceOptions = {}) {
+          value: async function() {
+            const $arguments = [...arguments]
+            let $resourcePath, $resourceOptions
+            if($arguments.length === 0) {
+              $resourcePath = ''
+              $resourceOptions = {}
+            } else
+            if($arguments.length === 1) {
+              if(typeof $arguments[0] === 'string') {
+                $resourcePath = $arguments[0]
+                $resourceOptions = {}
+              } else
+              if(typeof $arguments[0] === 'object') {
+                $resourcePath = ''
+                $resourceOptions = $arguments[0]
+              }
+            } else
+            if($arguments.length === 2) {
+              if(typeof $arguments[0] === 'string') {
+                $resourcePath = $arguments[0]
+              }
+              if(typeof $arguments[1] === 'object') {
+                $resourceOptions = $arguments[1]
+              }
+            }
             const methodName = $methodName
             const resourceOptions = Object.assign({}, $methodOptions)
             let { urlSearchParams, headers, body, priority } = $resourceOptions
@@ -41,7 +65,7 @@ export default class FetchRoute extends EventTarget {
             if(body !== undefined) resourceOptions.body = body
             if(priority !== undefined) resourceOptions.priority = priority
             const resource = String.prototype.concat(
-              $this.#origin, $this.#path, pathParameters
+              $this.#origin, this.#decodePath($this.#path, $resourcePath), pathParameters
             )
             if($this[abortKey] !== undefined) {
               $this[abortKey].abort()
@@ -65,6 +89,29 @@ export default class FetchRoute extends EventTarget {
         }
       })
     }
+  }
+  #decodePath($path, $resourcePath) {
+    if($path.includes(':') === false) return $path 
+    const pathFragments = $path.split('/')
+    const resourcePathFragments = $resourcePath.split('/')
+    if(pathFragments.length !== resourcePathFragments.length) return $path
+    let decodedPathFragments = []
+    let pathFragmentsIndex = 0
+    iteratePathFragments: 
+    while(pathFragmentsIndex < pathFragments.length) {
+      const pathFragment = pathFragments[pathFragmentsIndex]
+      const resourcePathFragment = resourcePathFragments[pathFragmentsIndex]
+      if(pathFragment.includes(':')) {
+        pathFragment = resourcePathFragments[pathFragmentsIndex]
+      } else if(
+        pathFragment !== resourcePathFragment
+      ) {
+        return $path
+      }
+      decodedPathFragments.push(pathFragment)
+      pathFragmentsIndex++
+    }
+    return decodedPathFragments.join('/')
   }
   removeMethods($methods) {
     iterateMethods: 
