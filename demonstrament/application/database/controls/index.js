@@ -20,11 +20,13 @@ function Control($options) {
         ))
         .then($photoCollection => $response.send($photoCollection))
       },
-      post: function postPhotos($request, $response, $next) {
-        const photoCollection = PhotoModel
-        console.log('$request', $request)
-        console.log('$request.body', $request.body)
-      }
+    },
+    '/services/photos/photo': {
+      get: function getPhoto($request, $response, $next) {
+        console.log($request)
+        $response.send('meh')
+      },
+      post: function postPhoto($request, $response, $next) {},
     },
     '/services/topics': {
       get: function getTopics($request, $response, $next) {

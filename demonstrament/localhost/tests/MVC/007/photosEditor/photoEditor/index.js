@@ -2,16 +2,30 @@ import { Control } from '/mvc-framework/index.js'
 export default class PhotoEditor extends Control {
   constructor($settings = {}, $options = {}) {
     super(Object.assign($settings, {
+      models: {
+        default: {
+          content: {
+            _id: '',
+            photo: {},
+          },
+        },
+      },
       views: {
         photoEditorView: {
           type: 'dynamic', 
           templates: {
-            default: ($content) => `<photo-editor>
-              <photo-editor-img>PHOTO-EDITOR-IMG</photo-editor-img>
+            photo: function photoTemplate($content) {
+              return `<photo-editor-img>PHOTO-EDITOR-IMG</photo-editor-img>
               <photo-editor-alt>PHOTO-EDITOR-ALT</photo-editor-alt>
               <photo-editor-width>PHOTO-EDITOR-WIDTH</photo-editor-width>
-              <photo-editor-height>PHOTO-EDITOR-HEIGHT</photo-editor-height>
-            </photo-editor>`
+              <photo-editor-height>PHOTO-EDITOR-HEIGHT</photo-editor-height>`
+            },
+            photoEditor: function photoEditorTemplate($content) {
+              return `<photo-editor></photo-editor>`
+            },
+            default: function defaultTemplate($content) {
+              return this.templates.photoEditor($content)
+            },
           },
         },
         routers: { fetch: {
@@ -21,8 +35,8 @@ export default class PhotoEditor extends Control {
             domain: 'demonstrament.mvc-framework',
             port: 3000,
             routes: {
-              '/services/photos': {
-                name: 'photos',
+              '/services/photos/photo': {
+                name: 'photo',
                 methods: {
                   // Photos GET Method
                   get: {
@@ -40,8 +54,16 @@ export default class PhotoEditor extends Control {
             },
           }
         }},
+        events: {
+          'models.default.content assignSourceProperty:_id': 
+          function defaultModelAssignSourcePropertyID($event) {
+            console.log($event.type, $event.detail)
+          }
+        },
       },
     }), Object.assign($options, {}))
   }
-  start() {}
+  start() {
+    return this
+  }
 } 

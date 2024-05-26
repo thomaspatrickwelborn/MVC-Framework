@@ -26,7 +26,10 @@ export default class PhotosEditor extends Control {
           photoSelector: new PhotoSelector(),
         },
         events: {
-          'controls.photoSelector.views.default render': function photosSelectorDefaultViewRender($event) {
+          // A. Photo Selector Control Events
+          // A.1. Photo Selector Default View Render
+          'controls.photoSelector.views.default render': 
+          function photosSelectorDefaultViewRender($event) {
             if(this.views.default.selectors.photosEditor.children.length > 0) {
               this.views.default.selectors.photosEditor.children[0].replaceWith(
                 this.controls.photoSelector.views.default.element.content.children[0]
@@ -38,9 +41,19 @@ export default class PhotosEditor extends Control {
               )
             }
           },
-          'controls.photoEditor.views.default render': function photoEditorDefaultViewRender($event) {
+          // A.2.
+          // Photo Selector Default Model Assign Source Property "ID"
+          'controls.photoSelector.models.default.content assignSourceProperty:_id': 
+          function photoSelectorControlDefaultModelAssignSourcePropertyID($event) {
+            console.log($event.type, $event.detail)
+            this.controls.photoEditor.models.default.content.assign({ _id: $event.detail.val })
+          },
+          // B. Photo Editor Control Events
+          // B.!. Photo Editor Default View Render
+          'controls.photoEditor.views.default render': 
+          function photoEditorDefaultViewRender($event) {
             if(this.views.default.selectors.photosEditor.children.length > 0) {
-              this.views.default.selectors.photosEditor.children[0].replaceWith(
+              this.views.default.selectors.photosEditor.children[1].replaceWith(
                 this.controls.photoEditor.views.default.element.content.children[0]
               )
             } else {
@@ -50,12 +63,14 @@ export default class PhotosEditor extends Control {
               )
             }
           },
+
         },
       }),
       Object.assign($options, {})
     )
   }
   start() {
+    this.controls.photoEditor.start()
     this.controls.photoSelector.start()
     this.views.default.renderElement({
       templateName: 'default',
