@@ -28,7 +28,7 @@ export default class Event {
   #_type
   get type() { return this.#_type }
   set type($type) { this.#_type = $type }
-  #_path
+  #_path = ''
   get path() { return this.#_path }
   set path($path) { this.#_path = $path }
   get target() {
@@ -68,7 +68,7 @@ export default class Event {
       try {
         this.target[eventAbility](this.type, this.callback)
         this.#_enable = $enable
-      } catch($err) { console.log(this.type, this.path, eventAbility) }
+      } catch($err) { /* console.log(this.type, this.path, eventAbility) */ }
     }
   }
 }
