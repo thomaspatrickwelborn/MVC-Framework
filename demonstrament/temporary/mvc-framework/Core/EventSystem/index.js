@@ -62,6 +62,38 @@ export default class EventSystem extends EventTarget {
     }
     return this
   }
+  getEventsByEventSettings($eventSettings = {
+    // type: String, target: String, callback: Function
+  }) {
+    const eventsByEventsSettings = []
+    iterateEvents: 
+    for(const $event of this.events) {
+      if(((
+        $eventSettings.type !== undefined &&
+        $eventSettings.path === undefined &&
+        $eventSettings.callback === undefined
+      ) && ($event.type === $eventSettings.type)) || 
+      ((
+        $eventSettings.type !== undefined &&
+        $eventSettings.path !== undefined &&
+        $eventSettings.callback === undefined
+      ) && (
+        $event.type === $eventSettings.type &&
+        $event.path === $eventSettings.target
+      )) || ((
+        $eventSettings.type !== undefined &&
+        $eventSettings.path !== undefined &&
+        $eventSettings.callback !== undefined
+      ) && (
+        $event.type === $eventSettings.type &&
+        $event.path === $eventSettings.target &&
+        $event.callback === $eventSettings.callback
+      ))) {
+        eventsByEventsSettings.push($event)
+      }
+    }
+    return eventsByEventsSettings
+  }
   addEvents($events = {}, $enable = false) {
     const _events = this.events
     const typeOfEvents = typeOf($events)
@@ -81,7 +113,7 @@ export default class EventSystem extends EventTarget {
   		const removeEventIndex = $events.findIndex(
   			($event) => (
   				$event.type === event.settings.type &&
-  				$event.target === event.settings.target &&
+  				$event.path === event.settings.target &&
   				$event.callback === event.settings.callback
 				)
 			)

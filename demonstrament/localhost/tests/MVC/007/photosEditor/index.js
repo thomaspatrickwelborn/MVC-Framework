@@ -8,13 +8,7 @@ export default class PhotosEditor extends Control {
   constructor($settings = {}, $options = {}) {
     super(
       Object.assign($settings, {
-        models: {
-          default: {
-            content: [],
-          },
-        },
         views: {
-          // Photos Editor View
           default: {
             type: 'dynamic',
             templates: {

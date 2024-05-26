@@ -4,7 +4,10 @@ export default class PhotoSelector extends Control {
     super(Object.assign($settings, {
       models: {
         default: {
-          content: [],
+          content: {
+            selectorIndex: 0,
+            photos: [],
+          },
         },
       },
       views: {
@@ -30,11 +33,14 @@ export default class PhotoSelector extends Control {
               this.templates.photos($content)
             }</photo-selector>` },
             default: function($content) {
-              return this.templates.photoSelector($content)
+              return this.templates.photoSelector($content.photos)
             },
           },
           selectors: {
             photoSelector: 'photo-selector',
+            photos: 'photo-selector > photos',
+            photo: 'photo-selector > photos > photo',
+            img: 'photo-selector > photos > photo > img',
           },
         }
       },
@@ -57,11 +63,32 @@ export default class PhotoSelector extends Control {
         },
       }},
       events: {
+        'views.default render': function renderDefaultView($event) {
+          for(const $event of this.getEventsByEventSettings({
+            type: 'click',
+            target: 'views.default.selectors.photoSelector',
+          })) {
+            $event.enable = true
+          }
+        },
+        'views.default.selectors.photoSelector click': function defaultViewPhotoSelectorClick($event) {
+          console.log($event.type, $event.detail)
+        },
         'routers.fetch.default.routes.photos get:status:200': async function photosStatus($event) {
           const content = await $event.detail.response.json()
-          this.models.default.content.push(...content)
+          this.models.default.content.photos.push(...content)
         },
-        'models.default.content push': function defaultModelPush($event) {
+        'models.default.content assignSourceProperty:selectorIndex': function defaultModelSelectorIndexAssignSourceProperty($event) {
+          this.views.default.selectors.photo.forEach(($photo, $photoIndex) => {
+            const selectorIndex = $event.detail.val
+            if($photoIndex === selectorIndex) {
+              $photo.setAttribute('data-selected', true)
+            } else {
+              $photo.removeAttribute('data-selected')
+            }
+          })
+        },
+        'models.default.content.photos push': function defaultPhotosModelPhotosPush($event) {
           this.views.default.renderElement({
             templateName: 'default',
             content: this.models.default.content,

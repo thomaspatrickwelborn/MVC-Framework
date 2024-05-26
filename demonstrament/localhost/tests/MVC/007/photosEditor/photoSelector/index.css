@@ -3,14 +3,17 @@ photos-editor > photo-selector {
 	flex-direction: row;
 	background-color: darkorange;
 	width: 30%;
+	height: 100%;
 	& > photos {
 		display: flex;
 		flex-direction: column;
 		width: 100%;
+		height: 100%;
 		& > photo {
 			display: flex;
 			flex-direction: row;
 			width: inherit;
+			height: inherit;
 			& > img {
 				width: 100%;
 				height: auto;

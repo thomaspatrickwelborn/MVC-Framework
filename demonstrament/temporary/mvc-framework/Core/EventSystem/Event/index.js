@@ -28,17 +28,19 @@ export default class Event {
   #_type
   get type() { return this.#_type }
   set type($type) { this.#_type = $type }
-  #_target
+  #_path
+  get path() { return this.#_path }
+  set path($path) { this.#_path = $path }
   get target() {
     let target = this.context
-    for(const $targetPathKey of this.#_target.split('.')) {
+    for(const $targetPathKey of this.path.split('.')) {
       if($targetPathKey === ':scope') break
       if(target[$targetPathKey] === undefined) return undefined
       target = target[$targetPathKey]
     }
     return target
   }
-  set target($target) { this.#_target = $target }
+  set target($target) { this.path = $target }
   #_callback
   get callback() {
     return this.#_callback
@@ -66,7 +68,7 @@ export default class Event {
       try {
         this.target[eventAbility](this.type, this.callback)
         this.#_enable = $enable
-      } catch($err) { console.log(this.type, this.#_target, eventAbility) }
+      } catch($err) { console.log(this.type, this.path, eventAbility) }
     }
   }
 }
