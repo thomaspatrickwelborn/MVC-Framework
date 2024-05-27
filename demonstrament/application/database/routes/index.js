@@ -15,7 +15,11 @@ function Routes($settings = {}) {
     })
     for(const $routeAction of $routeActions) {
       const route = routes.route($routePath)
-      route[$routeAction](routeControl[$routeAction])
+      if(Array.isArray(routeControl[$routeAction]) === true) {
+        route[$routeAction](...routeControl[$routeAction])
+      } else {
+        route[$routeAction](routeControl[$routeAction])
+      } 
     }
   }
   return routes
