@@ -1,3 +1,4 @@
+import { isDirectInstanceOf } from '../../../../../../../Utils/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
@@ -13,7 +14,13 @@ export default function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            if(typeof $sourcePropVal === 'object') {
+            // if(typeof $sourcePropVal === 'object') {
+            console.log(
+              isDirectInstanceOf($sourcePropVal, [Array, Object, DynamicEventTarget])
+            )
+            if(
+              isDirectInstanceOf($sourcePropVal, [Array, Object, DynamicEventTarget])
+            ) {
               if(
                 merge === true &&
                 $root[$sourcePropKey] instanceof DynamicEventTarget
