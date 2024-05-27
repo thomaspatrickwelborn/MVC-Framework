@@ -1,4 +1,4 @@
-import { typeOf, typedInstance } from '../../../../../../../Utils/index.js'
+import { typeOf, isDirectInstanceOf } from '../../../../../../../Utils/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
@@ -12,7 +12,9 @@ export default function DefineProperties(
         for(const [
           $propertyKey, $propertyDescriptor
         ] of Object.entries($propertyDescriptors)) {
-          if(typeof $propertyDescriptor.value === 'object') {
+          if(isDirectInstanceOf(
+            $propertyDescriptor.value, [Array, Object, Map]
+          )) {
             const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
               $root, $propertyKey
             ) || {}

@@ -2,22 +2,26 @@ import { typeOf } from '../Utils/index.js'
 import DynamicEventTarget from '../Core/DynamicEventTarget/index.js'
 import Core from '../Core/index.js'
 export default class Model extends Core {
-	constructor($settings = {
-    rootAlias: 'content',
-		content: {},
-		events: {},
-	}, $options = {
-		enable: true,
-		freeze: false,
-	}) {
-		super(...arguments)
-		this.type = $settings.type
-		this.#rootAlias = $settings.rootAlias
+	constructor($settings = {}, $options = {}) {
+		super(
+      Object.assign({
+        rootAlias: 'content',
+        content: {},
+        events: {},
+      }, $settings),
+      Object.assign({
+        enable: true,
+        freeze: false,
+        content: {},
+      }, $options),
+    )
+		this.type = this.settings.type
+		this.#rootAlias = this.settings.rootAlias
     Object.defineProperty(this, this.#rootAlias, {
       get() { return this.#root }
     })
-		this.#root = new DynamicEventTarget($settings.content)
-    if($options.enable === true) this.enableEvents()
+		this.#root = new DynamicEventTarget(this.settings.content, this.options.content)
+    if(this.options.enable === true) this.enableEvents()
 	}
   // Root Alias
   #_rootAlias

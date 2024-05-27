@@ -1,3 +1,4 @@
+import { isDirectInstanceOf } from '../../../../../../../Utils/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 export default function Fill(
   $trap, $trapPropertyName, $aliases
@@ -8,7 +9,9 @@ export default function Fill(
       value: function() {
         const $arguments = [...arguments]
         let value = $arguments[0]
-        if(typeof value === 'object') {
+        if(isDirectInstanceOf(
+          $sourcePropVal, [Array, Object, Map]
+        )) {
           value = new DynamicEventTarget(value, {
             rootAlias: $rootAlias,
           })

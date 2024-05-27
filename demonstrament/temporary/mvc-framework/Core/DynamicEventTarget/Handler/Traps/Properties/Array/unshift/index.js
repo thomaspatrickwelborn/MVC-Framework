@@ -1,3 +1,5 @@
+import { isDirectInstanceOf } from '../../../../../../../Utils/index.js'
+import DynamicEventTarget from '../../../../../index.js'
 export default function Unshift(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -13,7 +15,9 @@ export default function Unshift(
         while(elementIndex > -1) {
         const elementsLength = $arguments.length
           const element = $arguments[elementIndex]
-          if(typeof element === 'object') {
+          if(isDirectInstanceOf(
+            element, [Array, Object, Map]
+          )) {
             element = new DynamicEventTarget(element, {
               rootAlias: $rootAlias,
             })

@@ -14,13 +14,9 @@ export default function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            // if(typeof $sourcePropVal === 'object') {
-            console.log(
-              isDirectInstanceOf($sourcePropVal, [Array, Object, DynamicEventTarget])
-            )
-            if(
-              isDirectInstanceOf($sourcePropVal, [Array, Object, DynamicEventTarget])
-            ) {
+            if(isDirectInstanceOf(
+              $sourcePropVal, [Array, Object, Map]
+            )) {
               if(
                 merge === true &&
                 $root[$sourcePropKey] instanceof DynamicEventTarget

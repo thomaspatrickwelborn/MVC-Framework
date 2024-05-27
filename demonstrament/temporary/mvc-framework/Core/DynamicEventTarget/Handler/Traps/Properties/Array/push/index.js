@@ -1,3 +1,4 @@
+import { isDirectInstanceOf } from '../../../../../../../Utils/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 export default function Push(
   $trap, $trapPropertyName, $aliases
@@ -10,7 +11,9 @@ export default function Push(
         let elementIndex = 0
         iterateElements:
         for(let $element of arguments) {
-          if(typeof $element === 'object') {
+          if(isDirectInstanceOf(
+            $element, [Array, Object, Map]
+          )) {
             $element = new DynamicEventTarget($element, {
               rootAlias: $rootAlias,
             })
