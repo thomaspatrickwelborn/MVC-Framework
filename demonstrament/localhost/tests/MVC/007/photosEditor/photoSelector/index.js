@@ -1,7 +1,7 @@
 import { Control } from '/mvc-framework/index.js'
 export default class PhotoSelector extends Control {
   constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+    super(Object.assign({
       models: {
         default: {
           content: {
@@ -121,7 +121,7 @@ export default class PhotoSelector extends Control {
           this.models.default.content.assign({ index: 0, _id })
         },
       },
-    }), Object.assign($options, {}))
+    }, $settings), Object.assign({}, $options))
   }
   start() {
     this.routers.fetch.default.routes.photos.get()

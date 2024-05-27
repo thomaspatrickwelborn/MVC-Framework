@@ -1,3 +1,4 @@
+import multer from 'multer'
 import * as Schemata from '../schemata/index.js'
 
 function Control($options) {

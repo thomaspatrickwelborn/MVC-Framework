@@ -1,9 +1,9 @@
 import { Model } from '/mvc-framework/index.js'
 export default class PhotosModel extends Model {
   constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+    super(Object.assign({
       content: [],
-    }), $options)
+    }, $settings), $options)
     this.content.defineProperties({
       currentIndex: {
         enumerable: false,

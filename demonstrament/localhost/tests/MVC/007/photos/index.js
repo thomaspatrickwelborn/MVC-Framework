@@ -5,7 +5,7 @@ import PhotosRouter from './router/index.js'
 
 export default class PhotosControl extends Control {
   constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+    super(Object.assign({
       views: { photosView: new PhotosView() },
       models: { photosModel: new PhotosModel() },
       routers: {
@@ -57,7 +57,7 @@ export default class PhotosControl extends Control {
           }
         },
       },
-    }), Object.assign($options, { enableEvents: true }))
+    }, $settings), Object.assign({ enableEvents: true }, $settings))
   }
   start() {
     this.routers.fetch.photosRouter.routes.photos.get()

@@ -2,7 +2,7 @@ import { DynamicView } from '/mvc-framework/index.js'
 import * as Templates from './templates/index.js'
 export default class PhotosView extends DynamicView {
   constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+    super(Object.assign({
       type: 'dynamic',
       parentElement: document.querySelector('app'),
       selectors: {
@@ -29,6 +29,6 @@ export default class PhotosView extends DynamicView {
         },
       },
       // 
-    }), $options)
+    }, $settings), $options)
   }
 }

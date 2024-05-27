@@ -1,7 +1,7 @@
 import { FetchRouter } from '/mvc-framework/index.js'
 export default class PhotosRouter extends FetchRouter {
   constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+    super(Object.assign({
       scheme: 'http',
       domain: 'demonstrament.mvc-framework',
       port: 3000,
@@ -15,7 +15,7 @@ export default class PhotosRouter extends FetchRouter {
           }
         }
       },
-    }), $options)
+    }, $settings), $options)
     console.log(this)
   }
 }

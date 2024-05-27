@@ -1,8 +1,14 @@
+import { typeOf } from '/mvc-framework/Utils/index.js'
 import { Control } from '/mvc-framework/index.js'
 export default class PhotoEditor extends Control {
   constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+    super(Object.assign({
       models: {
+        uploadForm: {
+          content: {
+            files: [],
+          },
+        },
         default: {
           content: {
             _id: '',
@@ -11,6 +17,52 @@ export default class PhotoEditor extends Control {
         },
       },
       views: {
+        uploadFormImage: {
+          type: 'dynamic',
+          templates: {
+            default: function defaultTemplate($content) {
+              return `<img src="${
+                URL.createObjectURL($content)
+              }" alt="${
+                $content.name
+              }" />`
+            },
+          },
+          selectors: { img: 'img' },
+          events: {
+            'img load': function imgLoad($event) {
+              console.log($event.type, $event)
+            },
+          },
+        },
+        uploadForm: {
+          type: 'dynamic',
+          templates: {
+            formInput: function formInputTemplate($content) {
+              return `<input type="file" accept=".jpg, .jpeg, .png"/>`
+            },
+            form: function formTemplate($content) {
+              return `<form enctype="multipart/form-data">${
+                this.templates.formInput($content)
+              }</form>`
+            },
+            photoForm: function photoFormTemplate($content) {
+              return `<photo-form>${
+                this.templates.form($content)
+              }</photo-form>`
+            },
+            default: function defaultTemplate($content) {
+              return [                
+                this.templates.photoForm($content)
+              ].join('\n')
+            },
+          },
+          selectors: {
+            photoForm: 'photo-form',
+            form: 'photo-form > form',
+            formInput: 'photo-form > form > input',
+          },
+        },
         default: {
           type: 'dynamic', 
           templates: {
@@ -38,21 +90,24 @@ export default class PhotoEditor extends Control {
               ].join('\n') 
             },
             photo: function photoTemplate($photo) {
-              console.log($photo)
-              return [
+              return 
+            },
+            photoEditor: function photoEditorTemplate($photo) {
+              return `<photo-editor>${[
                 this.templates.photoEditorImg($photo),
                 this.templates.photoEditorAlt($photo),
                 this.templates.photoEditorDimensions($photo),
-              ].join('\n')
-            },
-            photoEditor: function photoEditorTemplate($photo) {
-              return `<photo-editor>${
-                this.templates.photo($photo)
-              }</photo-editor>`
+              ].join('\n')}</photo-editor>`
             },
             default: function defaultTemplate($content) {
-              return this.templates.photoEditor($content)
+              return [
+                this.templates.photoEditor($content),
+              ].join('\n')
             },
+          },
+          selectors: {
+            img: 'img',
+            photoEditor: 'photo-editor',
           },
         }
       },
@@ -103,9 +158,47 @@ export default class PhotoEditor extends Control {
             templateName: 'default', 
             content: $event.detail.val,
           })
+          this.views.uploadForm.renderElement({
+            templateName: 'default',
+            content: $event.detail.val,
+          })
+          this.views.default.selectors.photoEditor.prepend(
+            ...this.views.uploadForm.element.content.children
+          )
+          this.enableEvents(
+            this.getEvents({
+              type: 'change',
+              target: 'views.uploadForm.selectors.formInput',
+            })
+          )
+        },
+        // B.2. Upload Form Model Files Push Element
+        'models.uploadForm.content.files pushProp': 
+        function uploadFormModelPhotosPushProp($event) {
+          console.log($event.detail.element)
+          this.views.uploadFormImage.renderElement({
+            templateName: 'default',
+            content: $event.detail.element,
+          })
+          this.views.default.selectors.img.replaceWith(
+            this.views.uploadFormImage.element.content.children[0]
+          )
+        },
+        // C. Upload Form View Events
+        // C.1. 
+        'views.uploadForm.selectors.formInput change': 
+        function uploadFormViewSelectorFormInputChange($event) {
+          for(const $file of $event.target.files) {
+            // console.log()
+            this.models.uploadForm.content.files.push($file)
+            // {
+            //   src: File.createObjectURL($file),
+            //   alt: $file.name,
+            // }
+          }
         },
       },
-    }), Object.assign($options, {}))
+    }, $settings), Object.assign({}, $options))
   }
   start() {
     return this

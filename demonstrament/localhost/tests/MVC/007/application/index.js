@@ -3,7 +3,7 @@ import PhotosEditor from '../photosEditor/index.js'
 
 export default class Application extends Control {
   constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+    super(Object.assign({
       views: {
         default: {
           type: 'static',
@@ -13,7 +13,7 @@ export default class Application extends Control {
       controls: {
         photosEditor: new PhotosEditor()
       },
-    }), Object.assign($options, {}))
+    }, $settings), Object.assign({}, $options))
   }
   start() {
     this.controls.photosEditor.start()

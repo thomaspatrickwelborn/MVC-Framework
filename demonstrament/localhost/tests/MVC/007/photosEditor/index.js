@@ -7,7 +7,7 @@ import PhotoSelector from './photoSelector/index.js'
 export default class PhotosEditor extends Control {
   constructor($settings = {}, $options = {}) {
     super(
-      Object.assign($settings, {
+      Object.assign({
         views: {
           default: {
             type: 'dynamic',
@@ -64,8 +64,8 @@ export default class PhotosEditor extends Control {
           },
 
         },
-      }),
-      Object.assign($options, {})
+      }, $settings),
+      Object.assign({}, $options)
     )
   }
   start() {
