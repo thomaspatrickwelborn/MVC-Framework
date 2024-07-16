@@ -1,5 +1,5 @@
 {
-  "name": "mvc-framework",
+  "name": "js-mvc-framework",
   "author": "Thomas Patrick Welborn",
   "type": "module",
   "main": "./development/index.js",
@@ -10,11 +10,8 @@
   "scripts": {
     "start": "nodemon --watch ./development --ext js --exec \"rollup ./development/index.js --format es --file ./distributement/mvc-framework.js\""
   },
+  "repository": "https://github.com/thomaspatrickwelborn/mvc-framework",
   "version": "1.0.0",
   "license": "ISC",
-  "description": "",
-  "workspaces": [
-    "demonstrament",
-    "development"
-  ]
+  "description": "Early bird gets the wormhole. "
 }
