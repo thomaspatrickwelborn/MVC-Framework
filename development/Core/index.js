@@ -1,9 +1,9 @@
 import { typeOf } from '../Utils/index.js'
-import EventSystem from './EventSystem/index.js'
+import DynamicEventSystem from './DynamicEventSystem/index.js'
 const Settings = {}
 const Options = {}
 
-export default class Core extends EventSystem {
+export default class Core extends DynamicEventSystem {
 	constructor($settings = Settings, $options = Options) {
 		super($settings.events, $options.enable)
 		this.options = Object.assign({}, Options, $options)

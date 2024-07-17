@@ -1,6 +1,6 @@
 import { typeOf, parseShortenedEvents } from '../../Utils/index.js'
 import Event from './Event/index.js'
-export default class EventSystem extends EventTarget {
+export default class DynamicEventSystem extends EventTarget {
   constructor($events, $enable) {
     super()
     this.events = $events

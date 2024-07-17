@@ -1,5 +1,5 @@
 import DynamicEventTarget from './Core/DynamicEventTarget/index.js'
-import EventSystem from './Core/EventSystem/index.js'
+import DynamicEventSystem from './Core/DynamicEventSystem/index.js'
 import Core from './Core/index.js'
 import Model from './Model/index.js'
 import {
@@ -12,7 +12,7 @@ import {
 
 export {
   DynamicEventTarget,
-  EventSystem,
+  DynamicEventSystem,
   Core, 
   Model, 
   StaticView, DynamicView, 
