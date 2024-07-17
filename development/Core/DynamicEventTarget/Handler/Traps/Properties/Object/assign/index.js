@@ -8,8 +8,9 @@ export default function Assign(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
+        const sources = [...arguments]
         iterateSources: 
-        for(let $source of [...arguments]) {
+        for(let $source of sources) {
           iterateSourceProps:
           for(let [
             $sourcePropKey, $sourcePropVal
@@ -59,7 +60,9 @@ export default function Assign(
         $trap.createEvent(
           $eventTarget,
           'assign',
-          {},
+          {
+            sources
+          },
           $root,
         )
         return $root
