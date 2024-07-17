@@ -16,7 +16,7 @@ const Events = {
       }
     }
   ),
-  // Object Assign Source Key
+  // Object Assign Source Property
   'assignSourceProperty': ($event, $target) => new CustomEvent(
     `assignSourceProperty`, { 
       detail: {
@@ -26,18 +26,6 @@ const Events = {
       }
     }
   ),
-  // Object Assign Source Key
-  'assignSourcePropertyKey': ($event, $target) => {
-    return new CustomEvent(
-      `assignSourceProperty:${$event.key}`, { 
-        detail: {
-          key: $event.key,
-          val: $event.val,
-          source: $event.source,
-        }
-      }
-    )
-  },
   // Object Define Properties
   'defineProperties': ($event, $target) => new CustomEvent(
     'defineProperties', {

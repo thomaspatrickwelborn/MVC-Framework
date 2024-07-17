@@ -38,16 +38,6 @@ export default function Assign(
             }
             $trap.createEvent(
               $eventTarget, 
-              'assignSourcePropertyKey',
-              {
-                key: $sourcePropKey,
-                val: $sourcePropVal,
-                source: $source,
-              },
-              $root,
-            )
-            $trap.createEvent(
-              $eventTarget, 
               'assignSourceProperty',
               {
                 key: $sourcePropKey,
