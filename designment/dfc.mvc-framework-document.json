@@ -1,0 +1,29 @@
+{
+	"name": "mvc-framework-document",
+	"path": "/home/thomaspatrickwelborn/Development/MVC-Framework/designment",
+	"cycles": [
+		{
+			"name": "spreadsheet-to-filesystem",
+			"classname": "SpreadsheetToFilesystem",
+			"input": {
+				"spreadsheet": {
+					"watch": true,
+					"path": "/home/thomaspatrickwelborn/Development/MVC-Framework/designment/mvc-framework-document.xlsx"
+				},
+				"database": {
+					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-spreadsheet",
+				  "options": {}
+				}
+			},
+			"output": {
+				"database": {
+					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-filesystem",
+				  "options": {}
+				},
+				"filesystem": {
+					"path": "/home/thomaspatrickwelborn/Development/MVC-Framework"
+				}
+			}
+		}
+	]
+}
