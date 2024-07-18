@@ -5,11 +5,14 @@ export default function SetPrototypeOf(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
-        Object.setPrototypeOf($root)
+        const prototype = arguments[0]
+        Object.setPrototypeOf($root, prototype)
         $trap.createEvent(
           $eventTarget,
           'setPrototypeOf',
-          {},
+          {
+            prototype
+          },
           $root
         )
         return $root

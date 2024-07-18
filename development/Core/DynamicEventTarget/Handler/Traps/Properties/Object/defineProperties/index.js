@@ -53,15 +53,6 @@ export default function DefineProperties(
             },
             $root,
           )
-          $trap.createEvent(
-            $eventTarget,
-            'definePropertyKey',
-            {
-              prop: $propertyKey,
-              descriptor: $propertyDescriptor,
-            },
-            $root,
-          )
         }
         $trap.createEvent(
           $eventTarget,
