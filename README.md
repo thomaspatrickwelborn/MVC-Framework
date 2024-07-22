@@ -12,8 +12,14 @@ MVC Framework is a Javascript implementation of the **[Presentation-Abstraction-
 ## Features
 - Dynamic Event Target (DET) ventilates Object, Array, and Map property modifier functions. 
 - Dynamic Event System (DES) facilitates Event Target/Dynamic Event Target property assignment and ablement.
-- Fetch Router interfacilitates client/server endpoint calls and callbacks. 
+- Fetch Router interfacilates client/server endpoint calls and callbacks. 
 ## Documents
-### Classification
-- [Classification](./document/Classification/index.md)
+### MVC Framework Guide
+DET Guide
+DET Object Guide
+- Document
+  - Guide
+    - [Dynamic Event Target (DET)](./document/guide/DynamicEventTarget/index.md)
+      - [DET Object](./document/guide/DynamicEventTarget/DET-Object/index.md)
+    - [Dynamic Event System (DES)](./document/guid/DynamicEventSystem/index.md)
 ### Demonstration

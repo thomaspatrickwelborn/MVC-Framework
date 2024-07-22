@@ -19,7 +19,7 @@ const Events$1 = {
       }
     }
   ),
-  // Object Assign Source Key
+  // Object Assign Source Property
   'assignSourceProperty': ($event, $target) => new CustomEvent(
     `assignSourceProperty`, { 
       detail: {
@@ -29,18 +29,6 @@ const Events$1 = {
       }
     }
   ),
-  // Object Assign Source Key
-  'assignSourcePropertyKey': ($event, $target) => {
-    return new CustomEvent(
-      `assignSourceProperty:${$event.key}`, { 
-        detail: {
-          key: $event.key,
-          val: $event.val,
-          source: $event.source,
-        }
-      }
-    )
-  },
   // Object Define Properties
   'defineProperties': ($event, $target) => new CustomEvent(
     'defineProperties', {
@@ -369,7 +357,8 @@ function Assign(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        for(let $source of [...arguments]) {
+        const sources = [...arguments];
+        for(let $source of sources) {
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
@@ -397,16 +386,6 @@ function Assign(
             }
             $trap.createEvent(
               $eventTarget, 
-              'assignSourcePropertyKey',
-              {
-                key: $sourcePropKey,
-                val: $sourcePropVal,
-                source: $source,
-              },
-              $root,
-            );
-            $trap.createEvent(
-              $eventTarget, 
               'assignSourceProperty',
               {
                 key: $sourcePropKey,
@@ -428,7 +407,9 @@ function Assign(
         $trap.createEvent(
           $eventTarget,
           'assign',
-          {},
+          {
+            sources
+          },
           $root,
         );
         return $root
@@ -484,15 +465,6 @@ function DefineProperties(
           $trap.createEvent(
             $eventTarget,
             'defineProperty',
-            {
-              prop: $propertyKey,
-              descriptor: $propertyDescriptor,
-            },
-            $root,
-          );
-          $trap.createEvent(
-            $eventTarget,
-            'definePropertyKey',
             {
               prop: $propertyKey,
               descriptor: $propertyDescriptor,
@@ -558,14 +530,6 @@ function DefineProperty(
         $trap.createEvent(
           $eventTarget,
           'defineProperty',
-          {
-            prop: propertyKey,
-            descriptor: propertyDescriptor,
-          },
-        );
-        $trap.createEvent(
-          $eventTarget,
-          'definePropertyKey',
           {
             prop: propertyKey,
             descriptor: propertyDescriptor,
@@ -885,11 +849,14 @@ function SetPrototypeOf(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
-        Object.setPrototypeOf($root);
+        const prototype = arguments[0];
+        Object.setPrototypeOf($root, prototype);
         $trap.createEvent(
           $eventTarget,
           'setPrototypeOf',
-          {},
+          {
+            prototype
+          },
           $root
         );
         return $root
@@ -2372,7 +2339,7 @@ class Event {
   }
 }
 
-class EventSystem extends EventTarget {
+class DynamicEventSystem extends EventTarget {
   constructor($events, $enable) {
     super();
     this.events = $events;
@@ -2471,7 +2438,7 @@ class EventSystem extends EventTarget {
 const Settings$5 = {};
 const Options$5 = {};
 
-class Core extends EventSystem {
+class Core extends DynamicEventSystem {
 	constructor($settings = Settings$5, $options = Options$5) {
 		super($settings.events, $options.enable);
 		this.options = Object.assign({}, Options$5, $options);
@@ -3164,4 +3131,4 @@ class Control extends Core {
 	}
 }
 
-export { Control, Core, DynamicEventTarget, DynamicView, EventSystem, FetchRouter, Model, StaticRouter, StaticView };
+export { Control, Core, DynamicEventSystem, DynamicEventTarget, DynamicView, FetchRouter, Model, StaticRouter, StaticView };

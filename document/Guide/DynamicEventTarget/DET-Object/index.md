@@ -145,3 +145,6 @@ object.assign({ aaa: 111111111 })
   prototype
 }
 ```
+|Property Key|Property Val Type|Property Description|
+|-|-|-|
+|prototype|Any|Set Prototype|
