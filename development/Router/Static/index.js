@@ -1,5 +1,5 @@
 import { typeOf, parseShortenedEvents } from '../../Utils/index.js'
-import { Core } from '/mvc-framework/index.js'
+import Core from '../../Core/index.js'
 const Settings = {
 	routes: {},
 }

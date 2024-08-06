@@ -1,4 +1,4 @@
-import { typeOf } from '/mvc-framework/Utils/index.js'
+import { typeOf } from '../../Utils/index.js'
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content',
