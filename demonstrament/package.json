@@ -1,6 +1,9 @@
 {
   "name": "mvc-framework-demonstrament",
   "author": "Thomas Patrick Welborn",
+  "description": "",
+  "version": "1.0.0",
+  "license": "ISC",
   "type": "module",
   "devDependencies": {
     "connect-livereload": "^0.6.1",
@@ -19,9 +22,6 @@
     "stop": "pm2 stop ecosystem.config.cjs && npm run save",
     "delete": "pm2 delete ecosystem.config.cjs && npm run save"
   },
-  "version": "1.0.0",
-  "license": "ISC",
-  "description": "",
   "imports": {
     "#tensils/*": "./tensils/*"
   }
