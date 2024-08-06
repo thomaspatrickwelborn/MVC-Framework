@@ -1,0 +1,111 @@
+{
+	"title": "M.V.C. Test 006",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+	"structure": [{
+		"tag": "h1",
+		"textContent": 	"M.V.C. Test 006"
+	}, {
+		"tag": "app",
+		"attributes": {
+			"id": "app"
+		},
+		"structure": [{
+			"tag": "photos-control",
+			"structure": [{
+				"tag": "button", 
+				"attributes": { "data-crement": "-1" },
+				"textContent": "<PRE"
+			}, {
+				"tag": "button", 
+				"attributes": { "data-crement": "1" },
+				"textContent": "ANT>"
+			}]
+		}, {
+			"tag": "photos",
+			"structure": [{
+				"tag": "photo",
+				"attributes": {
+					"data-active": "true"
+				},
+				"structure": [{
+					"tag": "img",
+					"selfClose": true,
+					"attributes": {
+						"alt": "TEST PHOTO A",
+						"width": 960,
+						"height": 480,
+						"src": "http://demonstrament.mvc-framework:3000/graphics/photos/TEST_PHOTO_A.jpg"
+					}
+				}]
+			}, {
+				"tag": "photo",
+				"structure": [{
+					"tag": "img",
+					"selfClose": true,
+					"attributes": {
+						"alt": "TEST PHOTO B",
+						"width": 960,
+						"height": 480,
+						"src": "http://demonstrament.mvc-framework:3000/graphics/photos/TEST_PHOTO_B.jpg"
+					}
+				}]
+			}, {
+				"tag": "photo",
+				"structure": [{
+					"tag": "img",
+					"selfClose": true,
+					"attributes": {
+						"alt": "TEST PHOTO C",
+						"width": 960,
+						"height": 480,
+						"src": "http://demonstrament.mvc-framework:3000/graphics/photos/TEST_PHOTO_C.jpg"
+					}
+				}]
+			}, {
+				"tag": "photo",
+				"structure": [{
+					"tag": "img",
+					"selfClose": true,
+					"attributes": {
+						"alt": "TEST PHOTO D",
+						"width": 960,
+						"height": 480,
+						"src": "http://demonstrament.mvc-framework:3000/graphics/photos/TEST_PHOTO_D.jpg"
+					}
+				}]
+			}, {
+				"tag": "photo",
+				"structure": [{
+					"tag": "img",
+					"selfClose": true,
+					"attributes": {
+						"alt": "TEST PHOTO E",
+						"width": 960,
+						"height": 480,
+						"src": "http://demonstrament.mvc-framework:3000/graphics/photos/TEST_PHOTO_E.jpg"
+					}
+				}]
+			}, {
+				"tag": "photo",
+				"structure": [{
+					"tag": "img",
+					"selfClose": true,
+					"attributes": {
+						"alt": "TEST PHOTO F",
+						"width": 960,
+						"height": 480,
+						"src": "http://demonstrament.mvc-framework:3000/graphics/photos/TEST_PHOTO_F.jpg"
+					}
+				}]
+			}]
+		}]
+	}],
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}

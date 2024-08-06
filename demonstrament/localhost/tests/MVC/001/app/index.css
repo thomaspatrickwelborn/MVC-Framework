@@ -1,0 +1,8 @@
+@import url('./header/index.css');
+@import url('./main/index.css');
+
+app#app {
+	display: flex;
+	flex-direction: column;
+	background-color: lightskyblue;
+}

@@ -1,0 +1,16 @@
+photos-editor > photo-editor {
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	border-left: 1px solid black;
+	& > photo-editor-img {
+		display: flex;
+		flex-direction: row;
+		width: inherit;
+		height: inherit;
+		& > img {
+			width: 100%;
+			height: auto;
+		}
+	}
+}
