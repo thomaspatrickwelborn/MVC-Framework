@@ -1,6 +1,9 @@
 {
   "name": "js-mvc-framework",
   "author": "Thomas Patrick Welborn",
+  "version": "1.0.3",
+  "license": "ISC",
+  "description": "Early bird gets the wormhole. ",
   "type": "module",
   "main": "./development/index.js",
   "devDependencies": {
@@ -10,8 +13,5 @@
   "scripts": {
     "start": "nodemon --watch ./development --ext js --exec \"rollup ./development/index.js --format es --file ./distributement/mvc-framework.js\""
   },
-  "repository": "https://github.com/thomaspatrickwelborn/mvc-framework",
-  "version": "1.0.2",
-  "license": "ISC",
-  "description": "Early bird gets the wormhole. "
+  "repository": "https://github.com/thomaspatrickwelborn/mvc-framework"
 }
