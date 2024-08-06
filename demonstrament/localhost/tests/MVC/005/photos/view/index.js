@@ -1,4 +1,4 @@
-import { DynamicView } from '/mvc-framework/index.js'
+import { DynamicView } from '/mvc-framework.js'
 import * as Templates from './templates/index.js'
 export default class PhotosView extends DynamicView {
   constructor($settings = {}, $options = {}) {

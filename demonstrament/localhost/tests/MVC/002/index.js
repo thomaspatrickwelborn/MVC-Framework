@@ -1,4 +1,4 @@
-import { FetchRouter, Model, View } from '/mvc-framework/index.js'
+import { FetchRouter, Model, View } from '/mvc-framework.js'
 
 function DOMContentLoaded() {
   // Photos View

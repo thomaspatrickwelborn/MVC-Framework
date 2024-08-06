@@ -1,4 +1,4 @@
-import { StaticView } from '/mvc-framework/index.js'
+import { StaticView } from '/mvc-framework.js'
 export default class PhotosView extends StaticView {
   constructor($settings = {}, $options = {}) {
     super(Object.assign($settings, {

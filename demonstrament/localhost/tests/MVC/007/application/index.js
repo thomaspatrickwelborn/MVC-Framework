@@ -1,4 +1,4 @@
-import { Control } from '/mvc-framework/index.js'
+import { Control } from '/mvc-framework.js'
 import PhotosEditor from '../photosEditor/index.js'
 
 export default class Application extends Control {

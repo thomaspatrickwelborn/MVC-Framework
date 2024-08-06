@@ -1,4 +1,4 @@
-import { Model } from '/mvc-framework/index.js'
+import { Model } from '/mvc-framework.js'
 export default class PhotosModel extends Model {
   constructor($settings = {}, $options = {}) {
     super(Object.assign($settings, {

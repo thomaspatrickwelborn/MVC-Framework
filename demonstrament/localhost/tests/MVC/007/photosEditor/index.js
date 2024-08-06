@@ -1,6 +1,6 @@
 import {
   Control, Model, DynamicView, FetchRouter
-} from '/mvc-framework/index.js'
+} from '/mvc-framework.js'
 import PhotoEditor from './photoEditor/index.js'
 import PhotoSelector from './photoSelector/index.js'
 

@@ -1,4 +1,4 @@
-import { Control } from '/mvc-framework/index.js'
+import { Control } from '/mvc-framework.js'
 export default class PhotoSelector extends Control {
   constructor($settings = {}, $options = {}) {
     super(Object.assign({
