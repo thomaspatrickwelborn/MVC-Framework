@@ -1,0 +1,26 @@
+photos-editor > photo-selector {
+	display: flex;
+	flex-direction: row;
+	background-color: darkorange;
+	width: 30%;
+	height: 100%;
+	& > photos {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: 100%;
+		& > photo {
+			display: flex;
+			flex-direction: row;
+			width: inherit;
+			height: inherit;
+			& > img {
+				width: 100%;
+				height: auto;
+			}
+		}
+		& > photo[data-selected="true"] {
+			border: white 1px solid;
+		}
+	}
+}

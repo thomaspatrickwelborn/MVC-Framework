@@ -5,23 +5,29 @@
 		{
 			"name": "spreadsheet-to-filesystem",
 			"classname": "SpreadsheetToFilesystem",
-			"input": {
-				"spreadsheet": {
-					"watch": true,
-					"path": "/home/thomaspatrickwelborn/Development/MVC-Framework/designment/mvc-framework-document.xlsx"
+			"spreadsheet": {
+				"path": "/home/thomaspatrickwelborn/Development/MVC-Framework/designment/mvc-framework-document.xlsx",
+				"watch": true,
+				"watcher": {
+					"options": {}
 				},
-				"database": {
-					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-spreadsheet",
-				  "options": {}
-				}
-			},
-			"output": {
 				"database": {
 					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-filesystem",
 				  "options": {}
 				},
-				"filesystem": {
+			},
+			"filesystem": {
+				"root": {
 					"path": "/home/thomaspatrickwelborn/Development/MVC-Framework"
+				},
+				"content": {
+					"extrapolatory": {
+						"deleteExtraneous": false
+					}
+				},
+				"database": {
+					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-spreadsheet",
+				  "options": {}
 				}
 			}
 		}

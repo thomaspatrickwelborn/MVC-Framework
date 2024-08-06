@@ -1,0 +1,24 @@
+header.app-header {
+	display: flex;
+	justify-content: space-between;
+	& > menu {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		height: 2em;
+		& > nav {
+			position: absolute;
+			top: 2em;
+			right: 0;
+			text-align: right;
+		}
+	}
+	& > menu[data-pan="in"] {
+		& > nav {
+			display: none;
+		}
+	}
+	& > menu[data-pan="ex"] {
+		& > nav {}
+	}
+}

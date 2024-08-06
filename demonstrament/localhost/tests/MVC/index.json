@@ -1,0 +1,43 @@
+{
+	"title": "M.V.C.",
+	"styles": [{
+		"rel": "stylesheet",
+		"type": "text/css",
+		"href": "./index.css"
+	}],
+	"structure": [{
+		"tag": "h1",
+		"textContent": 	"M.V.C."
+	}, {
+		"tag": "main",
+		"structure": [{
+			"tag": "h2",
+			"textContent": "MVC Framework Tests"
+		}, {
+			"tag": "ul",
+			"structure": [{
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./000"
+					},
+					"textContent": "Test 000"
+				}]
+			}, {
+				"tag": "li",
+				"structure": [{
+					"tag": "a",
+					"attributes": {
+						"href": "./001"
+					},
+					"textContent": "Test 001"
+				}]
+			}]
+		}]
+	}],
+	"scripts": [{
+		"type": "module",
+		"src": "./index.js"
+	}]
+}
