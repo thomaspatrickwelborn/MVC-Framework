@@ -1,5 +1,46 @@
-import { typeOf as typeOf$1 } from '../../../../../mvc-framework/Utils/index.js';
-import { Core as Core$1 } from '../../../../../mvc-framework/index.js';
+const typeOf = ($data) => Object
+	.prototype
+	.toString
+	.call($data).slice(8, -1).toLowerCase();
+
+function parseShortenedEvents($propEvents) {
+	if(typeOf($propEvents) === 'array') return $propEvents
+	const propEvents = [];
+	for(const [
+		$propEventSettings, $propEventCallback
+	] of Object.entries($propEvents)) {
+		const propEventSettings = $propEventSettings.split(' ');
+		let type, target;
+		if(propEventSettings.length === 1) {
+			target = ':scope';
+			type = propEventSettings[0];
+		} else if(propEventSettings.length > 1) {
+			target = propEventSettings[0];
+			type = propEventSettings[1];
+		}
+		const propEvent = {
+			type,
+			target,
+			callback: $propEventCallback,
+			enable: false,
+		};
+		propEvents.push(propEvent);
+	}
+	return propEvents
+}
+
+function isDirectInstanceOf($object, $constructor) {
+    if(Array.isArray($constructor)) {
+      for(const $constructorClass of $constructor) {
+        if(Object.getPrototypeOf($object) === $constructorClass.prototype) {
+          return true
+        }
+      }
+      return false
+    } else {
+      return Object.getPrototypeOf($object) === $constructor.prototype
+    }
+}
 
 const Events$1 = {
   // Object Events
@@ -303,50 +344,6 @@ class Trap {
     $eventTarget.dispatchEvent(event);
     return event
   }
-}
-
-const typeOf = ($data) => Object
-	.prototype
-	.toString
-	.call($data).slice(8, -1).toLowerCase();
-
-function parseShortenedEvents($propEvents) {
-	if(typeOf($propEvents) === 'array') return $propEvents
-	const propEvents = [];
-	for(const [
-		$propEventSettings, $propEventCallback
-	] of Object.entries($propEvents)) {
-		const propEventSettings = $propEventSettings.split(' ');
-		let type, target;
-		if(propEventSettings.length === 1) {
-			target = ':scope';
-			type = propEventSettings[0];
-		} else if(propEventSettings.length > 1) {
-			target = propEventSettings[0];
-			type = propEventSettings[1];
-		}
-		const propEvent = {
-			type,
-			target,
-			callback: $propEventCallback,
-			enable: false,
-		};
-		propEvents.push(propEvent);
-	}
-	return propEvents
-}
-
-function isDirectInstanceOf($object, $constructor) {
-    if(Array.isArray($constructor)) {
-      for(const $constructorClass of $constructor) {
-        if(Object.getPrototypeOf($object) === $constructorClass.prototype) {
-          return true
-        }
-      }
-      return false
-    } else {
-      return Object.getPrototypeOf($object) === $constructor.prototype
-    }
 }
 
 function Assign(
@@ -2166,7 +2163,7 @@ class DynamicEventTarget extends EventTarget {
   get type() { return this.#_type }
   set type($root) {
     if(this.#_type !== undefined) return
-    this.#_type = typeOf$1($root);
+    this.#_type = typeOf($root);
   }
   // Root Alias
   #_rootAlias
@@ -2906,7 +2903,7 @@ class FetchRoute extends EventTarget {
   }
 }
 
-class FetchRouter extends Core$1 {
+class FetchRouter extends Core {
   #scheme
   #domain
   #port
@@ -2966,7 +2963,7 @@ const Settings$1 = {
 const Options$1 = {
 	enable: true,
 };
-class StaticRouter extends Core$1 {
+class StaticRouter extends Core {
 	constructor($settings = Settings$1, $options = Options$1) {
 		super(...arguments);
 		this.routes = $settings.routes;

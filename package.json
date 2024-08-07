@@ -1,7 +1,7 @@
 {
   "name": "js-mvc-framework",
   "author": "Thomas Patrick Welborn",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "type": "module",
   "main": "./development/index.js",
   "devDependencies": {
@@ -9,7 +9,8 @@
     "rollup": "^4.18.1"
   },
   "scripts": {
-    "start": "nodemon --watch ./development --ext js --exec \"rollup ./development/index.js --format es --file ./distributement/mvc-framework.js\" --exec \"rollup ./development/index.js --format es --file ./demonstrament/temporary/mvc-framework.js\""
+    "start": "nodemon --watch ./development --ext js,md --exec \"rollup --config ./rollup.config.js\"",
+    "publish": "rollup --config ./rollup.config.js"
   },
   "repository": "https://github.com/thomaspatrickwelborn/mvc-framework",
   "license": "ISC",
