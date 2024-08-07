@@ -1,4 +1,4 @@
-import { Model, View, Control, StaticRouter, FetchRouter } from '/mvc-framework.js'
+import { Model, View, Control, StaticRouter, FetchRouter } from '/dependencies/mvc-framework.js'
 import HeaderControl from './header/index.js'
 import MainControl from './main/index.js'
 import modelParameters from './model.js'

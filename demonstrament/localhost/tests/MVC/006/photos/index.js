@@ -1,4 +1,4 @@
-import { Control } from '/mvc-framework.js'
+import { Control } from '/dependencies/mvc-framework.js'
 import PhotosModel from './model/index.js'
 import PhotosView from './view/index.js'
 

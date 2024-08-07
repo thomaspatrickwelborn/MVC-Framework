@@ -1,4 +1,4 @@
-import { FetchRouter } from '/mvc-framework.js'
+import { FetchRouter } from '/dependencies/mvc-framework.js'
 export default class PhotosRouter extends FetchRouter {
   constructor($settings = {}, $options = {}) {
     super(Object.assign($settings, {

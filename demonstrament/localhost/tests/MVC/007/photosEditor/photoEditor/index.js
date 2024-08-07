@@ -1,5 +1,5 @@
 import { typeOf } from '/mvc-framework/Utils/index.js'
-import { Control } from '/mvc-framework.js'
+import { Control } from '/dependencies/mvc-framework.js'
 export default class PhotoEditor extends Control {
   constructor($settings = {}, $options = {}) {
     super(Object.assign({

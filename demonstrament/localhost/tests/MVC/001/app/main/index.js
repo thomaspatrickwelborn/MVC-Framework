@@ -1,4 +1,4 @@
-import { Model, View, Control } from '/mvc-framework.js'
+import { Model, View, Control } from '/dependencies/mvc-framework.js'
 import modelParamaters from './model.js'
 import viewParameters from './view.js'
 import eventsMap from './events.js'

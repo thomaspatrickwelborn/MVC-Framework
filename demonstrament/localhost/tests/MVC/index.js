@@ -1,4 +1,4 @@
-import { Model, StaticView } from '/mvc-framework.js'
+import { Model, StaticView } from '/dependencies/mvc-framework.js'
 
 function DOMContentLoaded() {}
 

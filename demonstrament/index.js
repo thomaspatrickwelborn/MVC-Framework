@@ -2,11 +2,6 @@ import '#tensils/persist/index.js'
 import Application from './application/index.js'
 
 const application = await Application({
-	'database': {
-		'/services/topics': ['get'],
-		'/services/photos': ['get'],
-		'/services/photos/:photoID': ['get'],
-	},
 	'documents': {
 		'tests/MVC/007': 'localhost/tests/MVC/007',
 		'tests/MVC/006': 'localhost/tests/MVC/006',

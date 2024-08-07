@@ -10,6 +10,11 @@ async function Application($settings = {}) {
   const documentRoutes = await DocumentRoutes({ documents })
   const application = express()
   application.use(documentRoutes)
+  application.use(
+    express.static(
+      path.join(process.env.PWD, 'static')
+    )
+  )
   // HTTPS Server
   const httpsServerConfig = {
     key: await fs.readFile(
@@ -19,35 +24,35 @@ async function Application($settings = {}) {
       '/home/thomaspatrickwelborn/.certificates/demonstrament.mvc-framework.crt',
     ),
   }
-  // const browserSyncServerConfig = {
-  //   key:  //await fs.readFile(
-  //     '/home/thomaspatrickwelborn/.certificates/demonstrament.mvc-framework.key',
-  //   // ),
-  //   cert:  //await fs.readFile(
-  //     '/home/thomaspatrickwelborn/.certificates/demonstrament.mvc-framework.crt',
-  //   // ),
-  // }
   const httpsServer =  await https.createServer(
     httpsServerConfig,
     application
   )
-  const browserSyncServerOptions = {
-    // port: 3335,
-    // host: 'demonstrament.mvc-framework',
-    // proxy: true,
-    ui: false,
-    // https: httpsServerConfig,
-    // https: true,
-    https: httpsServer,
-  }
-  const browserSyncServer = browserSync.create()
-  browserSyncServer.init(browserSyncServerOptions)
   httpsServer.listen(
     3335,
     function httpsServerListen(){
       console.log('Listen To The Sound Of Silence')
     }
   )
+  // BrowserSync Server
+  fs.cp(
+    path.join(process.env.PWD, 'node_modules/browser-sync-client/index.js'),
+    path.join(process.env.PWD, 'static/dependencies/browser-sync-client.js'), 
+    {
+      errorOnExist: false,
+      force: false,
+      recursive: false,
+    }
+  )
+  const browserSyncServerOptions = {
+    ui: false,
+    https: httpsServer,
+    files: [
+      path.join(process.env.PWD, 'localhost/**/*')
+    ]
+  }
+  const browserSyncServer = browserSync.create()
+  browserSyncServer.init(browserSyncServerOptions)
   return application
 }
 
