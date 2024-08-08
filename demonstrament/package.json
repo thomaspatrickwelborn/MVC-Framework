@@ -7,6 +7,7 @@
   "type": "module",
   "devDependencies": {
     "browser-sync": "^3.0.2",
+    "browser-sync-client": "^3.0.2",
     "ejs": "^3.1.9",
     "express": "^4.19.2",
     "js-beautify": "^1.15.1",
@@ -19,9 +20,13 @@
     "start": "pm2 start ecosystem.config.cjs && npm run save",
     "restart": "pm2 restart ecosystem.config.cjs",
     "stop": "pm2 stop ecosystem.config.cjs && npm run save",
-    "delete": "pm2 delete ecosystem.config.cjs && npm run save"
+    "delete": "pm2 delete ecosystem.config.cjs && npm run save",
+    "logs": "pm2 logs"
   },
   "imports": {
     "#tensils/*": "./tensils/*"
+  },
+  "dependencies": {
+    "cors": "^2.8.5"
   }
 }

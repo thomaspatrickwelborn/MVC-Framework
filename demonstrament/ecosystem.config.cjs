@@ -8,7 +8,7 @@ module.exports = {
       "temporary", 
       "tensils"
     ],
-    node_args: "--inspect --trace-deprecation",
+    node_args: "--inspect=127.0.0.1:9235",
     execMode: "fork"
   }]
 }
