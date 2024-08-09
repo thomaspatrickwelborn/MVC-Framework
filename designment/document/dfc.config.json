@@ -6,15 +6,15 @@
 			"name": "spreadsheet-to-filesystem",
 			"classname": "SpreadsheetToFilesystem",
 			"spreadsheet": {
-				"path": "/home/thomaspatrickwelborn/Development/MVC-Framework/designment/mvc-framework-document.xlsx",
+				"path": "/home/thomaspatrickwelborn/Development/MVC-Framework/designment/document/mvc-framework-document.xlsx",
 				"watch": true,
 				"watcher": {
 					"options": {}
 				},
 				"database": {
-					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-filesystem",
+					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-spreadsheet",
 				  "options": {}
-				},
+				}
 			},
 			"filesystem": {
 				"root": {
@@ -26,7 +26,7 @@
 					}
 				},
 				"database": {
-					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-spreadsheet",
+					"uri": "mongodb://127.0.0.1:27017/mvc-framework-document-filesystem",
 				  "options": {}
 				}
 			}
