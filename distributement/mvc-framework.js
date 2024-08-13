@@ -2261,6 +2261,40 @@ class DynamicEventTarget extends EventTarget {
     };
     return this.#_aliases
   }
+  parse() {
+    let parsement;
+    if(this.type === 'object') {
+      parsement = {};
+      for(const [
+        $propertyKey, $propertyVal
+      ] of Object.entries(this.#proxy)) {
+        if($propertyVal && typeof $propertyVal === 'object') {
+          parsement[$propertyKey] = $propertyVal.parse();
+        } else {
+          parsement[$propertyKey] = $propertyVal;
+        }
+      }
+    } else
+    if(this.type === 'array') {
+      parsement = [];
+      let propertyIndex = 0;
+      for(const $property of this.#proxy) {
+        if($property && typeof $property === 'object') {
+          parsement[propertyIndex] = $property.parse();
+        } else {
+          parsement[propertyIndex] = $property;
+        }
+        propertyIndex++;
+      }
+    } /* else
+    if(this.type === 'map') {
+
+    } */
+    return parsement
+  }
+  inspect() {
+    return JSON.stringify(this.parse(), null, 2)
+  }
 }
 
 class Event {
