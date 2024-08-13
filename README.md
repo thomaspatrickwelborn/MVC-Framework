@@ -22,5 +22,4 @@ DET Object Guide
     - [Dynamic Event Target (DET)](./document/guide/DynamicEventTarget/index.md)
       - [DET Object](./document/guide/DynamicEventTarget/DET-Object/index.md)
     - [Dynamic Event System (DES)](./document/guid/DynamicEventSystem/index.md)
-bruh
 ### Demonstration
