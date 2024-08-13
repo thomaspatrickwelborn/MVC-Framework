@@ -1,4 +1,5 @@
 export default function isDirectInstanceOf($object, $constructor) {
+    if($object === null || $object === undefined) return false
     if(Array.isArray($constructor)) {
       let isDirectInstanceOf
       iterateConstructorClasses: 
