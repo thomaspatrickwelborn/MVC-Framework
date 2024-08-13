@@ -30,6 +30,7 @@ function parseShortenedEvents($propEvents) {
 }
 
 function isDirectInstanceOf($object, $constructor) {
+    if($object === null || $object === undefined) return false
     if(Array.isArray($constructor)) {
       for(const $constructorClass of $constructor) {
         if(Object.getPrototypeOf($object) === $constructorClass.prototype) {
@@ -3128,4 +3129,10 @@ class Control extends Core {
 	}
 }
 
-export { Control, Core, DynamicEventSystem, DynamicEventTarget, DynamicView, FetchRouter, Model, StaticRouter, StaticView };
+// Classes
+// Class Aliases
+const DET = DynamicEventTarget;
+const DES = DynamicEventSystem;
+
+export { Control, Core, DES, DET, DynamicEventSystem, DynamicEventTarget, DynamicView, FetchRouter, Model, StaticRouter, StaticView };
+//# sourceMappingURL=mvc-framework.js.map

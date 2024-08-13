@@ -47,7 +47,10 @@ async function Application($settings = {}) {
     },
     host: 'demonstrament.mvc-framework',
     port: 3336,
-    proxy: 'https://demonstrament.mvc-framework:3335',
+    proxy: {
+      target: 'https://demonstrament.mvc-framework:3335',
+      ws: false,
+    },
     files: [
       path.join(process.env.PWD, 'localhost/**/*'),
       path.join(process.env.PWD, 'static/dependencies/**/*'),

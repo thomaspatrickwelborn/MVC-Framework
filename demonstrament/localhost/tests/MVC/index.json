@@ -38,6 +38,7 @@
 	}],
 	"scripts": [{
 		"type": "module",
-		"src": "./index.js"
+		"src": "./index.js",
+		"async": ""
 	}]
 }

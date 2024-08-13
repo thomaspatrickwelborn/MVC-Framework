@@ -1,5 +1,5 @@
-import { Model, StaticView } from '/dependencies/mvc-framework.js'
+import { DET } from '/dependencies/mvc-framework.js'
 
-function DOMContentLoaded() {}
+console.log(DET)
 
 document.addEventListener('DOMContentLoaded', DOMContentLoaded)
