@@ -38,10 +38,6 @@ async function Application($settings = {}) {
       recursive: false,
     }
   )
-  console.log(
-    path.join(process.env.PWD, 'localhost/**/*'),
-    path.join(process.env.PWD, 'dependencies/**/*'),
-  )
   const browserSyncServerOptions = {
     ui: false,
     open: false, 
@@ -51,26 +47,7 @@ async function Application($settings = {}) {
     },
     host: 'demonstrament.mvc-framework',
     port: 3336,
-    // proxy: {
-    //   target: [
-    //     'https://demonstrament.mvc-framework:3335', 
-    //     'dependencies/browser-sync-client.js'
-    //   ].join('/'),
-    //   // ws: false,
-    // },
-    proxy: [
-      'https://demonstrament.mvc-framework:3335', 
-      'dependencies/browser-sync-client.js'
-    ].join('/'),
-    // scriptPath: function ($path, port, $options) {
-    //   return [
-    //     'https://demonstrament.mvc-framework:3335', 
-    //     'dependencies/browser-sync-client.js'
-    //   ].join('/')
-    // },
-    // script: {
-    //   domain: 'https://demonstrament.mvc-framework:3335'
-    // },
+    proxy: 'https://demonstrament.mvc-framework:3335',
     files: [
       path.join(process.env.PWD, 'localhost/**/*'),
       path.join(process.env.PWD, 'static/dependencies/**/*'),
