@@ -16,11 +16,15 @@ Dynamic Event Target (DET) ventilates **Object Property Modifier Functions**:
    1. seal
 6. **Object Set Prototype**
    1. setPrototypeOf
+## DET Object Importation
+```
+import { DET } from '/dependencies/mvc-framework.js'
+```
 ## DET Object Instantiation
 ### DET Object Creation
 #### New DET Object
 ```
-const object = new DynamicEventTarget({
+const object = new DET({
   aaa: 111,
   bbb: true,
   ccc: "333",
@@ -35,6 +39,15 @@ const object = new DynamicEventTarget({
     }
   }
 })
+```
+### DET Object Parsement
+#### Parse
+```
+object.parse()
+```
+#### Inspect
+```
+object.inspect()
 ```
 ### DET Object Event Listener Signment
 #### Add Event Listener

@@ -46,15 +46,15 @@ function isDirectInstanceOf($object, $constructor) {
 const Events$1 = {
   // Object Events
   // Object Assign
-  'assign': ($event, $target) => new CustomEvent(
+  'assign': ($event, $target, $eventTarget) => new CustomEvent(
     'assign', { 
       detail: {
-        target: $target
+        target: $eventTarget
       },
     }
   ),
   // Object Assign Source
-  'assignSource': ($event, $target) => new CustomEvent(
+  'assignSource': ($event, $target, $eventTarget) => new CustomEvent(
     'assignSource', { 
       detail: {
         source: $event.source,
@@ -62,7 +62,7 @@ const Events$1 = {
     }
   ),
   // Object Assign Source Property
-  'assignSourceProperty': ($event, $target) => new CustomEvent(
+  'assignSourceProperty': ($event, $target, $eventTarget) => new CustomEvent(
     `assignSourceProperty`, { 
       detail: {
         key: $event.key,
@@ -72,7 +72,7 @@ const Events$1 = {
     }
   ),
   // Object Define Properties
-  'defineProperties': ($event, $target) => new CustomEvent(
+  'defineProperties': ($event, $target, $eventTarget) => new CustomEvent(
     'defineProperties', {
       detail: {
         descriptors: $event.descriptors, 
@@ -80,7 +80,7 @@ const Events$1 = {
     }
   ),
   // Object Define Property
-  'defineProperty': ($event, $target) => new CustomEvent(
+  'defineProperty': ($event, $target, $eventTarget) => new CustomEvent(
     `defineProperty`, {
       detail: {
         prop: $event.prop,
@@ -89,7 +89,7 @@ const Events$1 = {
     }
   ),
   // Object Define Property
-  'definePropertyKey': ($event, $target) => new CustomEvent(
+  'definePropertyKey': ($event, $target, $eventTarget) => new CustomEvent(
     `defineProperty:${$event.prop}`, {
       detail: {
         prop: $event.prop,
@@ -98,23 +98,23 @@ const Events$1 = {
     }
   ),
   // Object Freeze
-  'freeze': ($event, $target) => new CustomEvent(
+  'freeze': ($event, $target, $eventTarget) => new CustomEvent(
     'freeze', {
       detail: {
-        target: $target
+        target: $eventTarget
       }
     }
   ),
   // Object Seal
-  'seal': ($event, $target) => new CustomEvent(
+  'seal': ($event, $target, $eventTarget) => new CustomEvent(
     'seal', {
       detail: {
-        target: $target
+        target: $eventTarget
       }
     }
   ),
   // Object Set Prototype Of
-  'setPrototypeOf': ($event, $target) => new CustomEvent(
+  'setPrototypeOf': ($event, $target, $eventTarget) => new CustomEvent(
     'setPrototypeOf', {
       detail: {
         path: $event.path,
@@ -125,7 +125,7 @@ const Events$1 = {
     }
   ),
   // Array Events
-  copyWithin: ($event, $target) => new CustomEvent(
+  copyWithin: ($event, $target, $eventTarget) => new CustomEvent(
     'copyWithin', {
       detail: {
         target: $event.target,
@@ -135,7 +135,7 @@ const Events$1 = {
       }
     }
   ),
-  copyWithinIndex: ($event, $target) => new CustomEvent(
+  copyWithinIndex: ($event, $target, $eventTarget) => new CustomEvent(
     'copyWithinIndex', {
       detail: {
         target: $event.target,
@@ -145,7 +145,7 @@ const Events$1 = {
       }
     }
   ),
-  fill: ($event, $target) => new CustomEvent(
+  fill: ($event, $target, $eventTarget) => new CustomEvent(
     'fill', {
       detail: {
         start: $event.start,
@@ -154,7 +154,7 @@ const Events$1 = {
       }
     }
   ),
-  fillIndex: ($event, $target) => new CustomEvent(
+  fillIndex: ($event, $target, $eventTarget) => new CustomEvent(
     'fillIndex', {
       detail: {
         start: $event.start,
@@ -163,7 +163,7 @@ const Events$1 = {
       }
     }
   ),
-  lengthSet: ($event, $target) => new CustomEvent(
+  lengthSet: ($event, $target, $eventTarget) => new CustomEvent(
     'lengthSet', {
       detail: {
         prelength: $event.prelength,
@@ -171,14 +171,14 @@ const Events$1 = {
       }
     }
   ),
-  push: ($event, $target) => new CustomEvent(
+  push: ($event, $target, $eventTarget) => new CustomEvent(
     'push', {
       detail: {
         elements: $event.elements,
       }
     }
   ),
-  pushProp: ($event, $target) => new CustomEvent(
+  pushProp: ($event, $target, $eventTarget) => new CustomEvent(
     `pushProp`, {
       detail: {
         element: $event.element,
@@ -186,7 +186,7 @@ const Events$1 = {
       }
     }
   ),
-  pop: ($event, $target) => new CustomEvent(
+  pop: ($event, $target, $eventTarget) => new CustomEvent(
     'pop', {
       detail: {
         element: $event.element, 
@@ -194,7 +194,7 @@ const Events$1 = {
       }
     }
   ),
-  reverse: ($event, $target) => new CustomEvent(
+  reverse: ($event, $target, $eventTarget) => new CustomEvent(
     'reverse', {
       detail: {
         preverse: $event.preverse, 
@@ -202,7 +202,7 @@ const Events$1 = {
       }
     }
   ),
-  shift: ($event, $target) => new CustomEvent(
+  shift: ($event, $target, $eventTarget) => new CustomEvent(
     'shift', {
       detail: {
         element: $event.element,
@@ -210,7 +210,7 @@ const Events$1 = {
       }
     }
   ),
-  sort: ($event, $target) => new CustomEvent(
+  sort: ($event, $target, $eventTarget) => new CustomEvent(
     'sort', {
       detail: {
         presort: $event.presort, 
@@ -218,7 +218,7 @@ const Events$1 = {
       }
     }
   ),  
-  'spliceDelete': ($event, $target) => new CustomEvent(
+  'spliceDelete': ($event, $target, $eventTarget) => new CustomEvent(
     'spliceDelete', {
       detail: {
         index: $event.index,
@@ -227,7 +227,7 @@ const Events$1 = {
       }
     }
   ),
-  'spliceAdd': ($event, $target) => new CustomEvent(
+  'spliceAdd': ($event, $target, $eventTarget) => new CustomEvent(
     'spliceAdd', {
       detail: {
         index: $event.index,
@@ -236,7 +236,7 @@ const Events$1 = {
       }
     }
   ),
-  splice: ($event, $target) => new CustomEvent(
+  splice: ($event, $target, $eventTarget) => new CustomEvent(
     'splice', {
       detail: {
         start: $event.start, 
@@ -246,14 +246,14 @@ const Events$1 = {
       }
     }
   ),
-  unshift: ($event, $target) => new CustomEvent(
+  unshift: ($event, $target, $eventTarget) => new CustomEvent(
     'unshift', {
       detail: {
         elements: $event.elements,
       }
     }
   ),
-  unshiftProp: ($event, $target) => new CustomEvent(
+  unshiftProp: ($event, $target, $eventTarget) => new CustomEvent(
     `unshiftProp`, {
       detail: {
         element: $event.element,
@@ -263,7 +263,7 @@ const Events$1 = {
   ),
   // Map Events
   // Map Clear Event
-  clear: ($event, $target) => new CustomEvent(
+  clear: ($event, $target, $eventTarget) => new CustomEvent(
     'clear', {
       detail: {
         presize: $event.presize, 
@@ -272,7 +272,7 @@ const Events$1 = {
     }
   ),
   // Map Clear Event
-  delete: ($event, $target) => new CustomEvent(
+  delete: ($event, $target, $eventTarget) => new CustomEvent(
     'delete', {
       detail: {
         key: $event.key, 
@@ -281,7 +281,7 @@ const Events$1 = {
     }
   ),
   // Map Delete Key Event
-  deleteKey: ($event, $target) => new CustomEvent(
+  deleteKey: ($event, $target, $eventTarget) => new CustomEvent(
     `delete:${$event.key}`, {
       detail: {
         key: $event.key, 
@@ -290,7 +290,7 @@ const Events$1 = {
     }
   ),
   // Map Get Event
-  get: ($event, $target) => new CustomEvent(
+  get: ($event, $target, $eventTarget) => new CustomEvent(
     'get', {
       detail: {
         key: $event.key, 
@@ -299,7 +299,7 @@ const Events$1 = {
     }
   ),
   // Map Get Key Event
-  getKey: ($event, $target) => new CustomEvent(
+  getKey: ($event, $target, $eventTarget) => new CustomEvent(
     `get:${$event.key}`, {
       detail: {
         key: $event.key, 
@@ -308,7 +308,7 @@ const Events$1 = {
     }
   ),
   // Map Set Event
-  set: ($event, $target) => new CustomEvent(
+  set: ($event, $target, $eventTarget) => new CustomEvent(
     'set', {
       detail: {
         key: $event.key, 
@@ -318,7 +318,7 @@ const Events$1 = {
     }
   ),
   // Map Set Key Event
-  setKey: ($event, $target) => new CustomEvent(
+  setKey: ($event, $target, $eventTarget) => new CustomEvent(
     `set:${$event.key}`, {
       detail: {
         key: $event.key, 
@@ -341,7 +341,7 @@ class Trap {
     }
   }
   createEvent($eventTarget, $eventType, $event, $target) {
-    const event = Events$1[$eventType]($event, $target);
+    const event = Events$1[$eventType]($event, $target, $eventTarget);
     $eventTarget.dispatchEvent(event);
     return event
   }
