@@ -16,13 +16,12 @@ Dynamic Event Target (DET) ventilates **Object Property Modifier Functions**:
    1. seal
 6. **Object Set Prototype**
    1. setPrototypeOf
-## DET Object Importation
+## Importation
 ```
 import { DET } from '/dependencies/mvc-framework.js'
 ```
-## DET Object Instantiation
-### DET Object Creation
-#### New DET Object
+## Instantiation
+### New DET Object
 ```
 const object = new DET({
   aaa: 111,
@@ -40,17 +39,36 @@ const object = new DET({
   }
 })
 ```
-### DET Object Parsement
-#### Parse
+## Parsement
+### Parse
 ```
 object.parse()
 ```
-#### Inspect
+## Inspection
+### Inspect
 ```
 object.inspect()
 ```
-### DET Object Event Listener Signment
-#### Add Event Listener
+**Returns**  
+```
+{
+  "aaa": 111,
+  "bbb": true,
+  "ccc": "333",
+  "ddd": {
+    "eee": 555,
+    "fff": false,
+    "ggg": "777",
+    "hhh": {
+      "iii": 999,
+      "jjj": null,
+      "kkk": "111111"
+    }
+  }
+}
+```
+## DET Object Event Listener Signment
+### Add Event Listener
 ```
 function objectAssign($event) {
   console.log($event.type, $event.detail)
@@ -58,13 +76,20 @@ function objectAssign($event) {
 object.addEventListener("assign", objectAssign)
 object.assign({ aaa: 111111 })
 
-// CONSOLE LOG: assign { sources: [{ aaa: 111111 }]
+/*
+Log: assign { target: DynamicEventTarget }
+*/
 ```
-#### Remove Event Listener
+### Remove Event Listener
 ```
 object.removeEventListener("assign", objectAssign)
 object.assign({ aaa: 111111111 })
-// CONSOLE LOG: EMPTY
+/*
+Log: empty
+*/
+```
+### Bubble Event Listener
+```
 ```
 ## DET Object Ventilation
 ### 1. DET Object Assign Events

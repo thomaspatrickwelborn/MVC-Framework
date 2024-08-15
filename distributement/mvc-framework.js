@@ -340,8 +340,17 @@ class Trap {
       );
     }
   }
-  createEvent($eventTarget, $eventType, $event, $target) {
-    const event = Events$1[$eventType]($event, $target, $eventTarget);
+  createEvent(
+    $eventTarget, 
+    $eventType, 
+    $event, 
+    $target, 
+  ) {
+    const event = Events$1[$eventType](
+      $event, 
+      $target, 
+      $eventTarget
+    );
     $eventTarget.dispatchEvent(event);
     return event
   }
@@ -539,7 +548,7 @@ function DefineProperty(
   )
 }
 
-function Entries$2(
+function Entries$1(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -660,7 +669,7 @@ function GetPrototypeOf(
   )
 }
 
-function GroupBy$1(
+function GroupBy(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -771,7 +780,7 @@ function IsPrototypeOf(
   )
 }
 
-function Keys$2(
+function Keys$1(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -895,7 +904,7 @@ function ToLocaleString(
   )
 }
 
-function Values$2(
+function Values$1(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -928,7 +937,7 @@ var ObjectProperty = {
   assign: Assign,
   defineProperties: DefineProperties,
   defineProperty: DefineProperty,
-  entries: Entries$2,
+  entries: Entries$1,
   freeze: Freeze,
   fromEntries: FromEntries,
   getOwnPropertyDescriptor: GetOwnPropertyDescriptor,
@@ -936,7 +945,7 @@ var ObjectProperty = {
   getOwnPropertyNames: GetOwnPropertyNames,
   getOwnPropertySymbols: GetOwnPropertySymbols,
   getPrototypeOf: GetPrototypeOf,
-  groupBy: GroupBy$1,
+  groupBy: GroupBy,
   hasOwn: HasOwn,
   hasOwnProperty: HasOwnProperty,
   is: Is,
@@ -944,14 +953,14 @@ var ObjectProperty = {
   isFrozen: IsFrozen,
   isSealed: IsSealed,
   isPrototypeOf: IsPrototypeOf,
-  keys: Keys$2,
+  keys: Keys$1,
   preventExtensions: PreventExtensions,
   propertyIsEnumerable: PropertyIsEnumerable,
   seal: Seal,
   setPrototypeOf: SetPrototypeOf,
   toString: ToString$1,
   toLocaleString: ToLocaleString,
-  values: Values$2,
+  values: Values$1,
   valueOf: ValueOf,
 };
 
@@ -1043,7 +1052,7 @@ function Concat(
   )
 }
 
-function Entries$1(
+function Entries(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1216,7 +1225,7 @@ function FlatMap(
   )
 }
 
-function ForEach$1(
+function ForEach(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1281,7 +1290,7 @@ function Join(
   )
 }
 
-function Keys$1(
+function Keys(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1701,7 +1710,7 @@ function Unshift(
   )
 }
 
-function Values$1(
+function Values(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1731,7 +1740,7 @@ var ArrayProperty = {
   at: At,
   copyWithin: CopyWithin,
   concat: Concat,
-  entries: Entries$1,
+  entries: Entries,
   every: Every,
   fill: Fill,
   filter: Filter,
@@ -1741,12 +1750,12 @@ var ArrayProperty = {
   findLastIndex: FindLastIndex,
   flat: Flat,
   flatMap: FlatMap,
-  forEach: ForEach$1,
+  forEach: ForEach,
   from: From,
   indexOf: IndexOf,
   isArray: IsArray,
   join: Join,
-  keys: Keys$1,
+  keys: Keys,
   lastIndexOf: LastIndexOf,
   length: Length,
   map: _Map,
@@ -1766,223 +1775,16 @@ var ArrayProperty = {
   toSorted: ToSorted,
   toString: ToString,
   unshift: Unshift,
-  values: Values$1,
+  values: Values,
   with: With,
 };
 
-function Clear(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key) {
-        $root.clear($key);
-        $trap.createEvent(
-          $eventTarget,
-          'clear',
-          {},
-        );
-      },
-    }
-  )
-}
-
-function Get(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key) {
-        const val = $root.get($key);
-        $trap.createEvent(
-          $eventTarget,
-          'get',
-          {
-            key: $key,
-            val
-          },
-        );
-        $trap.createEvent(
-          $eventTarget,
-          'getKey',
-          {
-            key: $key,
-            val
-          },
-        );
-        return val
-      },
-    }
-  )
-}
-
-function Set(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key, $val) {
-        $root.set($key, $val);
-        $trap.createEvent(
-          $eventTarget,
-          'set',
-          {
-            key: $key,
-            val: $val,
-          },
-        );
-        $trap.createEvent(
-          $eventTarget,
-          'setKey',
-          {
-            key: $key,
-            val: $val,
-          },
-        );
-        return $root
-      },
-    }
-  )
-}
-
-function Delete(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key) {
-        const resolve = $root.delete($key);
-        $trap.createEvent(
-          $eventTarget,
-          'delete',
-          {
-            key: $key,
-          },
-        );
-        $trap.createEvent(
-          $eventTarget,
-          'deleteKey',
-          {
-            key: $key,
-          },
-        );
-        return resolve
-      },
-    }
-  )
-}
-
-function Entries(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.entries.call($root)
-      }
-    }
-  )
-}
-
-function ForEach(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.forEach.call($root, ...arguments)
-      }
-    }
-  )
-}
-
-function GroupBy(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.groupBy($root, ...arguments)
-      }
-    }
-  )
-}
-
-function Has(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.has.call($root, ...arguments)
-      }
-    }
-  )
-}
-
-function Keys(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.keys.call($root)
-      }
-    }
-  )
-}
-
-function Values(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.values.call($root)
-      }
-    }
-  )
-}
-
-function Size(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      get() { return $root['size'] }
-    }
-  )
-}
-
-var MapProperty = {
-  clear: Clear,
-  get: Get,
-  set: Set,
-  delete: Delete,
-  entries: Entries,
-  forEach: ForEach,
-  groupBy: GroupBy,
-  has: Has,
-  keys: Keys,
-  values: Values,
-  size: Size,
-};
+// import MapProperty from './Map/index.js'
 
 var PropertyClasses = {
   Object: ObjectProperty,
   Array: ArrayProperty,
-  Map: MapProperty,
+  // Map: MapProperty,
 };
 
 class Traps {

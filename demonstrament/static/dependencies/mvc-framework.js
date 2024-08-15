@@ -46,15 +46,15 @@ function isDirectInstanceOf($object, $constructor) {
 const Events$1 = {
   // Object Events
   // Object Assign
-  'assign': ($event, $target) => new CustomEvent(
+  'assign': ($event, $target, $eventTarget) => new CustomEvent(
     'assign', { 
       detail: {
-        target: $target
+        target: $eventTarget
       },
     }
   ),
   // Object Assign Source
-  'assignSource': ($event, $target) => new CustomEvent(
+  'assignSource': ($event, $target, $eventTarget) => new CustomEvent(
     'assignSource', { 
       detail: {
         source: $event.source,
@@ -62,7 +62,7 @@ const Events$1 = {
     }
   ),
   // Object Assign Source Property
-  'assignSourceProperty': ($event, $target) => new CustomEvent(
+  'assignSourceProperty': ($event, $target, $eventTarget) => new CustomEvent(
     `assignSourceProperty`, { 
       detail: {
         key: $event.key,
@@ -72,7 +72,7 @@ const Events$1 = {
     }
   ),
   // Object Define Properties
-  'defineProperties': ($event, $target) => new CustomEvent(
+  'defineProperties': ($event, $target, $eventTarget) => new CustomEvent(
     'defineProperties', {
       detail: {
         descriptors: $event.descriptors, 
@@ -80,7 +80,7 @@ const Events$1 = {
     }
   ),
   // Object Define Property
-  'defineProperty': ($event, $target) => new CustomEvent(
+  'defineProperty': ($event, $target, $eventTarget) => new CustomEvent(
     `defineProperty`, {
       detail: {
         prop: $event.prop,
@@ -89,7 +89,7 @@ const Events$1 = {
     }
   ),
   // Object Define Property
-  'definePropertyKey': ($event, $target) => new CustomEvent(
+  'definePropertyKey': ($event, $target, $eventTarget) => new CustomEvent(
     `defineProperty:${$event.prop}`, {
       detail: {
         prop: $event.prop,
@@ -98,23 +98,23 @@ const Events$1 = {
     }
   ),
   // Object Freeze
-  'freeze': ($event, $target) => new CustomEvent(
+  'freeze': ($event, $target, $eventTarget) => new CustomEvent(
     'freeze', {
       detail: {
-        target: $target
+        target: $eventTarget
       }
     }
   ),
   // Object Seal
-  'seal': ($event, $target) => new CustomEvent(
+  'seal': ($event, $target, $eventTarget) => new CustomEvent(
     'seal', {
       detail: {
-        target: $target
+        target: $eventTarget
       }
     }
   ),
   // Object Set Prototype Of
-  'setPrototypeOf': ($event, $target) => new CustomEvent(
+  'setPrototypeOf': ($event, $target, $eventTarget) => new CustomEvent(
     'setPrototypeOf', {
       detail: {
         path: $event.path,
@@ -125,7 +125,7 @@ const Events$1 = {
     }
   ),
   // Array Events
-  copyWithin: ($event, $target) => new CustomEvent(
+  copyWithin: ($event, $target, $eventTarget) => new CustomEvent(
     'copyWithin', {
       detail: {
         target: $event.target,
@@ -135,7 +135,7 @@ const Events$1 = {
       }
     }
   ),
-  copyWithinIndex: ($event, $target) => new CustomEvent(
+  copyWithinIndex: ($event, $target, $eventTarget) => new CustomEvent(
     'copyWithinIndex', {
       detail: {
         target: $event.target,
@@ -145,7 +145,7 @@ const Events$1 = {
       }
     }
   ),
-  fill: ($event, $target) => new CustomEvent(
+  fill: ($event, $target, $eventTarget) => new CustomEvent(
     'fill', {
       detail: {
         start: $event.start,
@@ -154,7 +154,7 @@ const Events$1 = {
       }
     }
   ),
-  fillIndex: ($event, $target) => new CustomEvent(
+  fillIndex: ($event, $target, $eventTarget) => new CustomEvent(
     'fillIndex', {
       detail: {
         start: $event.start,
@@ -163,7 +163,7 @@ const Events$1 = {
       }
     }
   ),
-  lengthSet: ($event, $target) => new CustomEvent(
+  lengthSet: ($event, $target, $eventTarget) => new CustomEvent(
     'lengthSet', {
       detail: {
         prelength: $event.prelength,
@@ -171,14 +171,14 @@ const Events$1 = {
       }
     }
   ),
-  push: ($event, $target) => new CustomEvent(
+  push: ($event, $target, $eventTarget) => new CustomEvent(
     'push', {
       detail: {
         elements: $event.elements,
       }
     }
   ),
-  pushProp: ($event, $target) => new CustomEvent(
+  pushProp: ($event, $target, $eventTarget) => new CustomEvent(
     `pushProp`, {
       detail: {
         element: $event.element,
@@ -186,7 +186,7 @@ const Events$1 = {
       }
     }
   ),
-  pop: ($event, $target) => new CustomEvent(
+  pop: ($event, $target, $eventTarget) => new CustomEvent(
     'pop', {
       detail: {
         element: $event.element, 
@@ -194,7 +194,7 @@ const Events$1 = {
       }
     }
   ),
-  reverse: ($event, $target) => new CustomEvent(
+  reverse: ($event, $target, $eventTarget) => new CustomEvent(
     'reverse', {
       detail: {
         preverse: $event.preverse, 
@@ -202,7 +202,7 @@ const Events$1 = {
       }
     }
   ),
-  shift: ($event, $target) => new CustomEvent(
+  shift: ($event, $target, $eventTarget) => new CustomEvent(
     'shift', {
       detail: {
         element: $event.element,
@@ -210,7 +210,7 @@ const Events$1 = {
       }
     }
   ),
-  sort: ($event, $target) => new CustomEvent(
+  sort: ($event, $target, $eventTarget) => new CustomEvent(
     'sort', {
       detail: {
         presort: $event.presort, 
@@ -218,7 +218,7 @@ const Events$1 = {
       }
     }
   ),  
-  'spliceDelete': ($event, $target) => new CustomEvent(
+  'spliceDelete': ($event, $target, $eventTarget) => new CustomEvent(
     'spliceDelete', {
       detail: {
         index: $event.index,
@@ -227,7 +227,7 @@ const Events$1 = {
       }
     }
   ),
-  'spliceAdd': ($event, $target) => new CustomEvent(
+  'spliceAdd': ($event, $target, $eventTarget) => new CustomEvent(
     'spliceAdd', {
       detail: {
         index: $event.index,
@@ -236,7 +236,7 @@ const Events$1 = {
       }
     }
   ),
-  splice: ($event, $target) => new CustomEvent(
+  splice: ($event, $target, $eventTarget) => new CustomEvent(
     'splice', {
       detail: {
         start: $event.start, 
@@ -246,14 +246,14 @@ const Events$1 = {
       }
     }
   ),
-  unshift: ($event, $target) => new CustomEvent(
+  unshift: ($event, $target, $eventTarget) => new CustomEvent(
     'unshift', {
       detail: {
         elements: $event.elements,
       }
     }
   ),
-  unshiftProp: ($event, $target) => new CustomEvent(
+  unshiftProp: ($event, $target, $eventTarget) => new CustomEvent(
     `unshiftProp`, {
       detail: {
         element: $event.element,
@@ -263,7 +263,7 @@ const Events$1 = {
   ),
   // Map Events
   // Map Clear Event
-  clear: ($event, $target) => new CustomEvent(
+  clear: ($event, $target, $eventTarget) => new CustomEvent(
     'clear', {
       detail: {
         presize: $event.presize, 
@@ -272,7 +272,7 @@ const Events$1 = {
     }
   ),
   // Map Clear Event
-  delete: ($event, $target) => new CustomEvent(
+  delete: ($event, $target, $eventTarget) => new CustomEvent(
     'delete', {
       detail: {
         key: $event.key, 
@@ -281,7 +281,7 @@ const Events$1 = {
     }
   ),
   // Map Delete Key Event
-  deleteKey: ($event, $target) => new CustomEvent(
+  deleteKey: ($event, $target, $eventTarget) => new CustomEvent(
     `delete:${$event.key}`, {
       detail: {
         key: $event.key, 
@@ -290,7 +290,7 @@ const Events$1 = {
     }
   ),
   // Map Get Event
-  get: ($event, $target) => new CustomEvent(
+  get: ($event, $target, $eventTarget) => new CustomEvent(
     'get', {
       detail: {
         key: $event.key, 
@@ -299,7 +299,7 @@ const Events$1 = {
     }
   ),
   // Map Get Key Event
-  getKey: ($event, $target) => new CustomEvent(
+  getKey: ($event, $target, $eventTarget) => new CustomEvent(
     `get:${$event.key}`, {
       detail: {
         key: $event.key, 
@@ -308,7 +308,7 @@ const Events$1 = {
     }
   ),
   // Map Set Event
-  set: ($event, $target) => new CustomEvent(
+  set: ($event, $target, $eventTarget) => new CustomEvent(
     'set', {
       detail: {
         key: $event.key, 
@@ -318,7 +318,7 @@ const Events$1 = {
     }
   ),
   // Map Set Key Event
-  setKey: ($event, $target) => new CustomEvent(
+  setKey: ($event, $target, $eventTarget) => new CustomEvent(
     `set:${$event.key}`, {
       detail: {
         key: $event.key, 
@@ -340,8 +340,17 @@ class Trap {
       );
     }
   }
-  createEvent($eventTarget, $eventType, $event, $target) {
-    const event = Events$1[$eventType]($event, $target);
+  createEvent(
+    $eventTarget, 
+    $eventType, 
+    $event, 
+    $target, 
+  ) {
+    const event = Events$1[$eventType](
+      $event, 
+      $target, 
+      $eventTarget
+    );
     $eventTarget.dispatchEvent(event);
     return event
   }
@@ -539,7 +548,7 @@ function DefineProperty(
   )
 }
 
-function Entries$2(
+function Entries$1(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -660,7 +669,7 @@ function GetPrototypeOf(
   )
 }
 
-function GroupBy$1(
+function GroupBy(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -771,7 +780,7 @@ function IsPrototypeOf(
   )
 }
 
-function Keys$2(
+function Keys$1(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -895,7 +904,7 @@ function ToLocaleString(
   )
 }
 
-function Values$2(
+function Values$1(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -928,7 +937,7 @@ var ObjectProperty = {
   assign: Assign,
   defineProperties: DefineProperties,
   defineProperty: DefineProperty,
-  entries: Entries$2,
+  entries: Entries$1,
   freeze: Freeze,
   fromEntries: FromEntries,
   getOwnPropertyDescriptor: GetOwnPropertyDescriptor,
@@ -936,7 +945,7 @@ var ObjectProperty = {
   getOwnPropertyNames: GetOwnPropertyNames,
   getOwnPropertySymbols: GetOwnPropertySymbols,
   getPrototypeOf: GetPrototypeOf,
-  groupBy: GroupBy$1,
+  groupBy: GroupBy,
   hasOwn: HasOwn,
   hasOwnProperty: HasOwnProperty,
   is: Is,
@@ -944,14 +953,14 @@ var ObjectProperty = {
   isFrozen: IsFrozen,
   isSealed: IsSealed,
   isPrototypeOf: IsPrototypeOf,
-  keys: Keys$2,
+  keys: Keys$1,
   preventExtensions: PreventExtensions,
   propertyIsEnumerable: PropertyIsEnumerable,
   seal: Seal,
   setPrototypeOf: SetPrototypeOf,
   toString: ToString$1,
   toLocaleString: ToLocaleString,
-  values: Values$2,
+  values: Values$1,
   valueOf: ValueOf,
 };
 
@@ -1043,7 +1052,7 @@ function Concat(
   )
 }
 
-function Entries$1(
+function Entries(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1216,7 +1225,7 @@ function FlatMap(
   )
 }
 
-function ForEach$1(
+function ForEach(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1281,7 +1290,7 @@ function Join(
   )
 }
 
-function Keys$1(
+function Keys(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1701,7 +1710,7 @@ function Unshift(
   )
 }
 
-function Values$1(
+function Values(
   $trap, $trapPropertyName, $aliases
 ) {
   const { $eventTarget, $root } = $aliases;
@@ -1731,7 +1740,7 @@ var ArrayProperty = {
   at: At,
   copyWithin: CopyWithin,
   concat: Concat,
-  entries: Entries$1,
+  entries: Entries,
   every: Every,
   fill: Fill,
   filter: Filter,
@@ -1741,12 +1750,12 @@ var ArrayProperty = {
   findLastIndex: FindLastIndex,
   flat: Flat,
   flatMap: FlatMap,
-  forEach: ForEach$1,
+  forEach: ForEach,
   from: From,
   indexOf: IndexOf,
   isArray: IsArray,
   join: Join,
-  keys: Keys$1,
+  keys: Keys,
   lastIndexOf: LastIndexOf,
   length: Length,
   map: _Map,
@@ -1766,223 +1775,16 @@ var ArrayProperty = {
   toSorted: ToSorted,
   toString: ToString,
   unshift: Unshift,
-  values: Values$1,
+  values: Values,
   with: With,
 };
 
-function Clear(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key) {
-        $root.clear($key);
-        $trap.createEvent(
-          $eventTarget,
-          'clear',
-          {},
-        );
-      },
-    }
-  )
-}
-
-function Get(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key) {
-        const val = $root.get($key);
-        $trap.createEvent(
-          $eventTarget,
-          'get',
-          {
-            key: $key,
-            val
-          },
-        );
-        $trap.createEvent(
-          $eventTarget,
-          'getKey',
-          {
-            key: $key,
-            val
-          },
-        );
-        return val
-      },
-    }
-  )
-}
-
-function Set(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key, $val) {
-        $root.set($key, $val);
-        $trap.createEvent(
-          $eventTarget,
-          'set',
-          {
-            key: $key,
-            val: $val,
-          },
-        );
-        $trap.createEvent(
-          $eventTarget,
-          'setKey',
-          {
-            key: $key,
-            val: $val,
-          },
-        );
-        return $root
-      },
-    }
-  )
-}
-
-function Delete(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function ($key) {
-        const resolve = $root.delete($key);
-        $trap.createEvent(
-          $eventTarget,
-          'delete',
-          {
-            key: $key,
-          },
-        );
-        $trap.createEvent(
-          $eventTarget,
-          'deleteKey',
-          {
-            key: $key,
-          },
-        );
-        return resolve
-      },
-    }
-  )
-}
-
-function Entries(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.entries.call($root)
-      }
-    }
-  )
-}
-
-function ForEach(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.forEach.call($root, ...arguments)
-      }
-    }
-  )
-}
-
-function GroupBy(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.groupBy($root, ...arguments)
-      }
-    }
-  )
-}
-
-function Has(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.has.call($root, ...arguments)
-      }
-    }
-  )
-}
-
-function Keys(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.keys.call($root)
-      }
-    }
-  )
-}
-
-function Values(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Map.prototype.values.call($root)
-      }
-    }
-  )
-}
-
-function Size(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { $eventTarget, $root } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      get() { return $root['size'] }
-    }
-  )
-}
-
-var MapProperty = {
-  clear: Clear,
-  get: Get,
-  set: Set,
-  delete: Delete,
-  entries: Entries,
-  forEach: ForEach,
-  groupBy: GroupBy,
-  has: Has,
-  keys: Keys,
-  values: Values,
-  size: Size,
-};
+// import MapProperty from './Map/index.js'
 
 var PropertyClasses = {
   Object: ObjectProperty,
   Array: ArrayProperty,
-  Map: MapProperty,
+  // Map: MapProperty,
 };
 
 class Traps {
@@ -2260,6 +2062,40 @@ class DynamicEventTarget extends EventTarget {
       $root: this.#_root,
     };
     return this.#_aliases
+  }
+  parse() {
+    let parsement;
+    if(this.type === 'object') {
+      parsement = {};
+      for(const [
+        $propertyKey, $propertyVal
+      ] of Object.entries(this.#proxy)) {
+        if($propertyVal && typeof $propertyVal === 'object') {
+          parsement[$propertyKey] = $propertyVal.parse();
+        } else {
+          parsement[$propertyKey] = $propertyVal;
+        }
+      }
+    } else
+    if(this.type === 'array') {
+      parsement = [];
+      let propertyIndex = 0;
+      for(const $property of this.#proxy) {
+        if($property && typeof $property === 'object') {
+          parsement[propertyIndex] = $property.parse();
+        } else {
+          parsement[propertyIndex] = $property;
+        }
+        propertyIndex++;
+      }
+    } /* else
+    if(this.type === 'map') {
+
+    } */
+    return parsement
+  }
+  inspect() {
+    return JSON.stringify(this.parse(), null, 2)
   }
 }
 
