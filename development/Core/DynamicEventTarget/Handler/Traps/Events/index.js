@@ -4,7 +4,8 @@ const Events = {
   'assign': ($event, $target, $eventTarget) => new CustomEvent(
     'assign', { 
       detail: {
-        target: $eventTarget
+        path: $event.path,
+        target: $target
       },
     }
   ),
@@ -12,6 +13,7 @@ const Events = {
   'assignSource': ($event, $target, $eventTarget) => new CustomEvent(
     'assignSource', { 
       detail: {
+        path: $event.path,
         source: $event.source,
       }
     }
@@ -20,6 +22,7 @@ const Events = {
   'assignSourceProperty': ($event, $target, $eventTarget) => new CustomEvent(
     `assignSourceProperty`, { 
       detail: {
+        path: $event.path,
         key: $event.key,
         val: $event.val,
         source: $event.source,
@@ -30,6 +33,7 @@ const Events = {
   'defineProperties': ($event, $target, $eventTarget) => new CustomEvent(
     'defineProperties', {
       detail: {
+        path: $event.path,
         descriptors: $event.descriptors, 
       }
     }
@@ -38,6 +42,7 @@ const Events = {
   'defineProperty': ($event, $target, $eventTarget) => new CustomEvent(
     `defineProperty`, {
       detail: {
+        path: $event.path,
         prop: $event.prop,
         descriptor: $event.descriptor,
       }
@@ -47,6 +52,7 @@ const Events = {
   'definePropertyKey': ($event, $target, $eventTarget) => new CustomEvent(
     `defineProperty:${$event.prop}`, {
       detail: {
+        path: $event.path,
         prop: $event.prop,
         descriptor: $event.descriptor,
       }
@@ -56,7 +62,8 @@ const Events = {
   'freeze': ($event, $target, $eventTarget) => new CustomEvent(
     'freeze', {
       detail: {
-        target: $eventTarget
+        path: $event.path,
+        target: $target
       }
     }
   ),
@@ -64,7 +71,8 @@ const Events = {
   'seal': ($event, $target, $eventTarget) => new CustomEvent(
     'seal', {
       detail: {
-        target: $eventTarget
+        path: $event.path,
+        target: $target
       }
     }
   ),
@@ -72,6 +80,7 @@ const Events = {
   'setPrototypeOf': ($event, $target, $eventTarget) => new CustomEvent(
     'setPrototypeOf', {
       detail: {
+        path: $event.path,
         path: $event.path,
         key: $event.key,
         preprototype: $event.preprototype,
@@ -83,6 +92,7 @@ const Events = {
   copyWithin: ($event, $target, $eventTarget) => new CustomEvent(
     'copyWithin', {
       detail: {
+        path: $event.path,
         target: $event.target,
         start: $event.start,
         end: $event.end,
@@ -93,6 +103,7 @@ const Events = {
   copyWithinIndex: ($event, $target, $eventTarget) => new CustomEvent(
     'copyWithinIndex', {
       detail: {
+        path: $event.path,
         target: $event.target,
         start: $event.start,
         end: $event.end,
@@ -103,6 +114,7 @@ const Events = {
   fill: ($event, $target, $eventTarget) => new CustomEvent(
     'fill', {
       detail: {
+        path: $event.path,
         start: $event.start,
         end: $event.end,
         value: $event.value,
@@ -112,6 +124,7 @@ const Events = {
   fillIndex: ($event, $target, $eventTarget) => new CustomEvent(
     'fillIndex', {
       detail: {
+        path: $event.path,
         start: $event.start,
         end: $event.end,
         value: $event.value,
@@ -121,6 +134,7 @@ const Events = {
   lengthSet: ($event, $target, $eventTarget) => new CustomEvent(
     'lengthSet', {
       detail: {
+        path: $event.path,
         prelength: $event.prelength,
         length: $event.length,
       }
@@ -129,6 +143,7 @@ const Events = {
   push: ($event, $target, $eventTarget) => new CustomEvent(
     'push', {
       detail: {
+        path: $event.path,
         elements: $event.elements,
       }
     }
@@ -136,6 +151,7 @@ const Events = {
   pushProp: ($event, $target, $eventTarget) => new CustomEvent(
     `pushProp`, {
       detail: {
+        path: $event.path,
         element: $event.element,
         elementIndex: $event.elementIndex,
       }
@@ -144,6 +160,7 @@ const Events = {
   pop: ($event, $target, $eventTarget) => new CustomEvent(
     'pop', {
       detail: {
+        path: $event.path,
         element: $event.element, 
         elementIndex: $event.elementIndex,
       }
@@ -152,6 +169,7 @@ const Events = {
   reverse: ($event, $target, $eventTarget) => new CustomEvent(
     'reverse', {
       detail: {
+        path: $event.path,
         preverse: $event.preverse, 
         reverse: $event.reverse, 
       }
@@ -160,6 +178,7 @@ const Events = {
   shift: ($event, $target, $eventTarget) => new CustomEvent(
     'shift', {
       detail: {
+        path: $event.path,
         element: $event.element,
         elementIndex: $event.elementIndex,
       }
@@ -168,6 +187,7 @@ const Events = {
   sort: ($event, $target, $eventTarget) => new CustomEvent(
     'sort', {
       detail: {
+        path: $event.path,
         presort: $event.presort, 
         sort: $event.sort, 
       }
@@ -176,6 +196,7 @@ const Events = {
   'spliceDelete': ($event, $target, $eventTarget) => new CustomEvent(
     'spliceDelete', {
       detail: {
+        path: $event.path,
         index: $event.index,
         deleteIndex: $event.deleteIndex,
         deleteItem: $event.deleteItem,
@@ -185,6 +206,7 @@ const Events = {
   'spliceAdd': ($event, $target, $eventTarget) => new CustomEvent(
     'spliceAdd', {
       detail: {
+        path: $event.path,
         index: $event.index,
         addIndex: $event.addIndex,
         addItem: $event.addItem,
@@ -194,6 +216,7 @@ const Events = {
   splice: ($event, $target, $eventTarget) => new CustomEvent(
     'splice', {
       detail: {
+        path: $event.path,
         start: $event.start, 
         deleted: $event.deleted, 
         added: $event.added, 
@@ -204,6 +227,7 @@ const Events = {
   unshift: ($event, $target, $eventTarget) => new CustomEvent(
     'unshift', {
       detail: {
+        path: $event.path,
         elements: $event.elements,
       }
     }
@@ -211,6 +235,7 @@ const Events = {
   unshiftProp: ($event, $target, $eventTarget) => new CustomEvent(
     `unshiftProp`, {
       detail: {
+        path: $event.path,
         element: $event.element,
         elementIndex: $event.elementIndex,
       }
@@ -221,6 +246,7 @@ const Events = {
   clear: ($event, $target, $eventTarget) => new CustomEvent(
     'clear', {
       detail: {
+        path: $event.path,
         presize: $event.presize, 
         size: $event.size, 
       }
@@ -230,6 +256,7 @@ const Events = {
   delete: ($event, $target, $eventTarget) => new CustomEvent(
     'delete', {
       detail: {
+        path: $event.path,
         key: $event.key, 
         preval: $event.preval, 
       }
@@ -239,6 +266,7 @@ const Events = {
   deleteKey: ($event, $target, $eventTarget) => new CustomEvent(
     `delete:${$event.key}`, {
       detail: {
+        path: $event.path,
         key: $event.key, 
         preval: $event.preval, 
       }
@@ -248,6 +276,7 @@ const Events = {
   get: ($event, $target, $eventTarget) => new CustomEvent(
     'get', {
       detail: {
+        path: $event.path,
         key: $event.key, 
         val: $event.val, 
       }
@@ -257,6 +286,7 @@ const Events = {
   getKey: ($event, $target, $eventTarget) => new CustomEvent(
     `get:${$event.key}`, {
       detail: {
+        path: $event.path,
         key: $event.key, 
         val: $event.val, 
       }
@@ -266,6 +296,7 @@ const Events = {
   set: ($event, $target, $eventTarget) => new CustomEvent(
     'set', {
       detail: {
+        path: $event.path,
         key: $event.key, 
         val: $event.val, 
         preval: $event.preval, 
@@ -276,6 +307,7 @@ const Events = {
   setKey: ($event, $target, $eventTarget) => new CustomEvent(
     `set:${$event.key}`, {
       detail: {
+        path: $event.path,
         key: $event.key, 
         val: $event.val, 
         preval: $event.preval, 

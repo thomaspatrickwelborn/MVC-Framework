@@ -19,7 +19,7 @@ export default class Trap {
     const event = Events[$eventType](
       $event, 
       $target, 
-      $eventTarget
+      $eventTarget, 
     )
     $eventTarget.dispatchEvent(event)
     return event

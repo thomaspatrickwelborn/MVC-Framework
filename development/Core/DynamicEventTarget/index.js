@@ -31,6 +31,7 @@ export default class DynamicEventTarget extends EventTarget {
     this.#_type = typeOf(this.#settings)
     return this.#_type
   }
+  get path() { return this.#options.$path }
   // Root Alias
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
@@ -46,14 +47,14 @@ export default class DynamicEventTarget extends EventTarget {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
       this.type === 'object'
-    ) ? new Object(this.#settings)
+    ) ? {...this.#settings}
       : (
       this.type === 'array'
-    ) ? new Array(...this.#settings)
+    ) ? [...this.#settings]
     //   : (
     //   this.type === 'map'
     // ) ? new Map()
-      : new Object(this.#settings)
+      : {...this.#settings}
     return this.#_root
   }
   // Proxy
@@ -70,7 +71,7 @@ export default class DynamicEventTarget extends EventTarget {
       for(const [
         $mapKey, $mapVal
       ] of $root) {
-        console.log($mapKey, $mapVal)
+        //
       }
     } */
     return this.#_proxy
@@ -118,39 +119,9 @@ export default class DynamicEventTarget extends EventTarget {
       $eventTarget: this,
       $rootAlias: this.#rootAlias,
       $root: this.#root,
+      $path: this.path,
     }
     return this.#_aliases
-  }
-  parse() {
-    let parsement
-    if(this.type === 'object') {
-      parsement = {}
-      for(const [
-        $propertyKey, $propertyVal
-      ] of Object.entries(this.#proxy)) {
-        if($propertyVal && typeof $propertyVal === 'object') {
-          parsement[$propertyKey] = $propertyVal.parse()
-        } else {
-          parsement[$propertyKey] = $propertyVal
-        }
-      }
-    } else
-    if(this.type === 'array') {
-      parsement = []
-      let propertyIndex = 0
-      for(const $property of this.#proxy) {
-        if($property && typeof $property === 'object') {
-          parsement[propertyIndex] = $property.parse()
-        } else {
-          parsement[propertyIndex] = $property
-        }
-        propertyIndex++
-      }
-    } /* else
-    if(this.type === 'map') {
-
-    } */
-    return parsement
   }
   inspect() {
     return JSON.stringify(this.parse(), null, 2)

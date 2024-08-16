@@ -8,8 +8,12 @@ export default function Freeze(
     $trap, $trapPropertyName, {
       value: function () {
         if(recurse === true) {
-          for(const $propertyValue of Object.values($root)) {
-            if($propertyValue instanceof DynamicEventTarget) {
+          for(const [
+            $propertyKey, $propertyValue
+          ] of Object.entries($root)) {
+            if(
+              $propertyValue.constructor.name === 'bound DynamicEventTarget'
+            ) {
               $propertyValue.freeze()
             }
           }

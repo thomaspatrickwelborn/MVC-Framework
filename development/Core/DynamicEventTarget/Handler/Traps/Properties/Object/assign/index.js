@@ -3,7 +3,7 @@ import DynamicEventTarget from '../../../../../index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { $eventTarget, $root, $rootAlias } = $aliases
+  const { $eventTarget, $root, $rootAlias, $path } = $aliases
   const { merge } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -26,10 +26,17 @@ export default function Assign(
               ) {
                 $root[$sourcePropKey].assign($sourcePropVal)
               } else {
+                const path = (
+                  $path !== undefined
+                ) ? $path.concat('.', $sourcePropKey)
+                  : $sourcePropKey
                 Object.assign($root, {
-                  [$sourcePropKey]: new DynamicEventTarget($sourcePropVal, {
-                    $rootAlias,
-                  })
+                  [$sourcePropKey]: new DynamicEventTarget(
+                    $sourcePropVal, {
+                      $rootAlias,
+                      $path: path,
+                    }
+                  )
                 })
               }
             } else {
@@ -44,6 +51,7 @@ export default function Assign(
                 key: $sourcePropKey,
                 val: $sourcePropVal,
                 source: $source,
+                path: $path
               },
               $root,
             )
@@ -53,6 +61,7 @@ export default function Assign(
             'assignSource',
             {
               source: $source,
+              path: $path
             },
             $root
           )
@@ -61,7 +70,8 @@ export default function Assign(
           $eventTarget,
           'assign',
           {
-            sources
+            sources,
+            path: $path
           },
           $root,
         )
