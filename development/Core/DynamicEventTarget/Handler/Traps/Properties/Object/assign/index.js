@@ -15,16 +15,16 @@ export default function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            if(isDirectInstanceOf(
-              $sourcePropVal, [Array, Object, Map]
-            )) {
+            if(
+              isDirectInstanceOf(
+                $sourcePropVal, [Array, Object, Map]
+              )
+            ) {
               if(
                 merge === true &&
-                $root[$sourcePropKey] instanceof DynamicEventTarget
+                $root[$sourcePropKey].constructor.name === 'bound DynamicEventTarget'
               ) {
-                $sourcePropVal.assign({
-                  [$sourcePropKey]: $sourcePropVal,
-                })
+                $root[$sourcePropKey].assign($sourcePropVal)
               } else {
                 Object.assign($root, {
                   [$sourcePropKey]: new DynamicEventTarget($sourcePropVal, {

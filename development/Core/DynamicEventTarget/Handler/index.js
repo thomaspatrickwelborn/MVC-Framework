@@ -78,7 +78,7 @@ export default class Handler {
           return $this.traps['Object'][$property]
         }
       }
-      // 8. Map Class Instance Property Trap
+      // 6. Map Class Instance Property Trap
       if(
         $type === 'map' &&
         Object.getOwnPropertyNames(Map.prototype)
