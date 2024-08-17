@@ -1,7 +1,7 @@
 {
   "name": "js-mvc-framework",
   "author": "Thomas Patrick Welborn",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "type": "module",
   "main": "./development/index.js",
   "devDependencies": {

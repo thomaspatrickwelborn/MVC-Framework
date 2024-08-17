@@ -40,6 +40,8 @@ export default function Fill(
               start: fillIndex,
               end: fillIndex + 1,
               value,
+              path: $path,
+              basename: $basename,
             },
           )
           fillIndex++
@@ -48,7 +50,13 @@ export default function Fill(
         $trap.createEvent(
           $eventTarget,
           'fill',
-          { start, end, value },
+          {
+            start,
+            end,
+            value,
+            path: $path,
+            basename: $basename,
+          },
         )
         return $root
       }
