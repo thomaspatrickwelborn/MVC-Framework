@@ -48,6 +48,8 @@ export default function DefineProperty(
           {
             prop: propertyKey,
             descriptor: propertyDescriptor,
+            path: $path,
+            basename: $basename,
           },
         )
         return $root

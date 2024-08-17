@@ -31,6 +31,8 @@ export default function Unshift(
             {
               elementIndex, 
               element: element,
+              path: $path,
+              basename: $basename,
             },
             $root,
           )
@@ -40,7 +42,11 @@ export default function Unshift(
         $trap.createEvent(
           $eventTarget,
           'unshift',
-          { elements },
+          {
+            elements, 
+            path: $path,
+            basename: $basename,
+          },
           $root,
         )
         return $root.length

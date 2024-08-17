@@ -27,6 +27,8 @@ export default function Push(
             {
               elementIndex, 
               element: $element,
+              path: $path,
+              basename: $basename,
             },
           )
           elementIndex++
@@ -35,7 +37,11 @@ export default function Push(
         $trap.createEvent(
           $eventTarget,
           'push',
-          { elements },
+          {
+            elements,
+            path: $path,
+            basename: $basename,
+          },
         )
         return $root.length
       }

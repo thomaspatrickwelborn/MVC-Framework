@@ -3,7 +3,7 @@ import DynamicEventTarget from '../../../../../index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { $eventTarget, $root, $rootAlias } = $aliases
+  const { $eventTarget, $root, $rootAlias, $path, $basename } = $aliases
   const { descriptorValueMerge, descriptorTree } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -50,6 +50,8 @@ export default function DefineProperties(
             {
               prop: $propertyKey,
               descriptor: $propertyDescriptor,
+              path: $path,
+              basename: $basename,
             },
             $root,
           )
@@ -59,6 +61,8 @@ export default function DefineProperties(
           'defineProperties',
           {
             descriptors: $propertyDescriptors,
+            path: $path,
+            basename: $basename,
           },
         )
         return $root
