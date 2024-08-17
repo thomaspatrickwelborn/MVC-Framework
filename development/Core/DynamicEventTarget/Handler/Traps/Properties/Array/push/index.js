@@ -1,4 +1,4 @@
-import { isDirectInstanceOf } from '../../../../../../../Utils/index.js'
+import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 export default function Push(
   $trap, $trapPropertyName, $aliases

@@ -13,11 +13,11 @@ export default class Trap {
   createEvent(
     $eventTarget, 
     $eventType, 
-    $event, 
+    $eventData, 
     $target, 
   ) {
     const event = Events[$eventType](
-      $event, 
+      $eventData, 
       $target, 
       $eventTarget, 
     )

@@ -1,4 +1,4 @@
-import { typeOf } from '../../Utils/index.js'
+import { typeOf } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content',
@@ -14,6 +14,8 @@ export default class DynamicEventTarget extends EventTarget {
   #_type // 'object' // 'array' // 'map'
   #_rootAlias
   #_root
+  #_basename
+  #_path
   #_proxy
   #_handler
   #_aliases
@@ -31,7 +33,22 @@ export default class DynamicEventTarget extends EventTarget {
     this.#_type = typeOf(this.#settings)
     return this.#_type
   }
-  get path() { return this.#options.$path }
+  get basename() {
+    if(this.#_basename !== undefined)  return this.#_basename
+    this.#_basename = (
+      this.#options.$basename !== undefined
+    ) ? this.#options.$basename
+      : null
+    return this.#_basename
+  }
+  get path() {
+    if(this.#_path !== undefined)  return this.#_path
+    this.#_path = (
+      this.#options.$path !== undefined
+    ) ? this.#options.$path
+      : null
+    return this.#_path
+  }
   // Root Alias
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
@@ -120,6 +137,7 @@ export default class DynamicEventTarget extends EventTarget {
       $rootAlias: this.#rootAlias,
       $root: this.#root,
       $path: this.path,
+      $basename: this.basename,
     }
     return this.#_aliases
   }

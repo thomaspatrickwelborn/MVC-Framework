@@ -1,28 +1,38 @@
+import DynamicEvent from './DynamicEvent/index.js' 
 const Events = {
   // Object Events
   // Object Assign
-  'assign': ($event, $target, $eventTarget) => new CustomEvent(
+  'assign': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'assign', { 
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         target: $target
       },
     }
   ),
   // Object Assign Source
-  'assignSource': ($event, $target, $eventTarget) => new CustomEvent(
+  'assignSource': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'assignSource', { 
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         source: $event.source,
       }
     }
   ),
   // Object Assign Source Property
-  'assignSourceProperty': ($event, $target, $eventTarget) => new CustomEvent(
+  'assignSourceProperty': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `assignSourceProperty`, { 
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         key: $event.key,
         val: $event.val,
         source: $event.source,
@@ -30,58 +40,75 @@ const Events = {
     }
   ),
   // Object Define Properties
-  'defineProperties': ($event, $target, $eventTarget) => new CustomEvent(
+  'defineProperties': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'defineProperties', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         descriptors: $event.descriptors, 
       }
     }
   ),
   // Object Define Property
-  'defineProperty': ($event, $target, $eventTarget) => new CustomEvent(
+  'defineProperty': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `defineProperty`, {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         prop: $event.prop,
         descriptor: $event.descriptor,
       }
     }
-  ),
+    ),
   // Object Define Property
-  'definePropertyKey': ($event, $target, $eventTarget) => new CustomEvent(
+  'definePropertyKey': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `defineProperty:${$event.prop}`, {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         prop: $event.prop,
         descriptor: $event.descriptor,
       }
     }
   ),
   // Object Freeze
-  'freeze': ($event, $target, $eventTarget) => new CustomEvent(
+  'freeze': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'freeze', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         target: $target
       }
     }
   ),
   // Object Seal
-  'seal': ($event, $target, $eventTarget) => new CustomEvent(
+  'seal': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'seal', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         target: $target
       }
     }
   ),
   // Object Set Prototype Of
-  'setPrototypeOf': ($event, $target, $eventTarget) => new CustomEvent(
-    'setPrototypeOf', {
+  'setPrototypeOf': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
+      'setPrototypeOf', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
-        path: $event.path,
         key: $event.key,
         preprototype: $event.preprototype,
         prototype: $event.prototype,
@@ -89,10 +116,13 @@ const Events = {
     }
   ),
   // Array Events
-  copyWithin: ($event, $target, $eventTarget) => new CustomEvent(
+  'copyWithin': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'copyWithin', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         target: $event.target,
         start: $event.start,
         end: $event.end,
@@ -100,10 +130,13 @@ const Events = {
       }
     }
   ),
-  copyWithinIndex: ($event, $target, $eventTarget) => new CustomEvent(
+  'copyWithinIndex': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'copyWithinIndex', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         target: $event.target,
         start: $event.start,
         end: $event.end,
@@ -111,112 +144,148 @@ const Events = {
       }
     }
   ),
-  fill: ($event, $target, $eventTarget) => new CustomEvent(
+  'fill': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'fill', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         start: $event.start,
         end: $event.end,
         value: $event.value,
       }
     }
   ),
-  fillIndex: ($event, $target, $eventTarget) => new CustomEvent(
+  'fillIndex': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'fillIndex', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         start: $event.start,
         end: $event.end,
         value: $event.value,
       }
     }
   ),
-  lengthSet: ($event, $target, $eventTarget) => new CustomEvent(
+  'lengthSet': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'lengthSet', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         prelength: $event.prelength,
         length: $event.length,
       }
     }
   ),
-  push: ($event, $target, $eventTarget) => new CustomEvent(
+'push': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'push', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         elements: $event.elements,
       }
     }
   ),
-  pushProp: ($event, $target, $eventTarget) => new CustomEvent(
+  'pushProp': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `pushProp`, {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         element: $event.element,
         elementIndex: $event.elementIndex,
       }
     }
   ),
-  pop: ($event, $target, $eventTarget) => new CustomEvent(
+  'pop': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'pop', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         element: $event.element, 
         elementIndex: $event.elementIndex,
       }
     }
   ),
-  reverse: ($event, $target, $eventTarget) => new CustomEvent(
+  'reverse': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'reverse', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         preverse: $event.preverse, 
         reverse: $event.reverse, 
       }
     }
   ),
-  shift: ($event, $target, $eventTarget) => new CustomEvent(
+  'shift': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'shift', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         element: $event.element,
         elementIndex: $event.elementIndex,
       }
     }
   ),
-  sort: ($event, $target, $eventTarget) => new CustomEvent(
+  'sort': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'sort', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         presort: $event.presort, 
         sort: $event.sort, 
       }
     }
-  ),  
-  'spliceDelete': ($event, $target, $eventTarget) => new CustomEvent(
+  ),
+  'spliceDelete': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'spliceDelete', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         index: $event.index,
         deleteIndex: $event.deleteIndex,
         deleteItem: $event.deleteItem,
       }
     }
   ),
-  'spliceAdd': ($event, $target, $eventTarget) => new CustomEvent(
-    'spliceAdd', {
+  'spliceAdd': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
+      'spliceAdd', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         index: $event.index,
         addIndex: $event.addIndex,
         addItem: $event.addItem,
       }
     }
   ),
-  splice: ($event, $target, $eventTarget) => new CustomEvent(
+  'splice': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'splice', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         start: $event.start, 
         deleted: $event.deleted, 
         added: $event.added, 
@@ -224,18 +293,24 @@ const Events = {
       }
     }
   ),
-  unshift: ($event, $target, $eventTarget) => new CustomEvent(
+  'unshift': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'unshift', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         elements: $event.elements,
       }
     }
   ),
-  unshiftProp: ($event, $target, $eventTarget) => new CustomEvent(
+  'unshiftProp': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `unshiftProp`, {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         element: $event.element,
         elementIndex: $event.elementIndex,
       }
@@ -243,60 +318,78 @@ const Events = {
   ),
   // Map Events
   // Map Clear Event
-  clear: ($event, $target, $eventTarget) => new CustomEvent(
+  'clear': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'clear', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         presize: $event.presize, 
         size: $event.size, 
       }
     }
   ),
   // Map Clear Event
-  delete: ($event, $target, $eventTarget) => new CustomEvent(
+  'delete': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'delete', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         key: $event.key, 
         preval: $event.preval, 
       }
     }
   ),
   // Map Delete Key Event
-  deleteKey: ($event, $target, $eventTarget) => new CustomEvent(
+  'deleteKey': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `delete:${$event.key}`, {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         key: $event.key, 
         preval: $event.preval, 
       }
     }
   ),
   // Map Get Event
-  get: ($event, $target, $eventTarget) => new CustomEvent(
+  'get': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'get', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         key: $event.key, 
         val: $event.val, 
       }
     }
   ),
   // Map Get Key Event
-  getKey: ($event, $target, $eventTarget) => new CustomEvent(
+  'getKey': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `get:${$event.key}`, {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         key: $event.key, 
         val: $event.val, 
       }
     }
   ),
   // Map Set Event
-  set: ($event, $target, $eventTarget) => new CustomEvent(
+  'set': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     'set', {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         key: $event.key, 
         val: $event.val, 
         preval: $event.preval, 
@@ -304,16 +397,19 @@ const Events = {
     }
   ),
   // Map Set Key Event
-  setKey: ($event, $target, $eventTarget) => new CustomEvent(
+  'setKey': (
+    $event, $target, $eventTarget
+  ) => new DynamicEvent(
     `set:${$event.key}`, {
+      basename: $event.basename,
+      path: $event.path,
       detail: {
-        path: $event.path,
         key: $event.key, 
         val: $event.val, 
         preval: $event.preval, 
       }
     }
-  ),
+  )
 }
 
 export default Events

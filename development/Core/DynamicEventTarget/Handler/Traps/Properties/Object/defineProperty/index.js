@@ -1,4 +1,4 @@
-import { typeOf, isDirectInstanceOf } from '../../../../../../../Utils/index.js'
+import { typeOf, isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 export default function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options

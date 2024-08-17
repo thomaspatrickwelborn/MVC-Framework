@@ -1,9 +1,9 @@
-import { isDirectInstanceOf } from '../../../../../../../Utils/index.js'
+import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { $eventTarget, $root, $rootAlias, $path } = $aliases
+  const { $eventTarget, $root, $rootAlias, $path, $basename } = $aliases
   const { merge } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -22,12 +22,14 @@ export default function Assign(
             ) {
               if(
                 merge === true &&
-                $root[$sourcePropKey].constructor.name === 'bound DynamicEventTarget'
+                $root[$sourcePropKey]
+                .constructor.name === 'bound DynamicEventTarget'
               ) {
                 $root[$sourcePropKey].assign($sourcePropVal)
               } else {
+                const basename = $sourcePropKey
                 const path = (
-                  $path !== undefined
+                  $path !== null
                 ) ? $path.concat('.', $sourcePropKey)
                   : $sourcePropKey
                 Object.assign($root, {
@@ -35,6 +37,7 @@ export default function Assign(
                     $sourcePropVal, {
                       $rootAlias,
                       $path: path,
+                      $basename: basename,
                     }
                   )
                 })
@@ -51,7 +54,8 @@ export default function Assign(
                 key: $sourcePropKey,
                 val: $sourcePropVal,
                 source: $source,
-                path: $path
+                path: $path,
+                basename: $basename,
               },
               $root,
             )
@@ -61,7 +65,8 @@ export default function Assign(
             'assignSource',
             {
               source: $source,
-              path: $path
+              path: $path,
+              basename: $basename,
             },
             $root
           )
@@ -71,7 +76,8 @@ export default function Assign(
           'assign',
           {
             sources,
-            path: $path
+            path: $path,
+            basename: $basename,
           },
           $root,
         )
