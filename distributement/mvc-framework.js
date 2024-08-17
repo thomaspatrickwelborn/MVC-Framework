@@ -497,7 +497,15 @@ function isDirectInstanceOf($object, $constructor) {
 function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { $eventTarget, $root, $rootAlias, $path, $basename } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $baseAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget[$baseAlias];
   const { merge } = $options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -515,7 +523,7 @@ function Assign(
               if(
                 merge === true &&
                 $root[$sourcePropKey]
-                .constructor.name === 'bound DynamicEventTarget'
+                ?.constructor.name === 'bound DynamicEventTarget'
               ) {
                 $root[$sourcePropKey].assign($sourcePropVal);
               } else {
@@ -524,14 +532,63 @@ function Assign(
                   $path !== null
                 ) ? $path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
+                const detObject = new DynamicEventTarget(
+                  $sourcePropVal, {
+                    $rootAlias,
+                    $path: path,
+                    $basename: basename,
+                    $parent: $eventTarget
+                  }
+                );
+                detObject.addEventListener(
+                  'assignSourceProperty', ($event) => {
+                    const assignSourcePropertyEventData = {
+                      key: $event.detail.key,
+                      val: $event.detail.val,
+                      source: $event.detail.source,
+                      path: $event.path,
+                      basename: $event.basename,
+                    };
+                    $trap.createEvent(
+                      $eventTarget, 
+                      'assignSourceProperty',
+                      assignSourcePropertyEventData,
+                      $root,
+                    );
+                  }
+                );
+                detObject.addEventListener(
+                  'assignSource', ($event) => {
+                    const assignSourceEventData = {
+                      source: $event.detail.source,
+                      path: $event.path,
+                      basename: $event.basename,
+                    };
+                    $trap.createEvent(
+                      $eventTarget,
+                      'assignSource',
+                      assignSourceEventData,
+                      $root
+                    );
+                  }
+                );
+                detObject.addEventListener(
+                  'assign', ($event) => {
+                    const assignEventData = {
+                      sources: $event.detail.sources,
+                      path: $event.path,
+                      basename: $event.basename,
+                    };
+                    $trap.createEvent(
+                      $eventTarget,
+                      'assign',
+                      assignEventData,
+                      $root,
+                    );
+                  }
+                );
                 Object.assign($root, {
-                  [$sourcePropKey]: new DynamicEventTarget(
-                    $sourcePropVal, {
-                      $rootAlias,
-                      $path: path,
-                      $basename: basename,
-                    }
-                  )
+                  [$sourcePropKey]: detObject
                 });
               }
             } else {
@@ -539,38 +596,41 @@ function Assign(
                 [$sourcePropKey]: $sourcePropVal
               });
             }
-            $trap.createEvent(
-              $eventTarget, 
-              'assignSourceProperty',
-              {
-                key: $sourcePropKey,
-                val: $sourcePropVal,
-                source: $source,
-                path: $path,
-                basename: $basename,
-              },
-              $root,
-            );
-          }
-          $trap.createEvent(
-            $eventTarget,
-            'assignSource',
-            {
+            const assignSourcePropertyEventData = {
+              key: $sourcePropKey,
+              val: $sourcePropVal,
               source: $source,
               path: $path,
               basename: $basename,
-            },
+            };
+            $trap.createEvent(
+              $eventTarget, 
+              'assignSourceProperty',
+              assignSourcePropertyEventData,
+              $root,
+            );
+          }
+          const assignSourceEventData = {
+            source: $source,
+            path: $path,
+            basename: $basename,
+          };
+          $trap.createEvent(
+            $eventTarget,
+            'assignSource',
+            assignSourceEventData,
             $root
           );
         }
+        const assignEventData = {
+          sources,
+          path: $path,
+          basename: $basename,
+        };
         $trap.createEvent(
           $eventTarget,
           'assign',
-          {
-            sources,
-            path: $path,
-            basename: $basename,
-          },
+          assignEventData,
           $root,
         );
         return $root
@@ -2003,9 +2063,14 @@ class Handler {
   get get() {
     const $this = this;
     const {
-      $eventTarget, $root, $rootAlias, $type, $proxy
+      $eventTarget, 
+      $baseAlias, 
+      $root, $rootAlias, 
+      $type, $proxy,
     } = this.#aliases;
     return function get($target, $property, $receiver) {
+      // 0. Base Alias
+      if($property === $baseAlias) return $proxy
       // 1. Root Alias
       if($property === $rootAlias) return $root
       if(
@@ -2126,6 +2191,7 @@ class Handler {
 
 const Options$6 = Object.freeze({
   rootAlias: 'content',
+  baseAlias: '__base__',
   objectAssignMerge: true,
   objectDefinePropertyDescriptorTree: true,
   objectDefinePropertyDescriptorValueMerge: true,
@@ -2136,8 +2202,10 @@ class DynamicEventTarget extends EventTarget {
   #settings
   #options
   #_type // 'object' // 'array' // 'map'
+  #_baseAlias
   #_rootAlias
   #_root
+  #_parent
   #_basename
   #_path
   #_proxy
@@ -2157,6 +2225,14 @@ class DynamicEventTarget extends EventTarget {
     this.#_type = typeOf(this.#settings);
     return this.#_type
   }
+  get parent() {
+    if(this.#_parent !== undefined)  return this.#_parent
+    this.#_parent = (
+      this.#options.$parent !== undefined
+    ) ? this.#options.$parent
+      : null;
+    return this.#_parent
+  }
   get basename() {
     if(this.#_basename !== undefined)  return this.#_basename
     this.#_basename = (
@@ -2173,6 +2249,16 @@ class DynamicEventTarget extends EventTarget {
       : null;
     return this.#_path
   }
+  // Base Alias
+  get #baseAlias() {
+    if(this.#_baseAlias !== undefined) return this.#_baseAlias
+    this.#_baseAlias = (
+      typeof this.#options.baseAlias === 'string' &&
+      this.#options.baseAlias.length > 0
+    ) ? this.#options.baseAlias
+      : Options$6.baseAlias;
+    return this.#_baseAlias
+  }
   // Root Alias
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
@@ -2180,7 +2266,7 @@ class DynamicEventTarget extends EventTarget {
       typeof this.#options.rootAlias === 'string' &&
       this.#options.rootAlias.length > 0
     ) ? this.#options.rootAlias
-      : 'content';
+      : Options$6.rootAlias;
     return this.#_rootAlias
   }
   // Root
@@ -2258,12 +2344,39 @@ class DynamicEventTarget extends EventTarget {
     this.#_aliases = {
       $type: this.type,
       $eventTarget: this,
+      $baseAlias: this.#baseAlias,
       $rootAlias: this.#rootAlias,
       $root: this.#root,
       $path: this.path,
       $basename: this.basename,
+      $parent: this.parent,
     };
     return this.#_aliases
+  }
+  parse() {
+    let parsement = (
+      this.type === 'object'
+    ) ? {}
+      : (
+      this.type === 'array'
+    ) ? []
+    /*: (
+      this.type === 'map'
+    ) ? new Map()*/
+      : {};
+    if(this.type !== 'map') {
+      for(const [$key, $val] of Object.entries(this.#root)) {
+        if(
+          $val !== null &&
+          typeof $val === 'object'
+        ) {
+          parsement[$key] = $val.parse();
+        } else (
+          parsement[$key] = $val
+        );
+      }
+    }
+    return parsement
   }
   inspect() {
     return JSON.stringify(this.parse(), null, 2)

@@ -2,6 +2,7 @@ import { typeOf } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content',
+  baseAlias: '__base__',
   objectAssignMerge: true,
   objectDefinePropertyDescriptorTree: true,
   objectDefinePropertyDescriptorValueMerge: true,
@@ -12,8 +13,10 @@ export default class DynamicEventTarget extends EventTarget {
   #settings
   #options
   #_type // 'object' // 'array' // 'map'
+  #_baseAlias
   #_rootAlias
   #_root
+  #_parent
   #_basename
   #_path
   #_proxy
@@ -33,6 +36,14 @@ export default class DynamicEventTarget extends EventTarget {
     this.#_type = typeOf(this.#settings)
     return this.#_type
   }
+  get parent() {
+    if(this.#_parent !== undefined)  return this.#_parent
+    this.#_parent = (
+      this.#options.$parent !== undefined
+    ) ? this.#options.$parent
+      : null
+    return this.#_parent
+  }
   get basename() {
     if(this.#_basename !== undefined)  return this.#_basename
     this.#_basename = (
@@ -49,6 +60,16 @@ export default class DynamicEventTarget extends EventTarget {
       : null
     return this.#_path
   }
+  // Base Alias
+  get #baseAlias() {
+    if(this.#_baseAlias !== undefined) return this.#_baseAlias
+    this.#_baseAlias = (
+      typeof this.#options.baseAlias === 'string' &&
+      this.#options.baseAlias.length > 0
+    ) ? this.#options.baseAlias
+      : Options.baseAlias
+    return this.#_baseAlias
+  }
   // Root Alias
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
@@ -56,7 +77,7 @@ export default class DynamicEventTarget extends EventTarget {
       typeof this.#options.rootAlias === 'string' &&
       this.#options.rootAlias.length > 0
     ) ? this.#options.rootAlias
-      : 'content'
+      : Options.rootAlias
     return this.#_rootAlias
   }
   // Root
@@ -134,12 +155,39 @@ export default class DynamicEventTarget extends EventTarget {
     this.#_aliases = {
       $type: this.type,
       $eventTarget: this,
+      $baseAlias: this.#baseAlias,
       $rootAlias: this.#rootAlias,
       $root: this.#root,
       $path: this.path,
       $basename: this.basename,
+      $parent: this.parent,
     }
     return this.#_aliases
+  }
+  parse() {
+    let parsement = (
+      this.type === 'object'
+    ) ? {}
+      : (
+      this.type === 'array'
+    ) ? []
+    /*: (
+      this.type === 'map'
+    ) ? new Map()*/
+      : {}
+    if(this.type !== 'map') {
+      for(const [$key, $val] of Object.entries(this.#root)) {
+        if(
+          $val !== null &&
+          typeof $val === 'object'
+        ) {
+          parsement[$key] = $val.parse()
+        } else(
+          parsement[$key] = $val
+        )
+      }
+    }
+    return parsement
   }
   inspect() {
     return JSON.stringify(this.parse(), null, 2)
