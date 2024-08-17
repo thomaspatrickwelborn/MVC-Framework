@@ -1,4 +1,4 @@
-import { typeOf } from '../Utils/index.js'
+import { typeOf } from '../Coutil/index.js'
 import DynamicEventTarget from '../Core/DynamicEventTarget/index.js'
 import Core from '../Core/index.js'
 export default class Model extends Core {

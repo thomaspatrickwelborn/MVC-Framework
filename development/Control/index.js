@@ -1,6 +1,6 @@
 import {
 	typeOf, parseShortenedEvents
-} from '../Utils/index.js'
+} from '../Coutil/index.js'
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import { StaticView, DynamicView } from '../View/index.js'

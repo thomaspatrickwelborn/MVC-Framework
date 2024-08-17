@@ -1,4 +1,4 @@
-import { typeOf } from '../../Utils/index.js'
+import { typeOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../Core/DynamicEventTarget/index.js'
 const types = {
   'string': String,

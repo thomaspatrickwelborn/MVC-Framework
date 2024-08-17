@@ -1,4 +1,4 @@
-import { typeOf } from '../../../Utils/index.js'
+import { typeOf } from '../../../Coutil/index.js'
 import Events from '../Interfaces/Response/Events/index.js'
 export default class FetchRoute extends EventTarget {
   #settings = {}

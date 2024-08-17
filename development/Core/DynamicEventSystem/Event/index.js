@@ -1,4 +1,4 @@
-import { typeOf, propFromPropPath } from '../../../Utils/index.js'
+import { typeOf, propFromPropPath } from '../../../Coutil/index.js'
 export default class Event {
   constructor($settings) { 
     this.settings = $settings

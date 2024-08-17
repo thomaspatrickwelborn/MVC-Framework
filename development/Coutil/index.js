@@ -5,7 +5,6 @@ import parsePropFrag from './parsePropFrag/index.js'
 import propFromPropPath from './propFromPropPath/index.js'
 import eventCallbackNameFromEventCallback from './eventCallbackNameFromEventCallback/index.js'
 import eventListenerArgumentsValid from './eventListenerArgumentsValid/index.js'
-import isDirectInstanceOf from './isDirectInstanceOf/index.js'
 
 export {
 	typeOf, 
@@ -15,5 +14,4 @@ export {
 	propFromPropPath, 
 	eventCallbackNameFromEventCallback,
 	eventListenerArgumentsValid,
-	isDirectInstanceOf,
 }

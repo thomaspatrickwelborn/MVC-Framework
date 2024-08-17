@@ -1,4 +1,4 @@
-import { typeOf } from '../../Utils/index.js'
+import { typeOf } from '../../Coutil/index.js'
 import View from '../Base/index.js'
 
 const Settings = Object.freeze({

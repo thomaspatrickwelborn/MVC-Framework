@@ -1,4 +1,4 @@
-import { typeOf } from '../Utils/index.js'
+import { typeOf } from '../Coutil/index.js'
 import DynamicEventSystem from './DynamicEventSystem/index.js'
 const Settings = {}
 const Options = {}
