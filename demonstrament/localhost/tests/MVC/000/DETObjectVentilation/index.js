@@ -1,7 +1,6 @@
 import { DET } from '/dependencies/mvc-framework.js'
 function objectAssign($event) {
-  console.log($event.type, $event.detail.target)
-  console.log($event)
+  // console.log($event)
 }
 function objectFreeze($event) {
   // console.log($event.type, $event.detail.target)
