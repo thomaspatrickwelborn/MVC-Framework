@@ -3,67 +3,169 @@ import DynamicEventTarget from '../../../../../index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { $eventTarget, $root, $rootAlias, $path, $basename } = $aliases
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases
   const { descriptorValueMerge, descriptorTree } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $propertyDescriptors = arguments[0]
+        // Iterate Property Descriptors
+        iteratePropertyDescriptors: 
         for(const [
           $propertyKey, $propertyDescriptor
         ] of Object.entries($propertyDescriptors)) {
+          console.log('-----')
+          // Property Descriptor Value Is Direct Instance Of Array/Object/Map
           if(isDirectInstanceOf(
-            $propertyDescriptor.value, [Array, Object, Map]
+            $propertyDescriptor.value, [Object, Array, Map]
           )) {
+            console.log('// Property Descriptor Value Is Direct Instance Of Array/Object/Map')
             const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
               $root, $propertyKey
             ) || {}
-            // Descriptor Value Merge
+            // Root Property Descriptor Value Is Existent DET Instance
             if(
               descriptorValueMerge === true &&
-              rootPropertyDescriptor.value instanceof DynamicEventTarget
+              rootPropertyDescriptor.value // instanceof DynamicEventTarget
+              ?.constructor.name === 'bound DynamicEventTarget'
             ) {
-              $propertyDescriptor.value = rootPropertyDescriptor.value
-            } else {
-              $propertyDescriptor.value = new DynamicEventTarget(
-                $propertyDescriptor.value, {
-                  rootAlias: $rootAlias,
+              console.log('// Root Property Descriptor Value Is Existent DET Instance')
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                console.log('// Root Define Properties, Descriptor Tree')
+                $root[$propertyKey].defineProperties($propertyDescriptor)
+              } else
+              // Root Define Properties, No Descriptor Tree
+              {
+                console.log('// Root Define Properties, No Descriptor Tree')
+                Object.defineProperties(
+                  $root, {
+                    [$propertyKey]: $propertyDescriptor
+                  }
+                )
+              }
+            }
+            // Root Property Descriptor Value Is Non-Existent DET Instance
+            else {
+              console.log('// Root Property Descriptor Value Is Non-Existent DET Instance')
+              const basename = $propertyKey
+              const path = (
+                $path !== null
+              ) ? $path.concat('.', $propertyKey)
+                : $propertyKey
+              const root = (
+                typeOf(
+                  $propertyDescriptor.value
+                ) === 'object'
+              ) ? {}
+                : (
+                typeOf(
+                  $propertyDescriptor.value
+                ) === 'array'
+              ) ? []
+              //   : typeOf(
+              //   $propertyDescriptor.value
+              // ) === 'map'
+              //   ? new Map()
+                : {}
+              const detObject = new DynamicEventTarget(
+                root, {
+                  $rootAlias,
+                  $path: path,
+                  $basename: basename,
+                  $parent: $eventTarget,
                 }
               )
+              detObject.addEventListener(
+                'defineProperty',
+                ($event) => {
+                  const definePropertyEventData = {
+                    prop: $event.detail.prop,
+                    descriptor: $event.detail.descriptor,
+                    path: $event.path,
+                    basename: $event.basename,
+                  }
+                  $trap.createEvent(
+                    $eventTarget,
+                    'defineProperty',
+                    definePropertyEventData,
+                    $root,
+                  )
+                }
+              )
+              detObject.addEventListener(
+                'defineProperties',
+                ($event) => {
+                  const definePropertiesEventData = {
+                    descriptors: $event.detail.descriptors,
+                    path: $event.path,
+                    basename: $event.basename,
+                  }
+                  $trap.createEvent(
+                    $eventTarget,
+                    'defineProperties',
+                    definePropertiesEventData,
+                    $root,
+                  )
+                }
+              )
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                console.log('// Root Define Properties, Descriptor Tree')
+                detObject.defineProperties($propertyDescriptor.value)
+                $propertyDescriptor.value = detObject
+                Object.defineProperties($root, {
+                  [$propertyKey]: $propertyDescriptor
+                })
+              } else
+              // Root Define Properties, No Descriptor Tree
+              {
+                console.log("// Root Define Properties, No Descriptor Tree",)
+                Object.defineProperties($root, {
+                  [$propertyKey]: $propertyDescriptor
+                })
+              }
             }
+          } else 
+          // Root Property Descriptor Value Is Not DET Instance
+          {
+            console.log('// Root Property Descriptor Value Is Not DET Instance')
+            Object.defineProperties($root, {
+              [$propertyKey]: $propertyDescriptor
+            })
           }
-          Object.defineProperties($root, {
-            [$propertyKey]: $propertyDescriptor
-          })
-          // Descriptor Tree
-          if(
-            descriptorTree === true &&
-            $propertyDescriptor.defineProperties !== undefined
-          ) {
-            $propertyDescriptor.value.defineProperties(
-              $propertyDescriptor.defineProperties
-            )
+          // Define Property Event Data
+          const definePropertyEventData = {
+            prop: $propertyKey,
+            descriptor: $propertyDescriptor,
+            path: $path,
+            basename: $basename,
           }
+          // Define Property Event
           $trap.createEvent(
             $eventTarget,
             'defineProperty',
-            {
-              prop: $propertyKey,
-              descriptor: $propertyDescriptor,
-              path: $path,
-              basename: $basename,
-            },
+            definePropertyEventData,
             $root,
           )
         }
+        // Define Properties Event Data
+        const definePropertiesEventData = {
+          descriptors: $propertyDescriptors,
+          path: $path,
+          basename: $basename,
+        }
+        // Define Properties Event
         $trap.createEvent(
           $eventTarget,
           'defineProperties',
-          {
-            descriptors: $propertyDescriptors,
-            path: $path,
-            basename: $basename,
-          },
+          definePropertiesEventData,
         )
         return $root
       }

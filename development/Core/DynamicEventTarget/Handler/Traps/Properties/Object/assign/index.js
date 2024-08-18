@@ -7,34 +7,38 @@ export default function Assign(
     $eventTarget, 
     $root, 
     $rootAlias, 
-    $baseAlias, 
     $basename,
     $path, 
   } = $aliases
-  const $base = $eventTarget[$baseAlias]
   const { merge } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const sources = [...arguments]
+        // Iterate Sources
         iterateSources: 
         for(let $source of sources) {
+          // Iterate Source Props
           iterateSourceProps:
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
+            // Assign Root DET Property
             if(
               isDirectInstanceOf(
-                $sourcePropVal, [Array, Object, Map]
+                $sourcePropVal, [Object, Array, Map]
               )
             ) {
+              // Assign Existent Root DET Property
               if(
                 merge === true &&
                 $root[$sourcePropKey]
                 ?.constructor.name === 'bound DynamicEventTarget'
               ) {
                 $root[$sourcePropKey].assign($sourcePropVal)
-              } else {
+              } else 
+              // Assign Non-Existent Root DET Property
+              {
                 const basename = $sourcePropKey
                 const path = (
                   $path !== null
@@ -99,11 +103,14 @@ export default function Assign(
                   [$sourcePropKey]: detObject
                 })
               }
-            } else {
+            } else 
+            // Assign Root Property
+            {
               Object.assign($root, {
                 [$sourcePropKey]: $sourcePropVal
               })
             }
+            // Assign Source Property Event Data
             const assignSourcePropertyEventData = {
               key: $sourcePropKey,
               val: $sourcePropVal,
@@ -111,6 +118,7 @@ export default function Assign(
               path: $path,
               basename: $basename,
             }
+            // Assign Source Property Event
             $trap.createEvent(
               $eventTarget, 
               'assignSourceProperty',
@@ -118,11 +126,13 @@ export default function Assign(
               $root,
             )
           }
+          // Assign Source Event Data
           const assignSourceEventData = {
             source: $source,
             path: $path,
             basename: $basename,
           }
+          // Assign Source Event
           $trap.createEvent(
             $eventTarget,
             'assignSource',
@@ -130,11 +140,13 @@ export default function Assign(
             $root
           )
         }
+        // Assign Event Data
         const assignEventData = {
           sources,
           path: $path,
           basename: $basename,
         }
+        // Assign Event
         $trap.createEvent(
           $eventTarget,
           'assign',

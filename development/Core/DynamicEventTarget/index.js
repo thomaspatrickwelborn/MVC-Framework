@@ -2,7 +2,6 @@ import { typeOf } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content',
-  baseAlias: '__base__',
   objectAssignMerge: true,
   objectDefinePropertyDescriptorTree: true,
   objectDefinePropertyDescriptorValueMerge: true,
@@ -13,7 +12,6 @@ export default class DynamicEventTarget extends EventTarget {
   #settings
   #options
   #_type // 'object' // 'array' // 'map'
-  #_baseAlias
   #_rootAlias
   #_root
   #_parent
@@ -60,23 +58,13 @@ export default class DynamicEventTarget extends EventTarget {
       : null
     return this.#_path
   }
-  // Base Alias
-  get #baseAlias() {
-    if(this.#_baseAlias !== undefined) return this.#_baseAlias
-    this.#_baseAlias = (
-      typeof this.#options.baseAlias === 'string' &&
-      this.#options.baseAlias.length > 0
-    ) ? this.#options.baseAlias
-      : Options.baseAlias
-    return this.#_baseAlias
-  }
   // Root Alias
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
     this.#_rootAlias = (
-      typeof this.#options.rootAlias === 'string' &&
-      this.#options.rootAlias.length > 0
-    ) ? this.#options.rootAlias
+      typeof this.#options.$rootAlias === 'string' &&
+      this.#options.$rootAlias.length > 0
+    ) ? this.#options.$rootAlias
       : Options.rootAlias
     return this.#_rootAlias
   }
@@ -155,7 +143,6 @@ export default class DynamicEventTarget extends EventTarget {
     this.#_aliases = {
       $type: this.type,
       $eventTarget: this,
-      $baseAlias: this.#baseAlias,
       $rootAlias: this.#rootAlias,
       $root: this.#root,
       $path: this.path,
