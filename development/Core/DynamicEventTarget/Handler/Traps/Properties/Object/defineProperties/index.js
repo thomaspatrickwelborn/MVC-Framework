@@ -3,6 +3,14 @@ import DynamicEventTarget from '../../../../../index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases
+  const { descriptorValueMerge, descriptorTree } = $options
   function defineProperty($event) {
     const definePropertyEventData = {
       prop: $event.detail.prop,
@@ -30,14 +38,6 @@ export default function DefineProperties(
       $root,
     )
   }
-  const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
-  } = $aliases
-  const { descriptorValueMerge, descriptorTree } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -49,7 +49,7 @@ export default function DefineProperties(
         ] of Object.entries($propertyDescriptors)) {
           // Property Descriptor Value Is Direct Instance Of Array/Object/Map
           if(isDirectInstanceOf(
-            $propertyDescriptor.value, [Object, Array, Map]
+            $propertyDescriptor.value, [Object, Array/*, Map*/]
           )) {
             const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
               $root, $propertyKey

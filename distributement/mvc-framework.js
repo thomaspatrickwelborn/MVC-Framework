@@ -501,32 +501,36 @@ function Assign(
     $eventTarget, 
     $root, 
     $rootAlias, 
-    $baseAlias, 
     $basename,
     $path, 
   } = $aliases;
-  $eventTarget[$baseAlias];
   const { merge } = $options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const sources = [...arguments];
+        // Iterate Sources
         for(let $source of sources) {
+          // Iterate Source Props
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
+            // Assign Root DET Property
             if(
               isDirectInstanceOf(
-                $sourcePropVal, [Array, Object, Map]
+                $sourcePropVal, [Object, Array/*, Map*/]
               )
             ) {
+              // Assign Existent Root DET Property
               if(
                 merge === true &&
                 $root[$sourcePropKey]
                 ?.constructor.name === 'bound DynamicEventTarget'
               ) {
                 $root[$sourcePropKey].assign($sourcePropVal);
-              } else {
+              } else 
+              // Assign Non-Existent Root DET Property
+              {
                 const basename = $sourcePropKey;
                 const path = (
                   $path !== null
@@ -591,11 +595,14 @@ function Assign(
                   [$sourcePropKey]: detObject
                 });
               }
-            } else {
+            } else 
+            // Assign Root Property
+            {
               Object.assign($root, {
                 [$sourcePropKey]: $sourcePropVal
               });
             }
+            // Assign Source Property Event Data
             const assignSourcePropertyEventData = {
               key: $sourcePropKey,
               val: $sourcePropVal,
@@ -603,6 +610,7 @@ function Assign(
               path: $path,
               basename: $basename,
             };
+            // Assign Source Property Event
             $trap.createEvent(
               $eventTarget, 
               'assignSourceProperty',
@@ -610,11 +618,13 @@ function Assign(
               $root,
             );
           }
+          // Assign Source Event Data
           const assignSourceEventData = {
             source: $source,
             path: $path,
             basename: $basename,
           };
+          // Assign Source Event
           $trap.createEvent(
             $eventTarget,
             'assignSource',
@@ -622,11 +632,13 @@ function Assign(
             $root
           );
         }
+        // Assign Event Data
         const assignEventData = {
           sources,
           path: $path,
           basename: $basename,
         };
+        // Assign Event
         $trap.createEvent(
           $eventTarget,
           'assign',
@@ -642,67 +654,178 @@ function Assign(
 function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { $eventTarget, $root, $rootAlias, $path, $basename } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
   const { descriptorValueMerge, descriptorTree } = $options;
+  function defineProperty($event) {
+    const definePropertyEventData = {
+      prop: $event.detail.prop,
+      descriptor: $event.detail.descriptor,
+      path: $event.path,
+      basename: $event.basename,
+    };
+    $trap.createEvent(
+      $eventTarget,
+      'defineProperty',
+      definePropertyEventData,
+      $root,
+    );
+  }
+  function defineProperties($event) {
+    const definePropertiesEventData = {
+      descriptors: $event.detail.descriptors,
+      path: $event.path,
+      basename: $event.basename,
+    };
+    $trap.createEvent(
+      $eventTarget,
+      'defineProperties',
+      definePropertiesEventData,
+      $root,
+    );
+  }
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $propertyDescriptors = arguments[0];
+        // Iterate Property Descriptors
         for(const [
           $propertyKey, $propertyDescriptor
         ] of Object.entries($propertyDescriptors)) {
+          // Property Descriptor Value Is Direct Instance Of Array/Object/Map
           if(isDirectInstanceOf(
-            $propertyDescriptor.value, [Array, Object, Map]
+            $propertyDescriptor.value, [Object, Array/*, Map*/]
           )) {
             const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
               $root, $propertyKey
             ) || {};
-            // Descriptor Value Merge
+            // Root Property Descriptor Value Is Existent DET Instance
             if(
               descriptorValueMerge === true &&
-              rootPropertyDescriptor.value instanceof DynamicEventTarget
+              rootPropertyDescriptor.value // instanceof DynamicEventTarget
+              ?.constructor.name === 'bound DynamicEventTarget'
             ) {
-              $propertyDescriptor.value = rootPropertyDescriptor.value;
-            } else {
-              $propertyDescriptor.value = new DynamicEventTarget(
-                $propertyDescriptor.value, {
-                  rootAlias: $rootAlias,
+              rootPropertyDescriptor.value.removeEventListener(
+                'defineProperties',
+                defineProperties
+              );
+              rootPropertyDescriptor.value.removeEventListener(
+                'defineProperty',
+                defineProperty
+              );
+              rootPropertyDescriptor.value.addEventListener(
+                'defineProperties',
+                defineProperties
+              );
+              rootPropertyDescriptor.value.addEventListener(
+                'defineProperty',
+                defineProperty
+              );
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                $root[$propertyKey].defineProperties($propertyDescriptor.value);
+              } else
+              // Root Define Properties, No Descriptor Tree
+              {
+                Object.defineProperties(
+                  $root, {
+                    [$propertyKey]: $propertyDescriptor
+                  }
+                );
+              }
+              
+            }
+            // Root Property Descriptor Value Is Non-Existent DET Instance
+            else {
+              const basename = $propertyKey;
+              const path = (
+                $path !== null
+              ) ? $path.concat('.', $propertyKey)
+                : $propertyKey;
+              const root = (
+                typeOf(
+                  $propertyDescriptor.value
+                ) === 'object'
+              ) ? {}
+                : (
+                typeOf(
+                  $propertyDescriptor.value
+                ) === 'array'
+              ) ? []
+              //   : typeOf(
+              //   $propertyDescriptor.value
+              // ) === 'map'
+              //   ? new Map()
+                : {};
+              const detObject = new DynamicEventTarget(
+                root, {
+                  $rootAlias,
+                  $path: path,
+                  $basename: basename,
+                  $parent: $eventTarget,
                 }
               );
+              detObject.addEventListener(
+                'defineProperty',
+                defineProperty
+              );
+              detObject.addEventListener(
+                'defineProperties',
+                defineProperties
+              );
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                detObject.defineProperties($propertyDescriptor.value);
+                $propertyDescriptor.value = detObject;
+                Object.defineProperties($root, {
+                  [$propertyKey]: $propertyDescriptor
+                });
+              } else
+              // Root Define Properties, No Descriptor Tree
+              {
+                Object.defineProperties($root, {
+                  [$propertyKey]: $propertyDescriptor
+                });
+              }
             }
+          } else 
+          // Root Property Descriptor Value Is Not DET Instance
+          {
+            Object.defineProperties($root, {
+              [$propertyKey]: $propertyDescriptor
+            });
           }
-          Object.defineProperties($root, {
-            [$propertyKey]: $propertyDescriptor
-          });
-          // Descriptor Tree
-          if(
-            descriptorTree === true &&
-            $propertyDescriptor.defineProperties !== undefined
-          ) {
-            $propertyDescriptor.value.defineProperties(
-              $propertyDescriptor.defineProperties
-            );
-          }
+          // Define Property Event Data
+          const definePropertyEventData = {
+            prop: $propertyKey,
+            descriptor: $propertyDescriptor,
+            path: $path,
+            basename: $basename,
+          };
+          // Define Property Event
           $trap.createEvent(
             $eventTarget,
             'defineProperty',
-            {
-              prop: $propertyKey,
-              descriptor: $propertyDescriptor,
-              path: $path,
-              basename: $basename,
-            },
+            definePropertyEventData,
             $root,
           );
         }
+        // Define Properties Event Data
+        const definePropertiesEventData = {
+          descriptors: $propertyDescriptors,
+          path: $path,
+          basename: $basename,
+        };
+        // Define Properties Event
         $trap.createEvent(
           $eventTarget,
           'defineProperties',
-          {
-            descriptors: $propertyDescriptors,
-            path: $path,
-            basename: $basename,
-          },
+          definePropertiesEventData,
         );
         return $root
       }
@@ -721,7 +844,7 @@ function DefineProperty(
         let propertyKey = arguments[0];
         let propertyDescriptor = arguments[1];
         if(isDirectInstanceOf(
-          propertyDescriptor.value, [Array, Object, Map]
+          propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
             $root, $propertyKey
@@ -1312,7 +1435,7 @@ function Fill(
         const $arguments = [...arguments];
         let value = $arguments[0];
         if(isDirectInstanceOf(
-          $sourcePropVal, [Array, Object, Map]
+          $sourcePropVal, [Object, Array/*, Map*/]
         )) {
           value = new DynamicEventTarget(value, {
             rootAlias: $rootAlias,
@@ -1635,7 +1758,7 @@ function Push(
         let elementIndex = 0;
         for(let $element of arguments) {
           if(isDirectInstanceOf(
-            $element, [Array, Object, Map]
+            $element, [Object, Array/*, Map*/]
           )) {
             $element = new DynamicEventTarget($element, {
               rootAlias: $rootAlias,
@@ -1915,7 +2038,7 @@ function Unshift(
         $arguments.length;
           const element = $arguments[elementIndex];
           if(isDirectInstanceOf(
-            element, [Array, Object, Map]
+            element, [Object, Array/*, Map*/]
           )) {
             element = new DynamicEventTarget(element, {
               rootAlias: $rootAlias,
@@ -2064,13 +2187,10 @@ class Handler {
     const $this = this;
     const {
       $eventTarget, 
-      $baseAlias, 
       $root, $rootAlias, 
       $type, $proxy,
     } = this.#aliases;
     return function get($target, $property, $receiver) {
-      // 0. Base Alias
-      if($property === $baseAlias) return $proxy
       // 1. Root Alias
       if($property === $rootAlias) return $root
       if(
@@ -2191,7 +2311,6 @@ class Handler {
 
 const Options$6 = Object.freeze({
   rootAlias: 'content',
-  baseAlias: '__base__',
   objectAssignMerge: true,
   objectDefinePropertyDescriptorTree: true,
   objectDefinePropertyDescriptorValueMerge: true,
@@ -2202,7 +2321,6 @@ class DynamicEventTarget extends EventTarget {
   #settings
   #options
   #_type // 'object' // 'array' // 'map'
-  #_baseAlias
   #_rootAlias
   #_root
   #_parent
@@ -2249,23 +2367,13 @@ class DynamicEventTarget extends EventTarget {
       : null;
     return this.#_path
   }
-  // Base Alias
-  get #baseAlias() {
-    if(this.#_baseAlias !== undefined) return this.#_baseAlias
-    this.#_baseAlias = (
-      typeof this.#options.baseAlias === 'string' &&
-      this.#options.baseAlias.length > 0
-    ) ? this.#options.baseAlias
-      : Options$6.baseAlias;
-    return this.#_baseAlias
-  }
   // Root Alias
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
     this.#_rootAlias = (
-      typeof this.#options.rootAlias === 'string' &&
-      this.#options.rootAlias.length > 0
-    ) ? this.#options.rootAlias
+      typeof this.#options.$rootAlias === 'string' &&
+      this.#options.$rootAlias.length > 0
+    ) ? this.#options.$rootAlias
       : Options$6.rootAlias;
     return this.#_rootAlias
   }
@@ -2344,7 +2452,6 @@ class DynamicEventTarget extends EventTarget {
     this.#_aliases = {
       $type: this.type,
       $eventTarget: this,
-      $baseAlias: this.#baseAlias,
       $rootAlias: this.#rootAlias,
       $root: this.#root,
       $path: this.path,

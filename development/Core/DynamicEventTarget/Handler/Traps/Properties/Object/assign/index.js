@@ -26,7 +26,7 @@ export default function Assign(
             // Assign Root DET Property
             if(
               isDirectInstanceOf(
-                $sourcePropVal, [Object, Array, Map]
+                $sourcePropVal, [Object, Array/*, Map*/]
               )
             ) {
               // Assign Existent Root DET Property

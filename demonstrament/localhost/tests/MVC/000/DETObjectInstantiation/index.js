@@ -3,6 +3,7 @@ function objectAssign($event) {
   console.log($event.type, $event.detail)
 }
 export default function DETObjectInstantiation() {
+  console.log('DET Object Instantiation')
   const object = new DET({
     aaa: 111,
     bbb: true,
@@ -18,9 +19,5 @@ export default function DETObjectInstantiation() {
       },
     },
   })
-  object.addEventListener("assign", objectAssign)
-  object.assign({ aaa: 111111 })
   console.log(object.inspect())
-  object.removeEventListener("assign", objectAssign)
-  object.assign({ aaa: 111111111 })
 }

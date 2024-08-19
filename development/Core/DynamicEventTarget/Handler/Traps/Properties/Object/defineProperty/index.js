@@ -11,7 +11,7 @@ export default function DefineProperty(
         let propertyKey = arguments[0]
         let propertyDescriptor = arguments[1]
         if(isDirectInstanceOf(
-          propertyDescriptor.value, [Object, Array, Map]
+          propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
             $root, $propertyKey
