@@ -19,7 +19,7 @@ export default class Handler {
     } = this.#aliases
     return function get($target, $property, $receiver) {
       // 1. Root Alias
-      if($property === $rootAlias) return $root
+      if($property === $rootAlias) return this
       if(
         // 2. Event Target Class Instance Methods
         Object.getOwnPropertyNames(EventTarget.prototype)
