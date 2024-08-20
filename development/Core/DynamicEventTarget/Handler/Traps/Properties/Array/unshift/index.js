@@ -16,7 +16,7 @@ export default function Unshift(
         const elementsLength = $arguments.length
           const element = $arguments[elementIndex]
           if(isDirectInstanceOf(
-            element, [Array, Object, Map]
+            element, [Object, Array/*, Map*/]
           )) {
             element = new DynamicEventTarget(element, {
               rootAlias: $rootAlias,

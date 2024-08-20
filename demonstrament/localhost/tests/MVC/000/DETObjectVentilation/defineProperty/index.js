@@ -1,7 +1,7 @@
 import { DET } from '/dependencies/mvc-framework.js'
 import { eventLog } from '../coutil/index.js'
-export default function objectDefineProperties() {
-  const object = new DET({
+export default function objectDefineProperty() {
+  const object = new DET({/*{
     aaa: {
       bbb: {
         ccc: {
@@ -9,17 +9,14 @@ export default function objectDefineProperties() {
         }
       }
     }
-  })
-  object.addEventListener(
-    'defineProperties', 
-    eventLog,
-  )
+  }*/})
   object.addEventListener(
     'defineProperty', 
     eventLog,
   )
-  object.defineProperties({
-    aaa: {
+  object.defineProperty(
+    'aaa', 
+    {
       value: {
         bbb: {
           value: {
@@ -33,14 +30,14 @@ export default function objectDefineProperties() {
           }
         }
       },
-    },
-  })
+    }
+  )
   console.log('object', object)
   /*
   const object = new DET({})
   object.addEventListener(
     'defineProperties',
-    objectDefineProperties
+    objectDefineProperty
   )
   object.defineProperties({
     aaa: {

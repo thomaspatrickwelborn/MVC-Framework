@@ -12,7 +12,7 @@ export default function Push(
         iterateElements:
         for(let $element of arguments) {
           if(isDirectInstanceOf(
-            $element, [Array, Object, Map]
+            $element, [Object, Array/*, Map*/]
           )) {
             $element = new DynamicEventTarget($element, {
               rootAlias: $rootAlias,

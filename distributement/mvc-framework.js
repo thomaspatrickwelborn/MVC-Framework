@@ -720,7 +720,6 @@ function DefineProperty(
       value: function() {
         const propertyKey = arguments[0];
         const propertyDescriptor = arguments[1];
-        structuredClone(propertyDescriptor);
         // Property Descriptor Value Is Direct Instance Of Array/Object/Map
         if(isDirectInstanceOf(
           propertyDescriptor.value, [Object, Array/*, Map*/]

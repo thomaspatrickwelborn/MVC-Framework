@@ -10,7 +10,7 @@ export default function Fill(
         const $arguments = [...arguments]
         let value = $arguments[0]
         if(isDirectInstanceOf(
-          $sourcePropVal, [Array, Object, Map]
+          $sourcePropVal, [Object, Array/*, Map*/]
         )) {
           value = new DynamicEventTarget(value, {
             rootAlias: $rootAlias,
