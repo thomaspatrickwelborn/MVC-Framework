@@ -1,7 +1,53 @@
 export default function CopyWithin(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases
+  $eventTarget.addEventListener(
+    'copyWithin', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const copyWithinEventData = {
+          basename: $event.basename,
+          path: $event.path,
+          target: $event.detail.target,
+          start: $event.detail.start,
+          end: $event.detail.end,
+          items: $event.detail.items,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'copyWithin',
+          copyWithinEventData,
+        )
+      }
+    }
+  )
+  $eventTarget.addEventListener(
+    'copyWithinIndex', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const copyWithinIndexEventData = {
+          basename: $event.basename,
+          path: $event.path,
+          target: $event.detail.target,
+          start: $event.detail.start,
+          end: $event.detail.end,
+          item: $event.detail.item,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'copyWithinIndex', 
+          copyWithinIndexEventData,
+        )
+      }
+    }
+  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -24,6 +70,7 @@ export default function CopyWithin(
         const copiedItems = []
         let copyIndex = start
         let targetIndex = target
+        iterateCopyIndex: 
         while(copyIndex < end) {
           const copyItem = $root[copyIndex]
           copiedItems.push(copyItem)
@@ -33,28 +80,38 @@ export default function CopyWithin(
             copyIndex,
             copyIndex + 1
           )
+          // Array Copy Within Index Event Data
+          const copyWithinIndexEventData = {
+            basename: $eventTarget.basename,
+            path: $eventTarget.path,
+            target: targetIndex,
+            start: copyIndex,
+            end: copyIndex + 1,
+            item: copyItem,
+          }
           // Array Copy Within Index Event
           $trap.createEvent(
             $eventTarget,
-            'copyWithinIndex', {
-              target: targetIndex,
-              start: copyIndex,
-              end: copyIndex + 1,
-              item: copyItem,
-            }
+            'copyWithinIndex', 
+            copyWithinIndexEventData,
           )
           copyIndex++
           targetIndex++
         }
+        // Array Copy Within Event Data
+        const copyWithinEventData = {
+          basename: $eventTarget.basename,
+          path: $eventTarget.path,
+          target: target,
+          start: start,
+          end: end,
+          items: copiedItems,
+        }
         // Array Copy Within Event
         $trap.createEvent(
           $eventTarget,
-          'copyWithin', {
-            target: target,
-            start: start,
-            end: end,
-            items: copiedItems,
-          }
+          'copyWithin',
+          copyWithinEventData,
         )
       }
     }

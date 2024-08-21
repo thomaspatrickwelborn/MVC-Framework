@@ -1,6 +1,6 @@
 import { DET } from '/dependencies/mvc-framework.js'
 import { eventLog } from '../../coutil/index.js'
-export default function objectFreeze() {
+export default function objectSeal() {
   const object = new DET({
     aaa: {
       bbb: {
@@ -10,6 +10,6 @@ export default function objectFreeze() {
       }
     }
   })
-  object.addEventListener('freeze', eventLog)
-  object.freeze()
+  object.addEventListener('seal', eventLog)
+  object.seal()
 }

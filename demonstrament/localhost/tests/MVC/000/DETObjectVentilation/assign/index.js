@@ -1,5 +1,5 @@
 import { DET } from '/dependencies/mvc-framework.js'
-import { eventLog } from '../coutil/index.js'
+import { eventLog } from '../../coutil/index.js'
 export default function objectAssign() {
   const object = new DET({
     aaa: {

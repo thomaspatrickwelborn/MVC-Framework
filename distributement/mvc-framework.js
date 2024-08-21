@@ -1133,25 +1133,59 @@ function PropertyIsEnumerable(
 function Seal(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path,
+  } = $aliases;
   const { recurse } = $options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
         if(recurse === true) {
-          for(const $propertyValue of Object.values($root)) {
-            if($propertyValue instanceof DynamicEventTarget) {
+          for(const [
+            $propertyKey, $propertyValue
+          ] of Object.entries(this)) {
+            if(
+              $propertyValue.constructor.name === 'bound DynamicEventTarget'
+            ) {
+              $propertyValue.addEventListener(
+                'seal', ($event) => {
+                  const sealEventData = {
+                    path: $event.path,
+                    basename: $event.basename,
+                  };
+                  $trap.createEvent(
+                    $eventTarget, 
+                    'seal',
+                    sealEventData,
+                    this,
+                  );
+                }
+              );
               $propertyValue.seal();
+            } else {
+              Object.seal($propertyValue);
             }
+            (
+              $path !== null
+            ) ? $path.concat('.', $propertyKey)
+              : $propertyKey;
+            const sealEventData = {
+              path: $path,
+              basename: $basename,
+            };
+            $trap.createEvent(
+              $eventTarget,
+              'seal',
+              sealEventData,
+              this
+            );
           }
         }
-        Object.seal($root);
-        $trap.createEvent(
-          $eventTarget,
-          'seal',
-          {},
-          $root
-        );
+        Object.seal(this);
         return $root
       }
     }
@@ -1289,7 +1323,53 @@ function At(
 function CopyWithin(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget.addEventListener(
+    'copyWithin', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const copyWithinEventData = {
+          basename: $event.basename,
+          path: $event.path,
+          target: $event.detail.target,
+          start: $event.detail.start,
+          end: $event.detail.end,
+          items: $event.detail.items,
+        };
+        $trap.createEvent(
+          $eventTarget.parent,
+          'copyWithin',
+          copyWithinEventData,
+        );
+      }
+    }
+  );
+  $eventTarget.addEventListener(
+    'copyWithinIndex', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const copyWithinIndexEventData = {
+          basename: $event.basename,
+          path: $event.path,
+          target: $event.detail.target,
+          start: $event.detail.start,
+          end: $event.detail.end,
+          item: $event.detail.item,
+        };
+        $trap.createEvent(
+          $eventTarget.parent,
+          'copyWithinIndex', 
+          copyWithinIndexEventData,
+        );
+      }
+    }
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -1320,28 +1400,38 @@ function CopyWithin(
             copyIndex,
             copyIndex + 1
           );
+          // Array Copy Within Index Event Data
+          const copyWithinIndexEventData = {
+            basename: $eventTarget.basename,
+            path: $eventTarget.path,
+            target: targetIndex,
+            start: copyIndex,
+            end: copyIndex + 1,
+            item: copyItem,
+          };
           // Array Copy Within Index Event
           $trap.createEvent(
             $eventTarget,
-            'copyWithinIndex', {
-              target: targetIndex,
-              start: copyIndex,
-              end: copyIndex + 1,
-              item: copyItem,
-            }
+            'copyWithinIndex', 
+            copyWithinIndexEventData,
           );
           copyIndex++;
           targetIndex++;
         }
+        // Array Copy Within Event Data
+        const copyWithinEventData = {
+          basename: $eventTarget.basename,
+          path: $eventTarget.path,
+          target: target,
+          start: start,
+          end: end,
+          items: copiedItems,
+        };
         // Array Copy Within Event
         $trap.createEvent(
           $eventTarget,
-          'copyWithin', {
-            target: target,
-            start: start,
-            end: end,
-            items: copiedItems,
-          }
+          'copyWithin',
+          copyWithinEventData,
         );
       }
     }
