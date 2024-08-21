@@ -15,11 +15,11 @@ export default function Fill(
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillEventData = {
-          start: fillIndex,
-          end: fillIndex + 1,
-          value,
-          path: $path,
-          basename: $basename,
+          path: $event.path,
+          basename: $event.basename,
+          start: $event.detail.fillIndex,
+          end: $event.detail.fillIndex + 1,
+          value: $event.detail.value,
         }
         $trap.createEvent(
           $eventTarget.parent,
@@ -34,11 +34,11 @@ export default function Fill(
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillIndexEventData = {
-          start,
-          end,
-          value,
-          path: $path,
-          basename: $basename,
+          path: $event.path,
+          basename: $event.basename,
+          start: $event.detail.start,
+          end: $event.detail.end,
+          value: $event.detail.value,
         }
         $trap.createEvent(
           $eventTarget.parent,

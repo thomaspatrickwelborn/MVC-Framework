@@ -1492,11 +1492,11 @@ function Fill(
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillEventData = {
-          start: fillIndex,
-          end: fillIndex + 1,
-          value,
-          path: $path,
-          basename: $basename,
+          path: $event.path,
+          basename: $event.basename,
+          start: $event.detail.fillIndex,
+          end: $event.detail.fillIndex + 1,
+          value: $event.detail.value,
         };
         $trap.createEvent(
           $eventTarget.parent,
@@ -1511,11 +1511,11 @@ function Fill(
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillIndexEventData = {
-          start,
-          end,
-          value,
-          path: $path,
-          basename: $basename,
+          path: $event.path,
+          basename: $event.basename,
+          start: $event.detail.start,
+          end: $event.detail.end,
+          value: $event.detail.value,
         };
         $trap.createEvent(
           $eventTarget.parent,
@@ -1774,23 +1774,47 @@ function LastIndexOf(
 function Length(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget.addEventListener(
+    'lengthSet', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const lengthEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          length: $event.detail.length,
+        };
+        $trap.createEvent(
+          $eventTarget.parent,
+          'lengthSet',
+          lengthEventData,
+        );
+      }
+    }
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
-      get() {
-        return $root.length
-      },
+      get() { return $root.length },
       set($length) {
         $root.length = $length;
         // Array Length Set Event
+        const lengthEventData = {
+          path: $path,
+          basename: $basename,
+          length: $root.length,
+        };
         $trap.createEvent(
           $eventTarget,
           'lengthSet',
-          {
-            length: $root.length,
-          }
+          lengthEventData
         );
-      }
+      },
     }
   )
 }
