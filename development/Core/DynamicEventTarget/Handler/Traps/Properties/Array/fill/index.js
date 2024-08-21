@@ -11,26 +11,26 @@ export default function Fill(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'copyWithin', 
+    'fill', 
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillEventData = {
           path: $event.path,
           basename: $event.basename,
-          start: $event.detail.fillIndex,
-          end: $event.detail.fillIndex + 1,
+          start: $event.detail.start,
+          end: $event.detail.end,
           value: $event.detail.value,
         }
         $trap.createEvent(
           $eventTarget.parent,
-          'copyWithin',
+          'fill',
           fillEventData,
         )
       }
     }
   )
   $eventTarget.addEventListener(
-    'copyWithinIndex', 
+    'fillIndex', 
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillIndexEventData = {
@@ -42,7 +42,7 @@ export default function Fill(
         }
         $trap.createEvent(
           $eventTarget.parent,
-          'copyWithinIndex', 
+          'fillIndex', 
           fillIndexEventData,
         )
       }
@@ -60,14 +60,28 @@ export default function Fill(
             rootAlias: $rootAlias,
           })
         }
-        const start = (
-          $arguments[1] >= 0
-        ) ? $arguments[1]
-          : $root.length + $arguments[1]
-        const end = (
-          $arguments[2] >= 0
-        ) ? $arguments[2]
-          : $root.length + $arguments[2]
+        let start
+        if(
+          typeof $arguments[1] === 'number'
+        ) {
+          start = (
+            $arguments[1] >= 0
+          ) ? $arguments[1]
+            : $root.length + $arguments[1]
+        } else {
+          start = 0
+        }
+        let end
+        if(
+          typeof $arguments[2] === 'number'
+        ) {
+          end = (
+            $arguments[2] >= 0
+          ) ? $arguments[2]
+            : $root.length + $arguments[2]
+        } else {
+          end = $root.length
+        }
         let fillIndex = start
         while(
           fillIndex < $root.length &&
@@ -76,13 +90,18 @@ export default function Fill(
           Array.prototype.fill.call(
             $root, value, fillIndex, fillIndex + 1
           )
+          const basename = fillIndex
+          const path = (
+            $path !== null
+          ) ? $path.concat('.', fillIndex)
+            : fillIndex
           // Array Fill Index Event Data
           const fillIndexEventData = {
             start: fillIndex,
             end: fillIndex + 1,
             value,
-            path: $path,
-            basename: $basename,
+            path,
+            basename,
           }
           // Array Fill Index Event
           $trap.createEvent(

@@ -3,7 +3,48 @@ import DynamicEventTarget from '../../../../../index.js'
 export default function Push(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root, $rootAlias } = $aliases
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases
+  $eventTarget.addEventListener(
+    'push', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const pushEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          elements: $event.detail.elements,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'push',
+          pushEventData,
+        )
+      }
+    }
+  )
+  $eventTarget.addEventListener(
+    'pushProp', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const pushPropEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          elementIndex: $event.detail.elementIndex, 
+          element: $event.detail.element,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'pushProp', 
+          pushPropEventData,
+        )
+      }
+    }
+  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -20,6 +61,11 @@ export default function Push(
           }
           elements.push($element)
           Array.prototype.push.call($root, $element)
+          const basename = elementIndex
+          const path = (
+            $path !== null
+          ) ? $path.concat('.', elementIndex)
+            : elementIndex
           // Push Prop Event
           $trap.createEvent(
             $eventTarget,
@@ -27,8 +73,8 @@ export default function Push(
             {
               elementIndex, 
               element: $element,
-              path: $path,
-              basename: $basename,
+              path,
+              basename,
             },
           )
           elementIndex++

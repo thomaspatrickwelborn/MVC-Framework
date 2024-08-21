@@ -177,7 +177,6 @@ const Events = {
       basename: $event.basename,
       path: $event.path,
       detail: {
-        prelength: $event.prelength,
         length: $event.length,
       }
     }

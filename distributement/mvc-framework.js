@@ -218,7 +218,6 @@ const Events$1 = {
       basename: $event.basename,
       path: $event.path,
       detail: {
-        prelength: $event.prelength,
         length: $event.length,
       }
     }
@@ -1488,26 +1487,26 @@ function Fill(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'copyWithin', 
+    'fill', 
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillEventData = {
           path: $event.path,
           basename: $event.basename,
-          start: $event.detail.fillIndex,
-          end: $event.detail.fillIndex + 1,
+          start: $event.detail.start,
+          end: $event.detail.end,
           value: $event.detail.value,
         };
         $trap.createEvent(
           $eventTarget.parent,
-          'copyWithin',
+          'fill',
           fillEventData,
         );
       }
     }
   );
   $eventTarget.addEventListener(
-    'copyWithinIndex', 
+    'fillIndex', 
     ($event) => {
       if($eventTarget.parent !== null) {
         const fillIndexEventData = {
@@ -1519,7 +1518,7 @@ function Fill(
         };
         $trap.createEvent(
           $eventTarget.parent,
-          'copyWithinIndex', 
+          'fillIndex', 
           fillIndexEventData,
         );
       }
@@ -1537,14 +1536,28 @@ function Fill(
             rootAlias: $rootAlias,
           });
         }
-        const start = (
-          $arguments[1] >= 0
-        ) ? $arguments[1]
-          : $root.length + $arguments[1];
-        const end = (
-          $arguments[2] >= 0
-        ) ? $arguments[2]
-          : $root.length + $arguments[2];
+        let start;
+        if(
+          typeof $arguments[1] === 'number'
+        ) {
+          start = (
+            $arguments[1] >= 0
+          ) ? $arguments[1]
+            : $root.length + $arguments[1];
+        } else {
+          start = 0;
+        }
+        let end;
+        if(
+          typeof $arguments[2] === 'number'
+        ) {
+          end = (
+            $arguments[2] >= 0
+          ) ? $arguments[2]
+            : $root.length + $arguments[2];
+        } else {
+          end = $root.length;
+        }
         let fillIndex = start;
         while(
           fillIndex < $root.length &&
@@ -1553,13 +1566,18 @@ function Fill(
           Array.prototype.fill.call(
             $root, value, fillIndex, fillIndex + 1
           );
+          const basename = fillIndex;
+          const path = (
+            $path !== null
+          ) ? $path.concat('.', fillIndex)
+            : fillIndex;
           // Array Fill Index Event Data
           const fillIndexEventData = {
             start: fillIndex,
             end: fillIndex + 1,
             value,
-            path: $path,
-            basename: $basename,
+            path,
+            basename,
           };
           // Array Fill Index Event
           $trap.createEvent(
@@ -1850,17 +1868,48 @@ function Of(
 function Pop(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget.addEventListener(
+    'pop', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const popEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          element: $event.detail.element,
+          elementIndex: $event.detail.elementIndex,
+        };
+        $trap.createEvent(
+          $eventTarget.parent,
+          'pop',
+          popEventData,
+        );
+      }
+    }
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const popElement = Array.prototype.pop.call($root);
         const popElementIndex = $root.length - 1;
+        const basename = popElementIndex;
+        const path = (
+          $path !== null
+        ) ? $path.concat('.', popElementIndex)
+          : popElementIndex;
         // Array Pop Event
         $trap.createEvent(
           $eventTarget,
           'pop',
           {
+            basename,
+            path,
             element: popElement,
             elementIndex: popElementIndex,
           }
@@ -1874,7 +1923,48 @@ function Pop(
 function Push(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root, $rootAlias } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget.addEventListener(
+    'push', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const pushEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          elements: $event.detail.elements,
+        };
+        $trap.createEvent(
+          $eventTarget.parent,
+          'push',
+          pushEventData,
+        );
+      }
+    }
+  );
+  $eventTarget.addEventListener(
+    'pushProp', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const pushPropEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          elementIndex: $event.detail.elementIndex, 
+          element: $event.detail.element,
+        };
+        $trap.createEvent(
+          $eventTarget.parent,
+          'pushProp', 
+          pushPropEventData,
+        );
+      }
+    }
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -1890,6 +1980,11 @@ function Push(
           }
           elements.push($element);
           Array.prototype.push.call($root, $element);
+          const basename = elementIndex;
+          const path = (
+            $path !== null
+          ) ? $path.concat('.', elementIndex)
+            : elementIndex;
           // Push Prop Event
           $trap.createEvent(
             $eventTarget,
@@ -1897,8 +1992,8 @@ function Push(
             {
               elementIndex, 
               element: $element,
-              path: $path,
-              basename: $basename,
+              path,
+              basename,
             },
           );
           elementIndex++;
@@ -1961,17 +2056,48 @@ function Reverse(
 function Shift(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget.addEventListener(
+    'shift', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const shiftEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          element: $event.detail.element,
+          elementIndex: $event.detail.elementIndex,
+        };
+        $trap.createEvent(
+          $eventTarget.parent,
+          'shift',
+          shiftEventData,
+        );
+      }
+    }
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const shiftElement = Array.prototype.shift.call($root);
         const shiftElementIndex = 0;
+        const basename = shiftElementIndex;
+        const path = (
+          $path !== null
+        ) ? $path.concat('.', shiftElementIndex)
+          : shiftElementIndex;
         // Array Shift Event
         $trap.createEvent(
           $eventTarget,
           'shift',
           {
+            basename,
+            path,
             element: shiftElement,
             elementIndex: shiftElementIndex,
           }

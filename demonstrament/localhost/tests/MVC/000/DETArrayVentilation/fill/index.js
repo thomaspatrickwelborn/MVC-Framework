@@ -10,8 +10,8 @@ export default function arrayFill() {
   array[2].length = 3
   array.addEventListener('fillIndex', eventLog)
   array.addEventListener('fill', eventLog)
-  array[0].fill(undefined, 0)
-  array[1].fill(undefined, 0)
-  array[2].fill(undefined, 0)
+  array[0].fill('aaa', array[0])
+  array[1].fill('aaa', array[1])
+  array[2].fill('aaa', array[2])
   console.log(array)
 }
