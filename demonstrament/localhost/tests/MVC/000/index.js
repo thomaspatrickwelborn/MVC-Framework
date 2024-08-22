@@ -2,9 +2,9 @@ import DETObjectInstantiation from './DETObjectInstantiation/index.js'
 import DETObjectVentilation from './DETObjectVentilation/index.js'
 import DETArrayVentilation from './DETArrayVentilation/index.js'
 function DOMContentLoaded() {
-  DETObjectInstantiation()
+  // DETObjectInstantiation()
   DETObjectVentilation()
-  DETArrayVentilation()
+  // DETArrayVentilation()
 }
 
 document.addEventListener('DOMContentLoaded', DOMContentLoaded)

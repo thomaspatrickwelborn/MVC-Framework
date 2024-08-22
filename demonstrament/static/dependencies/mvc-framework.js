@@ -40,418 +40,6 @@ class DynamicEvent extends Event {
   get detail() { return this.#settings.detail }
 }
 
-const Events$1 = {
-  // Object Events
-  // Object Assign
-  'assign': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'assign', { 
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $target
-      },
-    }
-  ),
-  // Object Assign Source
-  'assignSource': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'assignSource', { 
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        source: $event.source,
-      }
-    }
-  ),
-  // Object Assign Source Property
-  'assignSourceProperty': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `assignSourceProperty`, { 
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key,
-        val: $event.val,
-        source: $event.source,
-      }
-    }
-  ),
-  // Object Define Properties
-  'defineProperties': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'defineProperties', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        descriptors: $event.descriptors, 
-      }
-    }
-  ),
-  // Object Define Property
-  'defineProperty': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `defineProperty`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        prop: $event.prop,
-        descriptor: $event.descriptor,
-      }
-    }
-    ),
-  // Object Define Property
-  'definePropertyKey': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `defineProperty:${$event.prop}`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        prop: $event.prop,
-        descriptor: $event.descriptor,
-      }
-    }
-  ),
-  // Object Freeze
-  'freeze': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'freeze', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $target
-      }
-    }
-  ),
-  // Object Seal
-  'seal': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'seal', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $target
-      }
-    }
-  ),
-  // Object Set Prototype Of
-  'setPrototypeOf': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-      'setPrototypeOf', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key,
-        preprototype: $event.preprototype,
-        prototype: $event.prototype,
-      }
-    }
-  ),
-  // Array Events
-  'copyWithin': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'copyWithin', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $event.target,
-        start: $event.start,
-        end: $event.end,
-        items: $event.items,
-      }
-    }
-  ),
-  'copyWithinIndex': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'copyWithinIndex', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $event.target,
-        start: $event.start,
-        end: $event.end,
-        item: $event.item,
-      }
-    }
-  ),
-  'fill': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'fill', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        start: $event.start,
-        end: $event.end,
-        value: $event.value,
-      }
-    }
-  ),
-  'fillIndex': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'fillIndex', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        start: $event.start,
-        end: $event.end,
-        value: $event.value,
-      }
-    }
-  ),
-  'lengthSet': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'lengthSet', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        length: $event.length,
-      }
-    }
-  ),
-'push': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'push', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        elements: $event.elements,
-      }
-    }
-  ),
-  'pushProp': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `pushProp`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        element: $event.element,
-        elementIndex: $event.elementIndex,
-      }
-    }
-  ),
-  'pop': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'pop', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        element: $event.element, 
-        elementIndex: $event.elementIndex,
-      }
-    }
-  ),
-  'reverse': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'reverse', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        preverse: $event.preverse, 
-        reverse: $event.reverse, 
-      }
-    }
-  ),
-  'shift': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'shift', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        element: $event.element,
-        elementIndex: $event.elementIndex,
-      }
-    }
-  ),
-  'sort': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'sort', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        presort: $event.presort, 
-        sort: $event.sort, 
-      }
-    }
-  ),
-  'spliceDelete': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'spliceDelete', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        index: $event.index,
-        deleteIndex: $event.deleteIndex,
-        deleteItem: $event.deleteItem,
-      }
-    }
-  ),
-  'spliceAdd': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-      'spliceAdd', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        index: $event.index,
-        addIndex: $event.addIndex,
-        addItem: $event.addItem,
-      }
-    }
-  ),
-  'splice': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'splice', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        start: $event.start, 
-        deleted: $event.deleted, 
-        added: $event.added, 
-        length: $event.length, 
-      }
-    }
-  ),
-  'unshift': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'unshift', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        elements: $event.elements,
-      }
-    }
-  ),
-  'unshiftProp': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `unshiftProp`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        element: $event.element,
-        elementIndex: $event.elementIndex,
-      }
-    }
-  ),
-  // Map Events
-  // Map Clear Event
-  'clear': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'clear', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        presize: $event.presize, 
-        size: $event.size, 
-      }
-    }
-  ),
-  // Map Clear Event
-  'delete': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'delete', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key, 
-        preval: $event.preval, 
-      }
-    }
-  ),
-  // Map Delete Key Event
-  'deleteKey': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `delete:${$event.key}`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key, 
-        preval: $event.preval, 
-      }
-    }
-  ),
-  // Map Get Event
-  'get': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'get', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key, 
-        val: $event.val, 
-      }
-    }
-  ),
-  // Map Get Key Event
-  'getKey': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `get:${$event.key}`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key, 
-        val: $event.val, 
-      }
-    }
-  ),
-  // Map Set Event
-  'set': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'set', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key, 
-        val: $event.val, 
-        preval: $event.preval, 
-      }
-    }
-  ),
-  // Map Set Key Event
-  'setKey': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `set:${$event.key}`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key, 
-        val: $event.val, 
-        preval: $event.preval, 
-      }
-    }
-  )
-};
-
 class Trap {
   constructor($methods, $aliases, $options = {}) {
     for(let [
@@ -462,20 +50,6 @@ class Trap {
         this, $methodName, $aliases, methodOptions
       );
     }
-  }
-  createEvent(
-    $eventTarget, 
-    $eventType, 
-    $eventData, 
-    $target, 
-  ) {
-    const event = Events$1[$eventType](
-      $eventData, 
-      $target, 
-      $eventTarget, 
-    );
-    $eventTarget.dispatchEvent(event);
-    return event
   }
 }
 
@@ -491,6 +65,11 @@ function isDirectInstanceOf($object, $constructor) {
   } else {
     return Object.getPrototypeOf($object) === $constructor.prototype
   }
+}
+
+function parseDynamicEventBubbleData($event) {
+  const { type, basename, path, detail } = $event;
+  return [type, { basename, path, detail }]
 }
 
 function Assign(
@@ -544,49 +123,32 @@ function Assign(
                   }
                 );
                 detObject.addEventListener(
-                  'assignSourceProperty', ($event) => {
-                    const assignSourcePropertyEventData = {
-                      key: $event.detail.key,
-                      val: $event.detail.val,
-                      source: $event.detail.source,
-                      path: $event.path,
-                      basename: $event.basename,
-                    };
-                    $trap.createEvent(
-                      $eventTarget, 
-                      'assignSourceProperty',
-                      assignSourcePropertyEventData,
-                      $root,
+                  'assignSourceProperty',
+                  ($event) => {
+                    $eventTarget.dispatchEvent(
+                      new DynamicEvent(
+                        ...parseDynamicEventBubbleData($event)
+                      )
                     );
                   }
                 );
                 detObject.addEventListener(
-                  'assignSource', ($event) => {
-                    const assignSourceEventData = {
-                      source: $event.detail.source,
-                      path: $event.path,
-                      basename: $event.basename,
-                    };
-                    $trap.createEvent(
-                      $eventTarget,
-                      'assignSource',
-                      assignSourceEventData,
-                      $root
+                  'assignSource',
+                  ($event) => {
+                    $eventTarget.dispatchEvent(
+                      new DynamicEvent(
+                        ...parseDynamicEventBubbleData($event)
+                      )
                     );
                   }
                 );
                 detObject.addEventListener(
-                  'assign', ($event) => {
-                    const assignEventData = {
-                      sources: $event.detail.sources,
-                      path: $event.path,
-                      basename: $event.basename,
-                    };
-                    $trap.createEvent(
-                      $eventTarget,
-                      'assign',
-                      assignEventData,
-                      $root,
+                  'assign',
+                  ($event) => {
+                    $eventTarget.dispatchEvent(
+                      new DynamicEvent(
+                        ...parseDynamicEventBubbleData($event)
+                      )
                     );
                   }
                 );
@@ -601,48 +163,48 @@ function Assign(
                 [$sourcePropKey]: $sourcePropVal
               });
             }
-            // Assign Source Property Event Data
-            const assignSourcePropertyEventData = {
-              key: $sourcePropKey,
-              val: $sourcePropVal,
-              source: $source,
-              path: $path,
-              basename: $basename,
-            };
             // Assign Source Property Event
-            $trap.createEvent(
-              $eventTarget, 
-              'assignSourceProperty',
-              assignSourcePropertyEventData,
-              $root,
+            $eventTarget.dispatchEvent(
+              new DynamicEvent(
+                'assignSourceProperty',
+                {
+                  path: $path,
+                  basename: $basename,
+                  detail: {
+                    key: $sourcePropKey,
+                    val: $sourcePropVal,
+                    source: $source,
+                  }
+                },
+              )
             );
           }
-          // Assign Source Event Data
-          const assignSourceEventData = {
-            source: $source,
-            path: $path,
-            basename: $basename,
-          };
           // Assign Source Event
-          $trap.createEvent(
-            $eventTarget,
-            'assignSource',
-            assignSourceEventData,
-            $root
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'assignSource',
+              {
+                path: $path,
+                basename: $basename,
+                detail: {
+                  source: $source,
+                },
+              }
+            )
           );
         }
-        // Assign Event Data
-        const assignEventData = {
-          sources,
-          path: $path,
-          basename: $basename,
-        };
         // Assign Event
-        $trap.createEvent(
-          $eventTarget,
-          'assign',
-          assignEventData,
-          $root,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'assign',
+            { 
+              basename: $basename,
+              path: $path,
+              detail: {
+                sources
+              },
+            }
+          )
         );
         return $root
       }
@@ -660,6 +222,18 @@ function DefineProperties(
     $basename,
     $path, 
   } = $aliases;
+  $eventTarget.addEventListener(
+    'defineProperties', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        $eventTarget.parent.dispatchEvent(
+          new DynamicEvent(
+            ...parseDynamicEventBubbleData($event)
+          )
+        );
+      }
+    }
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -671,17 +245,18 @@ function DefineProperties(
           // Property Descriptor Value Is Direct Instance Of Array/Object/Map
           $trap.defineProperty($propertyKey, $propertyDescriptor);
         }
-        // Define Properties Event Data
-        const definePropertiesEventData = {
-          descriptors: $propertyDescriptors,
-          path: $path,
-          basename: $basename,
-        };
         // Define Properties Event
-        $trap.createEvent(
-          $eventTarget,
-          'defineProperties',
-          definePropertiesEventData,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'defineProperties',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                descriptors: $propertyDescriptors,
+              },
+            }
+          )
         );
         return $root
       }
@@ -692,6 +267,7 @@ function DefineProperties(
 function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { descriptorValueMerge, descriptorTree } = $options;
   const {
     $eventTarget, 
     $root, 
@@ -699,19 +275,11 @@ function DefineProperty(
     $basename,
     $path, 
   } = $aliases;
-  const { descriptorValueMerge, descriptorTree } = $options;
   function defineProperty($event) {
-    const definePropertyEventData = {
-      prop: $event.detail.prop,
-      descriptor: $event.detail.descriptor,
-      path: $event.path,
-      basename: $event.basename,
-    };
-    $trap.createEvent(
-      $eventTarget,
-      'defineProperty',
-      definePropertyEventData,
-      $root,
+    $eventTarget.dispatchEvent(
+      new DynamicEvent(
+        ...parseDynamicEventBubbleData($event)
+      )
     );
   }
   return Object.defineProperty(
@@ -804,19 +372,19 @@ function DefineProperty(
             $root, propertyKey, propertyDescriptor
           );
         }
-        // Define Property Event Data
-        const definePropertyEventData = {
-          prop: propertyKey,
-          descriptor: propertyDescriptor,
-          path: $path,
-          basename: $basename,
-        };
         // Define Property Event
-        $trap.createEvent(
-          $eventTarget,
-          'defineProperty',
-          definePropertyEventData,
-          $root,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'defineProperty',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                prop: propertyKey,
+                descriptor: propertyDescriptor,
+              },
+            }
+          )
         );
         return $root
       }
@@ -860,15 +428,10 @@ function Freeze(
             ) {
               $propertyValue.addEventListener(
                 'freeze', ($event) => {
-                  const freezeEventData = {
-                    path: $event.path,
-                    basename: $event.basename,
-                  };
-                  $trap.createEvent(
-                    $eventTarget, 
-                    'freeze',
-                    freezeEventData,
-                    this,
+                  $eventTarget.dispatchEvent(
+                    new DynamicEvent(
+                      ...parseDynamicEventBubbleData($event)
+                    )
                   );
                 }
               );
@@ -880,15 +443,14 @@ function Freeze(
               $path !== null
             ) ? $path.concat('.', $propertyKey)
               : $propertyKey;
-            const freezeEventData = {
-              path: $path,
-              basename: $basename,
-            };
-            $trap.createEvent(
-              $eventTarget,
-              'freeze',
-              freezeEventData,
-              this
+            $eventTarget.dispatchEvent(
+              new DynamicEvent(
+                'freeze',
+                {
+                  path: $path,
+                  basename: $basename,
+                },
+              )
             );
           }
         }
@@ -1154,15 +716,10 @@ function Seal(
             ) {
               $propertyValue.addEventListener(
                 'seal', ($event) => {
-                  const sealEventData = {
-                    path: $event.path,
-                    basename: $event.basename,
-                  };
-                  $trap.createEvent(
-                    $eventTarget, 
-                    'seal',
-                    sealEventData,
-                    this,
+                  $eventTarget.dispatchEvent(
+                    new DynamicEvent(
+                      ...parseDynamicEventBubbleData($event)
+                    )
                   );
                 }
               );
@@ -1174,15 +731,14 @@ function Seal(
               $path !== null
             ) ? $path.concat('.', $propertyKey)
               : $propertyKey;
-            const sealEventData = {
-              path: $path,
-              basename: $basename,
-            };
-            $trap.createEvent(
-              $eventTarget,
-              'seal',
-              sealEventData,
-              this
+            $eventTarget.dispatchEvent(
+              new DynamicEvent(
+                'seal',
+                {
+                  path: $path,
+                  basename: $basename,
+                },
+              )
             );
           }
         }
@@ -1196,19 +752,41 @@ function Seal(
 function SetPrototypeOf(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget.addEventListener(
+    'setPrototypeOf', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        $eventTarget.parent.dispatchEvent(
+          new DynamicEvent(
+            ...parseDynamicEventBubbleData($event)
+          )
+        );
+      }
+    }
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
         const prototype = arguments[0];
         Object.setPrototypeOf($root, prototype);
-        $trap.createEvent(
-          $eventTarget,
-          'setPrototypeOf',
-          {
-            prototype
-          },
-          $root
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'setPrototypeOf',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                prototype
+              },
+            },
+          )
         );
         return $root
       }

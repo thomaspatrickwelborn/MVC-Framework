@@ -10,7 +10,7 @@ export default function objectAssign() {
       }
     }
   })
-  object.aaa.bbb.addEventListener('assign', eventLog)
+  // object.aaa.bbb.addEventListener('assign', eventLog)
   object.addEventListener('assign', eventLog)
   object.assign({
     aaa: {
@@ -21,27 +21,27 @@ export default function objectAssign() {
       }
     }
   })
-  object.assign({
-    aaa: {
-      bbb: {
-        ccc: {
-          eee: {
-            fff: 666
-          }
-        }
-      }
-    }
-  })
-  object.aaa.bbb.ccc.eee. addEventListener('assign', eventLog)
-  object.assign({
-    aaa: {
-      bbb: {
-        ccc: {
-          eee: {
-            fff: 66666666
-          }
-        }
-      }
-    }
-  })
+  // object.assign({
+  //   aaa: {
+  //     bbb: {
+  //       ccc: {
+  //         eee: {
+  //           fff: 666
+  //         }
+  //       }
+  //     }
+  //   }
+  // })
+  // // object.aaa.bbb.ccc.eee.addEventListener('assign', eventLog)
+  // object.assign({
+  //   aaa: {
+  //     bbb: {
+  //       ccc: {
+  //         eee: {
+  //           fff: 66666666
+  //         }
+  //       }
+  //     }
+  //   }
+  // })
 }
