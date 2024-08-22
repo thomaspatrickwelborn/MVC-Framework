@@ -3,8 +3,8 @@ import DETObjectVentilation from './DETObjectVentilation/index.js'
 import DETArrayVentilation from './DETArrayVentilation/index.js'
 function DOMContentLoaded() {
   // DETObjectInstantiation()
-  // DETObjectVentilation()
-  DETArrayVentilation()
+  DETObjectVentilation()
+  // DETArrayVentilation()
 }
 
 document.addEventListener('DOMContentLoaded', DOMContentLoaded)

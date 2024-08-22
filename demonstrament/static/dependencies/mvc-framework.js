@@ -742,7 +742,9 @@ function DefineProperty(
             );
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
-              $trap.defineProperty(propertyKey, propertyDescriptor);
+              rootPropertyDescriptor.value.defineProperties(
+                propertyDescriptor.value
+              );
             } else
             // Root Define Properties, No Descriptor Tree
             {
