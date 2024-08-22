@@ -6,9 +6,9 @@ import objectSeal from './seal/index.js'
 
 export default function DETObjectVentilation() {
   console.log('DET Object Ventilation') 
-  // objectAssign()
+  objectAssign()
   objectDefineProperties()
   objectDefineProperty()
-  // objectFreeze()
-  // objectSeal()
+  objectFreeze()
+  objectSeal()
 }
