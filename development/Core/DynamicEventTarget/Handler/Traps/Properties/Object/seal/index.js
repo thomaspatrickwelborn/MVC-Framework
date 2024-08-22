@@ -1,4 +1,10 @@
+import {
+  typeOf,
+  isDirectInstanceOf,
+  parseDEBD,
+} from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
+import DynamicEvent from '../../../Events/DynamicEvent/index.js'
 export default function Seal(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -23,15 +29,10 @@ export default function Seal(
             ) {
               $propertyValue.addEventListener(
                 'seal', ($event) => {
-                  const sealEventData = {
-                    path: $event.path,
-                    basename: $event.basename,
-                  }
-                  $trap.createEvent(
-                    $eventTarget, 
-                    'seal',
-                    sealEventData,
-                    this,
+                  $eventTarget.dispatchEvent(
+                    new DynamicEvent(
+                      ...parseDEBD($event)
+                    )
                   )
                 }
               )
@@ -44,15 +45,14 @@ export default function Seal(
               $path !== null
             ) ? $path.concat('.', $propertyKey)
               : $propertyKey
-            const sealEventData = {
-              path: $path,
-              basename: $basename,
-            }
-            $trap.createEvent(
-              $eventTarget,
-              'seal',
-              sealEventData,
-              this
+            $eventTarget.dispatchEvent(
+              new DynamicEvent(
+                'seal',
+                {
+                  path: $path,
+                  basename: $basename,
+                },
+              )
             )
           }
         }

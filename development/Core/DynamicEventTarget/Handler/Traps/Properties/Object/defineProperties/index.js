@@ -1,8 +1,14 @@
-import { typeOf, isDirectInstanceOf } from '../../Coutil/index.js'
+import {
+  typeOf,
+  isDirectInstanceOf,
+  parseDEBD,
+} from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
+import DynamicEvent from '../../../Events/DynamicEvent/index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { descriptorValueMerge, descriptorTree } = $options
   const {
     $eventTarget, 
     $root, 
@@ -10,34 +16,18 @@ export default function DefineProperties(
     $basename,
     $path, 
   } = $aliases
-  const { descriptorValueMerge, descriptorTree } = $options
-  function defineProperty($event) {
-    const definePropertyEventData = {
-      prop: $event.detail.prop,
-      descriptor: $event.detail.descriptor,
-      path: $event.path,
-      basename: $event.basename,
+  $eventTarget.addEventListener(
+    'defineProperties', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        $eventTarget.parent.dispatchEvent(
+          new DynamicEvent(
+            ...parseDEBD($event)
+          )
+        )
+      }
     }
-    $trap.createEvent(
-      $eventTarget,
-      'defineProperty',
-      definePropertyEventData,
-      $root,
-    )
-  }
-  function defineProperties($event) {
-    const definePropertiesEventData = {
-      descriptors: $event.detail.descriptors,
-      path: $event.path,
-      basename: $event.basename,
-    }
-    $trap.createEvent(
-      $eventTarget,
-      'defineProperties',
-      definePropertiesEventData,
-      $root,
-    )
-  }
+  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -50,17 +40,18 @@ export default function DefineProperties(
           // Property Descriptor Value Is Direct Instance Of Array/Object/Map
           $trap.defineProperty($propertyKey, $propertyDescriptor)
         }
-        // Define Properties Event Data
-        const definePropertiesEventData = {
-          descriptors: $propertyDescriptors,
-          path: $path,
-          basename: $basename,
-        }
         // Define Properties Event
-        $trap.createEvent(
-          $eventTarget,
-          'defineProperties',
-          definePropertiesEventData,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'defineProperties',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                descriptors: $propertyDescriptors,
+              },
+            }
+          )
         )
         return $root
       }

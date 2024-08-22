@@ -1,4 +1,10 @@
+import {
+  typeOf,
+  isDirectInstanceOf,
+  parseDEBD,
+} from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
+import DynamicEvent from '../../../Events/DynamicEvent/index.js'
 export default function Freeze(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -23,15 +29,10 @@ export default function Freeze(
             ) {
               $propertyValue.addEventListener(
                 'freeze', ($event) => {
-                  const freezeEventData = {
-                    path: $event.path,
-                    basename: $event.basename,
-                  }
-                  $trap.createEvent(
-                    $eventTarget, 
-                    'freeze',
-                    freezeEventData,
-                    this,
+                  $eventTarget.dispatchEvent(
+                    new DynamicEvent(
+                      ...parseDEBD($event)
+                    )
                   )
                 }
               )
@@ -44,15 +45,14 @@ export default function Freeze(
               $path !== null
             ) ? $path.concat('.', $propertyKey)
               : $propertyKey
-            const freezeEventData = {
-              path: $path,
-              basename: $basename,
-            }
-            $trap.createEvent(
-              $eventTarget,
-              'freeze',
-              freezeEventData,
-              this
+            $eventTarget.dispatchEvent(
+              new DynamicEvent(
+                'freeze',
+                {
+                  path: $path,
+                  basename: $basename,
+                },
+              )
             )
           }
         }

@@ -10,18 +10,4 @@ export default class Trap {
       )
     }
   }
-  createEvent(
-    $eventTarget, 
-    $eventType, 
-    $eventData, 
-    $target, 
-  ) {
-    const event = Events[$eventType](
-      $eventData, 
-      $target, 
-      $eventTarget, 
-    )
-    $eventTarget.dispatchEvent(event)
-    return event
-  }
 }

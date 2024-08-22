@@ -2,105 +2,105 @@ import DynamicEvent from './DynamicEvent/index.js'
 const Events = {
   // Object Events
   // Object Assign
-  'assign': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'assign', { 
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $target
-      },
-    }
-  ),
+  // 'assign': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   'assign', { 
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       target: $target
+  //     },
+  //   }
+  // ),
   // Object Assign Source
-  'assignSource': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'assignSource', { 
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        source: $event.source,
-      }
-    }
-  ),
+  // 'assignSource': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   'assignSource', { 
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       source: $event.source,
+  //     }
+  //   }
+  // ),
   // Object Assign Source Property
-  'assignSourceProperty': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `assignSourceProperty`, { 
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        key: $event.key,
-        val: $event.val,
-        source: $event.source,
-      }
-    }
-  ),
+  // 'assignSourceProperty': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   `assignSourceProperty`, { 
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       key: $event.key,
+  //       val: $event.val,
+  //       source: $event.source,
+  //     }
+  //   }
+  // ),
   // Object Define Properties
-  'defineProperties': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'defineProperties', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        descriptors: $event.descriptors, 
-      }
-    }
-  ),
+  // 'defineProperties': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   'defineProperties', {
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       descriptors: $event.descriptors, 
+  //     }
+  //   }
+  // ),
+  // // Object Define Property
+  // 'defineProperty': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   `defineProperty`, {
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       prop: $event.prop,
+  //       descriptor: $event.descriptor,
+  //     }
+  //   }
+  // ),
   // Object Define Property
-  'defineProperty': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `defineProperty`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        prop: $event.prop,
-        descriptor: $event.descriptor,
-      }
-    }
-    ),
-  // Object Define Property
-  'definePropertyKey': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    `defineProperty:${$event.prop}`, {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        prop: $event.prop,
-        descriptor: $event.descriptor,
-      }
-    }
-  ),
+  // 'definePropertyKey': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   `defineProperty:${$event.prop}`, {
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       prop: $event.prop,
+  //       descriptor: $event.descriptor,
+  //     }
+  //   }
+  // ),
   // Object Freeze
-  'freeze': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'freeze', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $target
-      }
-    }
-  ),
+  // 'freeze': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   'freeze', {
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       target: $target
+  //     }
+  //   }
+  // ),
   // Object Seal
-  'seal': (
-    $event, $target, $eventTarget
-  ) => new DynamicEvent(
-    'seal', {
-      basename: $event.basename,
-      path: $event.path,
-      detail: {
-        target: $target
-      }
-    }
-  ),
+  // 'seal': (
+  //   $event, $target, $eventTarget
+  // ) => new DynamicEvent(
+  //   'seal', {
+  //     basename: $event.basename,
+  //     path: $event.path,
+  //     detail: {
+  //       target: $target
+  //     }
+  //   }
+  // ),
   // Object Set Prototype Of
   'setPrototypeOf': (
     $event, $target, $eventTarget

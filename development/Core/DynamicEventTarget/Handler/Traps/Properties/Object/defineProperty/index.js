@@ -1,8 +1,14 @@
-import { typeOf, isDirectInstanceOf } from '../../Coutil/index.js'
+import {
+  typeOf,
+  isDirectInstanceOf,
+  parseDEBD,
+} from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
+import DynamicEvent from '../../../Events/DynamicEvent/index.js'
 export default function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { descriptorValueMerge, descriptorTree } = $options
   const {
     $eventTarget, 
     $root, 
@@ -10,19 +16,11 @@ export default function DefineProperty(
     $basename,
     $path, 
   } = $aliases
-  const { descriptorValueMerge, descriptorTree } = $options
   function defineProperty($event) {
-    const definePropertyEventData = {
-      prop: $event.detail.prop,
-      descriptor: $event.detail.descriptor,
-      path: $event.path,
-      basename: $event.basename,
-    }
-    $trap.createEvent(
-      $eventTarget,
-      'defineProperty',
-      definePropertyEventData,
-      $root,
+    $eventTarget.dispatchEvent(
+      new DynamicEvent(
+        ...parseDEBD($event)
+      )
     )
   }
   return Object.defineProperty(
@@ -115,19 +113,19 @@ export default function DefineProperty(
             $root, propertyKey, propertyDescriptor
           )
         }
-        // Define Property Event Data
-        const definePropertyEventData = {
-          prop: propertyKey,
-          descriptor: propertyDescriptor,
-          path: $path,
-          basename: $basename,
-        }
         // Define Property Event
-        $trap.createEvent(
-          $eventTarget,
-          'defineProperty',
-          definePropertyEventData,
-          $root,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'defineProperty',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                prop: propertyKey,
+                descriptor: propertyDescriptor,
+              },
+            }
+          )
         )
         return $root
       }

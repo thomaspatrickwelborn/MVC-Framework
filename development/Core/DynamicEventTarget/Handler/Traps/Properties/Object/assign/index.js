@@ -1,5 +1,9 @@
-import { isDirectInstanceOf } from '../../Coutil/index.js'
+import {
+  isDirectInstanceOf,
+  parseDEBD,
+} from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
+import DynamicEvent from '../../../Events/DynamicEvent/index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -53,49 +57,32 @@ export default function Assign(
                   }
                 )
                 detObject.addEventListener(
-                  'assignSourceProperty', ($event) => {
-                    const assignSourcePropertyEventData = {
-                      key: $event.detail.key,
-                      val: $event.detail.val,
-                      source: $event.detail.source,
-                      path: $event.path,
-                      basename: $event.basename,
-                    }
-                    $trap.createEvent(
-                      $eventTarget, 
-                      'assignSourceProperty',
-                      assignSourcePropertyEventData,
-                      $root,
+                  'assignSourceProperty',
+                  ($event) => {
+                    $eventTarget.dispatchEvent(
+                      new DynamicEvent(
+                        ...parseDEBD($event)
+                      )
                     )
                   }
                 )
                 detObject.addEventListener(
-                  'assignSource', ($event) => {
-                    const assignSourceEventData = {
-                      source: $event.detail.source,
-                      path: $event.path,
-                      basename: $event.basename,
-                    }
-                    $trap.createEvent(
-                      $eventTarget,
-                      'assignSource',
-                      assignSourceEventData,
-                      $root
+                  'assignSource',
+                  ($event) => {
+                    $eventTarget.dispatchEvent(
+                      new DynamicEvent(
+                        ...parseDEBD($event)
+                      )
                     )
                   }
                 )
                 detObject.addEventListener(
-                  'assign', ($event) => {
-                    const assignEventData = {
-                      sources: $event.detail.sources,
-                      path: $event.path,
-                      basename: $event.basename,
-                    }
-                    $trap.createEvent(
-                      $eventTarget,
-                      'assign',
-                      assignEventData,
-                      $root,
+                  'assign',
+                  ($event) => {
+                    $eventTarget.dispatchEvent(
+                      new DynamicEvent(
+                        ...parseDEBD($event)
+                      )
                     )
                   }
                 )
@@ -110,48 +97,48 @@ export default function Assign(
                 [$sourcePropKey]: $sourcePropVal
               })
             }
-            // Assign Source Property Event Data
-            const assignSourcePropertyEventData = {
-              key: $sourcePropKey,
-              val: $sourcePropVal,
-              source: $source,
-              path: $path,
-              basename: $basename,
-            }
             // Assign Source Property Event
-            $trap.createEvent(
-              $eventTarget, 
-              'assignSourceProperty',
-              assignSourcePropertyEventData,
-              $root,
+            $eventTarget.dispatchEvent(
+              new DynamicEvent(
+                'assignSourceProperty',
+                {
+                  path: $path,
+                  basename: $basename,
+                  detail: {
+                    key: $sourcePropKey,
+                    val: $sourcePropVal,
+                    source: $source,
+                  }
+                },
+              )
             )
           }
-          // Assign Source Event Data
-          const assignSourceEventData = {
-            source: $source,
-            path: $path,
-            basename: $basename,
-          }
           // Assign Source Event
-          $trap.createEvent(
-            $eventTarget,
-            'assignSource',
-            assignSourceEventData,
-            $root
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'assignSource',
+              {
+                path: $path,
+                basename: $basename,
+                detail: {
+                  source: $source,
+                },
+              }
+            )
           )
         }
-        // Assign Event Data
-        const assignEventData = {
-          sources,
-          path: $path,
-          basename: $basename,
-        }
         // Assign Event
-        $trap.createEvent(
-          $eventTarget,
-          'assign',
-          assignEventData,
-          $root,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'assign',
+            { 
+              basename: $basename,
+              path: $path,
+              detail: {
+                sources
+              },
+            }
+          )
         )
         return $root
       }
