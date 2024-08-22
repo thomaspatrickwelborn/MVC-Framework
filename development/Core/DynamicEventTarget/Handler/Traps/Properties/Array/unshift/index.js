@@ -3,7 +3,48 @@ import DynamicEventTarget from '../../../../../index.js'
 export default function Unshift(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases
+  $eventTarget.addEventListener(
+    'unshift', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const unshiftEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          elements: $event.detail.elements,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'unshift',
+          unshiftEventData,
+        )
+      }
+    }
+  )
+  $eventTarget.addEventListener(
+    'unshiftProp', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const unshiftPropEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          elementIndex: $event.detail.elementIndex, 
+          element: $event.detail.element,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'unshiftProp', 
+          unshiftPropEventData,
+        )
+      }
+    }
+  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -24,6 +65,11 @@ export default function Unshift(
           }
           elements.unshift(element)
           Array.prototype.unshift.call($root, element)
+          const basename = elementIndex
+          const path = (
+            $path !== null
+          ) ? $path.concat('.', elementIndex)
+            : elementIndex
           // Array Unshift Prop Event
           $trap.createEvent(
             $eventTarget,
@@ -31,19 +77,24 @@ export default function Unshift(
             {
               elementIndex, 
               element: element,
-              path: $path,
-              basename: $basename,
+              path,
+              basename,
             },
             $root,
           )
           elementIndex--
         }
         // Array Unshift Event
+        const basename = elementIndex
+        const path = (
+          $path !== null
+        ) ? $path.concat('.', elementIndex)
+          : elementIndex
         $trap.createEvent(
           $eventTarget,
           'unshift',
           {
-            elements, 
+            elements,
             path: $path,
             basename: $basename,
           },

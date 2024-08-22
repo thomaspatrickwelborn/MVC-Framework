@@ -1,7 +1,71 @@
 export default function Splice(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+    const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases
+  $eventTarget.addEventListener(
+    'spliceDelete', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const spliceDeleteEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          index: $event.detail.index,
+          deleteIndex: $event.detail.deleteIndex,
+          deleteItem: $event.detail.deleteItem,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'spliceDelete',
+          spliceDeleteEventData,
+        )
+      }
+    }
+  )
+  $eventTarget.addEventListener(
+    'spliceAdd', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const spliceAddEventData = {
+          path: $event.path,
+          basename: $event.basename,
+          index: $event.detail.index,
+          addIndex: $event.detail.addIndex,
+          addItem: $event.detail.addItem,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'spliceAdd',
+          spliceAddEventData,
+        )
+      }
+    }
+  )
+  $eventTarget.addEventListener(
+    'splice', 
+    ($event) => {
+      if($eventTarget.parent !== null) {
+        const spliceEventData = {
+          basename: $event.basename,
+          path: $event.path,
+          start: $event.detail.start,
+          deleted: $event.detail.deleted,
+          added: $event.detail.added,
+          length: $event.detail.length,
+        }
+        $trap.createEvent(
+          $eventTarget.parent,
+          'splice',
+          spliceEventData,
+        )
+      }
+    }
+  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -27,10 +91,17 @@ export default function Splice(
           const deleteItem = Array.prototype.splice.call($root, start, 1)[0]
           deleteItems.push(deleteItem)
           // Array Splice Delete Event
+          const basename = deleteItemsIndex
+          const path = (
+            $path !== null
+          ) ? $path.concat('.', deleteItemsIndex)
+            : deleteItemsIndex
           $trap.createEvent(
             $eventTarget,
             'spliceDelete',
             {
+              basename,
+              path,
               index: start + deleteItemsIndex,
               deleteIndex: deleteItemsIndex,
               deleteItem: deleteItem,
@@ -45,11 +116,18 @@ export default function Splice(
           Array.prototype.splice.call(
             $root, start + addItemsIndex, 0, addItem
           )
+          const basename = addItemsIndex
+          const path = (
+            $path !== null
+          ) ? $path.concat('.', addItemsIndex)
+            : addItemsIndex
           // Array Splice Add Event
           $trap.createEvent(
             $eventTarget,
             'spliceAdd',
             {
+              basename,
+              path,
               index: start + addItemsIndex,
               addIndex: addItemsIndex,
               addItem: addItem,
@@ -62,6 +140,8 @@ export default function Splice(
           $eventTarget,
           'splice',
           {
+            basename: $basename,
+            path: $path,
             start,
             deleted: deleteItems,
             added: addItems,
