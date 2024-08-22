@@ -1,5 +1,9 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function Push(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -11,39 +15,10 @@ export default function Push(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'push', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const pushEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          elements: $event.detail.elements,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'push',
-          pushEventData,
-        )
-      }
-    }
+    'push', DynamicEventBubble
   )
   $eventTarget.addEventListener(
-    'pushProp', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const pushPropEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          elementIndex: $event.detail.elementIndex, 
-          element: $event.detail.element,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'pushProp', 
-          pushPropEventData,
-        )
-      }
-    }
+    'pushProp', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -67,27 +42,33 @@ export default function Push(
           ) ? $path.concat('.', elementIndex)
             : elementIndex
           // Push Prop Event
-          $trap.createEvent(
-            $eventTarget,
-            'pushProp',
-            {
-              elementIndex, 
-              element: $element,
-              path,
-              basename,
-            },
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'pushProp',
+              {
+                basename,
+                path,
+                detail: {
+                  elementIndex, 
+                  element: $element,
+                },
+              },
+            )
           )
           elementIndex++
         }
         // Push Event
-        $trap.createEvent(
-          $eventTarget,
-          'push',
-          {
-            elements,
-            path: $path,
-            basename: $basename,
-          },
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'push',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                elements,
+              },
+            },
+          )
         )
         return $root.length
       }

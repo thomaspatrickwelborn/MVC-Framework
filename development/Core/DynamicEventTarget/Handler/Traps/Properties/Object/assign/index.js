@@ -1,9 +1,9 @@
-import {
-  isDirectInstanceOf,
-  parseDEBD,
-} from '../../Coutil/index.js'
+import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
-import DynamicEvent from '../../../Events/DynamicEvent/index.js'
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -57,34 +57,13 @@ export default function Assign(
                   }
                 )
                 detObject.addEventListener(
-                  'assignSourceProperty',
-                  ($event) => {
-                    $eventTarget.dispatchEvent(
-                      new DynamicEvent(
-                        ...parseDEBD($event)
-                      )
-                    )
-                  }
+                  'assignSourceProperty', DynamicEventBubble
                 )
                 detObject.addEventListener(
-                  'assignSource',
-                  ($event) => {
-                    $eventTarget.dispatchEvent(
-                      new DynamicEvent(
-                        ...parseDEBD($event)
-                      )
-                    )
-                  }
+                  'assignSource', DynamicEventBubble
                 )
                 detObject.addEventListener(
-                  'assign',
-                  ($event) => {
-                    $eventTarget.dispatchEvent(
-                      new DynamicEvent(
-                        ...parseDEBD($event)
-                      )
-                    )
-                  }
+                  'assign', DynamicEventBubble
                 )
                 Object.assign($root, {
                   [$sourcePropKey]: detObject

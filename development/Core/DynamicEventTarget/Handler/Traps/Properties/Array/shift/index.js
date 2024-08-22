@@ -1,3 +1,7 @@
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function Shift(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -9,22 +13,7 @@ export default function Shift(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'shift', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const shiftEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          element: $event.detail.element,
-          elementIndex: $event.detail.elementIndex,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'shift',
-          shiftEventData,
-        )
-      }
-    }
+    'shift', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -37,15 +26,18 @@ export default function Shift(
         ) ? $path.concat('.', shiftElementIndex)
           : shiftElementIndex
         // Array Shift Event
-        $trap.createEvent(
-          $eventTarget,
-          'shift',
-          {
-            basename,
-            path,
-            element: shiftElement,
-            elementIndex: shiftElementIndex,
-          }
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'shift',
+            {
+              basename,
+              path,
+              detail: {
+                element: shiftElement,
+                elementIndex: shiftElementIndex,
+              },
+            }
+          )
         )
         return shiftElement
       }

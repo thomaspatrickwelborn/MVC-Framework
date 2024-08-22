@@ -1,10 +1,12 @@
 import {
   typeOf,
   isDirectInstanceOf,
-  parseDEBD,
 } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
-import DynamicEvent from '../../../Events/DynamicEvent/index.js'
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -16,13 +18,6 @@ export default function DefineProperty(
     $basename,
     $path, 
   } = $aliases
-  function defineProperty($event) {
-    $eventTarget.dispatchEvent(
-      new DynamicEvent(
-        ...parseDEBD($event)
-      )
-    )
-  }
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -42,12 +37,10 @@ export default function DefineProperty(
             ?.constructor.name === 'bound DynamicEventTarget'
           ) {
             $root[propertyKey].removeEventListener(
-              'defineProperty',
-              defineProperty
+              'defineProperty', DynamicEventBubble
             )
             $root[propertyKey].addEventListener(
-              'defineProperty',
-              defineProperty
+              'defineProperty', DynamicEventBubble
             )
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
@@ -94,7 +87,7 @@ export default function DefineProperty(
             )
             detObject.addEventListener(
               'defineProperty',
-              defineProperty
+              DynamicEventBubble
             )
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {

@@ -25,16 +25,12 @@ import { DET } from '/dependencies/mvc-framework.js'
 ```
 const object = new DET({
   aaa: 111,
-  bbb: true,
-  ccc: "333",
-  ddd: {
+  bbb: 222,
+  ccc: {
+    ddd: 444,
     eee: 555,
-    fff: false,
-    ggg: "777",
-    hhh: {
-      iii: 999,
-      jjj: null,
-      kkk: "111111"
+    fff: {
+      ggg: 777
     }
   }
 })
@@ -44,41 +40,72 @@ const object = new DET({
 ```
 object.parse()
 ```
+**Returns Plain Object**  
+```
+{
+  aaa: 111,
+  bbb: 222,
+  ccc: {
+    ddd: 444,
+    eee: 555,
+    fff: {
+      ggg: 777
+    }
+  }
+}
+```
 ## Inspection
 ### Inspect
 ```
 object.inspect()
 ```
-**Returns**  
+**Returns JSON Object**  
 ```
 {
   "aaa": 111,
-  "bbb": true,
-  "ccc": "333",
-  "ddd": {
+  "bbb": 222,
+  "ccc": {
+    "ddd": 444,
     "eee": 555,
-    "fff": false,
-    "ggg": "777",
-    "hhh": {
-      "iii": 999,
-      "jjj": null,
-      "kkk": "111111"
+    "fff": {
+      "ggg": 777
     }
   }
 }
 ```
 ## DET Object Event Listener Signment
-### Add Event Listener
+### Add Event Listener - Base Object
 ```
 function objectAssign($event) {
-  console.log($event.type, $event.detail)
+  console.log(
+    '\n', $event.basename, $event.path,
+    '\n', $event.type, $event.detail
+  )
 }
 object.addEventListener("assign", objectAssign)
-object.assign({ aaa: 111111 })
-
-/*
-Log: assign { target: DynamicEventTarget }
-*/
+object.assign({
+  ccc: {
+    fff: {
+      ggg: 777777,
+      hhh: {
+        iii: 999
+      }
+    }
+  }
+})
+```
+**Emits DynamicEvent**  
+```
+object.assign({
+  ccc: {
+    fff: {
+      ggg: 777777,
+      hhh: {
+        iii: 999
+      }
+    }
+  }
+})
 ```
 ### Remove Event Listener
 ```
@@ -90,6 +117,26 @@ Log: empty
 ```
 ### Bubble Event Listener
 ```
+function objectAssign($event) {
+  console.log(
+    $event.path, $event.basename, 
+    $event.type, $event.detail
+  )
+}
+object.addEventListener("assign", objectAssign)
+object.assign({
+  aaa: {
+    ddd: {
+      hhh: {
+        iii: 999999
+      }
+    }
+  }
+})
+
+/*
+Log: assign { target: DynamicEventTarget }
+*/
 ```
 ## DET Object Ventilation
 ### 1. DET Object Assign Events

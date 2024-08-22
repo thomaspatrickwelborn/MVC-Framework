@@ -1,7 +1,11 @@
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function Splice(
   $trap, $trapPropertyName, $aliases
 ) {
-    const {
+  const {
     $eventTarget, 
     $root, 
     $rootAlias, 
@@ -9,62 +13,13 @@ export default function Splice(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'spliceDelete', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const spliceDeleteEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          index: $event.detail.index,
-          deleteIndex: $event.detail.deleteIndex,
-          deleteItem: $event.detail.deleteItem,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'spliceDelete',
-          spliceDeleteEventData,
-        )
-      }
-    }
+    'spliceDelete', DynamicEventBubble
   )
   $eventTarget.addEventListener(
-    'spliceAdd', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const spliceAddEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          index: $event.detail.index,
-          addIndex: $event.detail.addIndex,
-          addItem: $event.detail.addItem,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'spliceAdd',
-          spliceAddEventData,
-        )
-      }
-    }
+    'spliceAdd', DynamicEventBubble
   )
   $eventTarget.addEventListener(
-    'splice', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const spliceEventData = {
-          basename: $event.basename,
-          path: $event.path,
-          start: $event.detail.start,
-          deleted: $event.detail.deleted,
-          added: $event.detail.added,
-          length: $event.detail.length,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'splice',
-          spliceEventData,
-        )
-      }
-    }
+    'splice', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -96,16 +51,19 @@ export default function Splice(
             $path !== null
           ) ? $path.concat('.', deleteItemsIndex)
             : deleteItemsIndex
-          $trap.createEvent(
-            $eventTarget,
-            'spliceDelete',
-            {
-              basename,
-              path,
-              index: start + deleteItemsIndex,
-              deleteIndex: deleteItemsIndex,
-              deleteItem: deleteItem,
-            },
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'spliceDelete',
+              {
+                basename,
+                path,
+                detail: {
+                  index: start + deleteItemsIndex,
+                  deleteIndex: deleteItemsIndex,
+                  deleteItem: deleteItem,
+                },
+              },
+            )
           )
           deleteItemsIndex++
         }
@@ -122,31 +80,37 @@ export default function Splice(
           ) ? $path.concat('.', addItemsIndex)
             : addItemsIndex
           // Array Splice Add Event
-          $trap.createEvent(
-            $eventTarget,
-            'spliceAdd',
-            {
-              basename,
-              path,
-              index: start + addItemsIndex,
-              addIndex: addItemsIndex,
-              addItem: addItem,
-            },
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'spliceAdd',
+              {
+                basename,
+                path,
+                detail: {
+                  index: start + addItemsIndex,
+                  addIndex: addItemsIndex,
+                  addItem: addItem,
+                },
+              },
+            )
           )
           addItemsIndex++
         }
         // Array Splice Event
-        $trap.createEvent(
-          $eventTarget,
-          'splice',
-          {
-            basename: $basename,
-            path: $path,
-            start,
-            deleted: deleteItems,
-            added: addItems,
-            length: $root.length,
-          },
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'splice',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                start,
+                deleted: deleteItems,
+                added: addItems,
+                length: $root.length,
+              },
+            },
+          )
         )
         return deleteItems
       }

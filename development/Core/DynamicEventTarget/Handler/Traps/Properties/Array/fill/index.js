@@ -1,5 +1,9 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function Fill(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -11,42 +15,10 @@ export default function Fill(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'fill', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const fillEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          value: $event.detail.value,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'fill',
-          fillEventData,
-        )
-      }
-    }
+    'fill', DynamicEventBubble
   )
   $eventTarget.addEventListener(
-    'fillIndex', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const fillIndexEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          value: $event.detail.value,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'fillIndex', 
-          fillIndexEventData,
-        )
-      }
-    }
+    'fillIndex', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -95,35 +67,37 @@ export default function Fill(
             $path !== null
           ) ? $path.concat('.', fillIndex)
             : fillIndex
-          // Array Fill Index Event Data
-          const fillIndexEventData = {
-            start: fillIndex,
-            end: fillIndex + 1,
-            value,
-            path,
-            basename,
-          }
           // Array Fill Index Event
-          $trap.createEvent(
-            $eventTarget,
-            'fillIndex',
-            fillIndexEventData,
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'fillIndex',
+              {
+                basename,
+                path,
+                detail: {
+                  start: fillIndex,
+                  end: fillIndex + 1,
+                  value,
+                },
+              }
+            )
           )
           fillIndex++
         }
-        // Array Fill Event Data
-        const fillEventData = {
-          start,
-          end,
-          value,
-          path: $path,
-          basename: $basename,
-        }
         // Array Fill Event
-        $trap.createEvent(
-          $eventTarget,
-          'fill',
-          fillEventData,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'fill',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                start,
+                end,
+                value,
+              },
+            },
+          )
         )
         return $root
       }

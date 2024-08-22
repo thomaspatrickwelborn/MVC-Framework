@@ -29,17 +29,6 @@ function parseShortenedEvents($propEvents) {
 	return propEvents
 }
 
-class DynamicEvent extends Event {
-  #settings
-  constructor($type, $settings) {
-    super($type);
-    this.#settings = $settings;
-  }
-  get basename() { return this.#settings.basename }
-  get path() { return this.#settings.path }
-  get detail() { return this.#settings.detail }
-}
-
 class Trap {
   constructor($methods, $aliases, $options = {}) {
     for(let [
@@ -67,9 +56,26 @@ function isDirectInstanceOf($object, $constructor) {
   }
 }
 
-function parseDynamicEventBubbleData($event) {
-  const { type, basename, path, detail } = $event;
-  return [type, { basename, path, detail }]
+class DynamicEvent extends Event {
+  #settings
+  constructor($type, $settings) {
+    super($type);
+    this.#settings = $settings;
+  }
+  get basename() { return this.#settings.basename }
+  get path() { return this.#settings.path }
+  get detail() { return this.#settings.detail }
+}
+
+function DynamicEventBubble($event) {
+  const { currentTarget, type, basename, path, detail } = $event;
+  if(currentTarget.parent !== null) {
+    currentTarget.parent.dispatchEvent(
+      new DynamicEvent(
+        type, { basename, path, detail }
+      )
+    );
+  }
 }
 
 function Assign(
@@ -123,34 +129,13 @@ function Assign(
                   }
                 );
                 detObject.addEventListener(
-                  'assignSourceProperty',
-                  ($event) => {
-                    $eventTarget.dispatchEvent(
-                      new DynamicEvent(
-                        ...parseDynamicEventBubbleData($event)
-                      )
-                    );
-                  }
+                  'assignSourceProperty', DynamicEventBubble
                 );
                 detObject.addEventListener(
-                  'assignSource',
-                  ($event) => {
-                    $eventTarget.dispatchEvent(
-                      new DynamicEvent(
-                        ...parseDynamicEventBubbleData($event)
-                      )
-                    );
-                  }
+                  'assignSource', DynamicEventBubble
                 );
                 detObject.addEventListener(
-                  'assign',
-                  ($event) => {
-                    $eventTarget.dispatchEvent(
-                      new DynamicEvent(
-                        ...parseDynamicEventBubbleData($event)
-                      )
-                    );
-                  }
+                  'assign', DynamicEventBubble
                 );
                 Object.assign($root, {
                   [$sourcePropKey]: detObject
@@ -223,16 +208,7 @@ function DefineProperties(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'defineProperties', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        $eventTarget.parent.dispatchEvent(
-          new DynamicEvent(
-            ...parseDynamicEventBubbleData($event)
-          )
-        );
-      }
-    }
+    'defineProperties', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -275,13 +251,6 @@ function DefineProperty(
     $basename,
     $path, 
   } = $aliases;
-  function defineProperty($event) {
-    $eventTarget.dispatchEvent(
-      new DynamicEvent(
-        ...parseDynamicEventBubbleData($event)
-      )
-    );
-  }
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -301,12 +270,10 @@ function DefineProperty(
             ?.constructor.name === 'bound DynamicEventTarget'
           ) {
             $root[propertyKey].removeEventListener(
-              'defineProperty',
-              defineProperty
+              'defineProperty', DynamicEventBubble
             );
             $root[propertyKey].addEventListener(
-              'defineProperty',
-              defineProperty
+              'defineProperty', DynamicEventBubble
             );
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
@@ -353,7 +320,7 @@ function DefineProperty(
             );
             detObject.addEventListener(
               'defineProperty',
-              defineProperty
+              DynamicEventBubble
             );
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
@@ -427,13 +394,7 @@ function Freeze(
               $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
               $propertyValue.addEventListener(
-                'freeze', ($event) => {
-                  $eventTarget.dispatchEvent(
-                    new DynamicEvent(
-                      ...parseDynamicEventBubbleData($event)
-                    )
-                  );
-                }
+                'freeze', DynamicEventBubble
               );
               $propertyValue.freeze();
             } else {
@@ -715,13 +676,7 @@ function Seal(
               $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
               $propertyValue.addEventListener(
-                'seal', ($event) => {
-                  $eventTarget.dispatchEvent(
-                    new DynamicEvent(
-                      ...parseDynamicEventBubbleData($event)
-                    )
-                  );
-                }
+                'seal', DynamicEventBubble
               );
               $propertyValue.seal();
             } else {
@@ -760,16 +715,7 @@ function SetPrototypeOf(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'setPrototypeOf', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        $eventTarget.parent.dispatchEvent(
-          new DynamicEvent(
-            ...parseDynamicEventBubbleData($event)
-          )
-        );
-      }
-    }
+    'setPrototypeOf', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -910,44 +856,10 @@ function CopyWithin(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'copyWithin', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const copyWithinEventData = {
-          basename: $event.basename,
-          path: $event.path,
-          target: $event.detail.target,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          items: $event.detail.items,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'copyWithin',
-          copyWithinEventData,
-        );
-      }
-    }
+    'copyWithin', DynamicEventBubble
   );
   $eventTarget.addEventListener(
-    'copyWithinIndex', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const copyWithinIndexEventData = {
-          basename: $event.basename,
-          path: $event.path,
-          target: $event.detail.target,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          item: $event.detail.item,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'copyWithinIndex', 
-          copyWithinIndexEventData,
-        );
-      }
-    }
+    'copyWithinIndex', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -980,37 +892,39 @@ function CopyWithin(
             copyIndex + 1
           );
           // Array Copy Within Index Event Data
-          const copyWithinIndexEventData = {
-            basename: $eventTarget.basename,
-            path: $eventTarget.path,
-            target: targetIndex,
-            start: copyIndex,
-            end: copyIndex + 1,
-            item: copyItem,
-          };
-          // Array Copy Within Index Event
-          $trap.createEvent(
-            $eventTarget,
-            'copyWithinIndex', 
-            copyWithinIndexEventData,
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'copyWithinIndex',
+              {
+                basename: $eventTarget.basename,
+                path: $eventTarget.path,
+                detail: {
+                  target: targetIndex,
+                  start: copyIndex,
+                  end: copyIndex + 1,
+                  item: copyItem,
+                },
+              }
+            )
           );
           copyIndex++;
           targetIndex++;
         }
-        // Array Copy Within Event Data
-        const copyWithinEventData = {
-          basename: $eventTarget.basename,
-          path: $eventTarget.path,
-          target: target,
-          start: start,
-          end: end,
-          items: copiedItems,
-        };
         // Array Copy Within Event
-        $trap.createEvent(
-          $eventTarget,
-          'copyWithin',
-          copyWithinEventData,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'copyWithin',
+            {
+              basename: $eventTarget.basename,
+              path: $eventTarget.path,
+              detail: {
+                target: target,
+                start: start,
+                end: end,
+                items: copiedItems,
+              },
+            }
+          )
         );
       }
     }
@@ -1067,42 +981,10 @@ function Fill(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'fill', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const fillEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          value: $event.detail.value,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'fill',
-          fillEventData,
-        );
-      }
-    }
+    'fill', DynamicEventBubble
   );
   $eventTarget.addEventListener(
-    'fillIndex', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const fillIndexEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          value: $event.detail.value,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'fillIndex', 
-          fillIndexEventData,
-        );
-      }
-    }
+    'fillIndex', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1151,35 +1033,37 @@ function Fill(
             $path !== null
           ) ? $path.concat('.', fillIndex)
             : fillIndex;
-          // Array Fill Index Event Data
-          const fillIndexEventData = {
-            start: fillIndex,
-            end: fillIndex + 1,
-            value,
-            path,
-            basename,
-          };
           // Array Fill Index Event
-          $trap.createEvent(
-            $eventTarget,
-            'fillIndex',
-            fillIndexEventData,
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'fillIndex',
+              {
+                basename,
+                path,
+                detail: {
+                  start: fillIndex,
+                  end: fillIndex + 1,
+                  value,
+                },
+              }
+            )
           );
           fillIndex++;
         }
-        // Array Fill Event Data
-        const fillEventData = {
-          start,
-          end,
-          value,
-          path: $path,
-          basename: $basename,
-        };
         // Array Fill Event
-        $trap.createEvent(
-          $eventTarget,
-          'fill',
-          fillEventData,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'fill',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                start,
+                end,
+                value,
+              },
+            },
+          )
         );
         return $root
       }
@@ -1380,37 +1264,24 @@ function Length(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'lengthSet', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const lengthEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          length: $event.detail.length,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'lengthSet',
-          lengthEventData,
-        );
-      }
-    }
+    'lengthSet', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       get() { return $root.length },
       set($length) {
         $root.length = $length;
-        // Array Length Set Event
-        const lengthEventData = {
-          path: $path,
-          basename: $basename,
-          length: $root.length,
-        };
-        $trap.createEvent(
-          $eventTarget,
-          'lengthSet',
-          lengthEventData
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'lengthSet', 
+            {
+              path: $path,
+              basename: $basename,
+              detail: {
+                length: $root.length,
+              },
+            }
+          )
         );
       },
     }
@@ -1456,22 +1327,7 @@ function Pop(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'pop', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const popEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          element: $event.detail.element,
-          elementIndex: $event.detail.elementIndex,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'pop',
-          popEventData,
-        );
-      }
-    }
+    'lengthSet', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1484,15 +1340,18 @@ function Pop(
         ) ? $path.concat('.', popElementIndex)
           : popElementIndex;
         // Array Pop Event
-        $trap.createEvent(
-          $eventTarget,
-          'pop',
-          {
-            basename,
-            path,
-            element: popElement,
-            elementIndex: popElementIndex,
-          }
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'lengthSet',
+            {
+              basename,
+              path,
+              detail: {
+                element: popElement,
+                elementIndex: popElementIndex,
+              },
+            }
+          )
         );
         return popElement
       }
@@ -1511,39 +1370,10 @@ function Push(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'push', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const pushEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          elements: $event.detail.elements,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'push',
-          pushEventData,
-        );
-      }
-    }
+    'push', DynamicEventBubble
   );
   $eventTarget.addEventListener(
-    'pushProp', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const pushPropEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          elementIndex: $event.detail.elementIndex, 
-          element: $event.detail.element,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'pushProp', 
-          pushPropEventData,
-        );
-      }
-    }
+    'pushProp', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1566,27 +1396,33 @@ function Push(
           ) ? $path.concat('.', elementIndex)
             : elementIndex;
           // Push Prop Event
-          $trap.createEvent(
-            $eventTarget,
-            'pushProp',
-            {
-              elementIndex, 
-              element: $element,
-              path,
-              basename,
-            },
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'pushProp',
+              {
+                basename,
+                path,
+                detail: {
+                  elementIndex, 
+                  element: $element,
+                },
+              },
+            )
           );
           elementIndex++;
         }
         // Push Event
-        $trap.createEvent(
-          $eventTarget,
-          'push',
-          {
-            elements,
-            path: $path,
-            basename: $basename,
-          },
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'push',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                elements,
+              },
+            },
+          )
         );
         return $root.length
       }
@@ -1623,11 +1459,33 @@ function ReduceRight(
 function Reverse(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const {
+    $eventTarget, 
+    $root, 
+    $rootAlias, 
+    $basename,
+    $path, 
+  } = $aliases;
+  $eventTarget.addEventListener(
+    'reverse', DynamicEventBubble
+  );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.reverse.call($root, ...arguments)
+        Array.prototype.reverse.call($root, ...arguments);
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'reverse',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                reference: $root
+              },
+            }
+          )
+        );
+        return $root
       }
     }
   )
@@ -1644,22 +1502,7 @@ function Shift(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'shift', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const shiftEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          element: $event.detail.element,
-          elementIndex: $event.detail.elementIndex,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'shift',
-          shiftEventData,
-        );
-      }
-    }
+    'shift', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1672,15 +1515,18 @@ function Shift(
         ) ? $path.concat('.', shiftElementIndex)
           : shiftElementIndex;
         // Array Shift Event
-        $trap.createEvent(
-          $eventTarget,
-          'shift',
-          {
-            basename,
-            path,
-            element: shiftElement,
-            elementIndex: shiftElementIndex,
-          }
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'shift',
+            {
+              basename,
+              path,
+              detail: {
+                element: shiftElement,
+                elementIndex: shiftElementIndex,
+              },
+            }
+          )
         );
         return shiftElement
       }
@@ -1717,7 +1563,7 @@ function Sort(
 function Splice(
   $trap, $trapPropertyName, $aliases
 ) {
-    const {
+  const {
     $eventTarget, 
     $root, 
     $rootAlias, 
@@ -1725,62 +1571,13 @@ function Splice(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'spliceDelete', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const spliceDeleteEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          index: $event.detail.index,
-          deleteIndex: $event.detail.deleteIndex,
-          deleteItem: $event.detail.deleteItem,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'spliceDelete',
-          spliceDeleteEventData,
-        );
-      }
-    }
+    'spliceDelete', DynamicEventBubble
   );
   $eventTarget.addEventListener(
-    'spliceAdd', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const spliceAddEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          index: $event.detail.index,
-          addIndex: $event.detail.addIndex,
-          addItem: $event.detail.addItem,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'spliceAdd',
-          spliceAddEventData,
-        );
-      }
-    }
+    'spliceAdd', DynamicEventBubble
   );
   $eventTarget.addEventListener(
-    'splice', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const spliceEventData = {
-          basename: $event.basename,
-          path: $event.path,
-          start: $event.detail.start,
-          deleted: $event.detail.deleted,
-          added: $event.detail.added,
-          length: $event.detail.length,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'splice',
-          spliceEventData,
-        );
-      }
-    }
+    'splice', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1811,16 +1608,19 @@ function Splice(
             $path !== null
           ) ? $path.concat('.', deleteItemsIndex)
             : deleteItemsIndex;
-          $trap.createEvent(
-            $eventTarget,
-            'spliceDelete',
-            {
-              basename,
-              path,
-              index: start + deleteItemsIndex,
-              deleteIndex: deleteItemsIndex,
-              deleteItem: deleteItem,
-            },
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'spliceDelete',
+              {
+                basename,
+                path,
+                detail: {
+                  index: start + deleteItemsIndex,
+                  deleteIndex: deleteItemsIndex,
+                  deleteItem: deleteItem,
+                },
+              },
+            )
           );
           deleteItemsIndex++;
         }
@@ -1836,31 +1636,37 @@ function Splice(
           ) ? $path.concat('.', addItemsIndex)
             : addItemsIndex;
           // Array Splice Add Event
-          $trap.createEvent(
-            $eventTarget,
-            'spliceAdd',
-            {
-              basename,
-              path,
-              index: start + addItemsIndex,
-              addIndex: addItemsIndex,
-              addItem: addItem,
-            },
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'spliceAdd',
+              {
+                basename,
+                path,
+                detail: {
+                  index: start + addItemsIndex,
+                  addIndex: addItemsIndex,
+                  addItem: addItem,
+                },
+              },
+            )
           );
           addItemsIndex++;
         }
         // Array Splice Event
-        $trap.createEvent(
-          $eventTarget,
-          'splice',
-          {
-            basename: $basename,
-            path: $path,
-            start,
-            deleted: deleteItems,
-            added: addItems,
-            length: $root.length,
-          },
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'splice',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                start,
+                deleted: deleteItems,
+                added: addItems,
+                length: $root.length,
+              },
+            },
+          )
         );
         return deleteItems
       }
@@ -1945,38 +1751,10 @@ function Unshift(
   } = $aliases;
   $eventTarget.addEventListener(
     'unshift', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const unshiftEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          elements: $event.detail.elements,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'unshift',
-          unshiftEventData,
-        );
-      }
-    }
+    ($event) => DynamicEventBubble
   );
   $eventTarget.addEventListener(
-    'unshiftProp', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const unshiftPropEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          elementIndex: $event.detail.elementIndex, 
-          element: $event.detail.element,
-        };
-        $trap.createEvent(
-          $eventTarget.parent,
-          'unshiftProp', 
-          unshiftPropEventData,
-        );
-      }
-    }
+    'unshiftProp', DynamicEventBubble
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -2003,16 +1781,19 @@ function Unshift(
           ) ? $path.concat('.', elementIndex)
             : elementIndex;
           // Array Unshift Prop Event
-          $trap.createEvent(
-            $eventTarget,
-            'unshiftProp',
-            {
-              elementIndex, 
-              element: element,
-              path,
-              basename,
-            },
-            $root,
+            
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'unshiftProp',
+              {
+                basename,
+                path,
+                detail: {
+                  elementIndex, 
+                  element: element,
+                },
+              }
+            )
           );
           elementIndex--;
         }
@@ -2020,15 +1801,17 @@ function Unshift(
           $path !== null
         ) ? $path.concat('.', elementIndex)
           : elementIndex;
-        $trap.createEvent(
-          $eventTarget,
-          'unshift',
-          {
-            elements,
-            path: $path,
-            basename: $basename,
-          },
-          $root,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'unshift',
+            {
+              basename: $basename,
+              path: $path,
+              detail: {
+                elements,
+              },
+            }
+          )
         );
         return $root.length
       }

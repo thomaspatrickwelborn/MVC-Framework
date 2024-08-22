@@ -1,9 +1,11 @@
 import {
   typeOf,
   isDirectInstanceOf,
-  parseDEBD,
 } from '../../Coutil/index.js'
-import DynamicEvent from '../../../Events/DynamicEvent/index.js'
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function SetPrototypeOf(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -15,16 +17,7 @@ export default function SetPrototypeOf(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'setPrototypeOf', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        $eventTarget.parent.dispatchEvent(
-          new DynamicEvent(
-            ...parseDEBD($event)
-          )
-        )
-      }
-    }
+    'setPrototypeOf', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {

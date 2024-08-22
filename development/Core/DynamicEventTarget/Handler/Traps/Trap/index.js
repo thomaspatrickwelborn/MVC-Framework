@@ -1,4 +1,3 @@
-import Events from '../Events/index.js'
 export default class Trap {
   constructor($methods, $aliases, $options = {}) {
     for(let [

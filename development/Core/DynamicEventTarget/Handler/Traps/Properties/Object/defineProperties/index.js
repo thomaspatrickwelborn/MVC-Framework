@@ -1,10 +1,12 @@
 import {
   typeOf,
   isDirectInstanceOf,
-  parseDEBD,
 } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
-import DynamicEvent from '../../../Events/DynamicEvent/index.js'
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -17,16 +19,7 @@ export default function DefineProperties(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'defineProperties', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        $eventTarget.parent.dispatchEvent(
-          new DynamicEvent(
-            ...parseDEBD($event)
-          )
-        )
-      }
-    }
+    'defineProperties', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {

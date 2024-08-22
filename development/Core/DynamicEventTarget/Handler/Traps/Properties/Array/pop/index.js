@@ -1,3 +1,7 @@
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function Pop(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -9,22 +13,7 @@ export default function Pop(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'pop', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const popEventData = {
-          path: $event.path,
-          basename: $event.basename,
-          element: $event.detail.element,
-          elementIndex: $event.detail.elementIndex,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'pop',
-          popEventData,
-        )
-      }
-    }
+    'lengthSet', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -37,15 +26,18 @@ export default function Pop(
         ) ? $path.concat('.', popElementIndex)
           : popElementIndex
         // Array Pop Event
-        $trap.createEvent(
-          $eventTarget,
-          'pop',
-          {
-            basename,
-            path,
-            element: popElement,
-            elementIndex: popElementIndex,
-          }
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'lengthSet',
+            {
+              basename,
+              path,
+              detail: {
+                element: popElement,
+                elementIndex: popElementIndex,
+              },
+            }
+          )
         )
         return popElement
       }

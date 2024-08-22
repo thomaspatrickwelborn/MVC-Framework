@@ -1,3 +1,7 @@
+import {
+  DynamicEvent,
+  DynamicEventBubble,
+} from '../../../Events/index.js'
 export default function CopyWithin(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -9,44 +13,10 @@ export default function CopyWithin(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'copyWithin', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const copyWithinEventData = {
-          basename: $event.basename,
-          path: $event.path,
-          target: $event.detail.target,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          items: $event.detail.items,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'copyWithin',
-          copyWithinEventData,
-        )
-      }
-    }
+    'copyWithin', DynamicEventBubble
   )
   $eventTarget.addEventListener(
-    'copyWithinIndex', 
-    ($event) => {
-      if($eventTarget.parent !== null) {
-        const copyWithinIndexEventData = {
-          basename: $event.basename,
-          path: $event.path,
-          target: $event.detail.target,
-          start: $event.detail.start,
-          end: $event.detail.end,
-          item: $event.detail.item,
-        }
-        $trap.createEvent(
-          $eventTarget.parent,
-          'copyWithinIndex', 
-          copyWithinIndexEventData,
-        )
-      }
-    }
+    'copyWithinIndex', DynamicEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -81,37 +51,39 @@ export default function CopyWithin(
             copyIndex + 1
           )
           // Array Copy Within Index Event Data
-          const copyWithinIndexEventData = {
-            basename: $eventTarget.basename,
-            path: $eventTarget.path,
-            target: targetIndex,
-            start: copyIndex,
-            end: copyIndex + 1,
-            item: copyItem,
-          }
-          // Array Copy Within Index Event
-          $trap.createEvent(
-            $eventTarget,
-            'copyWithinIndex', 
-            copyWithinIndexEventData,
+          $eventTarget.dispatchEvent(
+            new DynamicEvent(
+              'copyWithinIndex',
+              {
+                basename: $eventTarget.basename,
+                path: $eventTarget.path,
+                detail: {
+                  target: targetIndex,
+                  start: copyIndex,
+                  end: copyIndex + 1,
+                  item: copyItem,
+                },
+              }
+            )
           )
           copyIndex++
           targetIndex++
         }
-        // Array Copy Within Event Data
-        const copyWithinEventData = {
-          basename: $eventTarget.basename,
-          path: $eventTarget.path,
-          target: target,
-          start: start,
-          end: end,
-          items: copiedItems,
-        }
         // Array Copy Within Event
-        $trap.createEvent(
-          $eventTarget,
-          'copyWithin',
-          copyWithinEventData,
+        $eventTarget.dispatchEvent(
+          new DynamicEvent(
+            'copyWithin',
+            {
+              basename: $eventTarget.basename,
+              path: $eventTarget.path,
+              detail: {
+                target: target,
+                start: start,
+                end: end,
+                items: copiedItems,
+              },
+            }
+          )
         )
       }
     }
