@@ -4,7 +4,7 @@ import DETArrayVentilation from './DETArrayVentilation/index.js'
 function DOMContentLoaded() {
   // DETObjectInstantiation()
   DETObjectVentilation()
-  DETArrayVentilation()
+  // DETArrayVentilation()
 }
 
 document.addEventListener('DOMContentLoaded', DOMContentLoaded)

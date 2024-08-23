@@ -2202,7 +2202,9 @@ class DynamicEventTarget extends EventTarget {
     };
     return this.#_aliases
   }
-  parse() {
+  parse($settings = {
+    type: 'object', // 'string',
+  }) {
     let parsement = (
       this.type === 'object'
     ) ? {}
@@ -2225,10 +2227,18 @@ class DynamicEventTarget extends EventTarget {
         );
       }
     }
-    return parsement
-  }
-  inspect() {
-    return JSON.stringify(this.parse(), null, 2)
+    if(
+      $settings.type === 'object' || 
+      $settings.type === 'Object'
+    ) {
+      return parsement
+    } else if(
+      $settings.type === 'json' || 
+      $settings.type === 'JSON' 
+    ) {
+      return JSON.stringify(parsement, null, 2)
+    }
+    return undefined
   }
 }
 

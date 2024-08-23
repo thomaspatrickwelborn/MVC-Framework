@@ -1,4 +1,36 @@
 # Dynamic Event Target (DET) Object
+- [Overview](#overview)
+- [Importation](#importation)
+- [Instantiation](#instantiation)
+- [Parsement](#parsement)
+  - [Parse Object](#parse-object)
+  - [Parse JSON](#parse-json)
+- [DET Object Event Listener Signment](#det-object-event-listener-signment)
+  - [Add Event Listener - Base Object](#add-event-listener---base-object)
+    - [Assign Base-Referenced Object Property](#assign-base-referenced-object-property)
+    - [Assign Base-Referenced Subbase Object Property](#assign-base-referenced-subbase-object-property)
+  - [Add Event Listener - Subbase Object](#add-event-listener---subbase-object)
+    - [Assign subbase object property](#assign-subbase-referenced-object-property)
+    - [Assign Subbase-Referenced Subbbase Object Property](#assign-subbase-referenced-subbbase-object-property)
+  - [Remove Event Lister](#remove-event-listener)
+    - [Remove Base-Referenced Event Listener](#remove-base-referenced-event-listener)
+    - [Remove Subbased-Referenced Event Listener](#remove-subbased-referenced-event-listener)
+- [DET Object Ventilation](#det-object-ventilation)
+  - [1. DET Object Assign Events](#1-det-object-assign-events)
+    - [1.1. "assignSourceProperty Event"](#11-assignsourceproperty-event)
+    - [1.2. "assignSource" Event](#12-assignsource-event)
+    - [1.3. "assign" Event](#13-assign-event)
+  - [2. DET Object Define Properties Events](#2-det-object-define-properties-events)
+    - [2.1. "defineProperties" Event](#21-defineproperties-event)
+  - [3. DET Object Define Property Events](#3-det-object-define-property-event)
+    - [3.1. "defineProperty" Event](#31-defineproperty-event)
+  - [4. DET Object Freeze Event](#4-det-object-freeze-event)
+    - [4.1. "freeze" Event](#41-freeze)
+  - [5. Object Seal](#5-object-seal)
+    - [5.1. "seal" Event](#51-seal)
+  - [Object Set Prototype](#6-object-set-prototype)
+    - ["setPrototypeOf" Event](#61-setprototypeof)
+## Overview
 Dynamic Event Target (DET) ventilates **Object Property Modifier Functions**: 
 - **6** Object Property Modifier Functions  
 - **8** Object Property Modifier Function Event Emissions  
@@ -36,11 +68,11 @@ const object = new DET({
 })
 ```
 ## Parsement
-### Parse
+### Parse Object
 ```
 object.parse()
 ```
-**Returns Plain Object**  
+*Returns Plain JS Object*  
 ```
 {
   aaa: 111,
@@ -54,12 +86,13 @@ object.parse()
   }
 }
 ```
-## Inspection
-### Inspect
+### Parse JSON
 ```
-object.inspect()
+object.parse({
+  type: "JSON"
+})
 ```
-**Returns JSON Object**  
+*Returns JSON String*  
 ```
 {
   "aaa": 111,
@@ -73,75 +106,143 @@ object.inspect()
   }
 }
 ```
+## DET Object Property Signment
 ## DET Object Event Listener Signment
+For demonstration purposes, a simple event logger:  
+```
+function DETEventLog($event) {
+  console.log(
+    '\n', 'basename', $event.basename, 
+    '\n', 'path', $event.path,
+    '\n', 'type', $event.type, 
+    '\n', 'detail', JSON.stringify(
+      $event.detail, null, 2
+    )
+  )
+}
+```
 ### Add Event Listener - Base Object
 ```
-function objectAssign($event) {
-  console.log(
-    '\n', $event.basename, $event.path,
-    '\n', $event.type, $event.detail
-  )
+object.addEventListener('assign', DETEventLog)
+```
+#### Assign Base-Referenced Object Property
+```
+object.assign({
+  aaa: 111111
+})
+```
+##### Emits DynamicEvent
+```
+basename null 
+path null 
+type assign 
+detail {
+  "sources": [
+    {
+      "aaa": 111111
+    }
+  ]
 }
-object.addEventListener("assign", objectAssign)
-object.assign({
-  ccc: {
-    fff: {
-      ggg: 777777,
-      hhh: {
-        iii: 999
-      }
-    }
-  }
-})
 ```
-**Emits DynamicEvent**  
+#### Assign Base-Referenced Subbase Object Property
 ```
 object.assign({
   ccc: {
-    fff: {
-      ggg: 777777,
-      hhh: {
-        iii: 999
-      }
-    }
+    ddd: 444444
   }
 })
+```
+##### Emits DynamicEvents
+###### Event Log #1
+```
+basename ccc 
+path ccc 
+type assign 
+detail {
+  "sources": [
+    {
+      "ddd": 444444
+    }
+  ]
+}
+```
+###### Event Log #2
+```
+basename null 
+path null 
+type assign 
+detail {
+  "sources": [
+    {
+      "ccc": {
+        "ddd": 444444
+      }
+    }
+  ]
+}
+```
+### Add Event Listener - Subbase Object
+```
+object.ccc.addEventListener("assign", DETEventLog)
+```
+#### Assign Subbase-Referenced Object Property
+```
+object.ccc.assign({
+  ddd: 444444444
+})
+```
+##### Emits DynamicEvent
+```
+basename ccc 
+path ccc 
+type assign 
+detail {
+  "sources": [
+    {
+      "ddd": 444444444
+    }
+  ]
+}
+```
+#### Assign Subbase-Referenced Subbbase Object Property
+```
+object.ccc.fff.assign({
+  ggg: 777777
+})
+```
+##### Emits DynamicEvent
+```
+basename fff 
+path ccc.fff 
+type assign 
+detail {
+  "sources": [
+    {
+      "ggg": 777777
+    }
+  ]
+}
 ```
 ### Remove Event Listener
+#### Remove Base-Referenced Event Listener
 ```
-object.removeEventListener("assign", objectAssign)
+object.removeEventListener("assign", DETEventLog)
 object.assign({ aaa: 111111111 })
-/*
-Log: empty
-*/
 ```
-### Bubble Event Listener
+##### Emits Nothing
+#### Remove Subbased-Referenced Event Listener
 ```
-function objectAssign($event) {
-  console.log(
-    $event.path, $event.basename, 
-    $event.type, $event.detail
-  )
-}
-object.addEventListener("assign", objectAssign)
-object.assign({
-  aaa: {
-    ddd: {
-      hhh: {
-        iii: 999999
-      }
-    }
-  }
+object.ccc.removeEventListener("assign", DETEventLog)
+object.ccc.assign({
+  ddd: 444444444
 })
-
-/*
-Log: assign { target: DynamicEventTarget }
-*/
 ```
+##### Emits Nothing
 ## DET Object Ventilation
 ### 1. DET Object Assign Events
 #### 1.1. "assignSourceProperty" Event
 `assignSourceProperty` event occurs after each source property assignment to DET instance. 
+##### Event Detail
 ```
 {
   key,
@@ -154,8 +255,15 @@ Log: assign { target: DynamicEventTarget }
 |key|String, Number|Assigned Source Property Key|
 |val|Any|Assigned Source Property Val|
 |source|Object|Assigned Source|
+##### Subbase-Referenced Property Assignment
+```
+object.ccc.assign({
+  eee: 555
+})
+```
 #### 1.2. "assignSource" Event
-`assignSource` event occurs after each source assignment to DET instance. 
+`assignSource` event occurs after each source assignment to DET instance.  
+##### Event Detail
 ```
 {
   source
@@ -165,7 +273,8 @@ Log: assign { target: DynamicEventTarget }
 |-|-|-|
 |source|Object|Assigned Source|
 #### 1.3. "assign" Event
-`assign` event occurs after all sources assigned to DET instance. 
+`assign` event occurs after all sources assigned to DET instance.  
+##### Event Detail
 ```
 {
   sources
@@ -177,7 +286,8 @@ Log: assign { target: DynamicEventTarget }
 ### 2. DET Object Define Properties Events
 **Triggers** Define Property Events before Define Properties Event
 #### 2.1. "defineProperties" Event
-`defineProperties` event occurs after all properties defined on DET instance. 
+`defineProperties` event occurs after all properties defined on DET instance.  
+##### Event Detail
 ```
 {
   descriptors
@@ -189,6 +299,7 @@ Log: assign { target: DynamicEventTarget }
 ### 3. DET Object Define Property Event
 #### 3.1. "defineProperty" Event
 `defineProperty` event occurs after each property definition on DET instance. 
+##### Event Detail
 ```	
 {	
   prop,
@@ -203,6 +314,7 @@ Log: assign { target: DynamicEventTarget }
 ### 4. DET Object Freeze Event
 #### 4.1. freeze
 `freeze` event occurs after DET instance frozen.
+##### Event Detail
 ```
 {
   isFrozen
@@ -214,6 +326,7 @@ Log: assign { target: DynamicEventTarget }
 ### 5. Object Seal
 #### 5.1. seal
 `seal` event occurs after DET instance sealed. 
+##### Event Detail
 ```
 {
   isSealed
@@ -225,6 +338,7 @@ Log: assign { target: DynamicEventTarget }
 ### 6. Object Set Prototype
 #### 6.1. setPrototypeOf
 `setPrototypeOf` event occurs after DET instance prototype is set. 
+##### Event Detail
 ```
 {
   prototype
