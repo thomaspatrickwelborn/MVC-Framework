@@ -3,10 +3,8 @@ import {
   isDirectInstanceOf,
 } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
-import {
-  DynamicEvent,
-  DynamicEventBubble,
-} from '../../../Events/index.js'
+import DETEvent from '../../../../../DynamicEvent/index.js'
+import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Freeze(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -30,7 +28,7 @@ export default function Freeze(
               $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
               $propertyValue.addEventListener(
-                'freeze', DynamicEventBubble
+                'freeze', DETEventBubble
               )
               $propertyValue.freeze()
             } else {
@@ -42,7 +40,7 @@ export default function Freeze(
             ) ? $path.concat('.', $propertyKey)
               : $propertyKey
             $eventTarget.dispatchEvent(
-              new DynamicEvent(
+              new DETEvent(
                 'freeze',
                 {
                   path: $path,

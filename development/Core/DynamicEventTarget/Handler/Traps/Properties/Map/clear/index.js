@@ -1,7 +1,5 @@
-import {
-  DynamicEvent,
-  DynamicEventBubble,
-} from '../../../Events/index.js'
+import DETEvent from '../../../../../DynamicEvent/index.js'
+import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Clear(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -13,7 +11,7 @@ export default function Clear(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'clear', DynamicEventBubble
+    'clear', DETEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {

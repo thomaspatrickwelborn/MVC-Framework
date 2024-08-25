@@ -7,6 +7,7 @@ const Options = Object.freeze({
   objectDefinePropertyDescriptorValueMerge: true,
   objectFreezeRecurse: true,
   objectSealRecurse: true,
+  objectSetMerge: true,
 })
 export default class DynamicEventTarget extends EventTarget {
   #settings
@@ -87,6 +88,7 @@ export default class DynamicEventTarget extends EventTarget {
   get #proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     this.#_proxy = new Proxy(this.#root, this.#handler)
+    this.#handler.proxy = this.#proxy
     if(this.type === 'object') {
       this.#_proxy.assign(this.#root)
     } else
@@ -111,6 +113,7 @@ export default class DynamicEventTarget extends EventTarget {
       objectDefinePropertyDescriptorValueMerge,
       objectFreezeRecurse,
       objectSealRecurse,
+      objectSetMerge,
     } = this.#options
     this.#_handler = new Handler(this.#aliases, {
       traps: {
@@ -131,6 +134,9 @@ export default class DynamicEventTarget extends EventTarget {
           },
           seal: {
             recurse: objectSealRecurse,
+          },
+          set: {
+            merge: objectSetMerge
           },
         }
       }

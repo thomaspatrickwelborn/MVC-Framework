@@ -1,9 +1,7 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
-import {
-  DynamicEvent,
-  DynamicEventBubble,
-} from '../../../Events/index.js'
+import DETEvent from '../../../../../DynamicEvent/index.js'
+import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Push(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -15,10 +13,10 @@ export default function Push(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'push', DynamicEventBubble
+    'push', DETEventBubble
   )
   $eventTarget.addEventListener(
-    'pushProp', DynamicEventBubble
+    'pushProp', DETEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -43,7 +41,7 @@ export default function Push(
             : elementIndex
           // Push Prop Event
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DETEvent(
               'pushProp',
               {
                 basename,
@@ -59,7 +57,7 @@ export default function Push(
         }
         // Push Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DETEvent(
             'push',
             {
               basename: $basename,

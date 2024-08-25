@@ -1,7 +1,5 @@
-import {
-  DynamicEvent,
-  DynamicEventBubble,
-} from '../../../Events/index.js'
+import DETEvent from '../../../../../DynamicEvent/index.js'
+import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Set(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -17,7 +15,7 @@ export default function Set(
       value: function ($key, $val) {
         $root.set($key, $val)
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DETEvent(
             'set',
             {
               basename: $basename,
@@ -30,7 +28,7 @@ export default function Set(
           )
         )
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DETEvent(
             'setKey',
             {
               basename: $basename,

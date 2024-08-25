@@ -1,9 +1,7 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
-import {
-  DynamicEvent,
-  DynamicEventBubble,
-} from '../../../Events/index.js'
+import DETEvent from '../../../../../DynamicEvent/index.js'
+import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Fill(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -15,10 +13,10 @@ export default function Fill(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'fill', DynamicEventBubble
+    'fill', DETEventBubble
   )
   $eventTarget.addEventListener(
-    'fillIndex', DynamicEventBubble
+    'fillIndex', DETEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -69,7 +67,7 @@ export default function Fill(
             : fillIndex
           // Array Fill Index Event
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DETEvent(
               'fillIndex',
               {
                 basename,
@@ -86,7 +84,7 @@ export default function Fill(
         }
         // Array Fill Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DETEvent(
             'fill',
             {
               basename: $basename,

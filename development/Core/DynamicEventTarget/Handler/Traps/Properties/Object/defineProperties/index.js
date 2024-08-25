@@ -3,10 +3,8 @@ import {
   isDirectInstanceOf,
 } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
-import {
-  DynamicEvent,
-  DynamicEventBubble,
-} from '../../../Events/index.js'
+import DETEvent from '../../../../../DynamicEvent/index.js'
+import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -19,7 +17,7 @@ export default function DefineProperties(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'defineProperties', DynamicEventBubble
+    'defineProperties', DETEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -35,7 +33,7 @@ export default function DefineProperties(
         }
         // Define Properties Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DETEvent(
             'defineProperties',
             {
               basename: $basename,

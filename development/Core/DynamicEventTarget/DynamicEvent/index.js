@@ -1,4 +1,4 @@
-export default class DynamicEvent extends Event {
+export default class DynamicEventTargetEvent extends Event {
   #settings
   constructor($type, $settings) {
     super($type)

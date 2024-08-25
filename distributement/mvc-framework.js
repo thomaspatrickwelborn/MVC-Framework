@@ -29,6 +29,28 @@ function parseShortenedEvents($propEvents) {
 	return propEvents
 }
 
+class DynamicEventTargetEvent extends Event {
+  #settings
+  constructor($type, $settings) {
+    super($type);
+    this.#settings = $settings;
+  }
+  get basename() { return this.#settings.basename }
+  get path() { return this.#settings.path }
+  get detail() { return this.#settings.detail }
+}
+
+function DynamicEventBubble$1($event) {
+  const { currentTarget, type, basename, path, detail } = $event;
+  if(currentTarget.parent !== null) {
+    currentTarget.parent.dispatchEvent(
+      new DynamicEventTargetEvent(
+        type, { basename, path, detail }
+      )
+    );
+  }
+}
+
 class Trap {
   constructor($methods, $aliases, $options = {}) {
     for(let [
@@ -53,28 +75,6 @@ function isDirectInstanceOf($object, $constructor) {
     return false
   } else {
     return Object.getPrototypeOf($object) === $constructor.prototype
-  }
-}
-
-class DynamicEvent extends Event {
-  #settings
-  constructor($type, $settings) {
-    super($type);
-    this.#settings = $settings;
-  }
-  get basename() { return this.#settings.basename }
-  get path() { return this.#settings.path }
-  get detail() { return this.#settings.detail }
-}
-
-function DynamicEventBubble($event) {
-  const { currentTarget, type, basename, path, detail } = $event;
-  if(currentTarget.parent !== null) {
-    currentTarget.parent.dispatchEvent(
-      new DynamicEvent(
-        type, { basename, path, detail }
-      )
-    );
   }
 }
 
@@ -129,13 +129,13 @@ function Assign(
                   }
                 );
                 detObject.addEventListener(
-                  'assignSourceProperty', DynamicEventBubble
+                  'assignSourceProperty', DynamicEventBubble$1
                 );
                 detObject.addEventListener(
-                  'assignSource', DynamicEventBubble
+                  'assignSource', DynamicEventBubble$1
                 );
                 detObject.addEventListener(
-                  'assign', DynamicEventBubble
+                  'assign', DynamicEventBubble$1
                 );
                 Object.assign($root, {
                   [$sourcePropKey]: detObject
@@ -150,7 +150,7 @@ function Assign(
             }
             // Assign Source Property Event
             $eventTarget.dispatchEvent(
-              new DynamicEvent(
+              new DynamicEventTargetEvent(
                 'assignSourceProperty',
                 {
                   path: $path,
@@ -166,7 +166,7 @@ function Assign(
           }
           // Assign Source Event
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DynamicEventTargetEvent(
               'assignSource',
               {
                 path: $path,
@@ -180,7 +180,7 @@ function Assign(
         }
         // Assign Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'assign',
             { 
               basename: $basename,
@@ -208,7 +208,7 @@ function DefineProperties(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'defineProperties', DynamicEventBubble
+    'defineProperties', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -223,7 +223,7 @@ function DefineProperties(
         }
         // Define Properties Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'defineProperties',
             {
               basename: $basename,
@@ -270,10 +270,10 @@ function DefineProperty(
             ?.constructor.name === 'bound DynamicEventTarget'
           ) {
             $root[propertyKey].removeEventListener(
-              'defineProperty', DynamicEventBubble
+              'defineProperty', DynamicEventBubble$1
             );
             $root[propertyKey].addEventListener(
-              'defineProperty', DynamicEventBubble
+              'defineProperty', DynamicEventBubble$1
             );
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
@@ -341,7 +341,7 @@ function DefineProperty(
         }
         // Define Property Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'defineProperty',
             {
               basename: $basename,
@@ -394,7 +394,7 @@ function Freeze(
               $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
               $propertyValue.addEventListener(
-                'freeze', DynamicEventBubble
+                'freeze', DynamicEventBubble$1
               );
               $propertyValue.freeze();
             } else {
@@ -405,7 +405,7 @@ function Freeze(
             ) ? $path.concat('.', $propertyKey)
               : $propertyKey;
             $eventTarget.dispatchEvent(
-              new DynamicEvent(
+              new DynamicEventTargetEvent(
                 'freeze',
                 {
                   path: $path,
@@ -676,7 +676,7 @@ function Seal(
               $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
               $propertyValue.addEventListener(
-                'seal', DynamicEventBubble
+                'seal', DynamicEventBubble$1
               );
               $propertyValue.seal();
             } else {
@@ -687,7 +687,7 @@ function Seal(
             ) ? $path.concat('.', $propertyKey)
               : $propertyKey;
             $eventTarget.dispatchEvent(
-              new DynamicEvent(
+              new DynamicEventTargetEvent(
                 'seal',
                 {
                   path: $path,
@@ -715,7 +715,7 @@ function SetPrototypeOf(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'setPrototypeOf', DynamicEventBubble
+    'setPrototypeOf', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -723,7 +723,7 @@ function SetPrototypeOf(
         const prototype = arguments[0];
         Object.setPrototypeOf($root, prototype);
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'setPrototypeOf',
             {
               basename: $basename,
@@ -856,10 +856,10 @@ function CopyWithin(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'copyWithin', DynamicEventBubble
+    'copyWithin', DynamicEventBubble$1
   );
   $eventTarget.addEventListener(
-    'copyWithinIndex', DynamicEventBubble
+    'copyWithinIndex', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -893,7 +893,7 @@ function CopyWithin(
           );
           // Array Copy Within Index Event Data
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DynamicEventTargetEvent(
               'copyWithinIndex',
               {
                 basename: $eventTarget.basename,
@@ -912,7 +912,7 @@ function CopyWithin(
         }
         // Array Copy Within Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'copyWithin',
             {
               basename: $eventTarget.basename,
@@ -981,10 +981,10 @@ function Fill(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'fill', DynamicEventBubble
+    'fill', DynamicEventBubble$1
   );
   $eventTarget.addEventListener(
-    'fillIndex', DynamicEventBubble
+    'fillIndex', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1035,7 +1035,7 @@ function Fill(
             : fillIndex;
           // Array Fill Index Event
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DynamicEventTargetEvent(
               'fillIndex',
               {
                 basename,
@@ -1052,7 +1052,7 @@ function Fill(
         }
         // Array Fill Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'fill',
             {
               basename: $basename,
@@ -1264,7 +1264,7 @@ function Length(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'lengthSet', DynamicEventBubble
+    'lengthSet', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1272,7 +1272,7 @@ function Length(
       set($length) {
         $root.length = $length;
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'lengthSet', 
             {
               path: $path,
@@ -1327,7 +1327,7 @@ function Pop(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'lengthSet', DynamicEventBubble
+    'lengthSet', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1341,7 +1341,7 @@ function Pop(
           : popElementIndex;
         // Array Pop Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'lengthSet',
             {
               basename,
@@ -1370,10 +1370,10 @@ function Push(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'push', DynamicEventBubble
+    'push', DynamicEventBubble$1
   );
   $eventTarget.addEventListener(
-    'pushProp', DynamicEventBubble
+    'pushProp', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1397,7 +1397,7 @@ function Push(
             : elementIndex;
           // Push Prop Event
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DynamicEventTargetEvent(
               'pushProp',
               {
                 basename,
@@ -1413,7 +1413,7 @@ function Push(
         }
         // Push Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'push',
             {
               basename: $basename,
@@ -1467,14 +1467,14 @@ function Reverse(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'reverse', DynamicEventBubble
+    'reverse', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         Array.prototype.reverse.call($root, ...arguments);
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'reverse',
             {
               basename: $basename,
@@ -1502,7 +1502,7 @@ function Shift(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'shift', DynamicEventBubble
+    'shift', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1516,7 +1516,7 @@ function Shift(
           : shiftElementIndex;
         // Array Shift Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'shift',
             {
               basename,
@@ -1571,13 +1571,13 @@ function Splice(
     $path, 
   } = $aliases;
   $eventTarget.addEventListener(
-    'spliceDelete', DynamicEventBubble
+    'spliceDelete', DynamicEventBubble$1
   );
   $eventTarget.addEventListener(
-    'spliceAdd', DynamicEventBubble
+    'spliceAdd', DynamicEventBubble$1
   );
   $eventTarget.addEventListener(
-    'splice', DynamicEventBubble
+    'splice', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1609,7 +1609,7 @@ function Splice(
           ) ? $path.concat('.', deleteItemsIndex)
             : deleteItemsIndex;
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DynamicEventTargetEvent(
               'spliceDelete',
               {
                 basename,
@@ -1637,7 +1637,7 @@ function Splice(
             : addItemsIndex;
           // Array Splice Add Event
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DynamicEventTargetEvent(
               'spliceAdd',
               {
                 basename,
@@ -1654,7 +1654,7 @@ function Splice(
         }
         // Array Splice Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'splice',
             {
               basename: $basename,
@@ -1754,7 +1754,7 @@ function Unshift(
     ($event) => DynamicEventBubble
   );
   $eventTarget.addEventListener(
-    'unshiftProp', DynamicEventBubble
+    'unshiftProp', DynamicEventBubble$1
   );
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1783,7 +1783,7 @@ function Unshift(
           // Array Unshift Prop Event
             
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DynamicEventTargetEvent(
               'unshiftProp',
               {
                 basename,
@@ -1802,7 +1802,7 @@ function Unshift(
         ) ? $path.concat('.', elementIndex)
           : elementIndex;
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DynamicEventTargetEvent(
             'unshift',
             {
               basename: $basename,
@@ -1918,28 +1918,34 @@ class Traps {
 
 class Handler {
   #aliases
+  #options
   traps
   constructor($aliases, $options) {
     this.#aliases = $aliases;
+    this.#options = $options;
     this.traps = new Traps(this.#aliases, $options.traps);
     return this
   }
-  // Get
+  // Get Property
   get get() {
     const $this = this;
     const {
+      $type,
       $eventTarget, 
-      $root, $rootAlias, 
-      $type, $proxy,
+      $root, 
+      $rootAlias, 
+      $basename,
+      $path, 
     } = this.#aliases;
     return function get($target, $property, $receiver) {
-      // 1. Root Alias
-      if($property === $rootAlias) return this
+      // Root Property
+      if($property === $rootAlias) {
+        return this.proxy
+      } else {
+      // Event Target/Dynamic Event Target Property
       if(
-        // 2. Event Target Class Instance Methods
         Object.getOwnPropertyNames(EventTarget.prototype)
         .includes($property) ||
-        // 3. Dynamic Event Target Class Instance Methods
         Object.getOwnPropertyNames(DynamicEventTarget.prototype)
         .includes($property) /* ||
         Object.getOwnPropertyNames($eventTarget)
@@ -1949,106 +1955,109 @@ class Handler {
           return $eventTarget[$property].bind($eventTarget)
         }
         return $eventTarget[$property]
-      }
-      // 3.5. Root Alias Property
+      } else
+      // Object Property
       if(
-        Object.getOwnPropertyNames($root)
+        Object.getOwnPropertyNames(Object)
         .includes($property)
       ) {
-        return $root[$property]
-      }
-      // 4. Type Object
+        return $this.traps['Object'][$property]
+      } else
+      // Array Property
       if(
-        $type === 'object'
+        Object.getOwnPropertyNames(Array.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(Array)
+        .includes($property)
       ) {
-        if(
-          Object.getOwnPropertyNames(Object)
-          .includes($property)
-        ) {
-          return $this.traps['Object'][$property]
-        } else
-        if(
-          Object.getOwnPropertyNames(Array.prototype)
-          .includes($property) ||
-          Object.getOwnPropertyNames(Array)
-          .includes($property)
-        ) {
-          return $this.traps['Array'][$property]
-        }
-      } 
-      // 5. Type Array
-      if(
-        $type === 'array'
-      ) {
-        if(
-          Object.getOwnPropertyNames(Array.prototype)
-          .includes($property) ||
-          Object.getOwnPropertyNames(Array)
-          .includes($property)
-        ) {
-          return $this.traps['Array'][$property]
-        } else
-        if(
-          Object.getOwnPropertyNames(Object)
-          .includes($property)
-        ) {
-          return $this.traps['Object'][$property]
-        }
-      }
-      // 6. Map Class Instance Property Trap
+        return $this.traps['Array'][$property]
+      } /* else 
+      // Map
       if(
         $type === 'map' &&
         Object.getOwnPropertyNames(Map.prototype)
         .includes($property)
-      ) return $this.traps['Map'][$property] || 
-        $this.traps['Map']['default']
-      return undefined
+      ) {
+        return $this.traps['Map'][$property] || 
+          $this.traps['Map']['default']
+      } */
+      else
+        return $root[$property]
+      }
     }
   }
   get set() {
     const $this = this;
     const {
-      $eventTarget, $root, $rootAlias, $type, $proxy
+      $type,
+      $eventTarget, 
+      $root, 
+      $rootAlias, 
+      $basename,
+      $path, 
     } = this.#aliases;
+    this.#options.traps.object.set;
     return function set($target, $property, $value, $receiver) {
+      // Object Property
       if(
-        $type === 'object'
+        Object.getOwnPropertyNames(Object)
+          .includes($property)
       ) {
-        if(
-          Object.getOwnPropertyNames(Object)
-          .includes($property)
-        ) {
-          $this.traps['Object'][$property] = $value;
-        } else
-        if(
-          Object.getOwnPropertyNames(Array.prototype)
-          .includes($property) ||
-          Object.getOwnPropertyNames(Array)
-          .includes($property)
-        ) {
-          $this.traps['Array'][$property] = $value;
-        }
+        $this.traps['Object'][$property] = $value;
       } else
+      // Array, Array Prototype Property
       if(
-        $type === 'array'
+        Object.getOwnPropertyNames(Array.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(Array)
+        .includes($property)
       ) {
-        if(
-          Object.getOwnPropertyNames(Array.prototype)
-          .includes($property) ||
-          Object.getOwnPropertyNames(Array)
-          .includes($property)
-        ) {
-          $this.traps['Array'][$property] = $value;
-        } else if(
-          Object.getOwnPropertyNames(Object)
-          .includes($property)
-        ) {
-          $this.traps['Object'][$property] = $value;
-        }
+        $this.traps['Array'][$property] = $value;
+      } else
+      // Dynamic Event Target Property
+      if(
+        typeOf($value) === 'object' ||
+        typeOf($value) === 'array' /* ||
+        typeOf($value) === 'map' */
+      ) {
+        $value = new DynamicEventTarget(
+          $value, {
+            $rootAlias,
+            $path: path,
+            $basename: basename,
+            $parent: $eventTarget
+          }
+        );
       }
+      // Property Assignment
+      $root[$property] = $value;
+      const basename = $property;
+      // console.log('basename', basename)
+      const path = (
+        $path !== null
+      ) ? $path.concat('.', $property)
+        : $property;
+      // console.log('path', path)
+      $eventTarget.addEventListener(
+        'set', DynamicEventBubble$1
+      );
+      $eventTarget.dispatchEvent(
+        new DynamicEventTargetEvent(
+          'set',
+          {
+            basename,
+            path,
+            detail: {
+              property: $property,
+              value: $value,
+            },
+          }
+        )
+      );
       return true
     }
   }
+  get delete() {}
 }
 
 const Options$6 = Object.freeze({
@@ -2058,6 +2067,7 @@ const Options$6 = Object.freeze({
   objectDefinePropertyDescriptorValueMerge: true,
   objectFreezeRecurse: true,
   objectSealRecurse: true,
+  objectSetMerge: true,
 });
 class DynamicEventTarget extends EventTarget {
   #settings
@@ -2138,6 +2148,7 @@ class DynamicEventTarget extends EventTarget {
   get #proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     this.#_proxy = new Proxy(this.#root, this.#handler);
+    this.#handler.proxy = this.#proxy;
     if(this.type === 'object') {
       this.#_proxy.assign(this.#root);
     } else
@@ -2162,6 +2173,7 @@ class DynamicEventTarget extends EventTarget {
       objectDefinePropertyDescriptorValueMerge,
       objectFreezeRecurse,
       objectSealRecurse,
+      objectSetMerge,
     } = this.#options;
     this.#_handler = new Handler(this.#aliases, {
       traps: {
@@ -2182,6 +2194,9 @@ class DynamicEventTarget extends EventTarget {
           },
           seal: {
             recurse: objectSealRecurse,
+          },
+          set: {
+            merge: objectSetMerge
           },
         }
       }
@@ -2242,7 +2257,7 @@ class DynamicEventTarget extends EventTarget {
   }
 }
 
-let Event$1 = class Event {
+class DynamicEventSystemEvent {
   constructor($settings) { 
     this.settings = $settings;
   }
@@ -2314,7 +2329,7 @@ let Event$1 = class Event {
       } catch($err) { /* console.log(this.type, this.path, eventAbility) */ }
     }
   }
-};
+}
 
 class DynamicEventSystem extends EventTarget {
   constructor($events, $enable) {
@@ -2361,7 +2376,7 @@ class DynamicEventSystem extends EventTarget {
   			context: this,
   			enable: $event.enable || $enable,
   		});
-  		_events.push(new Event$1($event));
+  		_events.push(new DynamicEventSystemEvent($event));
   	}
   }
   removeEvents($events = {}) {

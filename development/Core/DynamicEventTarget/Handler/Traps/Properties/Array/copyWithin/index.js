@@ -1,7 +1,5 @@
-import {
-  DynamicEvent,
-  DynamicEventBubble,
-} from '../../../Events/index.js'
+import DETEvent from '../../../../../DynamicEvent/index.js'
+import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function CopyWithin(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -13,10 +11,10 @@ export default function CopyWithin(
     $path, 
   } = $aliases
   $eventTarget.addEventListener(
-    'copyWithin', DynamicEventBubble
+    'copyWithin', DETEventBubble
   )
   $eventTarget.addEventListener(
-    'copyWithinIndex', DynamicEventBubble
+    'copyWithinIndex', DETEventBubble
   )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -52,7 +50,7 @@ export default function CopyWithin(
           )
           // Array Copy Within Index Event Data
           $eventTarget.dispatchEvent(
-            new DynamicEvent(
+            new DETEvent(
               'copyWithinIndex',
               {
                 basename: $eventTarget.basename,
@@ -71,7 +69,7 @@ export default function CopyWithin(
         }
         // Array Copy Within Event
         $eventTarget.dispatchEvent(
-          new DynamicEvent(
+          new DETEvent(
             'copyWithin',
             {
               basename: $eventTarget.basename,

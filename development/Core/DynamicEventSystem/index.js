@@ -1,5 +1,5 @@
 import { typeOf, parseShortenedEvents } from '../../Coutil/index.js'
-import Event from './Event/index.js'
+import DESEvent from './Event/index.js'
 export default class DynamicEventSystem extends EventTarget {
   constructor($events, $enable) {
     super()
@@ -45,7 +45,7 @@ export default class DynamicEventSystem extends EventTarget {
   			context: this,
   			enable: $event.enable || $enable,
   		})
-  		_events.push(new Event($event))
+  		_events.push(new DESEvent($event))
   	}
   }
   removeEvents($events = {}) {
