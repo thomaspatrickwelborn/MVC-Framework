@@ -1,5 +1,4 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Reverse(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -10,9 +9,6 @@ export default function Reverse(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'reverse', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -26,7 +22,8 @@ export default function Reverse(
               detail: {
                 reference: $root
               },
-            }
+            },
+            $eventTarget
           )
         )
         return $root

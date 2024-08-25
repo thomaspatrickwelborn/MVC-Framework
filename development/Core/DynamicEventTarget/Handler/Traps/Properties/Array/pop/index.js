@@ -1,5 +1,4 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Pop(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -10,9 +9,6 @@ export default function Pop(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'lengthSet', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -34,7 +30,8 @@ export default function Pop(
                 element: popElement,
                 elementIndex: popElementIndex,
               },
-            }
+            },
+            $eventTarget
           )
         )
         return popElement

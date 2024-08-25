@@ -1,5 +1,4 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Delete(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -10,12 +9,6 @@ export default function Delete(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'delete', DETEventBubble
-  )
-  $eventTarget.addEventListener(
-    'deleteKey', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function ($key) {
@@ -29,7 +22,8 @@ export default function Delete(
               detail: {
                 key: $key,
               }
-            }
+            },
+            $eventTarget
           )
         )
         $eventTarget.dispatchEvent(
@@ -41,7 +35,8 @@ export default function Delete(
               detail: {
                 key: $key,
               }
-            }
+            },
+            $eventTarget
           )
         )
         return resolve

@@ -1,5 +1,4 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Shift(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -10,9 +9,6 @@ export default function Shift(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'shift', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -34,7 +30,8 @@ export default function Shift(
                 element: shiftElement,
                 elementIndex: shiftElementIndex,
               },
-            }
+            },
+            $eventTarget
           )
         )
         return shiftElement

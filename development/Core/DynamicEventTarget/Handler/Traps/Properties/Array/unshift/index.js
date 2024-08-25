@@ -1,7 +1,5 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
-import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Unshift(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -12,13 +10,6 @@ export default function Unshift(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'unshift', 
-    ($event) => DynamicEventBubble
-  )
-  $eventTarget.addEventListener(
-    'unshiftProp', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -56,7 +47,8 @@ export default function Unshift(
                   elementIndex, 
                   element: element,
                 },
-              }
+              },
+              $eventTarget
             )
           )
           elementIndex--
@@ -76,7 +68,8 @@ export default function Unshift(
               detail: {
                 elements,
               },
-            }
+            },
+            $eventTarget
           )
         )
         return $root.length

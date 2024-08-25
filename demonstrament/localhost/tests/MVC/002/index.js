@@ -19,15 +19,23 @@ function DOMContentLoaded() {
     aaa: {
       bbb: 222,
     }, 
-  }  )
+  })
   // object.aaa.addEventListener('set', DETEventLog)
   object.addEventListener('set', DETEventLog)
   object.aaa.bbb = 222222
-  object.ccc = 3456
-  object.addEventListener('assign', DETEventLog)
-  object.aaa.assign({
-    bbb: 111
-  })
+  // object.ccc = 3456
+  // object.addEventListener('assign', DETEventLog)
+  // object.aaa.assign({
+  //   bbb: 111
+  // })
+  // object.assign({
+  //   aaa: {
+  //     bbb: 111111
+  //   }
+  // })
+  // const array = new DET([])
+  // array.addEventListener('lengthSet', DETEventLog)
+  // array.length = 3
   // console.log(object)
   // console.log('object.aaa', object.aaa)
   // console.log('object', object)

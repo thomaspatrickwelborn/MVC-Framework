@@ -4,7 +4,6 @@ import {
 } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Seal(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -27,9 +26,6 @@ export default function Seal(
             if(
               $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
-              $propertyValue.addEventListener(
-                'seal', DETEventBubble
-              )
               $propertyValue.seal()
             } else {
               Object.seal($propertyValue)
@@ -46,6 +42,7 @@ export default function Seal(
                   path: $path,
                   basename: $basename,
                 },
+                $eventTarget
               )
             )
           }

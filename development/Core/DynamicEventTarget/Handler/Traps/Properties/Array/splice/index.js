@@ -1,5 +1,4 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Splice(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -10,15 +9,6 @@ export default function Splice(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'spliceDelete', DETEventBubble
-  )
-  $eventTarget.addEventListener(
-    'spliceAdd', DETEventBubble
-  )
-  $eventTarget.addEventListener(
-    'splice', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -61,6 +51,7 @@ export default function Splice(
                   deleteItem: deleteItem,
                 },
               },
+              $eventTarget
             )
           )
           deleteItemsIndex++
@@ -90,6 +81,7 @@ export default function Splice(
                   addItem: addItem,
                 },
               },
+              $eventTarget
             )
           )
           addItemsIndex++
@@ -108,6 +100,7 @@ export default function Splice(
                 length: $root.length,
               },
             },
+            $eventTarget
           )
         )
         return deleteItems

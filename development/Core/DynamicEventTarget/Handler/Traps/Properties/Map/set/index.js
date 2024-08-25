@@ -1,5 +1,4 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Set(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -25,6 +24,7 @@ export default function Set(
                 val: $val,
               },
             },
+            $eventTarget
           )
         )
         $eventTarget.dispatchEvent(
@@ -38,6 +38,7 @@ export default function Set(
                 val: $val,
               },
             },
+            $eventTarget
           )
         )
         return $root

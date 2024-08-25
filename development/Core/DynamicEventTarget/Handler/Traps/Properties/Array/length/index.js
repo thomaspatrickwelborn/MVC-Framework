@@ -1,5 +1,4 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function Length(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -10,9 +9,6 @@ export default function Length(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'lengthSet', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       get() { return $root.length },
@@ -27,7 +23,8 @@ export default function Length(
               detail: {
                 length: $root.length,
               },
-            }
+            },
+            $eventTarget
           )
         )
       },

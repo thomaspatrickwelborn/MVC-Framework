@@ -1,7 +1,6 @@
 import { typeOf } from '../../../Coutil/index.js'
 import DynamicEventTarget from '../index.js'
 import DETEvent from '../DynamicEvent/index.js'
-import DynamicEventBubble from '../DynamicEvent/DynamicEventBubble/index.js'
 import Traps from './Traps/index.js'
 
 export default class Handler {
@@ -125,10 +124,6 @@ export default class Handler {
         $path !== null
       ) ? $path.concat('.', $property)
         : $property
-      // console.log('path', path)
-      $eventTarget.addEventListener(
-        'set', DynamicEventBubble
-      )
       $eventTarget.dispatchEvent(
         new DETEvent(
           'set',
@@ -139,7 +134,8 @@ export default class Handler {
               property: $property,
               value: $value,
             },
-          }
+          },
+          $eventTarget
         )
       )
       return true

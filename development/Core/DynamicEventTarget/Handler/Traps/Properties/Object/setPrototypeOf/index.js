@@ -3,7 +3,6 @@ import {
   isDirectInstanceOf,
 } from '../../Coutil/index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function SetPrototypeOf(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -14,9 +13,6 @@ export default function SetPrototypeOf(
     $basename,
     $path, 
   } = $aliases
-  $eventTarget.addEventListener(
-    'setPrototypeOf', DETEventBubble
-  )
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
@@ -32,6 +28,7 @@ export default function SetPrototypeOf(
                 prototype
               },
             },
+            $eventTarget
           )
         )
         return $root

@@ -4,7 +4,6 @@ import {
 } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
-import DETEventBubble from '../../../../../DynamicEvent/DynamicEventBubble/index.js'
 export default function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -34,12 +33,6 @@ export default function DefineProperty(
             rootPropertyDescriptor.value // instanceof DynamicEventTarget
             ?.constructor.name === 'bound DynamicEventTarget'
           ) {
-            $root[propertyKey].removeEventListener(
-              'defineProperty', DETEventBubble
-            )
-            $root[propertyKey].addEventListener(
-              'defineProperty', DETEventBubble
-            )
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
               rootPropertyDescriptor.value.defineProperties(
@@ -83,10 +76,6 @@ export default function DefineProperty(
                 $parent: $eventTarget,
               }
             )
-            detObject.addEventListener(
-              'defineProperty',
-              DynamicEventBubble
-            )
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
               detObject.defineProperties(
@@ -115,7 +104,8 @@ export default function DefineProperty(
                 prop: propertyKey,
                 descriptor: propertyDescriptor,
               },
-            }
+            },
+            $eventTarget
           )
         )
         return $root
