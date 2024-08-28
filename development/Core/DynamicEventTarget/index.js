@@ -38,24 +38,24 @@ export default class DynamicEventTarget extends EventTarget {
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
     this.#_parent = (
-      this.#options.$parent !== undefined
-    ) ? this.#options.$parent
+      this.#options.parent !== undefined
+    ) ? this.#options.parent
       : null
     return this.#_parent
   }
   get basename() {
     if(this.#_basename !== undefined)  return this.#_basename
     this.#_basename = (
-      this.#options.$basename !== undefined
-    ) ? this.#options.$basename
+      this.#options.basename !== undefined
+    ) ? this.#options.basename
       : null
     return this.#_basename
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
     this.#_path = (
-      this.#options.$path !== undefined
-    ) ? this.#options.$path
+      this.#options.path !== undefined
+    ) ? this.#options.path
       : null
     return this.#_path
   }
@@ -63,9 +63,9 @@ export default class DynamicEventTarget extends EventTarget {
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
     this.#_rootAlias = (
-      typeof this.#options.$rootAlias === 'string' &&
-      this.#options.$rootAlias.length > 0
-    ) ? this.#options.$rootAlias
+      typeof this.#options.rootAlias === 'string' &&
+      this.#options.rootAlias.length > 0
+    ) ? this.#options.rootAlias
       : Options.rootAlias
     return this.#_rootAlias
   }
@@ -147,13 +147,13 @@ export default class DynamicEventTarget extends EventTarget {
   get #aliases() {
     if(this.#_aliases !== undefined) return this.#_aliases
     this.#_aliases = {
-      $type: this.type,
-      $eventTarget: this,
-      $rootAlias: this.#rootAlias,
-      $root: this.#root,
-      $path: this.path,
-      $basename: this.basename,
-      $parent: this.parent,
+      type: this.type,
+      eventTarget: this,
+      rootAlias: this.#rootAlias,
+      root: this.#root,
+      path: this.path,
+      basename: this.basename,
+      parent: this.parent,
     }
     return this.#_aliases
   }

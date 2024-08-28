@@ -8,11 +8,11 @@ export default function Seal(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path,
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path,
   } = $aliases
   const { recurse } = $options
   return Object.defineProperty(
@@ -32,23 +32,23 @@ export default function Seal(
             }
             const basename = $propertyKey
             const path = (
-              $path !== null
-            ) ? $path.concat('.', $propertyKey)
+              path !== null
+            ) ? path.concat('.', $propertyKey)
               : $propertyKey
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new DETEvent(
                 'seal',
                 {
-                  path: $path,
-                  basename: $basename,
+                  path,
+                  basename,
                 },
-                $eventTarget
+                eventTarget
               )
             )
           }
         }
         Object.seal(this)
-        return $root
+        return root
       }
     }
   )

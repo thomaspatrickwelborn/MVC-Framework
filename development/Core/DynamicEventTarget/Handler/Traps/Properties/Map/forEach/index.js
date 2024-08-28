@@ -1,11 +1,11 @@
 export default function ForEach(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const { root } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.forEach.call($root, ...arguments)
+        return Array.prototype.forEach.call(root, ...arguments)
       }
     }
   )

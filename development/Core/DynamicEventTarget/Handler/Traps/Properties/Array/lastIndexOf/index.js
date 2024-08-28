@@ -1,11 +1,11 @@
 export default function LastIndexOf(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const { root } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.lastIndexOf.call($root)
+        return Array.prototype.lastIndexOf.call(root)
       },
     }
   )

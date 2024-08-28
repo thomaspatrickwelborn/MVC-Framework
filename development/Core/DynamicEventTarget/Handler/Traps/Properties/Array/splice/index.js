@@ -3,11 +3,11 @@ export default function Splice(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -16,14 +16,14 @@ export default function Splice(
         const start = (
           $arguments[0] >= 0
         ) ? $arguments[0]
-          : $root.length + $arguments[0]
+          : root.length + $arguments[0]
         const deleteCount = (
           $arguments[1] <= 0
         ) ? 0
           : (
           $arguments[1] === undefined ||
-          start + $arguments[1] >= $root.length
-        ) ? $root.length - start
+          start + $arguments[1] >= root.length
+        ) ? root.length - start
           : $arguments[1]
         const addItems = $arguments.slice(2)
         const addCount = addItems.length
@@ -31,27 +31,27 @@ export default function Splice(
         let deleteItemsIndex = 0
         spliceDelete:
         while(deleteItemsIndex < deleteCount) {
-          const deleteItem = Array.prototype.splice.call($root, start, 1)[0]
+          const deleteItem = Array.prototype.splice.call(root, start, 1)[0]
           deleteItems.push(deleteItem)
           // Array Splice Delete Event
-          const basename = deleteItemsIndex
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', deleteItemsIndex)
+          const _basename = deleteItemsIndex
+          const _path = (
+            path !== null
+          ) ? path.concat('.', deleteItemsIndex)
             : deleteItemsIndex
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DETEvent(
               'spliceDelete',
               {
-                basename,
-                path,
+                _basename,
+                _path,
                 detail: {
                   index: start + deleteItemsIndex,
                   deleteIndex: deleteItemsIndex,
                   deleteItem: deleteItem,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           )
           deleteItemsIndex++
@@ -61,15 +61,15 @@ export default function Splice(
         while(addItemsIndex < addCount) {
           const addItem = addItems[addItemsIndex]
           Array.prototype.splice.call(
-            $root, start + addItemsIndex, 0, addItem
+            root, start + addItemsIndex, 0, addItem
           )
           const basename = addItemsIndex
           const path = (
-            $path !== null
-          ) ? $path.concat('.', addItemsIndex)
+            path !== null
+          ) ? path.concat('.', addItemsIndex)
             : addItemsIndex
           // Array Splice Add Event
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DETEvent(
               'spliceAdd',
               {
@@ -81,26 +81,26 @@ export default function Splice(
                   addItem: addItem,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           )
           addItemsIndex++
         }
         // Array Splice Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DETEvent(
             'splice',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path: path,
               detail: {
                 start,
                 deleted: deleteItems,
                 added: addItems,
-                length: $root.length,
+                length: root.length,
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
         return deleteItems

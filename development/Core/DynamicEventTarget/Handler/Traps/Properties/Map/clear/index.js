@@ -4,15 +4,13 @@ export default function Clear(
 ) {
   const {
     $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    root, 
+    rootAlias, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function ($key) {
-        const resolve = $root.clear($key)
+        const resolve = root.clear($key)
         $eventTarget.dispatchEvent(
           'clear',
           {},

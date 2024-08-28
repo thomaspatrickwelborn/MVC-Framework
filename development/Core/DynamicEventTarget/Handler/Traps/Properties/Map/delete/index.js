@@ -4,21 +4,21 @@ export default function Delete(
 ) {
   const {
     $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function ($key) {
-        const resolve = $root.delete($key)
+        const resolve = root.delete($key)
         $eventTarget.dispatchEvent(
           new DETEvent(
             'delete',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 key: $key,
               }
@@ -30,8 +30,8 @@ export default function Delete(
           new DETEvent(
             'deleteKey',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 key: $key,
               }

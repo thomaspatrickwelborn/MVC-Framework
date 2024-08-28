@@ -3,28 +3,28 @@ export default function Length(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
-      get() { return $root.length },
+      get() { return root.length },
       set($length) {
-        $root.length = $length
-        $eventTarget.dispatchEvent(
+        root.length = $length
+        eventTarget.dispatchEvent(
           new DETEvent(
             'lengthSet', 
             {
-              path: $path,
-              basename: $basename,
+              path,
+              basename,
               detail: {
-                length: $root.length,
+                length: root.length,
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
       },

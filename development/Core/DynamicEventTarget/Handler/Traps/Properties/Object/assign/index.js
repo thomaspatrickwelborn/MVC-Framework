@@ -5,11 +5,11 @@ export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   const { merge } = $options
   return Object.defineProperty(
@@ -33,84 +33,84 @@ export default function Assign(
               // Assign Existent Root DET Property
               if(
                 merge === true &&
-                $root[$sourcePropKey]
+                root[$sourcePropKey]
                 ?.constructor.name === 'bound DynamicEventTarget'
               ) {
-                $root[$sourcePropKey].assign($sourcePropVal)
+                root[$sourcePropKey].assign($sourcePropVal)
               } else 
               // Assign Non-Existent Root DET Property
               {
-                const basename = $sourcePropKey
-                const path = (
-                  $path !== null
-                ) ? $path.concat('.', $sourcePropKey)
+              const _basename = $sourcePropKey
+              const _path = (
+                  path !== null
+                ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey
                 const detObject = new DynamicEventTarget(
                   $sourcePropVal, {
-                    $rootAlias,
-                    $path: path,
-                    $basename: basename,
-                    $parent: $eventTarget
+                    basename: _basename,
+                    parent: eventTarget,
+                    path: _path,
+                    rootAlias,
                   }
                 )
-                Object.assign($root, {
+                Object.assign(root, {
                   [$sourcePropKey]: detObject
                 })
               }
             } else 
             // Assign Root Property
             {
-              Object.assign($root, {
+              Object.assign(root, {
                 [$sourcePropKey]: $sourcePropVal
               })
             }
             // Assign Source Property Event
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new DETEvent(
                 'assignSourceProperty',
                 {
-                  path: $path,
-                  basename: $basename,
+                  path,
+                  basename,
                   detail: {
                     key: $sourcePropKey,
                     val: $sourcePropVal,
                     source: $source,
                   }
                 },
-                $eventTarget
+                eventTarget
               )
             )
           }
           // Assign Source Event
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DETEvent(
               'assignSource',
               {
-                path: $path,
-                basename: $basename,
+                path,
+                basename,
                 detail: {
                   source: $source,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           )
         }
         // Assign Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DETEvent(
             'assign',
             { 
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 sources
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
-        return $root
+        return root
       }
     }
   )

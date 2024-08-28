@@ -17,16 +17,16 @@ export default class Handler {
   get get() {
     const $this = this
     const {
-      $type,
-      $eventTarget, 
-      $root, 
-      $rootAlias, 
-      $basename,
-      $path, 
+      type,
+      eventTarget, 
+      root, 
+      rootAlias, 
+      basename,
+      path, 
     } = this.#aliases
     return function get($target, $property, $receiver) {
       // Root Property
-      if($property === $rootAlias) {
+      if($property === rootAlias) {
         return this.proxy
       } else {
       // Event Target/Dynamic Event Target Property
@@ -35,13 +35,13 @@ export default class Handler {
         .includes($property) ||
         Object.getOwnPropertyNames(DynamicEventTarget.prototype)
         .includes($property) /* ||
-        Object.getOwnPropertyNames($eventTarget)
+        Object.getOwnPropertyNames(eventTarget)
         .includes($property) */
       ) {
-        if(typeof $eventTarget[$property] === 'function') {
-          return $eventTarget[$property].bind($eventTarget)
+        if(typeof eventTarget[$property] === 'function') {
+          return eventTarget[$property].bind(eventTarget)
         }
-        return $eventTarget[$property]
+        return eventTarget[$property]
       } else
       // Object Property
       if(
@@ -61,7 +61,7 @@ export default class Handler {
       } /* else 
       // Map
       if(
-        $type === 'map' &&
+        type === 'map' &&
         Object.getOwnPropertyNames(Map.prototype)
         .includes($property)
       ) {
@@ -69,19 +69,19 @@ export default class Handler {
           $this.traps['Map']['default']
       } */
       else
-        return $root[$property]
+        return root[$property]
       }
     }
   }
   get set() {
     const $this = this
     const {
-      $type,
-      $eventTarget, 
-      $root, 
-      $rootAlias, 
-      $basename,
-      $path, 
+      type,
+      eventTarget, 
+      root, 
+      rootAlias, 
+      basename,
+      path, 
     } = this.#aliases
     const { merge } = this.#options.traps.object.set
     return function set($target, $property, $value, $receiver) {
@@ -109,22 +109,21 @@ export default class Handler {
       ) {
         $value = new DynamicEventTarget(
           $value, {
-            $rootAlias,
-            $path: path,
-            $basename: basename,
-            $parent: $eventTarget
+            basename,
+            path,
+            parent: eventTarget,
+            rootAlias,
           }
         )
       }
       // Property Assignment
-      $root[$property] = $value
+      root[$property] = $value
       const basename = $property
-      // console.log('basename', basename)
       const path = (
-        $path !== null
-      ) ? $path.concat('.', $property)
+        path !== null
+      ) ? path.concat('.', $property)
         : $property
-      $eventTarget.dispatchEvent(
+      eventTarget.dispatchEvent(
         new DETEvent(
           'set',
           {
@@ -135,7 +134,7 @@ export default class Handler {
               value: $value,
             },
           },
-          $eventTarget
+          eventTarget
         )
       )
       return true

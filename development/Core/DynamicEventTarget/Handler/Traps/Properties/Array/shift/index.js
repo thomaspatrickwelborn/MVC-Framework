@@ -3,24 +3,24 @@ export default function Shift(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        const shiftElement = Array.prototype.shift.call($root)
+        const shiftElement = Array.prototype.shift.call(root)
         const shiftElementIndex = 0
         const basename = shiftElementIndex
         const path = (
-          $path !== null
-        ) ? $path.concat('.', shiftElementIndex)
+          path !== null
+        ) ? path.concat('.', shiftElementIndex)
           : shiftElementIndex
         // Array Shift Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DETEvent(
             'shift',
             {
@@ -31,7 +31,7 @@ export default function Shift(
                 elementIndex: shiftElementIndex,
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
         return shiftElement

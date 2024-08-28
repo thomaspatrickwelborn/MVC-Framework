@@ -8,11 +8,11 @@ export default function Freeze(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path,
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path,
   } = $aliases
   const { recurse } = $options
   return Object.defineProperty(
@@ -30,25 +30,25 @@ export default function Freeze(
             } else {
               Object.freeze($propertyValue)
             }
-            const basename = $propertyKey
-            const path = (
-              $path !== null
-            ) ? $path.concat('.', $propertyKey)
+            const _basename = $propertyKey
+            const _path = (
+              path !== null
+            ) ? path.concat('.', $propertyKey)
               : $propertyKey
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new DETEvent(
                 'freeze',
                 {
-                  path: $path,
-                  basename: $basename,
+                  path: _path,
+                  basename: _basename,
                 },
-                $eventTarget
+                eventTarget
               )
             )
           }
         }
         Object.freeze(this)
-        return $root
+        return root
       }
     }
   )

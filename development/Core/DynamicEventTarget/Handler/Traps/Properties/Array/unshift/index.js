@@ -4,11 +4,11 @@ export default function Unshift(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -21,58 +21,59 @@ export default function Unshift(
         while(elementIndex > -1) {
         const elementsLength = $arguments.length
           const element = $arguments[elementIndex]
+          const _basename = elementIndex
+          const _path = (
+            $path !== null
+          ) ? $path.concat('.', elementIndex)
+            : elementIndex
           if(isDirectInstanceOf(
             element, [Object, Array/*, Map*/]
           )) {
             element = new DynamicEventTarget(element, {
-              rootAlias: $rootAlias,
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
             })
           }
           elements.unshift(element)
-          Array.prototype.unshift.call($root, element)
-          const basename = elementIndex
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', elementIndex)
-            : elementIndex
+          Array.prototype.unshift.call(root, element)
           // Array Unshift Prop Event
-            
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DETEvent(
               'unshiftProp',
               {
-                basename,
-                path,
+                basename: _basename,
+                path: _path,
                 detail: {
                   elementIndex, 
                   element: element,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           )
           elementIndex--
         }
         // Array Unshift Event
-        const basename = elementIndex
-        const path = (
+        const _basename = elementIndex
+        const _path = (
           $path !== null
         ) ? $path.concat('.', elementIndex)
           : elementIndex
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DETEvent(
             'unshift',
             {
-              basename: $basename,
-              path: $path,
+              basename: _basename,
+              path: _path,
               detail: {
                 elements,
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
-        return $root.length
+        return root.length
       }
     }  
   )

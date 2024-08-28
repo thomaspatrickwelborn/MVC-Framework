@@ -6,10 +6,10 @@ export default function Fill(
 ) {
   const {
     $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -20,7 +20,7 @@ export default function Fill(
           value, [Object, Array/*, Map*/]
         )) {
           value = new DynamicEventTarget(value, {
-            rootAlias: $rootAlias,
+            rootAlias: rootAlias,
           })
         }
         let start
@@ -30,7 +30,7 @@ export default function Fill(
           start = (
             $arguments[1] >= 0
           ) ? $arguments[1]
-            : $root.length + $arguments[1]
+            : root.length + $arguments[1]
         } else {
           start = 0
         }
@@ -41,30 +41,30 @@ export default function Fill(
           end = (
             $arguments[2] >= 0
           ) ? $arguments[2]
-            : $root.length + $arguments[2]
+            : root.length + $arguments[2]
         } else {
-          end = $root.length
+          end = root.length
         }
         let fillIndex = start
         while(
-          fillIndex < $root.length &&
+          fillIndex < root.length &&
           fillIndex < end
         ) {
           Array.prototype.fill.call(
-            $root, value, fillIndex, fillIndex + 1
+            root, value, fillIndex, fillIndex + 1
           )
-          const basename = fillIndex
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', fillIndex)
+          const _basename = fillIndex
+          const _path = (
+            path !== null
+          ) ? path.concat('.', fillIndex)
             : fillIndex
           // Array Fill Index Event
           $eventTarget.dispatchEvent(
             new DETEvent(
               'fillIndex',
               {
-                basename,
-                path,
+                basename: _basename,
+                path: _path,
                 detail: {
                   start: fillIndex,
                   end: fillIndex + 1,
@@ -81,8 +81,8 @@ export default function Fill(
           new DETEvent(
             'fill',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 start,
                 end,
@@ -92,7 +92,7 @@ export default function Fill(
             $eventTarget
           )
         )
-        return $root
+        return root
       }
     }
   )

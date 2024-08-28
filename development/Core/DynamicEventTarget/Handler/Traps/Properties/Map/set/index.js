@@ -4,21 +4,21 @@ export default function Set(
 ) {
   const {
     $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function ($key, $val) {
-        $root.set($key, $val)
+        root.set($key, $val)
         $eventTarget.dispatchEvent(
           new DETEvent(
             'set',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 key: $key,
                 val: $val,
@@ -31,8 +31,8 @@ export default function Set(
           new DETEvent(
             'setKey',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 key: $key,
                 val: $val,
@@ -41,7 +41,7 @@ export default function Set(
             $eventTarget
           )
         )
-        return $root
+        return root
       },
     }
   )

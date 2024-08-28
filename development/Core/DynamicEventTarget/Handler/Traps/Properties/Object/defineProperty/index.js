@@ -9,11 +9,11 @@ export default function DefineProperty(
 ) {
   const { descriptorValueMerge, descriptorTree } = $options
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -25,7 +25,7 @@ export default function DefineProperty(
           propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
-            $root, propertyKey
+            root, propertyKey
           ) || {}
           // Root Property Descriptor Value Is Existent DET Instance
           if(
@@ -42,16 +42,16 @@ export default function DefineProperty(
             // Root Define Properties, No Descriptor Tree
             {
               Object.defineProperty(
-                $root, propertyKey, propertyDescriptor
+                root, propertyKey, propertyDescriptor
               )
             }
           }
           // Root Property Descriptor Value Is Non-Existent DET Instance
           else {
-            const basename = propertyKey
-            const path = (
-              $path !== null
-            ) ? $path.concat('.', propertyKey)
+            const _basename = propertyKey
+            const _path = (
+              path !== null
+            ) ? path.concat('.', propertyKey)
               : propertyKey
             const root = (
               typeOf(
@@ -70,10 +70,10 @@ export default function DefineProperty(
               : {}
             const detObject = new DynamicEventTarget(
               root, {
-                $rootAlias,
-                $path: path,
-                $basename: basename,
-                $parent: $eventTarget,
+                basename: _basename,
+                parent: eventTarget,
+                path: _path,
+                rootAlias,
               }
             )
             // Root Define Properties, Descriptor Tree
@@ -81,34 +81,34 @@ export default function DefineProperty(
               detObject.defineProperties(
                 propertyDescriptor.value
               )
-              $root[propertyKey] = detObject
+              root[propertyKey] = detObject
             } else {
               Object.defineProperty(
-                $root, propertyKey, propertyDescriptor
+                root, propertyKey, propertyDescriptor
               )
             }
           }
         } else {
           Object.defineProperty(
-            $root, propertyKey, propertyDescriptor
+            root, propertyKey, propertyDescriptor
           )
         }
         // Define Property Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DETEvent(
             'defineProperty',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 prop: propertyKey,
                 descriptor: propertyDescriptor,
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
-        return $root
+        return root
       }
     }
   )

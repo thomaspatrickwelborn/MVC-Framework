@@ -5,11 +5,11 @@ export default function Push(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -18,52 +18,54 @@ export default function Push(
         let elementIndex = 0
         iterateElements:
         for(let $element of arguments) {
+          const _basename = elementIndex
+          const _path = (
+            path !== null
+          ) ? path.concat('.', elementIndex)
+            : elementIndex
+          // Push Prop Event
           if(isDirectInstanceOf(
             $element, [Object, Array/*, Map*/]
           )) {
             $element = new DynamicEventTarget($element, {
-              rootAlias: $rootAlias,
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
             })
           }
           elements.push($element)
-          Array.prototype.push.call($root, $element)
-          const basename = elementIndex
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', elementIndex)
-            : elementIndex
-          // Push Prop Event
-          $eventTarget.dispatchEvent(
+          Array.prototype.push.call(root, $element)
+          eventTarget.dispatchEvent(
             new DETEvent(
               'pushProp',
               {
-                basename,
-                path,
+                basename: _basename,
+                path: _path,
                 detail: {
                   elementIndex, 
                   element: $element,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           )
           elementIndex++
         }
         // Push Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DETEvent(
             'push',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 elements,
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
-        return $root.length
+        return root.length
       }
     }  
   )

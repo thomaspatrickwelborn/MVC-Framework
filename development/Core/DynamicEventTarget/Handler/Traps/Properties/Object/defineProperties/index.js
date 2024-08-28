@@ -9,11 +9,11 @@ export default function DefineProperties(
 ) {
   const { descriptorValueMerge, descriptorTree } = $options
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -28,20 +28,20 @@ export default function DefineProperties(
           $trap.defineProperty($propertyKey, $propertyDescriptor)
         }
         // Define Properties Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DETEvent(
             'defineProperties',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 descriptors: $propertyDescriptors,
               },
             },
-            $eventTarget
+            eventTarget
           )
         )
-        return $root
+        return root
       }
     }
   )

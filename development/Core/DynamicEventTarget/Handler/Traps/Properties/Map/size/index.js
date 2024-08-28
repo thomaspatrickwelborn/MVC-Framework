@@ -1,10 +1,10 @@
 export default function Size(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const { root } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
-      get() { return $root['size'] }
+      get() { return root['size'] }
     }
   )
 }

@@ -1,11 +1,11 @@
 export default function FromAsync(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases
+  const { root } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.fromAsync.call($root, $root, ...arguments)
+        return Array.fromAsync.call(root, root, ...arguments)
       },
     }
   )

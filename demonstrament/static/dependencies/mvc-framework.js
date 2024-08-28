@@ -94,11 +94,11 @@ function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   const { merge } = $options;
   return Object.defineProperty(
@@ -120,84 +120,84 @@ function Assign(
               // Assign Existent Root DET Property
               if(
                 merge === true &&
-                $root[$sourcePropKey]
+                root[$sourcePropKey]
                 ?.constructor.name === 'bound DynamicEventTarget'
               ) {
-                $root[$sourcePropKey].assign($sourcePropVal);
+                root[$sourcePropKey].assign($sourcePropVal);
               } else 
               // Assign Non-Existent Root DET Property
               {
-                const basename = $sourcePropKey;
-                const path = (
-                  $path !== null
-                ) ? $path.concat('.', $sourcePropKey)
+              const _basename = $sourcePropKey;
+              const _path = (
+                  path !== null
+                ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
                 const detObject = new DynamicEventTarget$1(
                   $sourcePropVal, {
-                    $rootAlias,
-                    $path: path,
-                    $basename: basename,
-                    $parent: $eventTarget
+                    basename: _basename,
+                    parent: eventTarget,
+                    path: _path,
+                    rootAlias,
                   }
                 );
-                Object.assign($root, {
+                Object.assign(root, {
                   [$sourcePropKey]: detObject
                 });
               }
             } else 
             // Assign Root Property
             {
-              Object.assign($root, {
+              Object.assign(root, {
                 [$sourcePropKey]: $sourcePropVal
               });
             }
             // Assign Source Property Event
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new DynamicEventTargetEvent(
                 'assignSourceProperty',
                 {
-                  path: $path,
-                  basename: $basename,
+                  path,
+                  basename,
                   detail: {
                     key: $sourcePropKey,
                     val: $sourcePropVal,
                     source: $source,
                   }
                 },
-                $eventTarget
+                eventTarget
               )
             );
           }
           // Assign Source Event
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
               'assignSource',
               {
-                path: $path,
-                basename: $basename,
+                path,
+                basename,
                 detail: {
                   source: $source,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           );
         }
         // Assign Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'assign',
             { 
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 sources
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
-        return $root
+        return root
       }
     }
   )
@@ -207,11 +207,11 @@ function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -225,20 +225,20 @@ function DefineProperties(
           $trap.defineProperty($propertyKey, $propertyDescriptor);
         }
         // Define Properties Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'defineProperties',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 descriptors: $propertyDescriptors,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
-        return $root
+        return root
       }
     }
   )
@@ -249,11 +249,11 @@ function DefineProperty(
 ) {
   const { descriptorValueMerge, descriptorTree } = $options;
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -265,7 +265,7 @@ function DefineProperty(
           propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
-            $root, propertyKey
+            root, propertyKey
           ) || {};
           // Root Property Descriptor Value Is Existent DET Instance
           if(
@@ -282,16 +282,16 @@ function DefineProperty(
             // Root Define Properties, No Descriptor Tree
             {
               Object.defineProperty(
-                $root, propertyKey, propertyDescriptor
+                root, propertyKey, propertyDescriptor
               );
             }
           }
           // Root Property Descriptor Value Is Non-Existent DET Instance
           else {
-            const basename = propertyKey;
-            const path = (
-              $path !== null
-            ) ? $path.concat('.', propertyKey)
+            const _basename = propertyKey;
+            const _path = (
+              path !== null
+            ) ? path.concat('.', propertyKey)
               : propertyKey;
             const root = (
               typeOf(
@@ -310,10 +310,10 @@ function DefineProperty(
               : {};
             const detObject = new DynamicEventTarget$1(
               root, {
-                $rootAlias,
-                $path: path,
-                $basename: basename,
-                $parent: $eventTarget,
+                basename: _basename,
+                parent: eventTarget,
+                path: _path,
+                rootAlias,
               }
             );
             // Root Define Properties, Descriptor Tree
@@ -321,34 +321,34 @@ function DefineProperty(
               detObject.defineProperties(
                 propertyDescriptor.value
               );
-              $root[propertyKey] = detObject;
+              root[propertyKey] = detObject;
             } else {
               Object.defineProperty(
-                $root, propertyKey, propertyDescriptor
+                root, propertyKey, propertyDescriptor
               );
             }
           }
         } else {
           Object.defineProperty(
-            $root, propertyKey, propertyDescriptor
+            root, propertyKey, propertyDescriptor
           );
         }
         // Define Property Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'defineProperty',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 prop: propertyKey,
                 descriptor: propertyDescriptor,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
-        return $root
+        return root
       }
     }
   )
@@ -357,11 +357,11 @@ function DefineProperty(
 function Entries$1(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.entries($root)
+        return Object.entries(root)
       }
     }
   )
@@ -371,11 +371,11 @@ function Freeze(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path,
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path,
   } = $aliases;
   const { recurse } = $options;
   return Object.defineProperty(
@@ -392,24 +392,25 @@ function Freeze(
             } else {
               Object.freeze($propertyValue);
             }
-            (
-              $path !== null
-            ) ? $path.concat('.', $propertyKey)
+            const _basename = $propertyKey;
+            const _path = (
+              path !== null
+            ) ? path.concat('.', $propertyKey)
               : $propertyKey;
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new DynamicEventTargetEvent(
                 'freeze',
                 {
-                  path: $path,
-                  basename: $basename,
+                  path: _path,
+                  basename: _basename,
                 },
-                $eventTarget
+                eventTarget
               )
             );
           }
         }
         Object.freeze(this);
-        return $root
+        return root
       }
     }
   )
@@ -418,12 +419,12 @@ function Freeze(
 function FromEntries(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         return Object[$trapPropertyName](
-          Object.entries($root)
+          Object.entries(root)
         )
       }
     }
@@ -433,11 +434,11 @@ function FromEntries(
 function GetOwnPropertyDescriptor(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.getOwnPropertyDescriptor($root, ...arguments)
+        return Object.getOwnPropertyDescriptor(root, ...arguments)
       }
     }
   )
@@ -446,11 +447,11 @@ function GetOwnPropertyDescriptor(
 function GetOwnPropertyDescriptors(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.getOwnPropertyDescriptors($root)
+        return Object.getOwnPropertyDescriptors(root)
       }
     }
   )
@@ -459,11 +460,11 @@ function GetOwnPropertyDescriptors(
 function GetOwnPropertyNames(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.getOwnPropertyNames($root)
+        return Object.getOwnPropertyNames(root)
       }
     }
   )
@@ -472,11 +473,11 @@ function GetOwnPropertyNames(
 function GetOwnPropertySymbols(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.getOwnPropertySymbols($root)
+        return Object.getOwnPropertySymbols(root)
       }
     }
   )
@@ -485,11 +486,11 @@ function GetOwnPropertySymbols(
 function GetPrototypeOf(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.getPrototypeOf($root)
+        return Object.getPrototypeOf(root)
       }
     }
   )
@@ -498,11 +499,11 @@ function GetPrototypeOf(
 function GroupBy(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.groupBy($root, ...arguments)
+        return Object.groupBy(root, ...arguments)
       }
     }
   )
@@ -511,14 +512,14 @@ function GroupBy(
 function HasOwn(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       get() {
-        return Object.hasOwn($root, ...arguments)
+        return Object.hasOwn(root, ...arguments)
       },
       set($method) {
-        $root[$method] = $method;
+        root[$method] = $method;
       },
     }
   )
@@ -527,12 +528,12 @@ function HasOwn(
 function HasOwnProperty(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         return Object.prototype.hasOwnProperty.call(
-          $root, ...arguments
+          root, ...arguments
         )
       }
     }
@@ -542,11 +543,11 @@ function HasOwnProperty(
 function Is(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.is($root, ...arguments)
+        return Object.is(root, ...arguments)
       }
     }
   )
@@ -555,11 +556,11 @@ function Is(
 function IsExtensible(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.isExtensible($root)
+        return Object.isExtensible(root)
       }
     }
   )
@@ -568,11 +569,11 @@ function IsExtensible(
 function IsFrozen(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.isFrozen($root)
+        return Object.isFrozen(root)
       }
     }
   )
@@ -581,11 +582,11 @@ function IsFrozen(
 function IsSealed(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.isSealed($root)
+        return Object.isSealed(root)
       }
     }
   )
@@ -594,12 +595,12 @@ function IsSealed(
 function IsPrototypeOf(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         return Object.prototype.isPrototypeOf.call(
-          $root, ...arguments
+          root, ...arguments
         )
       }
     }
@@ -609,11 +610,11 @@ function IsPrototypeOf(
 function Keys$1(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.keys($root)
+        return Object.keys(root)
       }
     }
   )
@@ -622,11 +623,11 @@ function Keys$1(
 function PreventExtensions(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.preventExtensions($root)
+        return Object.preventExtensions(root)
       }
     }
   )
@@ -635,12 +636,12 @@ function PreventExtensions(
 function PropertyIsEnumerable(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         return Object.prototype.propertyIsEnumerable.call(
-          $root, ...arguments
+          root, ...arguments
         )
       }
     }
@@ -651,11 +652,11 @@ function Seal(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path,
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path,
   } = $aliases;
   const { recurse } = $options;
   return Object.defineProperty(
@@ -672,24 +673,25 @@ function Seal(
             } else {
               Object.seal($propertyValue);
             }
-            (
-              $path !== null
-            ) ? $path.concat('.', $propertyKey)
+            const basename = $propertyKey;
+            const path = (
+              path !== null
+            ) ? path.concat('.', $propertyKey)
               : $propertyKey;
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new DynamicEventTargetEvent(
                 'seal',
                 {
-                  path: $path,
-                  basename: $basename,
+                  path,
+                  basename,
                 },
-                $eventTarget
+                eventTarget
               )
             );
           }
         }
         Object.seal(this);
-        return $root
+        return root
       }
     }
   )
@@ -699,31 +701,31 @@ function SetPrototypeOf(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
         const prototype = arguments[0];
-        Object.setPrototypeOf($root, prototype);
-        $eventTarget.dispatchEvent(
+        Object.setPrototypeOf(root, prototype);
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'setPrototypeOf',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 prototype
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
-        return $root
+        return root
       }
     }
   )
@@ -732,14 +734,14 @@ function SetPrototypeOf(
 function ToString$1(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       get() {
-        return $root['toString'](...arguments)
+        return root['toString'](...arguments)
       },
       set($method) {
-        $root[$method] = $method;
+        root[$method] = $method;
       },
     }
   )
@@ -748,14 +750,14 @@ function ToString$1(
 function ToLocaleString(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       get() {
-        return $root['toLocaleString'](...arguments)
+        return root['toLocaleString'](...arguments)
       },
       set($method) {
-        $root[$method] = $method;
+        root[$method] = $method;
       },
     }
   )
@@ -764,11 +766,11 @@ function ToLocaleString(
 function Values$1(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Object.values($root)
+        return Object.values(root)
       }
     }
   )
@@ -777,14 +779,14 @@ function Values$1(
 function ValueOf(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { eventTarget, root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       get() {
-        return $root['valueOf'](...arguments)
+        return root['valueOf'](...arguments)
       },
       set($method) {
-        $root[$method] = $method;
+        root[$method] = $method;
       },
     }
   )
@@ -824,11 +826,11 @@ var ObjectProperty = {
 function At(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.pop.call($root, ...arguments)
+        return Array.prototype.pop.call(root, ...arguments)
       }
     }
   )
@@ -838,11 +840,11 @@ function CopyWithin(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -850,37 +852,37 @@ function CopyWithin(
         const target = (
           arguments[0] >= 0
         ) ? arguments[0]
-          : $root.length = arguments[0];
+          : root.length = arguments[0];
         const start = (
           arguments[1] >= 0
         ) ? arguments[1]
-          : $root.length + arguments[1];
+          : root.length + arguments[1];
         const end = (
           arguments[2] === undefined
-        ) ? $root.length
+        ) ? root.length
           : (
           arguments[2] >= 0
         ) ? arguments[2]
-          : $root.length + arguments[2];
+          : root.length + arguments[2];
         const copiedItems = [];
         let copyIndex = start;
         let targetIndex = target;
         while(copyIndex < end) {
-          const copyItem = $root[copyIndex];
+          const copyItem = root[copyIndex];
           copiedItems.push(copyItem);
           Array.prototype.copyWithin.call(
-            $root,
+            root,
             targetIndex,
             copyIndex,
             copyIndex + 1
           );
           // Array Copy Within Index Event Data
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
               'copyWithinIndex',
               {
-                basename: $eventTarget.basename,
-                path: $eventTarget.path,
+                basename: eventTarget.basename,
+                path: eventTarget.path,
                 detail: {
                   target: targetIndex,
                   start: copyIndex,
@@ -888,19 +890,19 @@ function CopyWithin(
                   item: copyItem,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           );
           copyIndex++;
           targetIndex++;
         }
         // Array Copy Within Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'copyWithin',
             {
-              basename: $eventTarget.basename,
-              path: $eventTarget.path,
+              basename: eventTarget.basename,
+              path: eventTarget.path,
               detail: {
                 target: target,
                 start: start,
@@ -908,7 +910,7 @@ function CopyWithin(
                 items: copiedItems,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
       }
@@ -919,11 +921,11 @@ function CopyWithin(
 function Concat(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.concat.call($root, ...arguments)
+        return Array.prototype.concat.call(root, ...arguments)
       }
     }
   )
@@ -932,11 +934,11 @@ function Concat(
 function Entries(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.entries.call($root)
+        return Array.prototype.entries.call(root)
       }
     }
   )
@@ -945,11 +947,11 @@ function Entries(
 function Every(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.every.call($root, ...arguments)
+        return Array.prototype.every.call(root, ...arguments)
       }
     }
   )
@@ -960,10 +962,10 @@ function Fill(
 ) {
   const {
     $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -974,7 +976,7 @@ function Fill(
           value, [Object, Array/*, Map*/]
         )) {
           value = new DynamicEventTarget$1(value, {
-            rootAlias: $rootAlias,
+            rootAlias: rootAlias,
           });
         }
         let start;
@@ -984,7 +986,7 @@ function Fill(
           start = (
             $arguments[1] >= 0
           ) ? $arguments[1]
-            : $root.length + $arguments[1];
+            : root.length + $arguments[1];
         } else {
           start = 0;
         }
@@ -995,30 +997,30 @@ function Fill(
           end = (
             $arguments[2] >= 0
           ) ? $arguments[2]
-            : $root.length + $arguments[2];
+            : root.length + $arguments[2];
         } else {
-          end = $root.length;
+          end = root.length;
         }
         let fillIndex = start;
         while(
-          fillIndex < $root.length &&
+          fillIndex < root.length &&
           fillIndex < end
         ) {
           Array.prototype.fill.call(
-            $root, value, fillIndex, fillIndex + 1
+            root, value, fillIndex, fillIndex + 1
           );
-          const basename = fillIndex;
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', fillIndex)
+          const _basename = fillIndex;
+          const _path = (
+            path !== null
+          ) ? path.concat('.', fillIndex)
             : fillIndex;
           // Array Fill Index Event
           $eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
               'fillIndex',
               {
-                basename,
-                path,
+                basename: _basename,
+                path: _path,
                 detail: {
                   start: fillIndex,
                   end: fillIndex + 1,
@@ -1035,8 +1037,8 @@ function Fill(
           new DynamicEventTargetEvent(
             'fill',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 start,
                 end,
@@ -1046,7 +1048,7 @@ function Fill(
             $eventTarget
           )
         );
-        return $root
+        return root
       }
     }
   )
@@ -1055,11 +1057,11 @@ function Fill(
 function Filter(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.filter.call($root, ...arguments)
+        return Array.prototype.filter.call(root, ...arguments)
       }
     }
   )
@@ -1068,11 +1070,11 @@ function Filter(
 function Find(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.find.call($root, ...arguments)
+        return Array.prototype.find.call(root, ...arguments)
       }
     }
   )
@@ -1081,11 +1083,11 @@ function Find(
 function FindIndex(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.findIndex.call($root, ...arguments)
+        return Array.prototype.findIndex.call(root, ...arguments)
       }
     }
   )
@@ -1094,11 +1096,11 @@ function FindIndex(
 function FindLast(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.findLast.call($root, ...arguments)
+        return Array.prototype.findLast.call(root, ...arguments)
       }
     }
   )
@@ -1107,11 +1109,11 @@ function FindLast(
 function FindLastIndex(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.findLastIndex.call($root, ...arguments)
+        return Array.prototype.findLastIndex.call(root, ...arguments)
       }
     }
   )
@@ -1120,11 +1122,11 @@ function FindLastIndex(
 function Flat(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.flat.call($root, ...arguments)
+        return Array.prototype.flat.call(root, ...arguments)
       }
     }
   )
@@ -1133,11 +1135,11 @@ function Flat(
 function FlatMap(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.flatMap.call($root, ...arguments)
+        return Array.prototype.flatMap.call(root, ...arguments)
       }
     }
   )
@@ -1146,11 +1148,11 @@ function FlatMap(
 function ForEach(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.forEach.call($root, ...arguments)
+        return Array.prototype.forEach.call(root, ...arguments)
       }
     }
   )
@@ -1159,11 +1161,11 @@ function ForEach(
 function From(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.from.call($root, $root, ...arguments)
+        return Array.from.call(root, root, ...arguments)
       },
     }
   )
@@ -1172,11 +1174,11 @@ function From(
 function IndexOf(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.indexOf.call($root, ...arguments)
+        return Array.prototype.indexOf.call(root, ...arguments)
       }
     }
   )
@@ -1185,11 +1187,11 @@ function IndexOf(
 function IsArray(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.isArray.call($root)
+        return Array.isArray.call(root)
       },
     }
   )
@@ -1198,11 +1200,11 @@ function IsArray(
 function Join(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.join.call($root)
+        return Array.prototype.join.call(root)
       },
     }
   )
@@ -1211,11 +1213,11 @@ function Join(
 function Keys(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.keys.call($root)
+        return Array.prototype.keys.call(root)
       },
     }
   )
@@ -1224,11 +1226,11 @@ function Keys(
 function LastIndexOf(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.lastIndexOf.call($root)
+        return Array.prototype.lastIndexOf.call(root)
       },
     }
   )
@@ -1238,28 +1240,28 @@ function Length(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
-      get() { return $root.length },
+      get() { return root.length },
       set($length) {
-        $root.length = $length;
-        $eventTarget.dispatchEvent(
+        root.length = $length;
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'lengthSet', 
             {
-              path: $path,
-              basename: $basename,
+              path,
+              basename,
               detail: {
-                length: $root.length,
+                length: root.length,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
       },
@@ -1270,11 +1272,11 @@ function Length(
 function _Map(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.map.call($root, ...arguments)
+        return Array.prototype.map.call(root, ...arguments)
       }
     }
   )
@@ -1283,12 +1285,12 @@ function _Map(
 function Of(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         return Array.of.call(
-          $root, ...Object.values($root)
+          root, ...Object.values(root)
         )
       },
     }
@@ -1299,24 +1301,24 @@ function Pop(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        const popElement = Array.prototype.pop.call($root);
-        const popElementIndex = $root.length - 1;
+        const popElement = Array.prototype.pop.call(root);
+        const popElementIndex = root.length - 1;
         const basename = popElementIndex;
         const path = (
-          $path !== null
-        ) ? $path.concat('.', popElementIndex)
+          path !== null
+        ) ? path.concat('.', popElementIndex)
           : popElementIndex;
         // Array Pop Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'lengthSet',
             {
@@ -1327,7 +1329,7 @@ function Pop(
                 elementIndex: popElementIndex,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
         return popElement
@@ -1340,11 +1342,11 @@ function Push(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1352,52 +1354,54 @@ function Push(
         const elements = [];
         let elementIndex = 0;
         for(let $element of arguments) {
+          const _basename = elementIndex;
+          const _path = (
+            path !== null
+          ) ? path.concat('.', elementIndex)
+            : elementIndex;
+          // Push Prop Event
           if(isDirectInstanceOf(
             $element, [Object, Array/*, Map*/]
           )) {
             $element = new DynamicEventTarget$1($element, {
-              rootAlias: $rootAlias,
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
             });
           }
           elements.push($element);
-          Array.prototype.push.call($root, $element);
-          const basename = elementIndex;
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', elementIndex)
-            : elementIndex;
-          // Push Prop Event
-          $eventTarget.dispatchEvent(
+          Array.prototype.push.call(root, $element);
+          eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
               'pushProp',
               {
-                basename,
-                path,
+                basename: _basename,
+                path: _path,
                 detail: {
                   elementIndex, 
                   element: $element,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           );
           elementIndex++;
         }
         // Push Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'push',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
                 elements,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
-        return $root.length
+        return root.length
       }
     }  
   )
@@ -1406,11 +1410,11 @@ function Push(
 function Reduce(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.reduce.call($root, ...arguments)
+        return Array.prototype.reduce.call(root, ...arguments)
       }
     }
   )
@@ -1419,11 +1423,11 @@ function Reduce(
 function ReduceRight(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.reduceRight.call($root, ...arguments)
+        return Array.prototype.reduceRight.call(root, ...arguments)
       }
     }
   )
@@ -1433,30 +1437,30 @@ function Reverse(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        Array.prototype.reverse.call($root, ...arguments);
-        $eventTarget.dispatchEvent(
+        Array.prototype.reverse.call(root, ...arguments);
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'reverse',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path,
               detail: {
-                reference: $root
+                reference: root
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
-        return $root
+        return root
       }
     }
   )
@@ -1466,24 +1470,24 @@ function Shift(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        const shiftElement = Array.prototype.shift.call($root);
+        const shiftElement = Array.prototype.shift.call(root);
         const shiftElementIndex = 0;
         const basename = shiftElementIndex;
         const path = (
-          $path !== null
-        ) ? $path.concat('.', shiftElementIndex)
+          path !== null
+        ) ? path.concat('.', shiftElementIndex)
           : shiftElementIndex;
         // Array Shift Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'shift',
             {
@@ -1494,7 +1498,7 @@ function Shift(
                 elementIndex: shiftElementIndex,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
         return shiftElement
@@ -1506,11 +1510,11 @@ function Shift(
 function Some(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.some.call($root, ...arguments)
+        return Array.prototype.some.call(root, ...arguments)
       }
     }
   )
@@ -1519,11 +1523,11 @@ function Some(
 function Sort(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.sort.call($root, ...arguments)
+        return Array.prototype.sort.call(root, ...arguments)
       }
     }
   )
@@ -1533,11 +1537,11 @@ function Splice(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1546,41 +1550,41 @@ function Splice(
         const start = (
           $arguments[0] >= 0
         ) ? $arguments[0]
-          : $root.length + $arguments[0];
+          : root.length + $arguments[0];
         const deleteCount = (
           $arguments[1] <= 0
         ) ? 0
           : (
           $arguments[1] === undefined ||
-          start + $arguments[1] >= $root.length
-        ) ? $root.length - start
+          start + $arguments[1] >= root.length
+        ) ? root.length - start
           : $arguments[1];
         const addItems = $arguments.slice(2);
         const addCount = addItems.length;
         const deleteItems = [];
         let deleteItemsIndex = 0;
         while(deleteItemsIndex < deleteCount) {
-          const deleteItem = Array.prototype.splice.call($root, start, 1)[0];
+          const deleteItem = Array.prototype.splice.call(root, start, 1)[0];
           deleteItems.push(deleteItem);
           // Array Splice Delete Event
-          const basename = deleteItemsIndex;
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', deleteItemsIndex)
+          const _basename = deleteItemsIndex;
+          const _path = (
+            path !== null
+          ) ? path.concat('.', deleteItemsIndex)
             : deleteItemsIndex;
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
               'spliceDelete',
               {
-                basename,
-                path,
+                _basename,
+                _path,
                 detail: {
                   index: start + deleteItemsIndex,
                   deleteIndex: deleteItemsIndex,
                   deleteItem: deleteItem,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           );
           deleteItemsIndex++;
@@ -1589,15 +1593,15 @@ function Splice(
         while(addItemsIndex < addCount) {
           const addItem = addItems[addItemsIndex];
           Array.prototype.splice.call(
-            $root, start + addItemsIndex, 0, addItem
+            root, start + addItemsIndex, 0, addItem
           );
           const basename = addItemsIndex;
           const path = (
-            $path !== null
-          ) ? $path.concat('.', addItemsIndex)
+            path !== null
+          ) ? path.concat('.', addItemsIndex)
             : addItemsIndex;
           // Array Splice Add Event
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
               'spliceAdd',
               {
@@ -1609,26 +1613,26 @@ function Splice(
                   addItem: addItem,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           );
           addItemsIndex++;
         }
         // Array Splice Event
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'splice',
             {
-              basename: $basename,
-              path: $path,
+              basename,
+              path: path,
               detail: {
                 start,
                 deleted: deleteItems,
                 added: addItems,
-                length: $root.length,
+                length: root.length,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
         return deleteItems
@@ -1640,11 +1644,11 @@ function Splice(
 function ToLocalString(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.toLocalString.call($root, ...arguments)
+        return Array.prototype.toLocalString.call(root, ...arguments)
       }
     }
   )
@@ -1653,11 +1657,11 @@ function ToLocalString(
 function ToReversed(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.toReversed.call($root, ...arguments)
+        return Array.prototype.toReversed.call(root, ...arguments)
       }
     }
   )
@@ -1666,11 +1670,11 @@ function ToReversed(
 function ToSpliced(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.toSpliced.call($root, ...arguments)
+        return Array.prototype.toSpliced.call(root, ...arguments)
       }
     }
   )
@@ -1679,11 +1683,11 @@ function ToSpliced(
 function ToSorted(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.toSorted.call($root, ...arguments)
+        return Array.prototype.toSorted.call(root, ...arguments)
       }
     }
   )
@@ -1692,11 +1696,11 @@ function ToSorted(
 function ToString(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.toString.call($root, ...arguments)
+        return Array.prototype.toString.call(root, ...arguments)
       }
     }
   )
@@ -1706,11 +1710,11 @@ function Unshift(
   $trap, $trapPropertyName, $aliases
 ) {
   const {
-    $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -1722,56 +1726,59 @@ function Unshift(
         while(elementIndex > -1) {
         $arguments.length;
           const element = $arguments[elementIndex];
+          const _basename = elementIndex;
+          const _path = (
+            $path !== null
+          ) ? $path.concat('.', elementIndex)
+            : elementIndex;
           if(isDirectInstanceOf(
             element, [Object, Array/*, Map*/]
           )) {
             element = new DynamicEventTarget(element, {
-              rootAlias: $rootAlias,
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
             });
           }
           elements.unshift(element);
-          Array.prototype.unshift.call($root, element);
-          const basename = elementIndex;
-          const path = (
-            $path !== null
-          ) ? $path.concat('.', elementIndex)
-            : elementIndex;
+          Array.prototype.unshift.call(root, element);
           // Array Unshift Prop Event
-            
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
               'unshiftProp',
               {
-                basename,
-                path,
+                basename: _basename,
+                path: _path,
                 detail: {
                   elementIndex, 
                   element: element,
                 },
               },
-              $eventTarget
+              eventTarget
             )
           );
           elementIndex--;
         }
-        (
+        // Array Unshift Event
+        const _basename = elementIndex;
+        const _path = (
           $path !== null
         ) ? $path.concat('.', elementIndex)
           : elementIndex;
-        $eventTarget.dispatchEvent(
+        eventTarget.dispatchEvent(
           new DynamicEventTargetEvent(
             'unshift',
             {
-              basename: $basename,
-              path: $path,
+              basename: _basename,
+              path: _path,
               detail: {
                 elements,
               },
             },
-            $eventTarget
+            eventTarget
           )
         );
-        return $root.length
+        return root.length
       }
     }  
   )
@@ -1780,11 +1787,11 @@ function Unshift(
 function Values(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.values.call($root, ...arguments)
+        return Array.prototype.values.call(root, ...arguments)
       }
     }
   )
@@ -1793,11 +1800,11 @@ function Values(
 function With(
   $trap, $trapPropertyName, $aliases
 ) {
-  const { $eventTarget, $root } = $aliases;
+  const { root } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.with.call($root, ...arguments)
+        return Array.prototype.with.call(root, ...arguments)
       }
     }
   )
@@ -1888,16 +1895,16 @@ class Handler {
   get get() {
     const $this = this;
     const {
-      $type,
-      $eventTarget, 
-      $root, 
-      $rootAlias, 
-      $basename,
-      $path, 
+      type,
+      eventTarget, 
+      root, 
+      rootAlias, 
+      basename,
+      path, 
     } = this.#aliases;
     return function get($target, $property, $receiver) {
       // Root Property
-      if($property === $rootAlias) {
+      if($property === rootAlias) {
         return this.proxy
       } else {
       // Event Target/Dynamic Event Target Property
@@ -1906,13 +1913,13 @@ class Handler {
         .includes($property) ||
         Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
         .includes($property) /* ||
-        Object.getOwnPropertyNames($eventTarget)
+        Object.getOwnPropertyNames(eventTarget)
         .includes($property) */
       ) {
-        if(typeof $eventTarget[$property] === 'function') {
-          return $eventTarget[$property].bind($eventTarget)
+        if(typeof eventTarget[$property] === 'function') {
+          return eventTarget[$property].bind(eventTarget)
         }
-        return $eventTarget[$property]
+        return eventTarget[$property]
       } else
       // Object Property
       if(
@@ -1932,7 +1939,7 @@ class Handler {
       } /* else 
       // Map
       if(
-        $type === 'map' &&
+        type === 'map' &&
         Object.getOwnPropertyNames(Map.prototype)
         .includes($property)
       ) {
@@ -1940,19 +1947,19 @@ class Handler {
           $this.traps['Map']['default']
       } */
       else
-        return $root[$property]
+        return root[$property]
       }
     }
   }
   get set() {
     const $this = this;
     const {
-      $type,
-      $eventTarget, 
-      $root, 
-      $rootAlias, 
-      $basename,
-      $path, 
+      type,
+      eventTarget, 
+      root, 
+      rootAlias, 
+      basename,
+      path, 
     } = this.#aliases;
     this.#options.traps.object.set;
     return function set($target, $property, $value, $receiver) {
@@ -1980,22 +1987,21 @@ class Handler {
       ) {
         $value = new DynamicEventTarget$1(
           $value, {
-            $rootAlias,
-            $path: path,
-            $basename: basename,
-            $parent: $eventTarget
+            basename,
+            path,
+            parent: eventTarget,
+            rootAlias,
           }
         );
       }
       // Property Assignment
-      $root[$property] = $value;
+      root[$property] = $value;
       const basename = $property;
-      // console.log('basename', basename)
       const path = (
-        $path !== null
-      ) ? $path.concat('.', $property)
+        path !== null
+      ) ? path.concat('.', $property)
         : $property;
-      $eventTarget.dispatchEvent(
+      eventTarget.dispatchEvent(
         new DynamicEventTargetEvent(
           'set',
           {
@@ -2006,7 +2012,7 @@ class Handler {
               value: $value,
             },
           },
-          $eventTarget
+          eventTarget
         )
       );
       return true
@@ -2053,24 +2059,24 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
     this.#_parent = (
-      this.#options.$parent !== undefined
-    ) ? this.#options.$parent
+      this.#options.parent !== undefined
+    ) ? this.#options.parent
       : null;
     return this.#_parent
   }
   get basename() {
     if(this.#_basename !== undefined)  return this.#_basename
     this.#_basename = (
-      this.#options.$basename !== undefined
-    ) ? this.#options.$basename
+      this.#options.basename !== undefined
+    ) ? this.#options.basename
       : null;
     return this.#_basename
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
     this.#_path = (
-      this.#options.$path !== undefined
-    ) ? this.#options.$path
+      this.#options.path !== undefined
+    ) ? this.#options.path
       : null;
     return this.#_path
   }
@@ -2078,9 +2084,9 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   get #rootAlias() {
     if(this.#_rootAlias !== undefined) return this.#_rootAlias
     this.#_rootAlias = (
-      typeof this.#options.$rootAlias === 'string' &&
-      this.#options.$rootAlias.length > 0
-    ) ? this.#options.$rootAlias
+      typeof this.#options.rootAlias === 'string' &&
+      this.#options.rootAlias.length > 0
+    ) ? this.#options.rootAlias
       : Options$6.rootAlias;
     return this.#_rootAlias
   }
@@ -2162,13 +2168,13 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   get #aliases() {
     if(this.#_aliases !== undefined) return this.#_aliases
     this.#_aliases = {
-      $type: this.type,
-      $eventTarget: this,
-      $rootAlias: this.#rootAlias,
-      $root: this.#root,
-      $path: this.path,
-      $basename: this.basename,
-      $parent: this.parent,
+      type: this.type,
+      eventTarget: this,
+      rootAlias: this.#rootAlias,
+      root: this.#root,
+      path: this.path,
+      basename: this.basename,
+      parent: this.parent,
     };
     return this.#_aliases
   }

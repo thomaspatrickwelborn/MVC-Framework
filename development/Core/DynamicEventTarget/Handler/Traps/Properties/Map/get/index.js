@@ -3,15 +3,13 @@ export default function Get(
 ) {
   const {
     $eventTarget, 
-    $root, 
-    $rootAlias, 
-    $basename,
-    $path, 
+    root, 
+    rootAlias, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function ($key) {
-        return $root.get($key)
+        return root.get($key)
       },
     }
   )
