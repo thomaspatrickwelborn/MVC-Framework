@@ -9,6 +9,7 @@ export default function DefineProperties(
 ) {
   const { descriptorValueMerge, descriptorTree } = $options
   const {
+    proxy,
     eventTarget, 
     root, 
     rootAlias, 

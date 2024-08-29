@@ -5,11 +5,11 @@ export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
+    basename, 
     eventTarget, 
+    path, 
     root, 
     rootAlias, 
-    basename,
-    path, 
   } = $aliases
   const { merge } = $options
   return Object.defineProperty(
@@ -40,8 +40,8 @@ export default function Assign(
               } else 
               // Assign Non-Existent Root DET Property
               {
-              const _basename = $sourcePropKey
-              const _path = (
+                const _basename = $sourcePropKey
+                const _path = (
                   path !== null
                 ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey
@@ -69,8 +69,8 @@ export default function Assign(
               new DETEvent(
                 'assignSourceProperty',
                 {
-                  path,
                   basename,
+                  path,
                   detail: {
                     key: $sourcePropKey,
                     val: $sourcePropVal,
@@ -86,8 +86,8 @@ export default function Assign(
             new DETEvent(
               'assignSource',
               {
-                path,
                 basename,
+                path,
                 detail: {
                   source: $source,
                 },

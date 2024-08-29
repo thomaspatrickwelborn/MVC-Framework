@@ -27,7 +27,7 @@ export default class DynamicEventTarget extends EventTarget {
     this.#options = Object.assign(
       {}, Options, $options
     )
-    return this.#proxy
+    return this.proxy
   }
   // Type
   get type() {
@@ -74,34 +74,24 @@ export default class DynamicEventTarget extends EventTarget {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
       this.type === 'object'
-    ) ? {...this.#settings}
+    ) ? {}
       : (
       this.type === 'array'
-    ) ? [...this.#settings]
-    //   : (
-    //   this.type === 'map'
-    // ) ? new Map()
-      : {...this.#settings}
+    ) ? []
+      : {}
     return this.#_root
   }
   // Proxy
-  get #proxy() {
+  get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     this.#_proxy = new Proxy(this.#root, this.#handler)
-    this.#handler.proxy = this.#proxy
+    this.#handler.proxy = this.proxy
     if(this.type === 'object') {
-      this.#_proxy.assign(this.#root)
+      this.#_proxy.assign(this.#settings)
     } else
     if(this.type === 'array') {
-      this.#_proxy.assign(this.#root)
-    } /* else
-    if(this.type === 'map') {
-      for(const [
-        $mapKey, $mapVal
-      ] of $root) {
-        //
-      }
-    } */
+      this.#_proxy.assign(this.#settings)
+    }
     return this.#_proxy
   }
   // Handler
@@ -146,15 +136,15 @@ export default class DynamicEventTarget extends EventTarget {
   // Aliases
   get #aliases() {
     if(this.#_aliases !== undefined) return this.#_aliases
-    this.#_aliases = {
-      type: this.type,
-      eventTarget: this,
-      rootAlias: this.#rootAlias,
-      root: this.#root,
-      path: this.path,
-      basename: this.basename,
-      parent: this.parent,
-    }
+    this.#_aliases = Object.defineProperties({}, {
+      eventTarget: { value: this },
+      basename: { value: this.basename },
+      path: { value: this.path },
+      parent: { value: this.parent },
+      rootAlias: { value: this.#rootAlias },
+      root: { value: this.#root },
+      type: { value: this.type },
+    })
     return this.#_aliases
   }
   parse($settings = {
@@ -166,9 +156,6 @@ export default class DynamicEventTarget extends EventTarget {
       : (
       this.type === 'array'
     ) ? []
-    /*: (
-      this.type === 'map'
-    ) ? new Map()*/
       : {}
     if(this.type !== 'map') {
       for(const [$key, $val] of Object.entries(this.#root)) {

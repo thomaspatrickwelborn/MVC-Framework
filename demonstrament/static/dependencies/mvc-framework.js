@@ -94,11 +94,11 @@ function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
+    basename, 
     eventTarget, 
+    path, 
     root, 
     rootAlias, 
-    basename,
-    path, 
   } = $aliases;
   const { merge } = $options;
   return Object.defineProperty(
@@ -127,8 +127,8 @@ function Assign(
               } else 
               // Assign Non-Existent Root DET Property
               {
-              const _basename = $sourcePropKey;
-              const _path = (
+                const _basename = $sourcePropKey;
+                const _path = (
                   path !== null
                 ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
@@ -156,8 +156,8 @@ function Assign(
               new DynamicEventTargetEvent(
                 'assignSourceProperty',
                 {
-                  path,
                   basename,
+                  path,
                   detail: {
                     key: $sourcePropKey,
                     val: $sourcePropVal,
@@ -173,8 +173,8 @@ function Assign(
             new DynamicEventTargetEvent(
               'assignSource',
               {
-                path,
                 basename,
+                path,
                 detail: {
                   source: $source,
                 },
@@ -207,6 +207,7 @@ function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
+    proxy,
     eventTarget, 
     root, 
     rootAlias, 
@@ -1853,25 +1854,22 @@ var ArrayProperty = {
   with: With,
 };
 
-// import MapProperty from './Map/index.js'
-
 var PropertyClasses = {
   Object: ObjectProperty,
   Array: ArrayProperty,
-  // Map: MapProperty,
 };
 
 class Traps {
   Object
   Array
   Map
-  constructor($aliases, $options) {
+  constructor($settings, $options) {
     // Iterate Property Classes
     for(let [
       PropertyClassName, PropertyClassMethods
     ] of Object.entries(PropertyClasses)) {
       const trapOptions = $options[PropertyClassName.toLowerCase()];
-      const trap = new Trap(PropertyClassMethods, $aliases, trapOptions);
+      const trap = new Trap(PropertyClassMethods, $settings, trapOptions);
       Object.defineProperty(
         this, PropertyClassName, {
           value: trap
@@ -1882,114 +1880,78 @@ class Traps {
 }
 
 class Handler {
-  #aliases
+  #settings
   #options
   traps
-  constructor($aliases, $options) {
-    this.#aliases = $aliases;
+  constructor($settings, $options) {
+    this.#settings = $settings;
     this.#options = $options;
-    this.traps = new Traps(this.#aliases, $options.traps);
+    this.traps = new Traps(this.#settings, $options.traps);
     return this
   }
   // Get Property
   get get() {
     const $this = this;
     const {
-      type,
+      basename,
       eventTarget, 
+      path, 
       root, 
       rootAlias, 
-      basename,
-      path, 
-    } = this.#aliases;
+    } = this.#settings;
     return function get($target, $property, $receiver) {
       // Root Property
-      if($property === rootAlias) {
+      if(this.#isRootProperty($property)) {
         return this.proxy
       } else {
-      // Event Target/Dynamic Event Target Property
-      if(
-        Object.getOwnPropertyNames(EventTarget.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
-        .includes($property) /* ||
-        Object.getOwnPropertyNames(eventTarget)
-        .includes($property) */
-      ) {
-        if(typeof eventTarget[$property] === 'function') {
-          return eventTarget[$property].bind(eventTarget)
+        // Event Target/Dynamic Event Target Property
+        if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
+          if(typeof eventTarget[$property] === 'function') {
+            return eventTarget[$property].bind(eventTarget)
+          }
+          return eventTarget[$property]
+        } else
+        // Object Property Traps
+        if(this.#isObjectProperty($property)) {
+          return $this.traps['Object'][$property]
+        } else
+        // Array Property Traps
+        if(this.#isArrayProperty($property)) {
+          return $this.traps['Array'][$property]
         }
-        return eventTarget[$property]
-      } else
-      // Object Property
-      if(
-        Object.getOwnPropertyNames(Object)
-        .includes($property)
-      ) {
-        return $this.traps['Object'][$property]
-      } else
-      // Array Property
-      if(
-        Object.getOwnPropertyNames(Array.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Array)
-        .includes($property)
-      ) {
-        return $this.traps['Array'][$property]
-      } /* else 
-      // Map
-      if(
-        type === 'map' &&
-        Object.getOwnPropertyNames(Map.prototype)
-        .includes($property)
-      ) {
-        return $this.traps['Map'][$property] || 
-          $this.traps['Map']['default']
-      } */
-      else
-        return root[$property]
+        // Root Property
+        else {
+          return root[$property]
+        }
       }
     }
   }
   get set() {
     const $this = this;
     const {
-      type,
+      basename,
       eventTarget, 
+      path, 
       root, 
       rootAlias, 
-      basename,
-      path, 
-    } = this.#aliases;
+    } = this.#settings;
     this.#options.traps.object.set;
     return function set($target, $property, $value, $receiver) {
       // Object Property
-      if(
-        Object.getOwnPropertyNames(Object)
-          .includes($property)
-      ) {
+      if(this.#isObjectProperty($property)) {
         $this.traps['Object'][$property] = $value;
       } else
       // Array, Array Prototype Property
-      if(
-        Object.getOwnPropertyNames(Array.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Array)
-        .includes($property)
-      ) {
+      if(this.#isArrayProperty($property)) {
         $this.traps['Array'][$property] = $value;
       } else
       // Dynamic Event Target Property
-      if(
-        typeOf($value) === 'object' ||
-        typeOf($value) === 'array' /* ||
-        typeOf($value) === 'map' */
-      ) {
+      if(typeof $value === 'object') {
         $value = new DynamicEventTarget$1(
           $value, {
             basename,
-            path,
             parent: eventTarget,
+            path,
             rootAlias,
           }
         );
@@ -2018,7 +1980,46 @@ class Handler {
       return true
     }
   }
-  get delete() {}
+  get deleteProperty() {}
+  #isRootProperty($property) {
+    return ($property === this.#settings.rootAlias)
+  }
+  #isDynamicEventTargetProperty($property) {
+    return (
+      Object.getOwnPropertyNames(EventTarget.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
+      .includes($property)
+    )
+  }
+  #isEventTarget($property) {
+    return (
+      Object.getOwnPropertyNames(EventTarget.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
+      .includes($property)
+    )
+  }
+  #isEventTargetOrDynamicEventTargetProperty($property) {
+    return (
+      this.#isEventTarget($property) ||
+      this.#isDynamicEventTargetProperty($property)
+    )
+  }
+  #isObjectProperty($property) {
+    return (
+      Object.getOwnPropertyNames(Object)
+      .includes($property)
+    )
+  }
+  #isArrayProperty($property) {
+    return (
+      Object.getOwnPropertyNames(Array.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(Array)
+      .includes($property)
+    )
+  }
 }
 
 const Options$6 = Object.freeze({
@@ -2048,7 +2049,7 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
     this.#options = Object.assign(
       {}, Options$6, $options
     );
-    return this.#proxy
+    return this.proxy
   }
   // Type
   get type() {
@@ -2095,34 +2096,24 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
       this.type === 'object'
-    ) ? {...this.#settings}
+    ) ? {}
       : (
       this.type === 'array'
-    ) ? [...this.#settings]
-    //   : (
-    //   this.type === 'map'
-    // ) ? new Map()
-      : {...this.#settings};
+    ) ? []
+      : {};
     return this.#_root
   }
   // Proxy
-  get #proxy() {
+  get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     this.#_proxy = new Proxy(this.#root, this.#handler);
-    this.#handler.proxy = this.#proxy;
+    this.#handler.proxy = this.proxy;
     if(this.type === 'object') {
-      this.#_proxy.assign(this.#root);
+      this.#_proxy.assign(this.#settings);
     } else
     if(this.type === 'array') {
-      this.#_proxy.assign(this.#root);
-    } /* else
-    if(this.type === 'map') {
-      for(const [
-        $mapKey, $mapVal
-      ] of $root) {
-        //
-      }
-    } */
+      this.#_proxy.assign(this.#settings);
+    }
     return this.#_proxy
   }
   // Handler
@@ -2167,15 +2158,15 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   // Aliases
   get #aliases() {
     if(this.#_aliases !== undefined) return this.#_aliases
-    this.#_aliases = {
-      type: this.type,
-      eventTarget: this,
-      rootAlias: this.#rootAlias,
-      root: this.#root,
-      path: this.path,
-      basename: this.basename,
-      parent: this.parent,
-    };
+    this.#_aliases = Object.defineProperties({}, {
+      eventTarget: { value: this },
+      basename: { value: this.basename },
+      path: { value: this.path },
+      parent: { value: this.parent },
+      rootAlias: { value: this.#rootAlias },
+      root: { value: this.#root },
+      type: { value: this.type },
+    });
     return this.#_aliases
   }
   parse($settings = {
@@ -2187,9 +2178,6 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
       : (
       this.type === 'array'
     ) ? []
-    /*: (
-      this.type === 'map'
-    ) ? new Map()*/
       : {};
     if(this.type !== 'map') {
       for(const [$key, $val] of Object.entries(this.#root)) {

@@ -1,7 +1,7 @@
 import { DET } from '/dependencies/mvc-framework.js'
 import { eventLog } from '../../coutil/index.js'
 export default function objectAssign() {
-  const object = new DET({
+  let object = new DET({
     aaa: {
       bbb: {
         ccc: {
@@ -12,7 +12,7 @@ export default function objectAssign() {
   })
   // object.aaa.bbb.addEventListener('assign', eventLog)
   object.addEventListener('assign', eventLog)
-  object.assign({
+  object = object.assign({
     aaa: {
       bbb: {
         ccc: {
@@ -21,6 +21,7 @@ export default function objectAssign() {
       }
     }
   })
+  console.log(object)
   // object.assign({
   //   aaa: {
   //     bbb: {
