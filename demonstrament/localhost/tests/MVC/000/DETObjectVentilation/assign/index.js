@@ -12,7 +12,7 @@ export default function objectAssign() {
   })
   // object.aaa.bbb.addEventListener('assign', eventLog)
   object.addEventListener('assign', eventLog)
-  object = object.assign({
+    object = object.assign({
     aaa: {
       bbb: {
         ccc: {

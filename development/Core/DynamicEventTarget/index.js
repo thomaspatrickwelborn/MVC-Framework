@@ -73,10 +73,10 @@ export default class DynamicEventTarget extends EventTarget {
   get #root() {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
-      this.type === 'object'
+      typeOf(this.#settings) === 'object'
     ) ? {}
       : (
-      this.type === 'array'
+      typeOf(this.#settings) === 'array'
     ) ? []
       : {}
     return this.#_root
@@ -148,7 +148,7 @@ export default class DynamicEventTarget extends EventTarget {
     return this.#_aliases
   }
   parse($settings = {
-    type: 'object', // 'string',
+    type: 'object', // 'json',
   }) {
     let parsement = (
       this.type === 'object'

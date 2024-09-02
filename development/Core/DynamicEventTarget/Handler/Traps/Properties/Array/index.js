@@ -18,7 +18,6 @@ import IsArray from './isArray/index.js'
 import Join from './join/index.js'
 import Keys from './keys/index.js'
 import LastIndexOf from './lastIndexOf/index.js'
-import Length from './length/index.js'
 import _Map from './map/index.js'
 import Of from './of/index.js'
 import Pop from './pop/index.js'
@@ -59,7 +58,6 @@ export default {
   join: Join,
   keys: Keys,
   lastIndexOf: LastIndexOf,
-  length: Length,
   map: _Map,
   of: Of,
   pop: Pop,

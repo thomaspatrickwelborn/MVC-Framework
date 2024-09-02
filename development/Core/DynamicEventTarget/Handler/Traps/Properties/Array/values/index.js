@@ -5,7 +5,7 @@ export default function Values(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.values.call(root, ...arguments)
+        return Array.prototype.values.call(root)
       }
     }
   )

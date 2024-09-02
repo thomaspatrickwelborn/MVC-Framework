@@ -4,7 +4,7 @@ import PropertyClasses from './Properties/index.js'
 export default class Traps {
   Object
   Array
-  Map
+  // Map
   constructor($settings, $options) {
     // Iterate Property Classes
     iteratePropertyClasses:

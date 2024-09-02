@@ -1237,39 +1237,6 @@ function LastIndexOf(
   )
 }
 
-function Length(
-  $trap, $trapPropertyName, $aliases
-) {
-  const {
-    eventTarget, 
-    root, 
-    rootAlias, 
-    basename,
-    path, 
-  } = $aliases;
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      get() { return root.length },
-      set($length) {
-        root.length = $length;
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'lengthSet', 
-            {
-              path,
-              basename,
-              detail: {
-                length: root.length,
-              },
-            },
-            eventTarget
-          )
-        );
-      },
-    }
-  )
-}
-
 function _Map(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -1792,7 +1759,7 @@ function Values(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.values.call(root, ...arguments)
+        return Array.prototype.values.call(root)
       }
     }
   )
@@ -1832,7 +1799,6 @@ var ArrayProperty = {
   join: Join,
   keys: Keys,
   lastIndexOf: LastIndexOf,
-  length: Length,
   map: _Map,
   of: Of,
   pop: Pop,
@@ -1862,7 +1828,7 @@ var PropertyClasses = {
 class Traps {
   Object
   Array
-  Map
+  // Map
   constructor($settings, $options) {
     // Iterate Property Classes
     for(let [
@@ -1903,37 +1869,38 @@ class Handler {
       // Root Property
       if(this.#isRootProperty($property)) {
         return this.proxy
-      } else {
-        // Event Target/Dynamic Event Target Property
-        if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
-          if(typeof eventTarget[$property] === 'function') {
-            return eventTarget[$property].bind(eventTarget)
-          }
-          return eventTarget[$property]
-        } else
-        // Object Property Traps
-        if(this.#isObjectProperty($property)) {
-          return $this.traps['Object'][$property]
-        } else
-        // Array Property Traps
-        if(this.#isArrayProperty($property)) {
-          return $this.traps['Array'][$property]
+      } else
+      // Event Target/Dynamic Event Target Property
+      if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
+        if(typeof eventTarget[$property] === 'function') {
+          return eventTarget[$property].bind(eventTarget)
         }
-        // Root Property
-        else {
-          return root[$property]
-        }
+        return eventTarget[$property]
+      } else  
+      // Object Property Traps
+      if(this.#isObjectProperty($property)) {
+        return $this.traps['Object'][$property] || root[$property]
+      } else
+      // Array Property Traps
+      if(this.#isArrayProperty($property)) {
+        return $this.traps['Array'][$property] || root[$property]
+      }
+      // Root Property
+      else {
+        return root[$property]
       }
     }
   }
   get set() {
     const $this = this;
     const {
-      basename,
       eventTarget, 
-      path, 
       root, 
       rootAlias, 
+    } = this.#settings;
+    let {
+      basename,
+      path,
     } = this.#settings;
     this.#options.traps.object.set;
     return function set($target, $property, $value, $receiver) {
@@ -1958,8 +1925,8 @@ class Handler {
       }
       // Property Assignment
       root[$property] = $value;
-      const basename = $property;
-      const path = (
+      basename = $property;
+      path = (
         path !== null
       ) ? path.concat('.', $property)
         : $property;
@@ -1986,37 +1953,53 @@ class Handler {
   }
   #isDynamicEventTargetProperty($property) {
     return (
-      Object.getOwnPropertyNames(EventTarget.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
-      .includes($property)
+      (
+        Object.getOwnPropertyNames(EventTarget.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
+        .includes($property)
+      )
     )
   }
   #isEventTarget($property) {
     return (
-      Object.getOwnPropertyNames(EventTarget.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
-      .includes($property)
+      (
+        Object.getOwnPropertyNames(EventTarget.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
+        .includes($property)
+      )
     )
   }
   #isEventTargetOrDynamicEventTargetProperty($property) {
     return (
-      this.#isEventTarget($property) ||
-      this.#isDynamicEventTargetProperty($property)
+      (
+        this.#isEventTarget($property) ||
+        this.#isDynamicEventTargetProperty($property)
+      )
     )
   }
   #isObjectProperty($property) {
     return (
-      Object.getOwnPropertyNames(Object)
-      .includes($property)
+      (
+        Object.getOwnPropertyNames(Object)
+        .includes($property)
+      )
     )
   }
   #isArrayProperty($property) {
     return (
-      Object.getOwnPropertyNames(Array.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(Array)
+      (
+        Object.getOwnPropertyNames(Array.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(Array)
+        .includes($property)
+      )
+    )
+  }
+  #isFunctionProperty($property) {
+    return (
+      Object.getOwnPropertyNames(Function.prototype)
       .includes($property)
     )
   }
@@ -2095,10 +2078,10 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   get #root() {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
-      this.type === 'object'
+      typeOf(this.#settings) === 'object'
     ) ? {}
       : (
-      this.type === 'array'
+      typeOf(this.#settings) === 'array'
     ) ? []
       : {};
     return this.#_root
@@ -2170,7 +2153,7 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
     return this.#_aliases
   }
   parse($settings = {
-    type: 'object', // 'string',
+    type: 'object', // 'json',
   }) {
     let parsement = (
       this.type === 'object'

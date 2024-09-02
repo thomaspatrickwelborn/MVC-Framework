@@ -27,37 +27,38 @@ export default class Handler {
       // Root Property
       if(this.#isRootProperty($property)) {
         return this.proxy
-      } else {
-        // Event Target/Dynamic Event Target Property
-        if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
-          if(typeof eventTarget[$property] === 'function') {
-            return eventTarget[$property].bind(eventTarget)
-          }
-          return eventTarget[$property]
-        } else
-        // Object Property Traps
-        if(this.#isObjectProperty($property)) {
-          return $this.traps['Object'][$property]
-        } else
-        // Array Property Traps
-        if(this.#isArrayProperty($property)) {
-          return $this.traps['Array'][$property]
+      } else
+      // Event Target/Dynamic Event Target Property
+      if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
+        if(typeof eventTarget[$property] === 'function') {
+          return eventTarget[$property].bind(eventTarget)
         }
-        // Root Property
-        else {
-          return root[$property]
-        }
+        return eventTarget[$property]
+      } else  
+      // Object Property Traps
+      if(this.#isObjectProperty($property)) {
+        return $this.traps['Object'][$property] || root[$property]
+      } else
+      // Array Property Traps
+      if(this.#isArrayProperty($property)) {
+        return $this.traps['Array'][$property] || root[$property]
+      }
+      // Root Property
+      else {
+        return root[$property]
       }
     }
   }
   get set() {
     const $this = this
     const {
-      basename,
       eventTarget, 
-      path, 
       root, 
       rootAlias, 
+    } = this.#settings
+    let {
+      basename,
+      path,
     } = this.#settings
     const { merge } = this.#options.traps.object.set
     return function set($target, $property, $value, $receiver) {
@@ -82,8 +83,8 @@ export default class Handler {
       }
       // Property Assignment
       root[$property] = $value
-      const basename = $property
-      const path = (
+      basename = $property
+      path = (
         path !== null
       ) ? path.concat('.', $property)
         : $property
@@ -110,37 +111,53 @@ export default class Handler {
   }
   #isDynamicEventTargetProperty($property) {
     return (
-      Object.getOwnPropertyNames(EventTarget.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(DynamicEventTarget.prototype)
-      .includes($property)
+      (
+        Object.getOwnPropertyNames(EventTarget.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(DynamicEventTarget.prototype)
+        .includes($property)
+      )
     )
   }
   #isEventTarget($property) {
     return (
-      Object.getOwnPropertyNames(EventTarget.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(DynamicEventTarget.prototype)
-      .includes($property)
+      (
+        Object.getOwnPropertyNames(EventTarget.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(DynamicEventTarget.prototype)
+        .includes($property)
+      )
     )
   }
   #isEventTargetOrDynamicEventTargetProperty($property) {
     return (
-      this.#isEventTarget($property) ||
-      this.#isDynamicEventTargetProperty($property)
+      (
+        this.#isEventTarget($property) ||
+        this.#isDynamicEventTargetProperty($property)
+      )
     )
   }
   #isObjectProperty($property) {
     return (
-      Object.getOwnPropertyNames(Object)
-      .includes($property)
+      (
+        Object.getOwnPropertyNames(Object)
+        .includes($property)
+      )
     )
   }
   #isArrayProperty($property) {
     return (
-      Object.getOwnPropertyNames(Array.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(Array)
+      (
+        Object.getOwnPropertyNames(Array.prototype)
+        .includes($property) ||
+        Object.getOwnPropertyNames(Array)
+        .includes($property)
+      )
+    )
+  }
+  #isFunctionProperty($property) {
+    return (
+      Object.getOwnPropertyNames(Function.prototype)
       .includes($property)
     )
   }
