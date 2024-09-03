@@ -30,16 +30,37 @@ export default function Assign(
                 $sourcePropVal, [Object, Array/*, Map*/]
               )
             ) {
-              // Assign Existent Root DET Property
-              if(
-                merge === true &&
-                root[$sourcePropKey]
-                ?.constructor.name === 'bound DynamicEventTarget'
-              ) {
-                root[$sourcePropKey].assign($sourcePropVal)
-              } else 
-              // Assign Non-Existent Root DET Property
-              {
+              // Merge
+              if(merge === true) {
+                // Assign Existent Root DET Property
+                if(
+                  root[$sourcePropKey]
+                  ?.constructor.name === 'bound DynamicEventTarget'
+                ) {
+                  root[$sourcePropKey].assign($sourcePropVal)
+                } else 
+                // Assign Non-Existent Root DET Property
+                {
+                  const _basename = $sourcePropKey
+                  const _path = (
+                    path !== null
+                  ) ? path.concat('.', $sourcePropKey)
+                    : $sourcePropKey
+                  const detObject = new DynamicEventTarget(
+                    $sourcePropVal, {
+                      basename: _basename,
+                      parent: eventTarget,
+                      path: _path,
+                      rootAlias,
+                    }
+                  )
+                  Object.assign(root, {
+                    [$sourcePropKey]: detObject
+                  })
+                }
+              } else
+              // No Merge
+              if(merge === false) {
                 const _basename = $sourcePropKey
                 const _path = (
                   path !== null

@@ -7,7 +7,6 @@ import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { descriptorValueMerge, descriptorTree } = $options
   const {
     proxy,
     eventTarget, 

@@ -27,27 +27,73 @@ export default function DefineProperty(
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
             root, propertyKey
           ) || {}
-          // Root Property Descriptor Value Is Existent DET Instance
-          if(
-            descriptorValueMerge === true &&
-            rootPropertyDescriptor.value // instanceof DynamicEventTarget
-            ?.constructor.name === 'bound DynamicEventTarget'
-          ) {
-            // Root Define Properties, Descriptor Tree
-            if(descriptorTree === true) {
-              rootPropertyDescriptor.value.defineProperties(
-                propertyDescriptor.value
-              )
-            } else
-            // Root Define Properties, No Descriptor Tree
-            {
-              Object.defineProperty(
-                root, propertyKey, propertyDescriptor
-              )
+          // Descriptor Value Merge
+          if(descriptorValueMerge === true) {
+            // Root Property Descriptor Value Is Existent DET Instance
+            if(
+              rootPropertyDescriptor.value // instanceof DynamicEventTarget
+              ?.constructor.name === 'bound DynamicEventTarget'
+            ) {
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                rootPropertyDescriptor.value.defineProperties(
+                  propertyDescriptor.value
+                )
+              } else
+              // Root Define Properties, No Descriptor Tree
+              {
+                Object.defineProperty(
+                  root, propertyKey, propertyDescriptor
+                )
+              }
             }
-          }
-          // Root Property Descriptor Value Is Non-Existent DET Instance
-          else {
+            // Root Property Descriptor Value Is Non-Existent DET Instance
+            else {
+              const _basename = propertyKey
+              const _path = (
+                path !== null
+              ) ? path.concat('.', propertyKey)
+                : propertyKey
+              const _root = (
+                typeOf(
+                  propertyDescriptor.value
+                ) === 'object'
+              ) ? {}
+                : (
+                typeOf(
+                  propertyDescriptor.value
+                ) === 'array'
+              ) ? []
+              //   : typeOf(
+              //   propertyDescriptor.value
+              // ) === 'map'
+              //   ? new Map()
+                : {}
+              const detObject = new DynamicEventTarget(
+                _root, {
+                  basename: _basename,
+                  parent: eventTarget,
+                  path: _path,
+                  rootAlias,
+                }
+              )
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                detObject.defineProperties(
+                  propertyDescriptor.value
+                )
+                root[propertyKey] = detObject
+              } else 
+              // Root Define Properties, No Descriptor Tree
+              if(descriptorTree === false) {
+                Object.defineProperty(
+                  root, propertyKey, propertyDescriptor
+                )
+              }
+            }
+          } else
+          // No Descriptor Value Merge
+          if(descriptorValueMerge === false) {
             const _basename = propertyKey
             const _path = (
               path !== null
@@ -82,13 +128,17 @@ export default function DefineProperty(
                 propertyDescriptor.value
               )
               root[propertyKey] = detObject
-            } else {
+            } else
+            // Root Define Properties, No Descriptor Tree
+            if(descriptorTree === false) {
               Object.defineProperty(
                 root, propertyKey, propertyDescriptor
               )
             }
           }
-        } else {
+        } else
+        // Property Descriptor Value Not Array/Object/Map
+        {
           Object.defineProperty(
             root, propertyKey, propertyDescriptor
           )

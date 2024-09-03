@@ -2,12 +2,28 @@ import { typeOf } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 const Options = Object.freeze({
   rootAlias: 'content',
-  objectAssignMerge: true,
-  objectDefinePropertyDescriptorTree: true,
-  objectDefinePropertyDescriptorValueMerge: true,
-  objectFreezeRecurse: true,
-  objectSealRecurse: true,
-  objectSetMerge: true,
+  object: {
+    assign: {
+      merge: true, 
+    },
+    defineProperties: {
+      descriptorValueMerge: true,
+      descriptorTree: true,
+    },
+    defineProperty: {
+      descriptorValueMerge: true,
+      descriptorTree: true,
+    },
+    freeze: {
+      recurse: true,
+    },
+    seal: {
+      recurse: true,
+    },
+    set: {
+      merge: true
+    },
+  }
 })
 export default class DynamicEventTarget extends EventTarget {
   #settings
@@ -97,38 +113,9 @@ export default class DynamicEventTarget extends EventTarget {
   // Handler
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    const {
-      objectAssignMerge, 
-      objectDefinePropertyDescriptorTree,
-      objectDefinePropertyDescriptorValueMerge,
-      objectFreezeRecurse,
-      objectSealRecurse,
-      objectSetMerge,
-    } = this.#options
     this.#_handler = new Handler(this.#aliases, {
       traps: {
-        object: {
-          assign: {
-            merge: objectAssignMerge,
-          },
-          defineProperties: {
-            descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
-            descriptorTree: objectDefinePropertyDescriptorTree,
-          },
-          defineProperty: {
-            descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
-            descriptorTree: objectDefinePropertyDescriptorTree,
-          },
-          freeze: {
-            recurse: objectFreezeRecurse,
-          },
-          seal: {
-            recurse: objectSealRecurse,
-          },
-          set: {
-            merge: objectSetMerge
-          },
-        }
+        object: this.#options.object
       }
     })
     return this.#_handler

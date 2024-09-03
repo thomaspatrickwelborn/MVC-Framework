@@ -117,16 +117,37 @@ function Assign(
                 $sourcePropVal, [Object, Array/*, Map*/]
               )
             ) {
-              // Assign Existent Root DET Property
-              if(
-                merge === true &&
-                root[$sourcePropKey]
-                ?.constructor.name === 'bound DynamicEventTarget'
-              ) {
-                root[$sourcePropKey].assign($sourcePropVal);
-              } else 
-              // Assign Non-Existent Root DET Property
-              {
+              // Merge
+              if(merge === true) {
+                // Assign Existent Root DET Property
+                if(
+                  root[$sourcePropKey]
+                  ?.constructor.name === 'bound DynamicEventTarget'
+                ) {
+                  root[$sourcePropKey].assign($sourcePropVal);
+                } else 
+                // Assign Non-Existent Root DET Property
+                {
+                  const _basename = $sourcePropKey;
+                  const _path = (
+                    path !== null
+                  ) ? path.concat('.', $sourcePropKey)
+                    : $sourcePropKey;
+                  const detObject = new DynamicEventTarget$1(
+                    $sourcePropVal, {
+                      basename: _basename,
+                      parent: eventTarget,
+                      path: _path,
+                      rootAlias,
+                    }
+                  );
+                  Object.assign(root, {
+                    [$sourcePropKey]: detObject
+                  });
+                }
+              } else
+              // No Merge
+              if(merge === false) {
                 const _basename = $sourcePropKey;
                 const _path = (
                   path !== null
@@ -268,27 +289,73 @@ function DefineProperty(
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
             root, propertyKey
           ) || {};
-          // Root Property Descriptor Value Is Existent DET Instance
-          if(
-            descriptorValueMerge === true &&
-            rootPropertyDescriptor.value // instanceof DynamicEventTarget
-            ?.constructor.name === 'bound DynamicEventTarget'
-          ) {
-            // Root Define Properties, Descriptor Tree
-            if(descriptorTree === true) {
-              rootPropertyDescriptor.value.defineProperties(
-                propertyDescriptor.value
-              );
-            } else
-            // Root Define Properties, No Descriptor Tree
-            {
-              Object.defineProperty(
-                root, propertyKey, propertyDescriptor
-              );
+          // Descriptor Value Merge
+          if(descriptorValueMerge === true) {
+            // Root Property Descriptor Value Is Existent DET Instance
+            if(
+              rootPropertyDescriptor.value // instanceof DynamicEventTarget
+              ?.constructor.name === 'bound DynamicEventTarget'
+            ) {
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                rootPropertyDescriptor.value.defineProperties(
+                  propertyDescriptor.value
+                );
+              } else
+              // Root Define Properties, No Descriptor Tree
+              {
+                Object.defineProperty(
+                  root, propertyKey, propertyDescriptor
+                );
+              }
             }
-          }
-          // Root Property Descriptor Value Is Non-Existent DET Instance
-          else {
+            // Root Property Descriptor Value Is Non-Existent DET Instance
+            else {
+              const _basename = propertyKey;
+              const _path = (
+                path !== null
+              ) ? path.concat('.', propertyKey)
+                : propertyKey;
+              const _root = (
+                typeOf(
+                  propertyDescriptor.value
+                ) === 'object'
+              ) ? {}
+                : (
+                typeOf(
+                  propertyDescriptor.value
+                ) === 'array'
+              ) ? []
+              //   : typeOf(
+              //   propertyDescriptor.value
+              // ) === 'map'
+              //   ? new Map()
+                : {};
+              const detObject = new DynamicEventTarget$1(
+                _root, {
+                  basename: _basename,
+                  parent: eventTarget,
+                  path: _path,
+                  rootAlias,
+                }
+              );
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                detObject.defineProperties(
+                  propertyDescriptor.value
+                );
+                root[propertyKey] = detObject;
+              } else 
+              // Root Define Properties, No Descriptor Tree
+              if(descriptorTree === false) {
+                Object.defineProperty(
+                  root, propertyKey, propertyDescriptor
+                );
+              }
+            }
+          } else
+          // No Descriptor Value Merge
+          if(descriptorValueMerge === false) {
             const _basename = propertyKey;
             const _path = (
               path !== null
@@ -323,13 +390,17 @@ function DefineProperty(
                 propertyDescriptor.value
               );
               root[propertyKey] = detObject;
-            } else {
+            } else
+            // Root Define Properties, No Descriptor Tree
+            if(descriptorTree === false) {
               Object.defineProperty(
                 root, propertyKey, propertyDescriptor
               );
             }
           }
-        } else {
+        } else
+        // Property Descriptor Value Not Array/Object/Map
+        {
           Object.defineProperty(
             root, propertyKey, propertyDescriptor
           );
@@ -2007,12 +2078,28 @@ class Handler {
 
 const Options$6 = Object.freeze({
   rootAlias: 'content',
-  objectAssignMerge: true,
-  objectDefinePropertyDescriptorTree: true,
-  objectDefinePropertyDescriptorValueMerge: true,
-  objectFreezeRecurse: true,
-  objectSealRecurse: true,
-  objectSetMerge: true,
+  object: {
+    assign: {
+      merge: true, 
+    },
+    defineProperties: {
+      descriptorValueMerge: true,
+      descriptorTree: true,
+    },
+    defineProperty: {
+      descriptorValueMerge: true,
+      descriptorTree: true,
+    },
+    freeze: {
+      recurse: true,
+    },
+    seal: {
+      recurse: true,
+    },
+    set: {
+      merge: true
+    },
+  }
 });
 let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   #settings
@@ -2102,38 +2189,9 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   // Handler
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    const {
-      objectAssignMerge, 
-      objectDefinePropertyDescriptorTree,
-      objectDefinePropertyDescriptorValueMerge,
-      objectFreezeRecurse,
-      objectSealRecurse,
-      objectSetMerge,
-    } = this.#options;
     this.#_handler = new Handler(this.#aliases, {
       traps: {
-        object: {
-          assign: {
-            merge: objectAssignMerge,
-          },
-          defineProperties: {
-            descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
-            descriptorTree: objectDefinePropertyDescriptorTree,
-          },
-          defineProperty: {
-            descriptorValueMerge: objectDefinePropertyDescriptorValueMerge,
-            descriptorTree: objectDefinePropertyDescriptorTree,
-          },
-          freeze: {
-            recurse: objectFreezeRecurse,
-          },
-          seal: {
-            recurse: objectSealRecurse,
-          },
-          set: {
-            merge: objectSetMerge
-          },
-        }
+        object: this.#options.object
       }
     });
     return this.#_handler
