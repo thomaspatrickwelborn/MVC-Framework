@@ -4,6 +4,7 @@ import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { merge, events } = $options
   const {
     basename, 
     eventTarget, 
@@ -11,7 +12,6 @@ export default function Assign(
     root, 
     rootAlias, 
   } = $aliases
-  const { merge } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -86,51 +86,57 @@ export default function Assign(
               })
             }
             // Assign Source Property Event
+            if(events.includes('assignSourceProperty')) {
+              eventTarget.dispatchEvent(
+                new DETEvent(
+                  'assignSourceProperty',
+                  {
+                    basename,
+                    path,
+                    detail: {
+                      key: $sourcePropKey,
+                      val: $sourcePropVal,
+                      source: $source,
+                    }
+                  },
+                  eventTarget
+                )
+              )
+            }
+          }
+          // Assign Source Event
+          if(events.includes('assignSource')) {
             eventTarget.dispatchEvent(
               new DETEvent(
-                'assignSourceProperty',
+                'assignSource',
                 {
                   basename,
                   path,
                   detail: {
-                    key: $sourcePropKey,
-                    val: $sourcePropVal,
                     source: $source,
-                  }
+                  },
                 },
                 eventTarget
               )
             )
           }
-          // Assign Source Event
+        }
+        // Assign Event
+        if(events.includes('assign')) {
           eventTarget.dispatchEvent(
             new DETEvent(
-              'assignSource',
-              {
+              'assign',
+              { 
                 basename,
                 path,
                 detail: {
-                  source: $source,
+                  sources
                 },
               },
               eventTarget
             )
           )
         }
-        // Assign Event
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'assign',
-            { 
-              basename,
-              path,
-              detail: {
-                sources
-              },
-            },
-            eventTarget
-          )
-        )
         return root
       }
     }

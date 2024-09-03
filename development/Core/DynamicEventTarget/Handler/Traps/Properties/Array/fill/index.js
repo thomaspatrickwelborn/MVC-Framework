@@ -2,8 +2,9 @@ import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Fill(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     $eventTarget, 
     root, 
@@ -59,39 +60,43 @@ export default function Fill(
           ) ? path.concat('.', fillIndex)
             : fillIndex
           // Array Fill Index Event
+          if(events.includes('fillIndex')) {
+            $eventTarget.dispatchEvent(
+              new DETEvent(
+                'fillIndex',
+                {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    start: fillIndex,
+                    end: fillIndex + 1,
+                    value,
+                  },
+                },
+                $eventTarget
+              )
+            )
+          }
+          fillIndex++
+        }
+        // Array Fill Event
+        if(events.includes('fill')) {
           $eventTarget.dispatchEvent(
             new DETEvent(
-              'fillIndex',
+              'fill',
               {
-                basename: _basename,
-                path: _path,
+                basename,
+                path,
                 detail: {
-                  start: fillIndex,
-                  end: fillIndex + 1,
+                  start,
+                  end,
                   value,
                 },
               },
               $eventTarget
             )
           )
-          fillIndex++
         }
-        // Array Fill Event
-        $eventTarget.dispatchEvent(
-          new DETEvent(
-            'fill',
-            {
-              basename,
-              path,
-              detail: {
-                start,
-                end,
-                value,
-              },
-            },
-            $eventTarget
-          )
-        )
         return root
       }
     }

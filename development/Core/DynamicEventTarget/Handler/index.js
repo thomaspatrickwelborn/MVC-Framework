@@ -60,7 +60,7 @@ export default class Handler {
       basename,
       path,
     } = this.#settings
-    const { merge } = this.#options.traps.object.set
+    const { merge } = this.#options.traps.properties.set
     return function set($target, $property, $value, $receiver) {
       // Object Property
       if(this.#isObjectProperty($property)) {

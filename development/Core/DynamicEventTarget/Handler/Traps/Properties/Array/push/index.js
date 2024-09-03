@@ -2,8 +2,9 @@ import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Push(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     eventTarget, 
     root, 
@@ -35,36 +36,40 @@ export default function Push(
           }
           elements.push($element)
           Array.prototype.push.call(root, $element)
+          if(events.includes('pushProp')) {
+            eventTarget.dispatchEvent(
+              new DETEvent(
+                'pushProp',
+                {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    elementIndex, 
+                    element: $element,
+                  },
+                },
+                eventTarget
+              )
+            )
+          }
+          elementIndex++
+        }
+        // Push Event
+        if(events.includes('push')) {
           eventTarget.dispatchEvent(
             new DETEvent(
-              'pushProp',
+              'push',
               {
-                basename: _basename,
-                path: _path,
+                basename,
+                path,
                 detail: {
-                  elementIndex, 
-                  element: $element,
+                  elements,
                 },
               },
               eventTarget
             )
           )
-          elementIndex++
         }
-        // Push Event
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'push',
-            {
-              basename,
-              path,
-              detail: {
-                elements,
-              },
-            },
-            eventTarget
-          )
-        )
         return root.length
       }
     }  

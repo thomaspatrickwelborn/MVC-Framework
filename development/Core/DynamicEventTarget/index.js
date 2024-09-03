@@ -1,30 +1,6 @@
 import { typeOf } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
-const Options = Object.freeze({
-  rootAlias: 'content',
-  object: {
-    assign: {
-      merge: true, 
-    },
-    defineProperties: {
-      descriptorValueMerge: true,
-      descriptorTree: true,
-    },
-    defineProperty: {
-      descriptorValueMerge: true,
-      descriptorTree: true,
-    },
-    freeze: {
-      recurse: true,
-    },
-    seal: {
-      recurse: true,
-    },
-    set: {
-      merge: true
-    },
-  }
-})
+import Options from './Options/index.js'
 export default class DynamicEventTarget extends EventTarget {
   #settings
   #options
@@ -114,9 +90,7 @@ export default class DynamicEventTarget extends EventTarget {
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
     this.#_handler = new Handler(this.#aliases, {
-      traps: {
-        object: this.#options.object
-      }
+      traps: this.#options.traps
     })
     return this.#_handler
   }

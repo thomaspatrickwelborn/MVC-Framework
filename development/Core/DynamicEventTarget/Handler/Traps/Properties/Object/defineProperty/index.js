@@ -7,7 +7,7 @@ import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { descriptorValueMerge, descriptorTree } = $options
+  const { descriptorValueMerge, descriptorTree, events } = $options
   const {
     eventTarget, 
     root, 
@@ -144,20 +144,22 @@ export default function DefineProperty(
           )
         }
         // Define Property Event
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'defineProperty',
-            {
-              basename,
-              path,
-              detail: {
-                prop: propertyKey,
-                descriptor: propertyDescriptor,
+        if(events.includes('defineProperty')) {
+          eventTarget.dispatchEvent(
+            new DETEvent(
+              'defineProperty',
+              {
+                basename,
+                path,
+                detail: {
+                  prop: propertyKey,
+                  descriptor: propertyDescriptor,
+                },
               },
-            },
-            eventTarget
+              eventTarget
+            )
           )
-        )
+        }
         return root
       }
     }

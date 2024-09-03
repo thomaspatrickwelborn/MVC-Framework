@@ -1,7 +1,8 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Shift(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     eventTarget, 
     root, 
@@ -20,20 +21,22 @@ export default function Shift(
         ) ? path.concat('.', shiftElementIndex)
           : shiftElementIndex
         // Array Shift Event
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'shift',
-            {
-              basename,
-              path,
-              detail: {
-                element: shiftElement,
-                elementIndex: shiftElementIndex,
+        if(events.includes('shift')) {
+          eventTarget.dispatchEvent(
+            new DETEvent(
+              'shift',
+              {
+                basename,
+                path,
+                detail: {
+                  element: shiftElement,
+                  elementIndex: shiftElementIndex,
+                },
               },
-            },
-            eventTarget
+              eventTarget
+            )
           )
-        )
+        }
         return shiftElement
       }
     }

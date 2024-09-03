@@ -1,7 +1,8 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function CopyWithin(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     eventTarget, 
     root, 
@@ -42,42 +43,46 @@ export default function CopyWithin(
             copyIndex + 1
           )
           // Array Copy Within Index Event Data
+          if(events.includes('copyWithinIndex')) {
+            eventTarget.dispatchEvent(
+              new DETEvent(
+                'copyWithinIndex',
+                {
+                  basename: eventTarget.basename,
+                  path: eventTarget.path,
+                  detail: {
+                    target: targetIndex,
+                    start: copyIndex,
+                    end: copyIndex + 1,
+                    item: copyItem,
+                  },
+                },
+                eventTarget
+              )
+            )
+          }
+          copyIndex++
+          targetIndex++
+        }
+        // Array Copy Within Event
+        if(events.includes('copyWithin')) {
           eventTarget.dispatchEvent(
             new DETEvent(
-              'copyWithinIndex',
+              'copyWithin',
               {
                 basename: eventTarget.basename,
                 path: eventTarget.path,
                 detail: {
-                  target: targetIndex,
-                  start: copyIndex,
-                  end: copyIndex + 1,
-                  item: copyItem,
+                  target: target,
+                  start: start,
+                  end: end,
+                  items: copiedItems,
                 },
               },
               eventTarget
             )
           )
-          copyIndex++
-          targetIndex++
         }
-        // Array Copy Within Event
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'copyWithin',
-            {
-              basename: eventTarget.basename,
-              path: eventTarget.path,
-              detail: {
-                target: target,
-                start: start,
-                end: end,
-                items: copiedItems,
-              },
-            },
-            eventTarget
-          )
-        )
       }
     }
   )

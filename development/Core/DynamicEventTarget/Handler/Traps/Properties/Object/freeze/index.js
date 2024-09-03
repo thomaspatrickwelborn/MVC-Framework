@@ -7,6 +7,7 @@ import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Freeze(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { recurse, events } = $options
   const {
     eventTarget, 
     root, 
@@ -14,7 +15,6 @@ export default function Freeze(
     basename,
     path,
   } = $aliases
-  const { recurse } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
@@ -35,16 +35,18 @@ export default function Freeze(
               path !== null
             ) ? path.concat('.', $propertyKey)
               : $propertyKey
-            eventTarget.dispatchEvent(
-              new DETEvent(
-                'freeze',
-                {
-                  path: _path,
-                  basename: _basename,
-                },
-                eventTarget
+            if(events.includes('freeze')) {
+              eventTarget.dispatchEvent(
+                new DETEvent(
+                  'freeze',
+                  {
+                    path: _path,
+                    basename: _basename,
+                  },
+                  eventTarget
+                )
               )
-            )
+            }
           }
         }
         Object.freeze(this)

@@ -7,6 +7,7 @@ import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Seal(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { recurse, events } = $options
   const {
     eventTarget, 
     root, 
@@ -14,7 +15,6 @@ export default function Seal(
     basename,
     path,
   } = $aliases
-  const { recurse } = $options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
@@ -35,16 +35,18 @@ export default function Seal(
               path !== null
             ) ? path.concat('.', $propertyKey)
               : $propertyKey
-            eventTarget.dispatchEvent(
-              new DETEvent(
-                'seal',
-                {
-                  path,
-                  basename,
-                },
-                eventTarget
+            if(events.includes('seal')) {
+              eventTarget.dispatchEvent(
+                new DETEvent(
+                  'seal',
+                  {
+                    path,
+                    basename,
+                  },
+                  eventTarget
+                )
               )
-            )
+            }
           }
         }
         Object.seal(this)

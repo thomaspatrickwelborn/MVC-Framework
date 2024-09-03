@@ -1,8 +1,9 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Unshift(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     eventTarget, 
     root, 
@@ -38,20 +39,22 @@ export default function Unshift(
           elements.unshift(element)
           Array.prototype.unshift.call(root, element)
           // Array Unshift Prop Event
-          eventTarget.dispatchEvent(
-            new DETEvent(
-              'unshiftProp',
-              {
-                basename: _basename,
-                path: _path,
-                detail: {
-                  elementIndex, 
-                  element: element,
+          if(events.includes('unshiftProp')) {
+            eventTarget.dispatchEvent(
+              new DETEvent(
+                'unshiftProp',
+                {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    elementIndex, 
+                    element: element,
+                  },
                 },
-              },
-              eventTarget
+                eventTarget
+              )
             )
-          )
+          }
           elementIndex--
         }
         // Array Unshift Event
@@ -60,19 +63,21 @@ export default function Unshift(
           $path !== null
         ) ? $path.concat('.', elementIndex)
           : elementIndex
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'unshift',
-            {
-              basename: _basename,
-              path: _path,
-              detail: {
-                elements,
+        if(events.includes('unshift')) {
+          eventTarget.dispatchEvent(
+            new DETEvent(
+              'unshift',
+              {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elements,
+                },
               },
-            },
-            eventTarget
+              eventTarget
+            )
           )
-        )
+        }
         return root.length
       }
     }  

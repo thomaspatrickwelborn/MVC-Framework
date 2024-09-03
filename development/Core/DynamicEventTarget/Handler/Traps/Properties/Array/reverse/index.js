@@ -1,7 +1,8 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Reverse(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     eventTarget, 
     root, 
@@ -13,19 +14,21 @@ export default function Reverse(
     $trap, $trapPropertyName, {
       value: function() {
         Array.prototype.reverse.call(root, ...arguments)
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'reverse',
-            {
-              basename,
-              path,
-              detail: {
-                reference: root
+        if(events.includes('reverse')) {
+          eventTarget.dispatchEvent(
+            new DETEvent(
+              'reverse',
+              {
+                basename,
+                path,
+                detail: {
+                  reference: root
+                },
               },
-            },
-            eventTarget
+              eventTarget
+            )
           )
-        )
+        }
         return root
       }
     }
