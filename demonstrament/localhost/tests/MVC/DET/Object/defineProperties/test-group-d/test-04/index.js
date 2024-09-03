@@ -1,27 +1,21 @@
-const arrayAssignStatementString = `
+const arrayDefinePropertiesStatementString = `
+delete $array[0][0][0]
+delete $array[0][0][1]
+delete $array[1][0]
+delete $array[1][1]
+$array[0][0].length = 0
+$array[1].length = 0
 `
-export default function test16($array) {
+export default function test04($array) {
   console.log(
     "------",
-    "\n", "Test #16 | Delete Multi-Dimension Array Properties"
+    "\n", "Test Group D. #04 | Delete Enumerable/Configurable/Writable Multi-Dimension Array Properties"
   )
-  console.log(arrayAssignStatementString)
+  console.log(arrayDefinePropertiesStatementString)
   delete $array[0][0][0]
   delete $array[0][0][1]
   delete $array[1][0]
   delete $array[1][1]
-  $array.assign({
-    0: {
-      0: {
-        0: undefined,
-        1: undefined,
-      }
-    },
-    1: {
-      0: undefined, 
-      1: undefined,
-    }
-  })
   $array[0][0].length = 0
   $array[1].length = 0
   console.log(
@@ -55,7 +49,7 @@ export default function test16($array) {
     '\n', $array[1].length === 0
   )
   console.log(
-    '\n', "Test #16 | Results", 
+    '\n', "Test Group D. #04 | Results", 
     '\n', "Pass", (
       $array[0][0][0] === undefined &&
       $array[0][0][1] === undefined &&

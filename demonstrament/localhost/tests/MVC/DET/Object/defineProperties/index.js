@@ -6,10 +6,10 @@ import testGroupE from './test-group-e/index.js'
 function DOMContentLoaded() {
   console.log("Object Define Properties Tests")
   testGroupA()
-  // testGroupB()
-  // testGroupC()
-  // testGroupD()
-  // testGroupE()
+  testGroupB()
+  testGroupC()
+  testGroupD()
+  testGroupE()
 }
 
 document.addEventListener('DOMContentLoaded', DOMContentLoaded)

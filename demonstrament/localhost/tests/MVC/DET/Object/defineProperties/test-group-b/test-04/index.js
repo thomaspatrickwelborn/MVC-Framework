@@ -2,10 +2,10 @@ const deleteStringStatement = `
 delete $object.aaa.bbb.ccc
 delete $object.aaa.fff
 `
-export default function test08($object) {
+export default function test04($object) {
   console.log(
     "-----", 
-    "\n", "Test #08 | Delete Multi-Dimension Object Properties",
+    "\n", "Test #04 | Delete Configurable/Enumerable/Writable Multi-Dimension Object Properties",
   )
   console.log(deleteStringStatement)
   delete $object.aaa.bbb.ccc
@@ -31,7 +31,7 @@ export default function test08($object) {
     '\n', $object.aaa.getOwnPropertyNames().includes('fff') === false,
   )
   console.log(
-    '\n', "Test #08 | Results",
+    '\n', "Test Group B. #04 | Results",
     '\n', (
       $object.aaa.bbb.ccc === undefined &&
       $object.aaa.bbb.getOwnPropertyNames().includes('ccc') === false &&

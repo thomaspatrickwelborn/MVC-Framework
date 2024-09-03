@@ -1,36 +1,68 @@
-const objectAssignStatementString = `
-$object.assign({
+const objectDefinePropertiesStatementString = `
+$object.defineProperties({
   aaa: {
-    bbb: {
-      ccc: {
-        ddd: true,
-        eee: null,
+    value: {
+      bbb: {
+        value: {
+          ccc: {
+            value: {
+              ddd: {
+                value: true
+              },
+              eee: {
+                value: null
+              },
+            },
+          },
+        },
       },
-    },
-    fff: {
-      ggg: false,
-      hhh: undefined
+      fff: {
+        value: {
+          ggg: {
+            value: false
+          },
+          hhh: {
+            value: undefined
+          },
+        }
+      }
     }
   }
 })
 `
-export default function test05($object) {
+export default function test01($object) {
   console.log(
     "-----", 
-    "\n", "Test #05 | Define Initial Multi-Dimension Object Properties",
+    "\n", "Test Group B. #01 | Define Default Multi-Dimension Object Properties",
   )
-  console.log(objectAssignStatementString)
-  $object.assign({
+  console.log(objectDefinePropertiesStatementString)
+  $object.defineProperties({
     aaa: {
-      bbb: {
-        ccc: {
-          ddd: true,
-          eee: null,
+      value: {
+        bbb: {
+          value: {
+            ccc: {
+              value: {
+                ddd: {
+                  value: true
+                },
+                eee: {
+                  value: null
+                },
+              },
+            },
+          },
         },
-      },
-      fff: {
-        ggg: false,
-        hhh: undefined
+        fff: {
+          value: {
+            ggg: {
+              value: false
+            },
+            hhh: {
+              value: undefined
+            },
+          }
+        }
       }
     }
   })
@@ -55,7 +87,7 @@ export default function test05($object) {
     '\n', $object.aaa.fff.hhh === undefined,
   )
   console.log(
-    '\n', "Test #05 | Results",
+    '\n', "Test #01 | Results",
     '\n', (
       $object.aaa.bbb.ccc.ddd === true &&
       $object.aaa.bbb.ccc.eee === null &&

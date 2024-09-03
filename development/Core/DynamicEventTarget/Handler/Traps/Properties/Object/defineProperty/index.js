@@ -53,7 +53,7 @@ export default function DefineProperty(
               path !== null
             ) ? path.concat('.', propertyKey)
               : propertyKey
-            const root = (
+            const _root = (
               typeOf(
                 propertyDescriptor.value
               ) === 'object'
@@ -69,7 +69,7 @@ export default function DefineProperty(
             //   ? new Map()
               : {}
             const detObject = new DynamicEventTarget(
-              root, {
+              _root, {
                 basename: _basename,
                 parent: eventTarget,
                 path: _path,

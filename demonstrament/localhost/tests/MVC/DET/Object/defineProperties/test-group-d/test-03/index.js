@@ -1,11 +1,23 @@
-const arrayAssignStatementString = `
+const arrayDefinePropertiesStatementString = `
+$array.assign({
+  0: {
+    0: {
+      0: undefined,
+      1: undefined,
+    }
+  },
+  1: {
+    0: undefined, 
+    1: undefined,
+  }
+})
 `
-export default function test15($array) {
+export default function test03($array) {
   console.log(
     "------",
-    "\n", "Test #15 | Unassign Multi-Dimension Array Properties"
+    "\n", "Test Group D. #03 | Undefine Enumerable/Configurable/Writable Multi-Dimension Array Properties"
   )
-  console.log(arrayAssignStatementString)
+  console.log(arrayDefinePropertiesStatementString)
   $array.assign({
     0: {
       0: {
@@ -49,7 +61,7 @@ export default function test15($array) {
     '\n', $array[1].length === 2
   )
   console.log(
-    '\n', "Test #15 | Results", 
+    '\n', "Test Group D. #03 | Results", 
     '\n', "Pass", (
       $array[0][0][0] === undefined &&
       $array[0][0][1] === undefined &&

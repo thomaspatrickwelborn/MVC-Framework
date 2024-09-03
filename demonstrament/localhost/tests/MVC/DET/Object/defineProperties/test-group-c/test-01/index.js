@@ -1,31 +1,31 @@
 const arrayAssignStatementString = `
-$array.assign([
-  "aaa",
-  "bbb",
-  222,
-  333,
-  true,
-  false,
-  undefined,
-  null
-])
+$array.defineProperties({
+  0: { value: "aaa" }
+  1: { value: "bbb" },
+  2: { value: 222 },
+  3: { value: 333 },
+  4: { value: true },
+  5: { value: false },
+  6: { value: undefined },
+  7: { value: null },
+})
 `
 export default function test09($array) {
   console.log(
     "------",
-    "\n", "Test #09 | Define Mono-Dimension Array Properties"
+    "\n", "Test Group C. #01 | Define Default Mono-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
-  $array.assign([
-    "aaa",
-    "bbb",
-    222,
-    333,
-    true,
-    false,
-    undefined,
-    null,
-  ])
+  $array.defineProperties({
+    0: { value: "aaa" },
+    1: { value: "bbb" },
+    2: { value: 222 },
+    3: { value: 333 },
+    4: { value: true },
+    5: { value: false },
+    6: { value: undefined },
+    7: { value: null },
+  })
   console.log(
     '\n', `$array[0] === "aaa"`,
     '\n', `${$array[0]} === ${"aaa"}`,
@@ -67,7 +67,7 @@ export default function test09($array) {
     '\n', $array[7] === null, 
   )
   console.log(
-    '\n', "Test #09 | Results", 
+    '\n', "Test Group C. #01 | Results", 
     '\n', "Pass", (
       $array[0] === "aaa",
       $array[1] === "bbb",

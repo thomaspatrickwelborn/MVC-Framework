@@ -1,19 +1,72 @@
-const arrayAssignStatementString = `
+const objectDefinePropertiesStatementString = `
+$object.defineProperties({
+  aaa: {
+    value: [
+      {
+        value: {
+          ccc: {
+            value: [
+              {
+                value: true,
+              },
+              {
+                value: null,
+              },
+            ]
+          }
+        }
+      },
+      {
+        value: [
+          {
+            value: false,
+          },
+          {
+            value: undefined,
+          },
+        ]
+      },
+    ]
+  }
+})
 `
-export default function test17($object) {
+export default function test01($object) {
   console.log(
     "------",
-    "\n", "Test #17 | Define Initial Multi-Dimension Mixed Object/Array Properties"
+    "\n", "Test Group E. #01 | Define Default Multi-Dimension Mixed Object/Array Properties"
   )
-  console.log(arrayAssignStatementString)
-  $object.assign({
-    aaa: [
-      {
-        ccc: [true, null]
-      },
-      [false, undefined],
-    ]
+  console.log(objectDefinePropertiesStatementString)
+  $object.defineProperties({
+    aaa: {
+      value: [
+        {
+          value: {
+            ccc: {
+              value: [
+                {
+                  value: true,
+                },
+                {
+                  value: null,
+                },
+              ]
+            }
+          }
+        },
+        {
+          value: [
+            {
+              value: false,
+            },
+            {
+              value: undefined,
+            },
+          ]
+        },
+      ]
+    }
   })
+  console.log($object)
   console.log(
     '\n', `$object.aaa[0].ccc[0] === true`,
     '\n', `${$object.aaa[0].ccc[0]} === {true}`,
@@ -35,7 +88,7 @@ export default function test17($object) {
     '\n', $object.aaa[1][1] === undefined
   )
   console.log(
-    '\n', "Test #17 | Results", 
+    '\n', "Test Group E. #01 | Results", 
     '\n', "Pass", (
       $object.aaa[0].ccc[0] === true &&
       $object.aaa[0].ccc[1] === null &&

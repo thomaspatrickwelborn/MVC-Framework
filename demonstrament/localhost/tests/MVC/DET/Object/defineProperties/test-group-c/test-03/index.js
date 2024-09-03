@@ -1,31 +1,27 @@
 const arrayAssignStatementString = `
-$array.assign([
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-  undefined,
-])
+$array[0] = undefined
+$array[1] = undefined
+$array[2] = undefined
+$array[3] = undefined
+$array[4] = undefined
+$array[5] = undefined
+$array[6] = undefined
+$array[7] = undefined
 `
-export default function test11($array) {
+export default function test03($array) {
   console.log(
     "------",
-    "\n", "Test #11 | Unassign Mono-Dimension Array Properties"
+    "\n", "Test Group C. #03 | Unassign Mono-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
-  $array.assign([
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-  ])
+  $array[0] = undefined
+  $array[1] = undefined
+  $array[2] = undefined
+  $array[3] = undefined
+  $array[4] = undefined
+  $array[5] = undefined
+  $array[6] = undefined
+  $array[7] = undefined
   console.log(
     '\n', `$array[0] === undefined`,
     '\n', `${$array[0]} === undefined`,
@@ -67,7 +63,7 @@ export default function test11($array) {
     '\n', $array[7] === undefined 
   )
   console.log(
-    '\n', "Test #11 | Results", 
+    '\n', "Test Group C. #03 | Results", 
     '\n', "Pass", (
       $array[0] === undefined &&
       $array[1] === undefined &&

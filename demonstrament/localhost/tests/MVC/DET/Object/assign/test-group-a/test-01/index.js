@@ -10,7 +10,7 @@ $object.assign({
 export default function test01($object) {
   console.log(
     "------",
-    "\n", "Test #01 | Assign Mono-Dimension Object Properties"
+    "\n", "Test Group A. #01 | Assign Mono-Dimension Object Properties"
   )
   console.log(objectAssignStatementString)
   $object.assign({
@@ -46,7 +46,7 @@ export default function test01($object) {
     '\n', $object.eee === null
   )
   console.log(
-    '\n', "Test #01 | Results", 
+    '\n', "Test Group A. #01 | Results", 
     '\n', 'PASS', (
       $object.aaa === 111 &&
       $object.bbb === true &&

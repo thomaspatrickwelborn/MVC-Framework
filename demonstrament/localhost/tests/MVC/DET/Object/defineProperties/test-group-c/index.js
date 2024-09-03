@@ -4,11 +4,13 @@ import test02 from './test-02/index.js'
 import test03 from './test-03/index.js'
 import test04 from './test-04/index.js'
 export default function testGroupC() {
-  console.log("Assign Mono-Dimension Array Properties")
+  console.log("Test Group C.")
+  console.log("Define Mono-Dimension Array Properties")
   console.log(`const array = new DET([])`)
   const array = new DET([])
   test01(array)
-  test02(array)
-  test03(array)
-  test04(array)
+  const array2 = new DET([])
+  test02(array2)
+  test03(array2)
+  test04(array2)
 }

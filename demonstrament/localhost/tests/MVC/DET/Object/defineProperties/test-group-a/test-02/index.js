@@ -35,7 +35,7 @@ $object.defineProperties({
 export default function test02($object) {
   console.log(
     "------",
-    "\n", "Test #02 | Define Configurable/Enumerable/Writable Mono-Dimension Object Properties"
+    "\n", "Test Group A. #02 | Define Configurable/Enumerable/Writable Mono-Dimension Object Properties"
   )
   console.log(objectAssignStatementString)
   $object.defineProperties({

@@ -294,7 +294,7 @@ function DefineProperty(
               path !== null
             ) ? path.concat('.', propertyKey)
               : propertyKey;
-            const root = (
+            const _root = (
               typeOf(
                 propertyDescriptor.value
               ) === 'object'
@@ -310,7 +310,7 @@ function DefineProperty(
             //   ? new Map()
               : {};
             const detObject = new DynamicEventTarget$1(
-              root, {
+              _root, {
                 basename: _basename,
                 parent: eventTarget,
                 path: _path,

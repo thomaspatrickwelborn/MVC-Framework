@@ -8,10 +8,10 @@ delete $array[5]
 delete $array[6]
 delete $array[7]
 `
-export default function test12($array) {
+export default function test04($array) {
   console.log(
     "------",
-    "\n", "Test #12 | Delete Mono-Dimension Array Properties"
+    "\n", "Test Group C. #04 | Delete Mono-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
   delete $array[0]
@@ -64,7 +64,7 @@ export default function test12($array) {
   )
   $array.length = 0
   console.log(
-    '\n', "Test #12 | Results", 
+    '\n', "Test Group C. #04 | Results", 
     '\n', "Pass", (
       $array[0] === undefined &&
       $array[1] === undefined &&

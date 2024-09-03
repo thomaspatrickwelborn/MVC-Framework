@@ -10,7 +10,7 @@ $object.defineProperties({
 export default function test01($object) {
   console.log(
     "------",
-    "\n", "Test #01 | Define Default Mono-Dimension Object Properties"
+    "\n", "Test Group A. #01 | Define Default Mono-Dimension Object Properties"
   )
   console.log(objectAssignStatementString)
   $object.defineProperties({

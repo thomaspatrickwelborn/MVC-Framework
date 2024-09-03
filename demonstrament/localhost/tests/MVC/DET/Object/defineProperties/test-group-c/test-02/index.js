@@ -1,31 +1,111 @@
 const arrayAssignStatementString = `
-$array.assign([
-  "aaa",
-  "bbb",
-  222,
-  333,
-  true,
-  false,
-  undefined,
-  null
-])
+$array.defineProperties({
+  0: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: "aaa", 
+   }
+  1: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: "bbb", 
+  },
+  2: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: 222, 
+  },
+  3: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: 333, 
+  },
+  4: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: true, 
+  },
+  5: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: false, 
+  },
+  6: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: undefined, 
+  },
+  7: {
+    configurable: true,
+    writable: true,
+    enumerable: true,
+    value: null, 
+  },
+})
 `
-export default function test10($array) {
+export default function test02($array) {
   console.log(
     "------",
-    "\n", "Test #10 | Ressign Mono-Dimension Array Properties"
+    "\n", "Test Group C. #02 | Define Enumerable/Configurable/Writable Mono-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
-  $array.assign([
-    "aaaaaa",
-    "bbbbbb",
-    222222,
-    333333,
-    false,
-    true,
-    null,
-    undefined,
-  ])
+  $array.defineProperties({
+    0: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: "aaaaaa", 
+    },
+    1: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: "bbbbbb", 
+    },
+    2: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: 222222, 
+    },
+    3: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: 333333, 
+    },
+    4: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: false, 
+    },
+    5: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: true, 
+    },
+    6: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: null, 
+    },
+    7: {
+      configurable: true,
+      writable: true,
+      enumerable: true,
+      value: undefined, 
+    },
+  })
   console.log(
     '\n', `$array[0] === "aaaaaa"`,
     '\n', `${$array[0]} === ${"aaaaaa"}`,
@@ -67,7 +147,7 @@ export default function test10($array) {
     '\n', $array[7] === undefined, 
   )
   console.log(
-    '\n', "Test #10 | Results", 
+    '\n', "Test #02 | Results", 
     '\n', "Pass", (
       $array[0] === "aaaaaa" &&
       $array[1] === "bbbbbb" &&

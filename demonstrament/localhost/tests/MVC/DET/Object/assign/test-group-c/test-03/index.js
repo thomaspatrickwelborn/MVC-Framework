@@ -13,7 +13,7 @@ $array.assign([
 export default function test11($array) {
   console.log(
     "------",
-    "\n", "Test #11 | Unassign Mono-Dimension Array Properties"
+    "\n", "Test Group C. #03 | Unassign Mono-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
   $array.assign([
@@ -67,7 +67,7 @@ export default function test11($array) {
     '\n', $array[7] === undefined 
   )
   console.log(
-    '\n', "Test #11 | Results", 
+    '\n', "Test Group C. #03 | Results", 
     '\n', "Pass", (
       $array[0] === undefined &&
       $array[1] === undefined &&

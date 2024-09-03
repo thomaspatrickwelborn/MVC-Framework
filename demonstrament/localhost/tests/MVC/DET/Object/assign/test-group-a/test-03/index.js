@@ -9,7 +9,7 @@ $object.assign({
 export default function test03($object) {
   console.log(
     "-----", 
-    "\n", "Test #03 | Unassign Mono-Dimension Object Properties"
+    "\n", "Test Group A. #03 | Unassign Mono-Dimension Object Properties"
   )
   $object.assign({
     aaa: undefined,
@@ -58,7 +58,7 @@ export default function test03($object) {
     '\n', $object.getOwnPropertyNames().includes("ddd")
   )
   console.log(
-    '\n', "Test #03 | Results", 
+    '\n', "Test Group A. #03 | Results", 
     '\n', 'PASS', (
       (
         $object.aaa === undefined &&

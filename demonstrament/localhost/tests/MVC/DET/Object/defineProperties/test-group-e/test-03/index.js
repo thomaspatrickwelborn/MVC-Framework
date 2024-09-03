@@ -1,25 +1,19 @@
-const arrayAssignStatementString = `
+const objectDefinePropertiesStatementString = `
+$object.aaa[0].ccc[0] = undefined
+$object.aaa[0].ccc[1] = undefined
+$object.aaa[1][0] = undefined
+$object.aaa[1][1] = undefined
 `
-export default function test19($object) {
+export default function test03($object) {
   console.log(
     "------",
-    "\n", "Test #19 | Unassign Multi-Dimension Mixed Object/Array Properties"
+    "\n", "Test Group E. #03 | Undefine Configurable/Enumerable/Writable Multi-Dimension Mixed Object/Array Properties"
   )
-  console.log(arrayAssignStatementString)
-  $object.assign({
-    aaa: {
-      0: {
-        ccc: {
-          0: undefined,
-          1: undefined,
-        }
-      },
-      1: {
-        0: undefined,
-        1: undefined,
-      }
-    }
-  })
+  console.log(objectDefinePropertiesStatementString)
+  $object.aaa[0].ccc[0] = undefined
+  $object.aaa[0].ccc[1] = undefined
+  $object.aaa[1][0] = undefined
+  $object.aaa[1][1] = undefined
   console.log(
     '\n', `$object.aaa[0].ccc[0] === undefined`,
     '\n', `${$object.aaa[0].ccc[0]} === {undefined}`,
@@ -51,7 +45,7 @@ export default function test19($object) {
     '\n', $object.aaa[1].length === 2
   )
   console.log(
-    '\n', "Test #19 | Results", 
+    '\n', "Test Group E. #03 | Results", 
     '\n', "Pass", (
       $object.aaa[0].ccc[0] === undefined &&
       $object.aaa[0].ccc[1] === undefined &&

@@ -5,10 +5,10 @@ delete $object.ccc
 delete $object.ddd
 delete $object.eee
 `
-export default function test02($object) {
+export default function test04($object) {
   console.log(
     "------",
-    "\n", "Test #02 | Undefine Configurable/Enumerable/Writable Mono-Dimension Object Properties"
+    "\n", "Test Group A. #04 | Delete Configurable/Enumerable/Writable Mono-Dimension Object Properties"
   )
   console.log(objectAssignStatementString)
   delete $object.aaa
@@ -78,7 +78,7 @@ export default function test02($object) {
     '\n', $object.eee === undefined,
   )
   console.log(
-    '\n', "Test #02 | Results", 
+    '\n', "Test #04 | Results", 
     '\n', 'PASS', (
       `${!Object.hasOwn({ prop: "aaa" })}` &&
       $object.aaa === undefined &&

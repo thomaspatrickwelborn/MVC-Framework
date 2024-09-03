@@ -5,10 +5,10 @@ $object.ccc = undefined
 $object.ddd = undefined
 $object.eee = undefined
 `
-export default function test02($object) {
+export default function test03($object) {
   console.log(
     "------",
-    "\n", "Test #02 | Undefine Configurable/Enumerable/Writable Mono-Dimension Object Properties"
+    "\n", "Test Group A. #03 | Undefine Configurable/Enumerable/Writable Mono-Dimension Object Properties"
   )
   console.log(objectAssignStatementString)
   $object.aaa = undefined
@@ -74,7 +74,7 @@ export default function test02($object) {
     '\n', objectPropertyDescriptors.eee.value === undefined,
   )
   console.log(
-    '\n', "Test #02 | Results", 
+    '\n', "Test #03 | Results", 
     '\n', 'PASS', (
       `${Object.hasOwn({ prop: "aaa" })}` &&
       objectPropertyDescriptors.aaa.value === undefined &&

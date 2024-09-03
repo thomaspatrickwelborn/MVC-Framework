@@ -10,10 +10,10 @@ $object.assign({
   },
 })
 `
-export default function test06($object) {
+export default function test02($object) {
   console.log(
     "-----", 
-    "\n", "Test #06 | Reassign Multi-Dimension Object Properties",
+    "\n", "Test Group B. #02 | Reassign Multi-Dimension Object Properties",
   )
   console.log(objectAssignStatement)
   $object.assign({
@@ -51,7 +51,7 @@ export default function test06($object) {
     '\n', $object.aaa.fff.hhh === null,
   )
   console.log(
-    '\n', "Test #06 | Results",
+    '\n', "Test Group B. #02 | Results",
     '\n', (
       $object.aaa.bbb.ccc.ddd === false &&
       $object.aaa.bbb.ccc.eee === undefined &&

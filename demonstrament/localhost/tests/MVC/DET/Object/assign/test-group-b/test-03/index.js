@@ -8,10 +8,10 @@ $object.assign({
   },
 })
 `
-export default function test07($object) {
+export default function test03($object) {
   console.log(
     "-----", 
-    "\n", "Test #07 | Unassign Multi-Dimension Object Properties",
+    "\n", "Test Group B. #03 | Unassign Multi-Dimension Object Properties",
   )
   console.log(objectAssignStatement)
   $object.assign({
@@ -43,7 +43,7 @@ export default function test07($object) {
     '\n', $object.aaa.getOwnPropertyNames().includes('fff') === true,
   )
   console.log(
-    '\n', "Test #07 | Results",
+    '\n', "Test Group B. #03 | Results",
     '\n', (
       $object.aaa.bbb.ccc === undefined &&
       $object.aaa.bbb.getOwnPropertyNames().includes('ccc') === true &&

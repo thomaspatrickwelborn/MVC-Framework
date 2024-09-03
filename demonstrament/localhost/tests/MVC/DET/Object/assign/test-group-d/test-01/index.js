@@ -1,9 +1,15 @@
 const arrayAssignStatementString = `
+$array.assign([
+  [
+    [true, null]
+  ],
+  [false, undefined],
+])
 `
-export default function test13($array) {
+export default function test01($array) {
   console.log(
     "------",
-    "\n", "Test #13 | Assign Initial Multi-Dimension Array Properties"
+    "\n", "Test Group D. #01 | Assign Initial Multi-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
   $array.assign([
@@ -34,7 +40,7 @@ export default function test13($array) {
     '\n', $array[1][1] === undefined
   )
   console.log(
-    '\n', "Test #13 | Results", 
+    '\n', "Test Group D. #01 | Results", 
     '\n', "Pass", (
       $array[0][0][0] === true &&
       $array[0][0][1] === null &&

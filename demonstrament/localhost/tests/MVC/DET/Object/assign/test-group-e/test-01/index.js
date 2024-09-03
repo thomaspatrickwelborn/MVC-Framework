@@ -1,9 +1,9 @@
 const arrayAssignStatementString = `
 `
-export default function test17($object) {
+export default function test01($object) {
   console.log(
     "------",
-    "\n", "Test #17 | Assign Initial Multi-Dimension Mixed Object/Array Properties"
+    "\n", "Test Group E. #01 | Assign Initial Multi-Dimension Mixed Object/Array Properties"
   )
   console.log(arrayAssignStatementString)
   $object.assign({
@@ -35,7 +35,7 @@ export default function test17($object) {
     '\n', $object.aaa[1][1] === undefined
   )
   console.log(
-    '\n', "Test #17 | Results", 
+    '\n', "Test #01 | Results", 
     '\n', "Pass", (
       $object.aaa[0].ccc[0] === true &&
       $object.aaa[0].ccc[1] === null &&

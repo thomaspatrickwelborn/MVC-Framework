@@ -8,7 +8,7 @@ delete $object.eee
 export default function test04($object) {
   console.log(
     "-----", 
-    "\n", "Test #04 | Delete Mono-Dimension Object Properties"
+    "\n", "Test Group A. #04 | Delete Mono-Dimension Object Properties"
   )
   console.log(objectDeleteStatmentString)
   delete $object.aaa
@@ -42,7 +42,7 @@ export default function test04($object) {
     '\n', $object.getOwnPropertyNames().includes("eee") === false
   )
   console.log(
-    '\n', "Test #04 | Results", 
+    '\n', "Test Group A. #04 | Results", 
     '\n', 'PASS', (
       (
         $object.aaa === undefined &&
