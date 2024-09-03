@@ -17,7 +17,7 @@ $object.assign({
 export default function test05($object) {
   console.log(
     "-----", 
-    "\n", "Test #05 | Assign Initial Multi-Dimension Object Properties",
+    "\n", "Test #05 | Define Initial Multi-Dimension Object Properties",
   )
   console.log(objectAssignStatementString)
   $object.assign({

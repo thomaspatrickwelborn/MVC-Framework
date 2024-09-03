@@ -1,5 +1,5 @@
 {
-	"title": "MVC Framework | DET Object - Assign",
+	"title": "MVC Framework | DET - Define Properties",
 	"styles": [{
 		"rel": "stylesheet",
 		"type": "text/css",
@@ -8,7 +8,7 @@
 
 	"structure": [{
 		"tag": "h1",
-		"textContent": 	"MVC Framework | DET Object - Assign"
+		"textContent": 	"MVC Framework | DET - Define Properties"
 	}],
 
 	"scripts": [{

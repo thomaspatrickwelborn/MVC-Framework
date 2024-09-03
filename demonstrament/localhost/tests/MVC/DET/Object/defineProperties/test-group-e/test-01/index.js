@@ -3,7 +3,7 @@ const arrayAssignStatementString = `
 export default function test17($object) {
   console.log(
     "------",
-    "\n", "Test #17 | Assign Initial Multi-Dimension Mixed Object/Array Properties"
+    "\n", "Test #17 | Define Initial Multi-Dimension Mixed Object/Array Properties"
   )
   console.log(arrayAssignStatementString)
   $object.assign({

@@ -1,83 +1,95 @@
 const objectAssignStatementString = `
-$object.assign({
-  aaa: undefined,
-  bbb: undefined,
-  ccc: undefined,
-  ddd: undefined,
-})
+$object.aaa = undefined
+$object.bbb = undefined
+$object.ccc = undefined
+$object.ddd = undefined
+$object.eee = undefined
 `
-export default function test03($object) {
+export default function test02($object) {
   console.log(
-    "-----", 
-    "\n", "Test #03 | Unassign Mono-Dimension Object Properties"
+    "------",
+    "\n", "Test #02 | Undefine Configurable/Enumerable/Writable Mono-Dimension Object Properties"
   )
-  $object.assign({
-    aaa: undefined,
-    bbb: undefined,
-    ccc: undefined,
-    ddd: undefined,
-  })
+  console.log(objectAssignStatementString)
+  $object.aaa = undefined
+  $object.bbb = undefined
+  $object.ccc = undefined
+  $object.ddd = undefined
+  $object.eee = undefined
+  const objectPropertyDescriptors = Object.getOwnPropertyDescriptors($object)
+  // -----
+  // Has Own
   console.log(
-    '\n', `$object.aaa === undefined`, 
-    '\n', `${$object.aaa} === ${undefined}`,
-    '\n', $object.aaa === undefined
+    '\n', `Object.hasOwn({ prop: "aaa" })`,
+    '\n', `${Object.hasOwn({ prop: "aaa" })}`,
+  )
+  // Value
+  console.log(
+    '\n', `objectPropertyDescriptors.aaa.value === undefined`, 
+    '\n', `${objectPropertyDescriptors.aaa.value} === ${undefined}`, 
+    '\n', objectPropertyDescriptors.aaa.value === undefined,
+  )
+  // Has Own
+  console.log(
+    '\n', `Object.hasOwn({ prop: "bbb" })`,
+    '\n', `${Object.hasOwn({ prop: "bbb" })}`,
+  )
+  // Value
+  console.log(
+    '\n', `objectPropertyDescriptors.bbb.value === undefined`, 
+    '\n', `${objectPropertyDescriptors.bbb.value} === ${undefined}`, 
+    '\n', objectPropertyDescriptors.bbb.value === undefined,
+  )
+  // Has Own
+  console.log(
+    '\n', `Object.hasOwn({ prop: "ccc" })`,
+    '\n', `${Object.hasOwn({ prop: "ccc" })}`,
+  )
+  // Value
+  console.log(
+    '\n', `objectPropertyDescriptors.ccc.value === undefined`,
+    '\n', `${objectPropertyDescriptors.ccc.value} === ${undefined}`, 
+    '\n', objectPropertyDescriptors.ccc.value === undefined,
+  )
+  // Has Own
+  console.log(
+    '\n', `Object.hasOwn({ prop: "ddd" })`,
+    '\n', `${Object.hasOwn({ prop: "ddd" })}`,
+  )
+  // Value
+  console.log(
+    '\n', `objectPropertyDescriptors.ddd.value === undefined`, 
+    '\n', `${objectPropertyDescriptors.ddd.value} === ${undefined}`, 
+    '\n', objectPropertyDescriptors.ddd.value === undefined,
+  )
+  // Has Own
+  console.log(
+    '\n', `Object.hasOwn({ prop: "eee" })`,
+    '\n', `${Object.hasOwn({ prop: "eee" })}`,
+  )
+  // Value
+  console.log(
+    '\n', `objectPropertyDescriptors.eee.value === undefined`, 
+    '\n', `${objectPropertyDescriptors.eee.value} === ${undefined}`, 
+    '\n', objectPropertyDescriptors.eee.value === undefined,
   )
   console.log(
-    '\n', `$object.getOwnPropertyNames().includes("aaa") === true`, 
-    '\n', `${$object.getOwnPropertyNames().includes("aaa")} === true`, 
-    '\n', $object.getOwnPropertyNames().includes("aaa")
-  )
-  console.log(
-    '\n', `$object.bbb === undefined`, 
-    '\n', `${$object.bbb} === ${undefined}`,
-    '\n', $object.bbb === undefined
-  )
-  console.log(
-    '\n', `$object.getOwnPropertyNames().includes("bbb") === true`, 
-    '\n', `${$object.getOwnPropertyNames().includes("bbb")} === true`, 
-    '\n', $object.getOwnPropertyNames().includes("bbb")
-  )
-  console.log(
-    '\n', `$object.ccc === undefined`, 
-    '\n', `${$object.ccc} === ${undefined}`,
-    '\n', $object.ccc === undefined
-  )
-  console.log(
-    '\n', `$object.getOwnPropertyNames().includes("ccc") === true`, 
-    '\n', `${$object.getOwnPropertyNames().includes("ccc")} === true`, 
-    '\n', $object.getOwnPropertyNames().includes("ccc")
-  )
-  console.log(
-    '\n', `$object.ddd === undefined`, 
-    '\n', `${$object.ddd} === ${undefined}`,
-    '\n', $object.ddd === undefined
-  )
-  console.log(
-    '\n', `$object.getOwnPropertyNames().includes("ddd") === true`, 
-    '\n', `${$object.getOwnPropertyNames().includes("ddd")} === true`, 
-    '\n', $object.getOwnPropertyNames().includes("ddd")
-  )
-  console.log(
-    '\n', "Test #03 | Results", 
+    '\n', "Test #02 | Results", 
     '\n', 'PASS', (
-      (
-        $object.aaa === undefined &&
-        $object.getOwnPropertyNames().includes("aaa")
-      ) &&
-      (
-        $object.bbb === undefined &&
-        $object.getOwnPropertyNames().includes("bbb")
-      ) && (
-        $object.ccc === undefined &&
-        $object.getOwnPropertyNames().includes("ccc")
-      ) && (
-        $object.ddd === undefined &&
-        $object.getOwnPropertyNames().includes("ddd")
-      )
+      `${Object.hasOwn({ prop: "aaa" })}` &&
+      objectPropertyDescriptors.aaa.value === undefined &&
+      `${Object.hasOwn({ prop: "bbb" })}` &&
+      objectPropertyDescriptors.bbb.value === undefined &&
+      `${Object.hasOwn({ prop: "ccc" })}` &&
+      objectPropertyDescriptors.ccc.value === undefined &&
+      `${Object.hasOwn({ prop: "ddd" })}` &&
+      objectPropertyDescriptors.ddd.value === undefined &&
+      `${Object.hasOwn({ prop: "eee" })}` &&
+      objectPropertyDescriptors.eee.value === undefined
     ),
-    '\n', 'object', 
+    '\n', 'Parse Object', 
     '\n', $object.parse({ type: 'object' }),
-    '\n', 'json', 
-    '\n', $object.parse({ type: 'json' })
+    '\n', 'Parse JSON', 
+    '\n', $object.parse({ type: 'json' }),
   )
 }

@@ -3,7 +3,7 @@ const arrayAssignStatementString = `
 export default function test13($array) {
   console.log(
     "------",
-    "\n", "Test #13 | Assign Initial Multi-Dimension Array Properties"
+    "\n", "Test #13 | Define Initial Multi-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
   $array.assign([

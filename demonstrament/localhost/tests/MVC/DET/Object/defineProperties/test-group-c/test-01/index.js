@@ -13,7 +13,7 @@ $array.assign([
 export default function test09($array) {
   console.log(
     "------",
-    "\n", "Test #09 | Assign Mono-Dimension Array Properties"
+    "\n", "Test #09 | Define Mono-Dimension Array Properties"
   )
   console.log(arrayAssignStatementString)
   $array.assign([

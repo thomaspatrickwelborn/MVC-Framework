@@ -8,7 +8,8 @@ export default function testGroupA() {
   console.log(`const object = new DET({})`)
   const object = new DET({})
   test01(object)
-  test02(object)
-  test03(object)
-  test04(object)
+  const object2 = new DET({})
+  test02(object2)
+  test03(object2)
+  test04(object2)
 }
