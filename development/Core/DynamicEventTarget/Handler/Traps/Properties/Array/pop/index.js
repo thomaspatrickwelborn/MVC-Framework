@@ -1,7 +1,8 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Pop(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     eventTarget, 
     root, 
@@ -20,20 +21,22 @@ export default function Pop(
         ) ? path.concat('.', popElementIndex)
           : popElementIndex
         // Array Pop Event
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'lengthSet',
-            {
-              basename,
-              path,
-              detail: {
-                element: popElement,
-                elementIndex: popElementIndex,
+        if(events.includes('pop')) {
+          eventTarget.dispatchEvent(
+            new DETEvent(
+              'pop',
+              {
+                basename,
+                path,
+                detail: {
+                  element: popElement,
+                  elementIndex: popElementIndex,
+                },
               },
-            },
-            eventTarget
+              eventTarget
+            )
           )
-        )
+        }
         return popElement
       }
     }

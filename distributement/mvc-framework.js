@@ -68,7 +68,7 @@ class Trap {
     for(let [
       $methodName, $definePropertyMethod
     ] of Object.entries($methods)) {
-      const methodOptions = $options[$methodName];
+      const methodOptions = $options[$methodName] || {};
       $definePropertyMethod(
         this, $methodName, $aliases, methodOptions
       );
@@ -93,6 +93,7 @@ function isDirectInstanceOf($object, $constructor) {
 function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { merge, events } = $options;
   const {
     basename, 
     eventTarget, 
@@ -100,7 +101,6 @@ function Assign(
     root, 
     rootAlias, 
   } = $aliases;
-  const { merge } = $options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -173,51 +173,57 @@ function Assign(
               });
             }
             // Assign Source Property Event
+            if(events.includes('assignSourceProperty')) {
+              eventTarget.dispatchEvent(
+                new DynamicEventTargetEvent(
+                  'assignSourceProperty',
+                  {
+                    basename,
+                    path,
+                    detail: {
+                      key: $sourcePropKey,
+                      val: $sourcePropVal,
+                      source: $source,
+                    }
+                  },
+                  eventTarget
+                )
+              );
+            }
+          }
+          // Assign Source Event
+          if(events.includes('assignSource')) {
             eventTarget.dispatchEvent(
               new DynamicEventTargetEvent(
-                'assignSourceProperty',
+                'assignSource',
                 {
                   basename,
                   path,
                   detail: {
-                    key: $sourcePropKey,
-                    val: $sourcePropVal,
                     source: $source,
-                  }
+                  },
                 },
                 eventTarget
               )
             );
           }
-          // Assign Source Event
+        }
+        // Assign Event
+        if(events.includes('assign')) {
           eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
-              'assignSource',
-              {
+              'assign',
+              { 
                 basename,
                 path,
                 detail: {
-                  source: $source,
+                  sources
                 },
               },
               eventTarget
             )
           );
         }
-        // Assign Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'assign',
-            { 
-              basename,
-              path,
-              detail: {
-                sources
-              },
-            },
-            eventTarget
-          )
-        );
         return root
       }
     }
@@ -227,6 +233,7 @@ function Assign(
 function DefineProperties(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     proxy,
     eventTarget, 
@@ -247,19 +254,21 @@ function DefineProperties(
           $trap.defineProperty($propertyKey, $propertyDescriptor);
         }
         // Define Properties Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'defineProperties',
-            {
-              basename,
-              path,
-              detail: {
-                descriptors: $propertyDescriptors,
+        if(events.includes('defineProperties')) {
+          eventTarget.dispatchEvent(
+            new DynamicEventTargetEvent(
+              'defineProperties',
+              {
+                basename,
+                path,
+                detail: {
+                  descriptors: $propertyDescriptors,
+                },
               },
-            },
-            eventTarget
-          )
-        );
+              eventTarget
+            )
+          );
+        }
         return root
       }
     }
@@ -269,7 +278,7 @@ function DefineProperties(
 function DefineProperty(
   $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { descriptorValueMerge, descriptorTree } = $options;
+  const { descriptorValueMerge, descriptorTree, events } = $options;
   const {
     eventTarget, 
     root, 
@@ -406,20 +415,22 @@ function DefineProperty(
           );
         }
         // Define Property Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'defineProperty',
-            {
-              basename,
-              path,
-              detail: {
-                prop: propertyKey,
-                descriptor: propertyDescriptor,
+        if(events.includes('defineProperty')) {
+          eventTarget.dispatchEvent(
+            new DynamicEventTargetEvent(
+              'defineProperty',
+              {
+                basename,
+                path,
+                detail: {
+                  prop: propertyKey,
+                  descriptor: propertyDescriptor,
+                },
               },
-            },
-            eventTarget
-          )
-        );
+              eventTarget
+            )
+          );
+        }
         return root
       }
     }
@@ -442,6 +453,7 @@ function Entries$1(
 function Freeze(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { recurse, events } = $options;
   const {
     eventTarget, 
     root, 
@@ -449,7 +461,6 @@ function Freeze(
     basename,
     path,
   } = $aliases;
-  const { recurse } = $options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
@@ -469,16 +480,18 @@ function Freeze(
               path !== null
             ) ? path.concat('.', $propertyKey)
               : $propertyKey;
-            eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
-                'freeze',
-                {
-                  path: _path,
-                  basename: _basename,
-                },
-                eventTarget
-              )
-            );
+            if(events.includes('freeze')) {
+              eventTarget.dispatchEvent(
+                new DynamicEventTargetEvent(
+                  'freeze',
+                  {
+                    path: _path,
+                    basename: _basename,
+                  },
+                  eventTarget
+                )
+              );
+            }
           }
         }
         Object.freeze(this);
@@ -723,6 +736,7 @@ function PropertyIsEnumerable(
 function Seal(
   $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { recurse, events } = $options;
   const {
     eventTarget, 
     root, 
@@ -730,7 +744,6 @@ function Seal(
     basename,
     path,
   } = $aliases;
-  const { recurse } = $options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function () {
@@ -750,16 +763,18 @@ function Seal(
               path !== null
             ) ? path.concat('.', $propertyKey)
               : $propertyKey;
-            eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
-                'seal',
-                {
-                  path,
-                  basename,
-                },
-                eventTarget
-              )
-            );
+            if(events.includes('seal')) {
+              eventTarget.dispatchEvent(
+                new DynamicEventTargetEvent(
+                  'seal',
+                  {
+                    path,
+                    basename,
+                  },
+                  eventTarget
+                )
+              );
+            }
           }
         }
         Object.seal(this);
@@ -909,8 +924,9 @@ function At(
 }
 
 function CopyWithin(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     eventTarget, 
     root, 
@@ -949,42 +965,46 @@ function CopyWithin(
             copyIndex + 1
           );
           // Array Copy Within Index Event Data
+          if(events.includes('copyWithinIndex')) {
+            eventTarget.dispatchEvent(
+              new DynamicEventTargetEvent(
+                'copyWithinIndex',
+                {
+                  basename: eventTarget.basename,
+                  path: eventTarget.path,
+                  detail: {
+                    target: targetIndex,
+                    start: copyIndex,
+                    end: copyIndex + 1,
+                    item: copyItem,
+                  },
+                },
+                eventTarget
+              )
+            );
+          }
+          copyIndex++;
+          targetIndex++;
+        }
+        // Array Copy Within Event
+        if(events.includes('copyWithin')) {
           eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
-              'copyWithinIndex',
+              'copyWithin',
               {
                 basename: eventTarget.basename,
                 path: eventTarget.path,
                 detail: {
-                  target: targetIndex,
-                  start: copyIndex,
-                  end: copyIndex + 1,
-                  item: copyItem,
+                  target: target,
+                  start: start,
+                  end: end,
+                  items: copiedItems,
                 },
               },
               eventTarget
             )
           );
-          copyIndex++;
-          targetIndex++;
         }
-        // Array Copy Within Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'copyWithin',
-            {
-              basename: eventTarget.basename,
-              path: eventTarget.path,
-              detail: {
-                target: target,
-                start: start,
-                end: end,
-                items: copiedItems,
-              },
-            },
-            eventTarget
-          )
-        );
       }
     }
   )
@@ -1030,8 +1050,9 @@ function Every(
 }
 
 function Fill(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     $eventTarget, 
     root, 
@@ -1087,39 +1108,43 @@ function Fill(
           ) ? path.concat('.', fillIndex)
             : fillIndex;
           // Array Fill Index Event
+          if(events.includes('fillIndex')) {
+            $eventTarget.dispatchEvent(
+              new DynamicEventTargetEvent(
+                'fillIndex',
+                {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    start: fillIndex,
+                    end: fillIndex + 1,
+                    value,
+                  },
+                },
+                $eventTarget
+              )
+            );
+          }
+          fillIndex++;
+        }
+        // Array Fill Event
+        if(events.includes('fill')) {
           $eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
-              'fillIndex',
+              'fill',
               {
-                basename: _basename,
-                path: _path,
+                basename,
+                path,
                 detail: {
-                  start: fillIndex,
-                  end: fillIndex + 1,
+                  start,
+                  end,
                   value,
                 },
               },
               $eventTarget
             )
           );
-          fillIndex++;
         }
-        // Array Fill Event
-        $eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'fill',
-            {
-              basename,
-              path,
-              detail: {
-                start,
-                end,
-                value,
-              },
-            },
-            $eventTarget
-          )
-        );
         return root
       }
     }
@@ -1337,8 +1362,9 @@ function Of(
 }
 
 function Pop(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     eventTarget, 
     root, 
@@ -1357,20 +1383,22 @@ function Pop(
         ) ? path.concat('.', popElementIndex)
           : popElementIndex;
         // Array Pop Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'lengthSet',
-            {
-              basename,
-              path,
-              detail: {
-                element: popElement,
-                elementIndex: popElementIndex,
+        if(events.includes('pop')) {
+          eventTarget.dispatchEvent(
+            new DynamicEventTargetEvent(
+              'pop',
+              {
+                basename,
+                path,
+                detail: {
+                  element: popElement,
+                  elementIndex: popElementIndex,
+                },
               },
-            },
-            eventTarget
-          )
-        );
+              eventTarget
+            )
+          );
+        }
         return popElement
       }
     }
@@ -1378,8 +1406,9 @@ function Pop(
 }
 
 function Push(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     eventTarget, 
     root, 
@@ -1410,36 +1439,40 @@ function Push(
           }
           elements.push($element);
           Array.prototype.push.call(root, $element);
+          if(events.includes('pushProp')) {
+            eventTarget.dispatchEvent(
+              new DynamicEventTargetEvent(
+                'pushProp',
+                {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    elementIndex, 
+                    element: $element,
+                  },
+                },
+                eventTarget
+              )
+            );
+          }
+          elementIndex++;
+        }
+        // Push Event
+        if(events.includes('push')) {
           eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
-              'pushProp',
+              'push',
               {
-                basename: _basename,
-                path: _path,
+                basename,
+                path,
                 detail: {
-                  elementIndex, 
-                  element: $element,
+                  elements,
                 },
               },
               eventTarget
             )
           );
-          elementIndex++;
         }
-        // Push Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'push',
-            {
-              basename,
-              path,
-              detail: {
-                elements,
-              },
-            },
-            eventTarget
-          )
-        );
         return root.length
       }
     }  
@@ -1473,8 +1506,9 @@ function ReduceRight(
 }
 
 function Reverse(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     eventTarget, 
     root, 
@@ -1486,19 +1520,21 @@ function Reverse(
     $trap, $trapPropertyName, {
       value: function() {
         Array.prototype.reverse.call(root, ...arguments);
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'reverse',
-            {
-              basename,
-              path,
-              detail: {
-                reference: root
+        if(events.includes('reverse')) {
+          eventTarget.dispatchEvent(
+            new DynamicEventTargetEvent(
+              'reverse',
+              {
+                basename,
+                path,
+                detail: {
+                  reference: root
+                },
               },
-            },
-            eventTarget
-          )
-        );
+              eventTarget
+            )
+          );
+        }
         return root
       }
     }
@@ -1506,8 +1542,9 @@ function Reverse(
 }
 
 function Shift(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     eventTarget, 
     root, 
@@ -1526,20 +1563,22 @@ function Shift(
         ) ? path.concat('.', shiftElementIndex)
           : shiftElementIndex;
         // Array Shift Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'shift',
-            {
-              basename,
-              path,
-              detail: {
-                element: shiftElement,
-                elementIndex: shiftElementIndex,
+        if(events.includes('shift')) {
+          eventTarget.dispatchEvent(
+            new DynamicEventTargetEvent(
+              'shift',
+              {
+                basename,
+                path,
+                detail: {
+                  element: shiftElement,
+                  elementIndex: shiftElementIndex,
+                },
               },
-            },
-            eventTarget
-          )
-        );
+              eventTarget
+            )
+          );
+        }
         return shiftElement
       }
     }
@@ -1573,8 +1612,9 @@ function Sort(
 }
 
 function Splice(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     eventTarget, 
     root, 
@@ -1611,21 +1651,23 @@ function Splice(
             path !== null
           ) ? path.concat('.', deleteItemsIndex)
             : deleteItemsIndex;
-          eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
-              'spliceDelete',
-              {
-                _basename,
-                _path,
-                detail: {
-                  index: start + deleteItemsIndex,
-                  deleteIndex: deleteItemsIndex,
-                  deleteItem: deleteItem,
+          if(events.includes('spliceDelete')) {
+            eventTarget.dispatchEvent(
+              new DynamicEventTargetEvent(
+                'spliceDelete',
+                {
+                  _basename,
+                  _path,
+                  detail: {
+                    index: start + deleteItemsIndex,
+                    deleteIndex: deleteItemsIndex,
+                    deleteItem: deleteItem,
+                  },
                 },
-              },
-              eventTarget
-            )
-          );
+                eventTarget
+              )
+            );
+          }
           deleteItemsIndex++;
         }
         let addItemsIndex = 0;
@@ -1640,40 +1682,44 @@ function Splice(
           ) ? path.concat('.', addItemsIndex)
             : addItemsIndex;
           // Array Splice Add Event
+          if(events.includes('spliceAdd')) {
+            eventTarget.dispatchEvent(
+              new DynamicEventTargetEvent(
+                'spliceAdd',
+                {
+                  basename,
+                  path,
+                  detail: {
+                    index: start + addItemsIndex,
+                    addIndex: addItemsIndex,
+                    addItem: addItem,
+                  },
+                },
+                eventTarget
+              )
+            );
+          }
+          addItemsIndex++;
+        }
+        // Array Splice Event
+        if(events.includes('splice')) {
           eventTarget.dispatchEvent(
             new DynamicEventTargetEvent(
-              'spliceAdd',
+              'splice',
               {
                 basename,
-                path,
+                path: path,
                 detail: {
-                  index: start + addItemsIndex,
-                  addIndex: addItemsIndex,
-                  addItem: addItem,
+                  start,
+                  deleted: deleteItems,
+                  added: addItems,
+                  length: root.length,
                 },
               },
               eventTarget
             )
           );
-          addItemsIndex++;
         }
-        // Array Splice Event
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'splice',
-            {
-              basename,
-              path: path,
-              detail: {
-                start,
-                deleted: deleteItems,
-                added: addItems,
-                length: root.length,
-              },
-            },
-            eventTarget
-          )
-        );
         return deleteItems
       }
     }
@@ -1746,8 +1792,9 @@ function ToString(
 }
 
 function Unshift(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options;
   const {
     eventTarget, 
     root, 
@@ -1782,20 +1829,22 @@ function Unshift(
           elements.unshift(element);
           Array.prototype.unshift.call(root, element);
           // Array Unshift Prop Event
-          eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
-              'unshiftProp',
-              {
-                basename: _basename,
-                path: _path,
-                detail: {
-                  elementIndex, 
-                  element: element,
+          if(events.includes('unshiftProp')) {
+            eventTarget.dispatchEvent(
+              new DynamicEventTargetEvent(
+                'unshiftProp',
+                {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    elementIndex, 
+                    element: element,
+                  },
                 },
-              },
-              eventTarget
-            )
-          );
+                eventTarget
+              )
+            );
+          }
           elementIndex--;
         }
         // Array Unshift Event
@@ -1804,19 +1853,21 @@ function Unshift(
           $path !== null
         ) ? $path.concat('.', elementIndex)
           : elementIndex;
-        eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
-            'unshift',
-            {
-              basename: _basename,
-              path: _path,
-              detail: {
-                elements,
+        if(events.includes('unshift')) {
+          eventTarget.dispatchEvent(
+            new DynamicEventTargetEvent(
+              'unshift',
+              {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elements,
+                },
               },
-            },
-            eventTarget
-          )
-        );
+              eventTarget
+            )
+          );
+        }
         return root.length
       }
     }  
@@ -1973,7 +2024,7 @@ class Handler {
       basename,
       path,
     } = this.#settings;
-    this.#options.traps.object.set;
+    this.#options.traps.properties.set;
     return function set($target, $property, $value, $receiver) {
       // Object Property
       if(this.#isObjectProperty($property)) {
@@ -2076,31 +2127,66 @@ class Handler {
   }
 }
 
-const Options$6 = Object.freeze({
+var Options$6 = {
   rootAlias: 'content',
-  object: {
-    assign: {
-      merge: true, 
+  traps: {
+    properties: {
+      set: {
+        merge: true,
+        events: ['setProperty', 'set'],
+      },
     },
-    defineProperties: {
-      descriptorValueMerge: true,
-      descriptorTree: true,
+    object: {
+      assign: {
+        merge: true,
+        events: ['assignSourceProperty', 'assignSource', 'assign'],
+      },
+      defineProperties: {
+        events: ['defineProperties'],
+      },
+      defineProperty: {
+        descriptorValueMerge: true,
+        descriptorTree: true,
+        events: ['defineProperty'],
+      },
+      freeze: {
+        recurse: true,
+        events: ['freeze']
+      },
+      seal: {
+        recurse: true,
+        events: ['seal']
+      },
     },
-    defineProperty: {
-      descriptorValueMerge: true,
-      descriptorTree: true,
-    },
-    freeze: {
-      recurse: true,
-    },
-    seal: {
-      recurse: true,
-    },
-    set: {
-      merge: true
-    },
+    array: {
+      copyWithin: {
+        events: ['copyWithinIndex', 'copyWithin']
+      },
+      unshift: {
+        events: ['unshiftProp', 'unshift']
+      },
+      splice: {
+        events: ['spliceDelete', 'spliceAdd', 'splice']
+      },
+      shift: {
+        events: ['shift']
+      },
+      reverse: {
+        events: ['reverse']
+      },
+      push: {
+        events: ['pushProp', 'push']
+      },
+      pop: {
+        events: ['pop']
+      },
+      fill: {
+        events: ['fillIndex', 'fill']
+      },
+    }
   }
-});
+};
+
 let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   #settings
   #options
@@ -2190,9 +2276,7 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
     this.#_handler = new Handler(this.#aliases, {
-      traps: {
-        object: this.#options.object
-      }
+      traps: this.#options.traps
     });
     return this.#_handler
   }

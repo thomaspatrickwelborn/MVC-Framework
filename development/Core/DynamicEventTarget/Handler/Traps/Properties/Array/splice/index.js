@@ -1,7 +1,8 @@
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Splice(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
+  const { events } = $options
   const {
     eventTarget, 
     root, 
@@ -39,21 +40,23 @@ export default function Splice(
             path !== null
           ) ? path.concat('.', deleteItemsIndex)
             : deleteItemsIndex
-          eventTarget.dispatchEvent(
-            new DETEvent(
-              'spliceDelete',
-              {
-                _basename,
-                _path,
-                detail: {
-                  index: start + deleteItemsIndex,
-                  deleteIndex: deleteItemsIndex,
-                  deleteItem: deleteItem,
+          if(events.includes('spliceDelete')) {
+            eventTarget.dispatchEvent(
+              new DETEvent(
+                'spliceDelete',
+                {
+                  _basename,
+                  _path,
+                  detail: {
+                    index: start + deleteItemsIndex,
+                    deleteIndex: deleteItemsIndex,
+                    deleteItem: deleteItem,
+                  },
                 },
-              },
-              eventTarget
+                eventTarget
+              )
             )
-          )
+          }
           deleteItemsIndex++
         }
         let addItemsIndex = 0
@@ -69,40 +72,44 @@ export default function Splice(
           ) ? path.concat('.', addItemsIndex)
             : addItemsIndex
           // Array Splice Add Event
+          if(events.includes('spliceAdd')) {
+            eventTarget.dispatchEvent(
+              new DETEvent(
+                'spliceAdd',
+                {
+                  basename,
+                  path,
+                  detail: {
+                    index: start + addItemsIndex,
+                    addIndex: addItemsIndex,
+                    addItem: addItem,
+                  },
+                },
+                eventTarget
+              )
+            )
+          }
+          addItemsIndex++
+        }
+        // Array Splice Event
+        if(events.includes('splice')) {
           eventTarget.dispatchEvent(
             new DETEvent(
-              'spliceAdd',
+              'splice',
               {
                 basename,
-                path,
+                path: path,
                 detail: {
-                  index: start + addItemsIndex,
-                  addIndex: addItemsIndex,
-                  addItem: addItem,
+                  start,
+                  deleted: deleteItems,
+                  added: addItems,
+                  length: root.length,
                 },
               },
               eventTarget
             )
           )
-          addItemsIndex++
         }
-        // Array Splice Event
-        eventTarget.dispatchEvent(
-          new DETEvent(
-            'splice',
-            {
-              basename,
-              path: path,
-              detail: {
-                start,
-                deleted: deleteItems,
-                added: addItems,
-                length: root.length,
-              },
-            },
-            eventTarget
-          )
-        )
         return deleteItems
       }
     }
