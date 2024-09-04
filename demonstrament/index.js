@@ -13,11 +13,6 @@ const application = await Application({
 		'tests/MVC/000': 'localhost/tests/MVC/000',
 		'tests/MVC': 'localhost/tests/MVC',
 		'tests': 'localhost/tests',
-		'tests/MVC/DET/Object/assign': 'localhost/tests/MVC/DET/Object/assign',
-		'tests/MVC/DET/Object/defineProperties': 'localhost/tests/MVC/DET/Object/defineProperties',
-		'tests/MVC/DET/Object/defineProperty': 'localhost/tests/MVC/DET/Object/defineProperty',
-		'tests/MVC/DET/Object/freeze': 'localhost/tests/MVC/DET/Object/freeze',
-		'tests/MVC/DET/Object/seal': 'localhost/tests/MVC/DET/Object/seal',
-		'tests/MVC/DET/Object/setPrototypeOf': 'localhost/tests/MVC/DET/Object/setPrototypeOf',
+		'tests/MVC': 'localhost/tests/MVC',
 	}
 })

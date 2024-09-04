@@ -1,15 +1,19 @@
-import testGroupA from './test-group-a/index.js'
-import testGroupB from './test-group-b/index.js'
-import testGroupC from './test-group-c/index.js'
-import testGroupD from './test-group-d/index.js'
-import testGroupE from './test-group-e/index.js'
-function DOMContentLoaded() {
-  console.log("Object Assign Tests")
-  testGroupA()
-  testGroupB()
-  testGroupC()
-  testGroupD()
-  testGroupE()
-}
+import test_a from './test-a/index.js'
+// import test_b from './test-b/index.js'
+// import test_c from './test-c/index.js'
+// import test_d from './test-d/index.js'
+// import test_e from './test-e/index.js'
 
-document.addEventListener('DOMContentLoaded', DOMContentLoaded)
+export default function hypothesis() {
+  return {
+    type: 'hypothesis',
+    title: "DET Object Assign",
+    tests: [
+      test_a(),
+      // test_b(),
+      // test_c(),
+      // test_d(),
+      // test_e(),
+    ]
+  }
+}
