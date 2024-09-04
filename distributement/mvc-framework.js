@@ -66,10 +66,10 @@ class DynamicEventTargetEvent extends Event {
 class Trap {
   constructor($methods, $aliases, $options = {}) {
     for(let [
-      $methodName, $definePropertyMethod
+      $methodName, $createPropertyMethod
     ] of Object.entries($methods)) {
       const methodOptions = $options[$methodName] || {};
-      $definePropertyMethod(
+      $createPropertyMethod(
         this, $methodName, $aliases, methodOptions
       );
     }

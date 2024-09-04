@@ -9,6 +9,8 @@
 	"structure": [{
 		"tag": "h1",
 		"textContent": 	"MVC Framework | DET - Assign"
+	}, {
+		"tag": "app"
 	}],
 
 	"scripts": [{
