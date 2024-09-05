@@ -6,7 +6,7 @@ import proof_01 from './proof-01/index.js'
 export default function test_a($object) {
   const object = new DET({})
   return {
-    type: 'test',
+    type: "test",
     title: "Test A.",
     description: "Assign Mono-Dimension Non-Object/Non-Array Properties",
     proofs: [

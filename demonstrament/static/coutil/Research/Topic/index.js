@@ -2,10 +2,17 @@ import Experiment from './Experiment/index.js'
 export default class Topic extends EventTarget {
   #settings
   #options
-  #_type = "topic"
+  #_id
+  #type = "topic"
+  #_title
   #_experiments
-  constructor($settings = {}, $options = {}) {
+  constructor($settings = {}) {
     super()
+  }
+  get id() {
+    if(this.#_id !== undefined) return this.#_id
+    this.#_id = this.#settings.id
+    return this.#_id
   }
   get title() {
     if(this.#_title !== undefined) return this.#_title
@@ -15,8 +22,12 @@ export default class Topic extends EventTarget {
   get experiments() {
     if(this.#_experiments !== undefined) return this.#_experiments
     this.#_experiments = []
+    let experimentIndex = 0
     for(const $experiment of this.#settings.experiments) {
-      new Experiment
+      this.#_experiments.push(
+        new Experiment(Object.assign($experiment, { id: experimentIndex }))
+      )
+      experimentIndex++
     }
     return this.#_experiments
   }

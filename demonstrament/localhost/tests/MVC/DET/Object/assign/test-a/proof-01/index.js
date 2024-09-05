@@ -7,7 +7,7 @@ export default function proof_01($object) {
     eee: null,
   })
   return {
-    type: 'proof',
+    type: "proof",
     title: "Proof 1.",
     description: "Assign Mono-Dimension Object Properties", 
     preconditions: [
@@ -19,7 +19,7 @@ export default function proof_01($object) {
         '  ddd: false,',
         '  eee: null,',
         '})',
-      ].join('\n',)
+      ],
     ],
     arguments: [
       {

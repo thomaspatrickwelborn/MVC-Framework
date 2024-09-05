@@ -6,7 +6,7 @@ import test_a from './test-a/index.js'
 
 export default function hypothesis() {
   return {
-    type: 'hypothesis',
+    type: "hypothesis",
     title: "DET Object Assign",
     tests: [
       test_a(),
