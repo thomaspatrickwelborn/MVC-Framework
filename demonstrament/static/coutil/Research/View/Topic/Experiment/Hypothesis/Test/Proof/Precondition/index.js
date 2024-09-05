@@ -1,5 +1,4 @@
-import Topic from './Topic/index.js'
-export default class Research extends EventTarget {
+export default class Precondition extends EventTarget {
   #settings
   #_parent
   constructor($settings = {}) {

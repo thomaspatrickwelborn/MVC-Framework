@@ -1,5 +1,7 @@
-import Topic from './Topic/index.js'
-export default class Research extends EventTarget {
+import Argument from './Argumeent/index.js'
+import Conclusion from './Conclusion/index.js'
+import Precondition from './Precondition/index.js'
+export default class Proof extends EventTarget {
   #settings
   #_parent
   constructor($settings = {}) {
@@ -10,5 +12,5 @@ export default class Research extends EventTarget {
     if(this.#_parent !== undefined) return this.#_parent
     this.#_parent = this.#settings.parent
     return this.#_parent
-  }
+  } 
 }

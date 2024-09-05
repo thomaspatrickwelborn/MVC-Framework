@@ -9,6 +9,7 @@ function DOMContentLoaded() {
       DET(),
       // DES()
     ],
+  }, {
     parent: document.querySelector('mvc-framework'),
   })
 }

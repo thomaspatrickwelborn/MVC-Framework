@@ -1,5 +1,5 @@
-import Topic from './Topic/index.js'
-export default class Research extends EventTarget {
+import Hypothesis from './Hypothesis/index.js'
+export default class Experiment extends EventTarget {
   #settings
   #_parent
   constructor($settings = {}) {

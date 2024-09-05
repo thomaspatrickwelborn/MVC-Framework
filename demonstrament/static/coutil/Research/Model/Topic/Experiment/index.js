@@ -24,7 +24,9 @@ export default class Experiment extends EventTarget {
     let hypothesisIndex = 0
     for(const $hypothesis of this.#settings.hypotheses) {
       this.#_hypotheses.push(
-        new Hypothesis(Object.assign($hypothesis, { id: hypothesisIndex }))
+        new Hypothesis(
+          Object.assign($hypothesis, { id: hypothesisIndex })
+        )
       )
       hypothesisIndex++
     }
