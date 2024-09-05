@@ -7,6 +7,7 @@ export default class Experiment extends EventTarget {
   #_hypotheses
   constructor($settings = {}) {
     super()
+    this.#settings = $settings
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id

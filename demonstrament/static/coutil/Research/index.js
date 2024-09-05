@@ -1,15 +1,32 @@
-import Model from './Model/index.js'
-import View from './View/index.js'
+import Topic from './Topic/index.js'
 export default class Research extends EventTarget {
-  #_model
-  #_view
-  constructor($model, $view) {
+  #settings
+  #type = "research"
+  #_title
+  #_topics
+  #_parent
+  constructor($settings = {}) {
     super()
-    this.#model = $model
-    this.#view = $view
+    this.#settings = $settings
+    console.log(this)
   }
-  get #model() { return this.#_model }
-  set #model($model) { this.#_model = new Model($model) }
-  get #view() { return this.#_view }
-  set #view($view) { this.#_view = new View($view) }
+  get title() {
+    if(this.#_title !== undefined) return this.#_title
+    this.#_title = this.#settings.title
+    return this.#_title
+  }
+  get topics() {
+    if(this.#_topics !== undefined) return this.#_topics
+    this.#_topics = []
+    let topicIndex = 0
+    for(const $topic of this.#settings.topics) {
+      this.#_topics.push(
+        new Topic(
+          Object.assign($topic, { id: topicIndex })
+        )
+      )
+      topicIndex++
+    }
+    return this.#_topics
+  }
 }

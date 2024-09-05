@@ -7,6 +7,8 @@ export default class Test extends EventTarget {
   #_proofs
   constructor($settings = {}) {
     super()
+    this.#settings = $settings
+    
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id

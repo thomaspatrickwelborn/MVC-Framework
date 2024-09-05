@@ -7,6 +7,7 @@ export default class Hypothesis extends EventTarget {
   #_tests
   constructor($settings = {}) {
     super()
+    this.#settings = $settings
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id
@@ -24,7 +25,9 @@ export default class Hypothesis extends EventTarget {
     let testIndex = 0
     for(const $test of this.#settings.tests) {
       this.#_tests.push(
-        new Test(Object.assign($test, { id: testIndex }))
+        new Test(
+          Object.assign($test, { id: testIndex })
+        )
       )
       testIndex++
     }

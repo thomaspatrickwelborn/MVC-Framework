@@ -7,6 +7,7 @@ export default class Topic extends EventTarget {
   #_experiments
   constructor($settings = {}) {
     super()
+    this.#settings = $settings
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id
@@ -24,7 +25,9 @@ export default class Topic extends EventTarget {
     let experimentIndex = 0
     for(const $experiment of this.#settings.experiments) {
       this.#_experiments.push(
-        new Experiment(Object.assign($experiment, { id: experimentIndex }))
+        new Experiment(
+          Object.assign($experiment, { id: experimentIndex })
+        )
       )
       experimentIndex++
     }

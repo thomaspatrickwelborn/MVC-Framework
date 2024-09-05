@@ -5,6 +5,7 @@ export default class HiddenAssumption extends EventTarget {
   #_premise
   constructor($settings = {}) {
     super()
+    this.#settings = $settings
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id
