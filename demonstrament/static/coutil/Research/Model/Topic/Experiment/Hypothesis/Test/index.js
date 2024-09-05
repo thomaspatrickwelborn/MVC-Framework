@@ -1,7 +1,6 @@
 import Proof from './Proof/index.js'
 export default class Test extends EventTarget {
   #settings
-  #options
   #_id
   #type = "test"
   #_title

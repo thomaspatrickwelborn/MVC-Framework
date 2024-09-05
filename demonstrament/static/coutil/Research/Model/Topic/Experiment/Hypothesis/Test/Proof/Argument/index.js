@@ -1,6 +1,5 @@
 export default class Argument extends EventTarget {
   #settings
-  #options
   #_id
   #_claim
   #_premise
@@ -8,7 +7,6 @@ export default class Argument extends EventTarget {
   constructor($settings = {}) {
     super()
     this.#settings = $settings
-    this.#options = $options
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id

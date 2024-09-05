@@ -1,6 +1,5 @@
 export default class HiddenAssumption extends EventTarget {
   #settings
-  #options
   #_id
   #_label
   #_premise

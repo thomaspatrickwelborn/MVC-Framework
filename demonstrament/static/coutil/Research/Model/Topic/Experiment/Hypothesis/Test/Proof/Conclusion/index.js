@@ -1,13 +1,11 @@
 export default class Conclusion extends EventTarget {
   #settings
-  #options
   #_id
   #_label
   #_hiddenAssumptions
   constructor($settings = {}) {
     super()
     this.#settings = $settings
-    this.#options = $options
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id

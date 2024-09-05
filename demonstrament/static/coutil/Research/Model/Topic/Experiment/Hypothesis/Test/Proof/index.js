@@ -1,13 +1,12 @@
 export default class Proof extends EventTarget {
   #settings
-  #options
   #type = "proof"
   #_id
   #_title
   #_description
-  #_precondition
+  #_preconditions
   #_arguments
-  #_conclusion
+  #_conclusions
   constructor($settings = {}) {
     super()
   }
@@ -22,7 +21,9 @@ export default class Proof extends EventTarget {
     return this.#_title
   }
   get description() {
-    // 
+    if(this.#_description !== undefined) return this.#_description
+    this.#_description = this.#settings.description
+    return this.#_description
   }
   get preconditions() {
     if(this.#_preconditions !== undefined) return this.#_preconditions
@@ -54,7 +55,7 @@ export default class Proof extends EventTarget {
     let conclusionIndex = 0
     for(const $conclusion of this.#settings.conclusions) {
       this.#_conclusions.push(
-        new Conclusion(Object.assign($conclusion, { id: conclusionIndex }k))
+        new Conclusion(Object.assign($conclusion, { id: conclusionIndex }))
       )
       conclusionIndex++
     }

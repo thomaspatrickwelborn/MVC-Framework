@@ -5,6 +5,7 @@ module.exports = {
     watch: [
       "index.js", 
       "application",
+      "static/coutil",
       "temporary", 
       "tensils"
     ],

@@ -1,11 +1,10 @@
 import Hypothesis from './Hypothesis/index.js'
 export default class Experiment extends EventTarget {
   #settings
-  #options
   #_id
   #type = "experiment"
   #_title
-  #_hypostheses
+  #_hypotheses
   constructor($settings = {}) {
     super()
   }

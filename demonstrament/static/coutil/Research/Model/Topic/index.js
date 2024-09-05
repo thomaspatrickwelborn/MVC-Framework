@@ -1,7 +1,6 @@
 import Experiment from './Experiment/index.js'
 export default class Topic extends EventTarget {
   #settings
-  #options
   #_id
   #type = "topic"
   #_title

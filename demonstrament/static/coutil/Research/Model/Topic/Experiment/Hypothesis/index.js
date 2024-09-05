@@ -1,7 +1,6 @@
 import Test from './Test/index.js'
 export default class Hypothesis extends EventTarget {
   #settings
-  #options
   #_id
   #type = "hypothesis"
   #_title
