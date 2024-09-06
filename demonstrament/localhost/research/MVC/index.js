@@ -4,7 +4,9 @@ import DET from './DET/index.js'
 function DOMContentLoaded() {
   const research = new Research({
     type: "research",
-    title: "MVC Framework Research",
+    label: "Research",
+    title: "MVC Framework",
+    topicsLabel: "Topics",
     topics: [
       DET(),
       // DES()
@@ -14,6 +16,6 @@ function DOMContentLoaded() {
   })
 }
 document.addEventListener(
-  'DOMContentLoaded', 
-  DOMContentLoaded
+  'DOMContentLoaded',
+  DOMContentLoaded,
 )

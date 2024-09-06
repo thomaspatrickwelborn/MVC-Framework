@@ -6,13 +6,7 @@
 		"href": "./index.css"
 	}],
 	"structure": [
-		{
-			"tag": "mvc-framework",
-			"structure": [{
-				"tag": "h1",
-				"textContent": "MVC Framework"
-			}]
-		}
+		{ "tag": "mvc-framework" }
 	],
 	"scripts": [{
 		"type": "module",

@@ -48,7 +48,7 @@ export default function proof_01($object) {
         inference: $object.eee === null,
       },
     ],
-    conclusion: [
+    conclusions: [
       {
         label: "PASS",
         hiddenAssumptions: [
@@ -60,7 +60,7 @@ export default function proof_01($object) {
             label: "Parse JSON", 
             premise: $object.parse({ type: "json" }),
           },
-        ]
+        ],
       }
     ]
   }
