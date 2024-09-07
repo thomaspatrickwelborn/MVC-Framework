@@ -1,18 +1,42 @@
 import Research from '/coutil/Research/index.js'
-import DET from './DET/index.js'
-// import DES from './DES/index.js'
+import DETObjectAssignTests from './DET-Object-Assign-Tests/index.js'
 function DOMContentLoaded() {
   const research = new Research({
     type: "research",
     label: "Research",
     title: "MVC Framework",
-    topicsLabel: "Topics",
+    topicsLabel: "Research Topics",
     topics: [
-      DET(),
+      {
+        type: "topic",
+        label: "Topic", 
+        title: "Dynamic Event Target",
+        experiments: [
+          {
+            type: "experiment",
+            label: "Experiment",
+            title: "DET Object",
+            hypotheses: [
+              {
+                type: "hypothesis",
+                label: "Hypothesis",
+                title: "DET Object Assign",
+                tests: [
+                  DETObjectAssignTests.testA(),
+                  // DETObjectAssignTests.testB(),
+                  // DETObjectAssignTests.testC(),
+                  // DETObjectAssignTests.testD(),
+                  // DETObjectAssignTests.testE(),
+                ]
+              }
+            ]
+          }
+        ]
+      },
       // DES()
     ],
   }, {
-    parent: document.querySelector('mvc-framework'),
+    // parent: document.querySelector('mvc-framework'),
   })
 }
 document.addEventListener(

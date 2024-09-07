@@ -1,14 +1,1 @@
-body {
-	display: flex;
-	flex-direction: column;
-	background-color: lightcyan;
-	color: lightgoldenrodyellow;
-	padding: 0;
-	margin: 0;
-	width: 100%;
-	height: 100%;
-}
-mvc-framework {
-	display: flex;
-	flex-direction: column;
-}
+@import "/coutil/Research/index.css";

@@ -1,16 +1,15 @@
 import Control from '/coutil/Control/index.js'
-export default class Precondition extends Control {
-  length = 0
+export default class PostCondition extends Control {
   #_id
   #_label
-  #_statement
+  #_premise
   constructor($model = {}, $view = {}) {
     super($model, Object.assign($view, {
       template: ($content) => `
-        <precondition>
+        <postcondition>
           <label>${$content.label}</label>
-          <statement>${$content.statement}</statement>
-        </precondition>
+          <premise>${$content.premise}</premise>
+        </postcondition>
       `,
       querySelectors: {},
     }))
@@ -26,9 +25,9 @@ export default class Precondition extends Control {
     this.#_label = this.model.label
     return this.#_label
   }
-  get statement() {
-    if(this.#_statement !== undefined) return this.#_statement
-    this.#_statement = this.model.statement
-    return this.#_statement
+  get premise() {
+    if(this.#_premise !== undefined) return this.#_premise
+    this.#_premise = this.model.premise
+    return this.#_premise
   }
 }

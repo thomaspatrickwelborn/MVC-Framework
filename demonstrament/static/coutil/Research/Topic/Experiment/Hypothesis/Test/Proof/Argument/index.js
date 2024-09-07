@@ -1,63 +1,39 @@
-export default class Argument extends EventTarget {
-  #model
-  #view
-  #_parent
-  #_template
-  #_querySelectors
+import Control from '/coutil/Control/index.js'
+export default class Argument extends Control {
   #_id
   #_claim
   #_premise
   #_inference
   constructor($model = {}, $view = {}) {
-    super()
-    this.#model = $model
-    this.#view = $view
+    super($model, Object.assign($view, {
+      template: ($content) => `
+        <argument>
+          <claim>${$content.claim}</claim>
+          <premise>${$content.premise}</premise>
+          <inference>${$content.inference}</inference>
+        </argument>
+      `
+    }))
     this.render()
-  }
-  get parent() {
-    if(this.#_parent !== undefined) return this.#_parent
-    this.#_parent = this.#view.parent
-    return this.#_parent
-  }
-  get template() {
-    if(this.#_template !== undefined) return this.#_template
-    this.#_template = document.createElement('template')
-    this.#_template.innerHTML = `<argument>
-      <claim>${this.claim}</claim>
-      <premise>${this.premise}</premise>
-      <inference>${this.inference}</inference>
-    </argument>`
-    return this.#_template
-  }
-  get querySelectors() {
-    if(this.#_querySelectors !== undefined) return this.#_querySelectors
-    this.#_querySelectors = {}
-    return this.#_querySelectors
   }
   get id() {
     if(this.#_id !== undefined) return this.#_id
-    this.#_id = this.#model.id
+    this.#_id = this.model.id
     return this.#_id
   }
   get claim() {
     if(this.#_claim !== undefined) return this.#_claim
-    this.#_claim = this.#model.claim
+    this.#_claim = this.model.claim
     return this.#_claim
   }
   get premise() {
     if(this.#_premise !== undefined) return this.#_premise
-    this.#_premise = this.#model.premise
+    this.#_premise = this.model.premise
     return this.#_premise
   }
   get inference() {
     if(this.#_inference !== undefined) return this.#_inference
-    this.#_inference = this.#model.inference
+    this.#_inference = this.model.inference
     return this.#_inference
-  }
-  render() {
-    this.parent.appendChild(
-      this.template.content
-    )
-    return this
   }
 }
