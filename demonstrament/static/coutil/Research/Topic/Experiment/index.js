@@ -1,9 +1,6 @@
 import Control from '/coutil/Control/index.js'
 import Hypothesis from './Hypothesis/index.js'
 export default class Experiment extends Control {
-  #_title
-  #_id
-  #type = "experiment"
   #_hypotheses
   constructor($model = {}, $view = {}) {
     super($model, Object.assign($view, {
@@ -22,16 +19,6 @@ export default class Experiment extends Control {
     this.render()
     this.hypotheses
   }
-  get id() {
-    if(this.#_id !== undefined) return this.#_id
-    this.#_id = this.model.id
-    return this.#_id
-  }
-  get title() {
-    if(this.#_title !== undefined) return this.#_title
-    this.#_title = this.model.title
-    return this.#_title
-  }
   get hypotheses() {
     if(this.#_hypotheses !== undefined) return this.#_hypotheses
     this.#_hypotheses = []
@@ -39,7 +26,7 @@ export default class Experiment extends Control {
     for(const $hypothesis of this.model.hypotheses) {
       this.#_hypotheses.push(
         new Hypothesis(
-          Object.assign($hypothesis, { id: hypothesisIndex }),
+          Object.assign($hypothesis, Config['hypothesis'], { id: hypothesisIndex }),
           { parent: this.querySelectors.hypotheses },
         )
       )

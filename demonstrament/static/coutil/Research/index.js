@@ -1,11 +1,10 @@
+import Config from './Config/index.js'
 import Control from '/coutil/Control/index.js'
 import Topic from './Topic/index.js'
 export default class Research extends Control {
-  #_title
-  #type = "research"
   #_topics
   constructor($model = {}, $view = {}) {
-    super($model, Object.assign($view, {
+    super(Object.assign($model, Config), Object.assign($view, {
       parent: document.querySelector('mvc-framework'),
       template: ($content) => `
         <research>
@@ -22,18 +21,13 @@ export default class Research extends Control {
     this.render()
     this.topics
   }
-  get title() {
-    if(this.#_title !== undefined) return this.#_title
-    this.#_title = this.model.title
-    return this.#_title
-  }
   get topics() {
     if(this.#_topics !== undefined) return this.#_topics
     this.#_topics = []
     let topicIndex = 0
     for(const $topic of this.model.topics) {
       const topic = new Topic(
-        Object.assign($topic, { id: topicIndex }),
+        Object.assign($topic, Config['topic'], { id: topicIndex }),
         { parent: this.querySelectors.topics }
       )
       this.#_topics.push(topic)

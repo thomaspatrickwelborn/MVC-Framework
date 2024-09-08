@@ -1,9 +1,6 @@
 import Control from '/coutil/Control/index.js'
 import Proof from './Proof/index.js'
 export default class Test extends Control {
-  #_title
-  #_id
-  #type = "test"
   #_proofs
   constructor($model = {}, $view = {}) {
     super($model, Object.assign($view, {
@@ -22,16 +19,6 @@ export default class Test extends Control {
     this.render()
     this.proofs
   }
-  get id() {
-    if(this.#_id !== undefined) return this.#_id
-    this.#_id = this.model.id
-    return this.#_id
-  }
-  get title() {
-    if(this.#_title !== undefined) return this.#_title
-    this.#_title = this.model.title
-    return this.#_title
-  }
   get proofs() {
     if(this.#_proofs !== undefined) return this.#_proofs
     this.#_proofs = []
@@ -39,7 +26,7 @@ export default class Test extends Control {
     for(const $proof of this.model.proofs) {
       this.#_proofs.push(
         new Proof(
-          Object.assign($proof, { id: proofIndex }),
+          Object.assign($proof, Config['proof'], { id: proofIndex }),
           { parent: this.querySelectors.proofs },
         )
       )

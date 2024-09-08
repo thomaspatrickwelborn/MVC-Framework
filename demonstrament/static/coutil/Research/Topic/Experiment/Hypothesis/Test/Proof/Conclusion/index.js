@@ -1,9 +1,6 @@
 import PostCondition from './PostCondition/index.js'
 import Control from '/coutil/Control/index.js'
 export default class Conclusion extends Control {
-  #_id
-  #_title
-  #_label
   #_summary
   #_postconditions
   constructor($model = {}, $view = {}) {
@@ -28,21 +25,6 @@ export default class Conclusion extends Control {
     this.arguments
     this.postconditions
   }
-  get id() {
-    if(this.#_id !== undefined) return this.#_id
-    this.#_id = this.model.id
-    return this.#_id
-  }
-  get title() {
-    if(this.#_title !== undefined) return this.#_title
-    this.#_title = this.model.title
-    return this.#_title
-  }
-  get label() {
-    if(this.#_label !== undefined) return this.#_label
-    this.#_label = this.model.label
-    return this.#_label
-  }
   get summary() {
     if(this.#_summary !== undefined) return this.#_summary
     this.#_summary = this.model.arguments
@@ -57,7 +39,7 @@ export default class Conclusion extends Control {
     for(const $postcondition of this.model.postconditions) {
       this.#_postconditions.push(
         new PostCondition(
-          Object.assign($postcondition, { id: postconditionIndex }),
+          Object.assign($postcondition, Config['postcondition'], { id: postconditionIndex }),
           { parent: this.querySelectors.postconditions },
         )
       )

@@ -3,10 +3,6 @@ import Precondition from './Precondition/index.js'
 import Argument from './Argument/index.js'
 import Conclusion from './Conclusion/index.js'
 export default class Proof extends Control {
-  #_title
-  #_id
-  #type = "proof"
-  #_description
   #_preconditions
   #_arguments
   #_conclusions
@@ -34,21 +30,6 @@ export default class Proof extends Control {
     this.arguments
     this.conclusions
   }
-  get id() {
-    if(this.#_id !== undefined) return this.#_id
-    this.#_id = this.model.id
-    return this.#_id
-  }
-  get title() {
-    if(this.#_title !== undefined) return this.#_title
-    this.#_title = this.model.title
-    return this.#_title
-  }
-  get description() {
-    if(this.#_description !== undefined) return this.#_description
-    this.#_description = this.model.description
-    return this.#_description
-  }
   get preconditions() {
     if(this.#_preconditions !== undefined) return this.#_preconditions
     this.#_preconditions = []
@@ -56,7 +37,7 @@ export default class Proof extends Control {
     for(const $precondition of this.model.preconditions) {
       this.#_preconditions.push(
         new Precondition(
-          Object.assign($precondition, { id: preconditionIndex }),
+          Object.assign($precondition, Config['precondition'], { id: preconditionIndex }),
           { parent: this.querySelectors.preconditions },
         )
       )
@@ -71,7 +52,7 @@ export default class Proof extends Control {
     for(const $argument of this.model.arguments) {
       this.#_arguments.push(
         new Argument(
-          Object.assign($argument, { id: argumentIndex }),
+          Object.assign($argument, Config['argument'], { id: argumentIndex }),
           { parent: this.querySelectors.arguments },
         )
       )
@@ -85,7 +66,7 @@ export default class Proof extends Control {
     let conclusionIndex = 0
     for(const $conclusion of this.model.conclusions) {
       const conclusion = new Conclusion(
-        Object.assign($conclusion, {
+        Object.assign($conclusion, Config['conclusion'], {
           id: conclusionIndex,
           arguments: this.arguments,
         }),

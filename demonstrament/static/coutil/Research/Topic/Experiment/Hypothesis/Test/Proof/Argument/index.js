@@ -1,6 +1,5 @@
 import Control from '/coutil/Control/index.js'
 export default class Argument extends Control {
-  #_id
   #_claim
   #_premise
   #_inference
@@ -15,11 +14,6 @@ export default class Argument extends Control {
       `
     }))
     this.render()
-  }
-  get id() {
-    if(this.#_id !== undefined) return this.#_id
-    this.#_id = this.model.id
-    return this.#_id
   }
   get claim() {
     if(this.#_claim !== undefined) return this.#_claim

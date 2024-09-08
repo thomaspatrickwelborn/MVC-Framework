@@ -1,9 +1,6 @@
 import Control from '/coutil/Control/index.js'
 import Experiment from './Experiment/index.js'
 export default class Topic extends Control {
-  #_title
-  #_id
-  #type = "topic"
   #_experiments
   constructor($model = {}, $view = {}) {
     super($model, Object.assign($view, {
@@ -22,16 +19,6 @@ export default class Topic extends Control {
     this.render()
     this.experiments
   }
-  get id() {
-    if(this.#_id !== undefined) return this.#_id
-    this.#_id = this.model.id
-    return this.#_id
-  }
-  get title() {
-    if(this.#_title !== undefined) return this.#_title
-    this.#_title = this.model.title
-    return this.#_title
-  }
   get experiments() {
     if(this.#_experiments !== undefined) return this.#_experiments
     this.#_experiments = []
@@ -39,7 +26,7 @@ export default class Topic extends Control {
     for(const $experiment of this.model.experiments) {
       this.#_experiments.push(
         new Experiment(
-          Object.assign($experiment, { id: experimentIndex }),
+          Object.assign($experiment, Config['experiment'], { id: experimentIndex }),
           { parent: this.querySelectors.experiments },
         )
       )

@@ -1,7 +1,7 @@
 export default class Control extends EventTarget {
-  model
-  view
-  #_type
+  #defaultPropertyNames = [
+    "id", "type", "label", "name", "description"
+  ]
   #_parent
   #_template
   #_element
@@ -10,26 +10,54 @@ export default class Control extends EventTarget {
     super()
     this.model = $model
     this.view = $view
-    Object.defineProperty(this, 'render', {
-      writable: false,
-      enumerable: false,
-      configurable: false, 
-      value: function render() {
-        this.parent
-        this.element
-        return this
+    Object.defineProperties(this, {
+      render: {
+        writable: false,
+        enumerable: false,
+        configurable: false, 
+        value: function render() {
+          this.parent
+          this.element
+          return this
+        }
+      },
+      model: {
+        writable: false,
+        enumerable: false,
+        configurable: false,
+        value: $model,
+      },
+      view: {
+        writable: false,
+        enumerable: false,
+        configurable: false,
+        value: $view,
       }
     })
-  }
-  get type() {
-    if(this.#_type !== undefined) return this.#_type
-    this.#_type = this.model.type
-    return this.#_type
-  }
-  get parent() {
-    if(this.#_parent !== undefined) return this.#_parent
-    this.#_parent = this.view.parent
-    return this.#_parent
+    for(const $defaultPropertyKey of this.#defaultPropertyKeys) {
+      Object.defineProperties(this, {
+        [$defaultPropertyKey]: {
+          writable: false,
+          enumerable: true,
+          configurable: false,
+          value: {
+            get() {
+              if(this[`_${$defaultPropertyKey}`] !== undefined) {
+                return this[`_${$defaultPropertyKey}`]
+              }
+              this[`_${$defaultPropertyKey}`] = this.model.id
+              return this[`_${$defaultPropertyKey}`]
+            }
+          }
+        },
+        [`_${$defaultPropertyKey}`]: {
+          writable: true,
+          enumerable: false,
+          configurable: false,
+          value: undefined,
+        }
+      })
+    }
   }
   get element() {
     if(this.#_element !== undefined) return this.#_element
