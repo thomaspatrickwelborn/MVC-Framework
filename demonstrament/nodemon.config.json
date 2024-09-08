@@ -1,0 +1,10 @@
+{
+  "ext": "ejs,js,json",
+  "exec": "node index.js",
+  "watch": [
+    "index.js",
+    "package.json",
+    "nodemon.config.js",
+    "application"
+  ]
+}
