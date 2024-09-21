@@ -1,12 +1,10 @@
 import './coutil/persist/index.js'
 import path from 'node:path'
-import chokidar from 'chokidar'
 import inspector from 'node:inspector'
 import https from 'node:https'
 import express from 'express'
 import browserSync from 'browser-sync'
-import * as Pilers from './pilers/index.js'
-import routes from './routes.js'
+import Watchers from './watchers/index.js'
 import Settings from './settings.js'
 export default class Demonstrament extends EventTarget {
   #settings
@@ -21,8 +19,8 @@ export default class Demonstrament extends EventTarget {
     this.inspector
     this.server
     this.https
-    this.browserSync
     this.watchers
+    this.browserSync
   }
   // Node Inspector
   get inspector() {
@@ -39,23 +37,7 @@ export default class Demonstrament extends EventTarget {
   get server() {
     if(this.#_server !== undefined) return this.#_server
     this.#_server = express()
-    for(const $route of routes) {
-      this.#_server.use(
-        $route.url, ($request, $response) => {
-          console.log(path.join($route.target, $route.url, $route.main))
-          $response.sendFile(
-            path.join(
-              $route.target, $route.url, $route.main
-            ),
-            {
-              root: path.join(
-                process.env.PWD
-              )
-            }
-          )
-        }
-      )
-    }
+    const router = {}
     for(const $static of this.#settings.express.static) {
       this.#_server.use(
         express.static($static)
@@ -95,6 +77,7 @@ export default class Demonstrament extends EventTarget {
       https: this.#settings.browserSync.https,
       host: this.#settings.browserSync.host,
       port: this.#settings.browserSync.port,
+      files: this.#settings.browserSync.files,
       proxy: {
         target: [
           "https://",
@@ -109,76 +92,12 @@ export default class Demonstrament extends EventTarget {
     this.dispatchEvent(new CustomEvent('ready', { detail: this }))
     return this.#_browserSync
   }
+  // Watchers
   get watchers() {
     if(this.#_watchers !== undefined) {
       return this.#_watchers
     }
-    this.#_watchers = {
-      scripts: [],
-      styles: [],
-      structs: [],
-    }
-    iterateRoutes: 
-    for(const $route of routes) {
-      iterateRouteDocuments: 
-      for(const $routeDocument of $route.documents) {
-        iterateRouteDocumentGroupNames: 
-        for(const $routeDocumentGroupName of ['styles', 'scripts', 'structs']) {
-          const routeDocumentGroup = $routeDocument[$routeDocumentGroupName]
-          iterateRouteDocumentGroupFiles: 
-          for(const $routeDocumentGroupFile of routeDocumentGroup) {
-            iterateRouteDocumentGroupFilePaths: 
-            for(const $pathType of ['input', 'output', 'watch', 'template']) {
-              if($routeDocumentGroupFile[$pathType] !== undefined) {
-                switch($pathType) {
-                  case 'input':
-                  case 'watch':
-                  case 'template':
-                    $routeDocumentGroupFile[$pathType] = path.join(
-                      process.env.PWD, $route.source, $routeDocumentGroupFile[$pathType]
-                    )
-                    break
-                  case 'output':
-                    $routeDocumentGroupFile[$pathType] = path.join(
-                      process.env.PWD, $route.target, $routeDocumentGroupFile[$pathType]
-                    )
-                    break
-                }
-              }
-            }
-            const watcher = chokidar.watch($routeDocumentGroupFile.watch)
-            switchRouteDocumentGroupName: 
-            switch($routeDocumentGroupName) {
-              case 'styles':
-                watcher.on('add', ($path) => {
-                  Pilers.SASSPiler($routeDocumentGroupFile)
-                })
-                watcher.on('change', ($path) => {
-                  Pilers.SASSPiler($routeDocumentGroupFile)
-                })
-                break
-              case 'scripts':
-                watcher.on('add', ($path) => {
-                  Pilers.RollupPiler($routeDocumentGroupFile)
-                })
-                watcher.on('change', ($path) => {
-                  Pilers.RollupPiler($routeDocumentGroupFile)
-                })
-                break
-              case 'structs':
-                watcher.on('add', ($path) => {
-                  Pilers.EJSPiler($routeDocumentGroupFile)
-                })
-                watcher.on('change', ($path) => {
-                  Pilers.EJSPiler($routeDocumentGroupFile)
-                })
-                break
-            }
-            this.#_watchers[$routeDocumentGroupName].push(watcher)
-          }
-        }
-      }
-    }
+    this.#_watchers = new Watchers(Settings.routes)
     return this.#_watchers
   }
 }

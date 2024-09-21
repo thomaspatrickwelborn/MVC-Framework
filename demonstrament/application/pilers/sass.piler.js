@@ -1,7 +1,8 @@
+import createDir from '../coutil/createDir/index.js'
 import * as sass from 'sass'
-import { writeFile } from 'node:fs'
+import { stat, mkdir, writeFile } from 'node:fs/promises'
 export default async function SassPiler($settings) {
-  const sassPile = sass.compile($settings.input, () => {
-    writeFile($settings.output, sassPile.css)
-  })
+  await createDir($settings.output)
+  const sassPile = sass.compile($settings.input)
+  await writeFile($settings.output, sassPile.css)
 }

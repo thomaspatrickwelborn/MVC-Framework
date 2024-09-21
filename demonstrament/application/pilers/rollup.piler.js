@@ -1,12 +1,13 @@
 import * as rollup from 'rollup'
+import createDir from '../coutil/createDir/index.js'
 export default async function RollupPiler($settings) {
-  console.log($settings)
-  const rollupPile = rollup.rollup({
+  await createDir($settings.output)
+  const rollupPile = await rollup.rollup({
     input: $settings.input,
-    output: [{
-      file: $settings.output,
-      format: 'es',
-      sourcemap: true
-    }]
+  })
+  await rollupPile.write({
+    file: $settings.output,
+    format: 'es',
+    sourcemap: true
   })
 }

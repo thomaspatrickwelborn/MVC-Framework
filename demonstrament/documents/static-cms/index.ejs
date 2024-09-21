@@ -5,16 +5,20 @@
   <title><%= $content.title %></title>
   <%- await include(
     '/html5/structure.ejs', 
-    $content.styles, {
+    { structure: $content.styles }, {
       async: true,
     }
   ) -%>
 </head>
 <body>
+  <header>
+    <h1>Static Content Management System</h1>
+  </header>
+  <main></main>
   <%- await include(
     '/html5/structure.ejs', 
-    $content.scripts, {
-      async: true
+    { structure: $content.scripts }, {
+      async: true,
     }
   ) -%>
 </body>
