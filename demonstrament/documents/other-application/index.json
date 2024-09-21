@@ -1,5 +1,5 @@
 {
-	"title": "MVC Framework",
+	"title": "Other Application",
 	"styles": [{
 		"tag": "link",
 		"attributes": {
@@ -12,6 +12,7 @@
 	"scripts": [{
 		"tag": "script",
 		"attributes": {
+			"type": "module",
 			"src": "./index.js"
 		}
 	}]
