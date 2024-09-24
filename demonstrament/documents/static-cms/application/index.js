@@ -1,5 +1,11 @@
 export default {
-  views: {},
+  views: {
+    default: {
+      querySelectors: {
+        // 'application'
+      },
+    },
+  },
   models: {},
   controls: {},
 }

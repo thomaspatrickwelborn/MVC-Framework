@@ -35,6 +35,7 @@ export default async function EJSPiler($settings, $route, $path) {
       _with: false,
       localsName: '$content',
       client: true,
+      compileDebug: false,
     })
     const viewPileString = [
       'export default', viewPile.toString()

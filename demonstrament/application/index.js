@@ -39,6 +39,7 @@ export default class Demonstrament extends EventTarget {
     this.#_server = express()
     const router = {}
     for(const $static of this.#settings.express.static) {
+      console.log(process.env.PWD)
       this.#_server.use(
         express.static($static)
       )

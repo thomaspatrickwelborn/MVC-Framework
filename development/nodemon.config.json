@@ -1,6 +1,6 @@
 {
   "ext": "js",
-  "exec": "rollup ./rollup.config.js",
+  "exec": "rollup --config ./rollup.config.js",
   "watch": [
     "index.js",
     "**/*"
