@@ -1,5 +1,6 @@
 import { Control } from '/dependencies/mvc-framework.js'
-import ApplicationParameters from './application/index.js'
+import ControlParameters from './control.js'
 document.addEventListener('DOMContentLoaded', ($event) => {
-  const application = new Control(...ApplicationParameters)
+  const control = new Control(...ControlParameters)
+  control.start()
 }, { once: true })

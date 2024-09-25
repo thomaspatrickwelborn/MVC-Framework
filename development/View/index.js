@@ -60,7 +60,6 @@ export default class View extends Core {
     this.template.innerHTML = this.settings.templates[$template]($model)
     this.parent.replaceChildren()
     this.parent.appendChild(this.template.content)
-    console.log(this.options)
     if(this.options.enableEvents === true) { this.enableEvents() }
     return this
   }

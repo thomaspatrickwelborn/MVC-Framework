@@ -22,7 +22,7 @@ export default function anonymous($content, escapeFn, include, rethrow) {
     function __append(s) {
         if (s !== undefined && s !== null) __output += s
     };
-    __append("<div></div>")
+    __append("<static-cms></static-cms>")
     return __output;
 
 }

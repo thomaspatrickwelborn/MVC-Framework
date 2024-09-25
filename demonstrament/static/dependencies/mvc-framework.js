@@ -2631,7 +2631,6 @@ class View extends Core {
     this.template.innerHTML = this.settings.templates[$template]($model);
     this.parent.replaceChildren();
     this.parent.appendChild(this.template.content);
-    console.log(this.options);
     if(this.options.enableEvents === true) { this.enableEvents(); }
     return this
   }
@@ -2965,8 +2964,12 @@ class Control extends Core {
 		] of Object.entries($models)) {
 			if($model instanceof Model) {
 				_models[$modelName] = $model;
-			} else if(typeOf$1($model) === 'object') {
+			}
+			else if(typeOf$1($model) === 'object') {
 				_models[$modelName] = new Model($model);
+			}
+			else if(typeOf$1($model) === 'array') {
+				models[$modelName] = new Model(...$model);
 			}
 		}
 	}
@@ -2977,15 +2980,14 @@ class Control extends Core {
 		for(const [
 			$viewName, $view
 		] of Object.entries($views)) {
-			if(
-				$view instanceof View
-			) {
+			if($view instanceof View) {
 				_views[$viewName] = $view;
-			} else
-			if(
-				typeOf$1($view) === 'object'
-			) {
+			}
+			else if(typeOf$1($view) === 'object') {
 				_views[$viewName] = new View($view);
+			}
+			else if(typeOf$1($view) === 'array') {
+				_views[$viewName] = new View(...$view);
 			}
 		}
 	}
@@ -2998,8 +3000,12 @@ class Control extends Core {
 		] of Object.entries($controls)) {
 			if($control instanceof Control) {
 				_controls[$controlName] = $control;
-			} else if(typeOf$1($control) === 'object') {
+			}
+			else if(typeOf$1($control) === 'object') {
 				_controls[$controlName] = new Control($control);
+			}
+			else if(typeOf$1($control) === 'array') {
+				_controls[$controlName] = new Control(...$control);
 			}
 		}
 	}
@@ -3020,8 +3026,8 @@ class Control extends Core {
 					$router instanceof FetchRouter
 				) {
 					_routers[$routerClass][$routerName] = $router;
-				} else
-				if(typeOf$1($router) === 'object') {
+				}
+				else if(typeOf$1($router) === 'object') {
 					const Router = (
 						$routerClass === 'static'
 					) ? StaticRouter
@@ -3031,6 +3037,18 @@ class Control extends Core {
 					  : undefined;
 				  if(Router !== undefined) {
 				  	_routers[$routerClass][$routerName] = new Router($router);
+				  }
+				}
+				else if(typeOf$1($router) === 'array') {
+					const Router = (
+						$routerClass === 'static'
+					) ? StaticRouter
+					  : (
+				  	$routerClass === 'fetch'
+			  	) ? FetchRouter
+					  : undefined;
+				  if(Router !== undefined) {
+				  	_routers[$routerClass][$routerName] = new Router(...$router);
 				  }
 				}
 			}

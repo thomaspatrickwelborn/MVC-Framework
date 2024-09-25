@@ -55,12 +55,6 @@ export default {
           input: 'favicon.ico',
           output: 'favicon.ico',
           watch: ['favicon.ico'],
-        }, {
-          type: 'simule',
-          outputType: 'glob',
-          input: '**/*.md',
-          output: '',
-          watch: ['**/*.md', '!static-cms'],
         }],
         styles: [{
           type: 'style',
@@ -105,13 +99,7 @@ export default {
         ],
       },
       documents: {
-        simules: [{
-          type: 'simule',
-          outputType: 'glob',
-          input: '**/*.md',
-          output: '',
-          watch: ['**/*.md'],
-        }],
+        simules: [],
         styles: [{
           type: 'style',
           input: 'index.scss',
