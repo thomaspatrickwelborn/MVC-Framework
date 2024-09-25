@@ -105,7 +105,36 @@ export default class Handler {
       return true
     }
   }
-  get deleteProperty() {}
+  get deleteProperty() {
+    const $this = this
+    const {
+      eventTarget, 
+      root, 
+      rootAlias, 
+    } = this.#settings
+    let {
+      basename,
+      path,
+    } = this.#settings
+    const { merge } = this.#options.traps.properties.set
+    return function deleteProperty($target, $property) {
+      delete root[$property]
+      eventTarget.dispatchEvent(
+        new DETEvent(
+          'delete',
+          {
+            basename,
+            path,
+            detail: {
+              property: $property
+            },
+          },
+          eventTarget
+        )
+      )
+      return true
+    }
+  }
   #isRootProperty($property) {
     return ($property === this.#settings.rootAlias)
   }

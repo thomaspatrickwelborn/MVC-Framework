@@ -12,6 +12,7 @@
 	"scripts": [{
 		"tag": "script",
 		"attributes": {
+			"type": "module",
 			"src": "./index.js"
 		}
 	}]

@@ -1,12 +1,10 @@
 import './coutil/persist/index.js'
 import path from 'node:path'
-import watch from 'glob-watcher'
 import inspector from 'node:inspector'
 import https from 'node:https'
 import express from 'express'
 import browserSync from 'browser-sync'
-import * as Pilers from './pilers/index.js'
-import routes from './routes.js'
+import Watchers from './watchers/index.js'
 import Settings from './settings.js'
 export default class Demonstrament extends EventTarget {
   #settings
@@ -41,6 +39,7 @@ export default class Demonstrament extends EventTarget {
     this.#_server = express()
     const router = {}
     for(const $static of this.#settings.express.static) {
+      console.log(process.env.PWD)
       this.#_server.use(
         express.static($static)
       )
@@ -94,154 +93,12 @@ export default class Demonstrament extends EventTarget {
     this.dispatchEvent(new CustomEvent('ready', { detail: this }))
     return this.#_browserSync
   }
+  // Watchers
   get watchers() {
     if(this.#_watchers !== undefined) {
       return this.#_watchers
     }
-    this.#_watchers = {
-      scripts: [],
-      simules: [],
-      structs: [],
-      styles: [],
-    }
-    const sources = []
-    for(const $route of routes) {
-      for(const $routeDocument of $route.documents) {
-        for(const [
-          $routeDocumentFileType, $routeDocumentGroupFiles
-        ] of Object.entries($routeDocument)) {
-          for(const $routeDocumentGroupFile of $routeDocumentGroupFiles) {
-            for(const [
-              $routeDocumentGroupFilePathType, $routeDocumentGroupFilePath
-            ] of Object.entries($routeDocumentGroupFile)) {
-              switchRouteDocumentGroupFilePathType: 
-              switch($routeDocumentGroupFilePathType) {
-                // Watch File Path
-                case 'watch':
-                  // Watch File Path Is String
-                  if(typeof $routeDocumentGroupFilePath === 'string') {
-                    $routeDocumentGroupFile[$routeDocumentGroupFilePath] = path.join(
-                      $route.source, $routeDocumentGroupFilePath
-                    )
-                  }
-                  // Watch File Path Is Array
-                  else if(Array.isArray($routeDocumentGroupFilePath)) {
-                    for(let [
-                      $watchPathIndex, $watchPath
-                    ] of Object.entries($routeDocumentGroupFilePath)) {
-                      let watchPath
-                      if($watchPath.charAt(0) === '!') {
-                        watchPath = '!'.concat(
-                          path.join(
-                            $route.source, $watchPath.replace(new RegExp(/^\!/), '')
-                          )
-                        )
-                      } else {
-                        watchPath = path.join(
-                          $route.source, $watchPath
-                        )
-                      }
-                      $routeDocumentGroupFilePath[$watchPathIndex] = watchPath
-                    }
-                  }
-                  const watcher = watch($routeDocumentGroupFilePath, {
-                    ignoreInitial: false,
-                  })
-                  switchRouteDocumentFileType: 
-                  switch($routeDocumentFileType) {
-                    case 'scripts':
-                      watcher.on('add', ($path, $stats) => {
-                        // console.log('RollupPiler', 'add', $path, $stats)
-                        Pilers.RollupPiler($routeDocumentGroupFile)
-                      })
-                      watcher.on('change', ($path, $stats) => {
-                        // console.log('RollupPiler', 'change', $path, $stats)
-                        Pilers.RollupPiler($routeDocumentGroupFile)
-                      })
-                      break switchRouteDocumentFileType
-                    case 'simules':
-                      watcher.on('add', ($path, $stats) => {
-                        // console.log('SimulePiler', 'add', $routeDocumentGroupFile)
-                        Pilers.SimulePiler($routeDocumentGroupFile, $route, $path)
-                      })
-                      watcher.on('change', ($path, $stats) => {
-                        // console.log('SimulePiler', 'change', $routeDocumentGroupFile)
-                        Pilers.SimulePiler($routeDocumentGroupFile, $route, $path)
-                      })
-                      break switchRouteDocumentFileType
-                    case 'structs':
-                      watcher.on('add', ($path, $stats) => {
-                        // console.log('EJSPiler', 'add', $path, $stats)
-                        Pilers.EJSPiler($routeDocumentGroupFile)
-                      })
-                      watcher.on('change', ($path, $stats) => {
-                        // console.log('EJSPiler', 'change', $path, $stats)
-                        Pilers.EJSPiler($routeDocumentGroupFile)
-                      })
-                      break switchRouteDocumentFileType
-                    case 'styles':
-                      watcher.on('add', ($path, $stats) => {
-                        console.log('SASSPiler', 'add', $path, $stats)
-                        Pilers.SASSPiler($routeDocumentGroupFile)
-                      })
-                      watcher.on('change', ($path, $stats) => {
-                        console.log('SASSPiler', 'change', $path, $stats)
-                        Pilers.SASSPiler($routeDocumentGroupFile)
-                      })
-                      break switchRouteDocumentFileType
-                  }
-                  this.#_watchers[$routeDocumentFileType].push(watcher)
-                  break switchRouteDocumentGroupFilePathType
-                // Output File Path
-                case 'output':
-                  // Output File Path Is String
-                  if(typeof $routeDocumentGroupFilePath === 'string') {
-                    $routeDocumentGroupFile[$routeDocumentGroupFilePathType] = path.join(
-                      $route.target, $routeDocumentGroupFilePath
-                    )
-                  }
-                  // Output File Path Is Array
-                  else if(Array.isArray($routeDocumentGroupFilePath)) {
-                    for(let [
-                      $outputPathIndex, $outputPath
-                    ] of Object.entries($routeDocumentGroupFilePath)) {
-                      $routeDocumentGroupFilePath[$outputPathIndex] = path.join(
-                        $route.target, $outputPath
-                      )
-                    }
-                  }
-                  break switchRouteDocumentGroupFilePathType
-                // Input File Path
-                case 'input': 
-                  // Input File Path Is String
-                  if(typeof $routeDocumentGroupFilePath === 'string') {
-                    $routeDocumentGroupFile[$routeDocumentGroupFilePathType] = path.join(
-                      $route.source, $routeDocumentGroupFilePath
-                    )
-                  }
-                  // Input File Path Is Array
-                  else if(Array.isArray($routeDocumentGroupFilePath)) {
-                    for(let [
-                      $inputPathIndex, $inputPath
-                    ] of Object.entries($routeDocumentGroupFilePath)) {
-                      $routeDocumentGroupFilePath[$inputPathIndex] = path.join(
-                        $route.source, $inputPath
-                      )
-                    }
-                  }
-                  break switchRouteDocumentGroupFilePathType
-                // Template File Path
-                case 'template':
-                  $routeDocumentGroupFile[$routeDocumentGroupFilePathType] = path.join(
-                    $route.source, $routeDocumentGroupFilePath
-                  )
-                  break switchRouteDocumentGroupFilePathType
-              }
-            }
-          }
-        }
-      }
-    }
+    this.#_watchers = new Watchers(Settings.routes)
     return this.#_watchers
   }
 }

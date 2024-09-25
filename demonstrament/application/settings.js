@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import certificates from './certificates.js'
+import routes from './routes.js'
 certificates.key.file = await readFile(
   certificates.key.path
 )
@@ -31,5 +32,6 @@ export default {
   },
   express: {
     static: ['static', 'localhost']
-  }
+  },
+  routes,
 }

@@ -1,10 +1,10 @@
-const typeOf = ($data) => Object
+const typeOf$1 = ($data) => Object
 	.prototype
 	.toString
 	.call($data).slice(8, -1).toLowerCase();
 
 function parseShortenedEvents($propEvents) {
-	if(typeOf($propEvents) === 'array') return $propEvents
+	if(typeOf$1($propEvents) === 'array') return $propEvents
 	const propEvents = [];
 	for(const [
 		$propEventSettings, $propEventCallback
@@ -89,6 +89,13 @@ function isDirectInstanceOf($object, $constructor) {
     return Object.getPrototypeOf($object) === $constructor.prototype
   }
 }
+
+// import { typeOf } from  '../../../../../../../Coutil/index.js'
+// export default typeOf
+const typeOf = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
 
 function Assign(
   $trap, $trapPropertyName, $aliases, $options
@@ -2069,7 +2076,35 @@ class Handler {
       return true
     }
   }
-  get deleteProperty() {}
+  get deleteProperty() {
+    const {
+      eventTarget, 
+      root, 
+      rootAlias, 
+    } = this.#settings;
+    let {
+      basename,
+      path,
+    } = this.#settings;
+    this.#options.traps.properties.set;
+    return function deleteProperty($target, $property) {
+      delete root[$property];
+      eventTarget.dispatchEvent(
+        new DynamicEventTargetEvent(
+          'delete',
+          {
+            basename,
+            path,
+            detail: {
+              property: $property
+            },
+          },
+          eventTarget
+        )
+      );
+      return true
+    }
+  }
   #isRootProperty($property) {
     return ($property === this.#settings.rootAlias)
   }
@@ -2127,7 +2162,7 @@ class Handler {
   }
 }
 
-var Options$6 = {
+var Options$4 = {
   rootAlias: 'content',
   traps: {
     properties: {
@@ -2203,14 +2238,14 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
     super();
     this.#settings = $settings;
     this.#options = Object.assign(
-      {}, Options$6, $options
+      {}, Options$4, $options
     );
     return this.proxy
   }
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.#settings);
+    this.#_type = typeOf$1(this.#settings);
     return this.#_type
   }
   get parent() {
@@ -2244,17 +2279,17 @@ let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
       typeof this.#options.rootAlias === 'string' &&
       this.#options.rootAlias.length > 0
     ) ? this.#options.rootAlias
-      : Options$6.rootAlias;
+      : Options$4.rootAlias;
     return this.#_rootAlias
   }
   // Root
   get #root() {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
-      typeOf(this.#settings) === 'object'
+      typeOf$1(this.#settings) === 'object'
     ) ? {}
       : (
-      typeOf(this.#settings) === 'array'
+      typeOf$1(this.#settings) === 'array'
     ) ? []
       : {};
     return this.#_root
@@ -2501,283 +2536,94 @@ class DynamicEventSystem extends EventTarget {
   }
 }
 
-const Settings$5 = {};
-const Options$5 = {};
+const Settings$3 = {};
+const Options$3 = {};
 
 class Core extends DynamicEventSystem {
-	constructor($settings = Settings$5, $options = Options$5) {
+	settings
+	options
+	constructor($settings = Settings$3, $options = Options$3) {
 		super($settings.events, $options.enable);
-		this.options = Object.assign({}, Options$5, $options);
-		this.settings = Object.assign({}, Settings$5, $settings);
-	}
-	#_settings = {}
-	get settings() { return this.#_settings }
-	set settings($settings) {
-		const _settings = this.#_settings;
-		for(const [
-			$settingKey, $settingVal
-		] of Object.entries($settings)) {
-			_settings[$settingKey] = $settingVal;
-		}
-		Object.freeze(_settings);
-	}
-	#_options = {}
-	get options() { return this.#_options }
-	set options($options) {
-		const _options = this.#_options;
-		for(const [
-			$optionKey, $optionVal
-		] of Object.entries($options)) {
-			_options[$optionKey] = $optionVal;
-		}
-		Object.freeze(_options);
+		this.options = Object.assign({}, Options$3, $options);
+		this.settings = Object.assign({}, Settings$3, $settings);
 	}
 }
 
 class Model extends Core {
+  #_content
 	constructor($settings = {}, $options = {}) {
-		super(
-      Object.assign({
-        rootAlias: 'content',
-        content: {},
-        events: {},
-      }, $settings),
-      Object.assign({
-        enable: true,
-        freeze: false,
-        content: {},
-      }, $options),
-    );
-		this.type = this.settings.type;
-		this.#rootAlias = this.settings.rootAlias;
-    Object.defineProperty(this, this.#rootAlias, {
-      get() { return this.#root }
-    });
-		this.#root = new DynamicEventTarget$1(this.settings.content, this.options.content);
-    if(this.options.enable === true) this.enableEvents();
+		super($settings, $options);
 	}
-  // Root Alias
-  #_rootAlias
-  get #rootAlias() { return this.#_rootAlias }
-  set #rootAlias($rootAlias) {
-    if(this.#_rootAlias !== undefined) return
-    this.#_rootAlias = ( 
-      typeof $rootAlias === 'string' &&
-      $rootAlias.length > 0
-    ) ? $rootAlias
-      : 'content';
+  get content() {
+    if(this.#_content !== undefined) return this.#_content
+    this.#_content = new DynamicEventTarget$1(this.settings.content, this.options.content);
+    return this.#_content
   }
-  // Root
-  #_root
-  get #root() { return this.#_root }
-  set #root($root) {
-    if(this.#_root !== undefined) return
-    this.#_root = $root;
-  }
-  // Aliases
-  #_aliases
-  get #aliases() {
-    if(this.#_aliases !== undefined) return this.#_aliases
-    this.#_aliases = {
-      $core: this,
-      $root: this.#_root,
-    };
-    return this.#_aliases
-  }
-}
-
-const Settings$4 = Object.freeze({
-  templates: { default: () => `` },
-  selectors: {},
-  events: {},
-});
-const Options$4 = Object.freeze({});
-
-class ViewBase extends Core {
-  constructor($settings = {}, $options = {}) {
-    super(
-      Object.assign({}, Settings$4, $settings),
-      Object.assign({}, Options$4, $options),
-    );
-    this.templates = this.settings.templates;
-    this.selectors = this.settings.selectors;
-  }
-  // Templates
-  #_templates = {}
-  get templates() { return this.#_templates }
-  set templates($templates = Settings$4.templates) {
-    const _templates = this.#_templates;
-    for(const [
-      $templateName, $template
-    ] of Object.entries($templates)) {      _templates[$templateName] = $template.bind(this);
-    }
-  }
-  // Selectors
-  #_selectors = {}
-  #_querySelectors = {}
-  get selectors() {
-    return this.#_querySelectors
-  }
-  set selectors($selectors = Settings$4.selectors) {
-    this.addSelectors($selectors);
-  }
-  // Add Selectors
-  addSelectors($selectors) {
-    const _selectors = this.#_selectors;
-    $selectors = (
-      $selectors === undefined
-    ) ? _selectors
-      : $selectors;
-    for(const [
-      $selectorName, $selector
-    ] of Object.entries($selectors)) {
-      _selectors[$selectorName] = $selector;
-    }
-    return this
-  }
-  // Remove Selectors
-  removeSelectors($selectors) {
-    const _selectors = this.#_selectors;
-    $selectors = (
-      $selectors === undefined
-    ) ? _selectors
-      : $selectors;
-    for(const [
-      $selectorName, $selector
-    ] of Object.entries($selectors)) {
-      delete _selectors[selectorName];
-    }
-    return this
-  }
-  // Enable
-  enable() {
-    this.enableSelectors();
-    this.enableEvents();
-    return this
-  }
-  // Enable  Selectors
-  enableSelectors($selectors) {
-    $selectors = (
-      $selectors === undefined
-    ) ? this.#_selectors
-      : $selectors;
-    const _querySelectors = this.#_querySelectors;
-    for(const [
-      $selectorName, $selector
-    ] of Object.entries($selectors)) {
-      if(this.element instanceof HTMLTemplateElement) {
-        _querySelectors[$selectorName] = this.element.content
-        .querySelectorAll($selector);
-        if(_querySelectors[$selectorName].length === 1) {
-          _querySelectors[$selectorName] = _querySelectors[$selectorName][0];
-        }
-      } else {
-        _querySelectors[$selectorName] = this.element
-        .querySelectorAll($selector);
-        if(_querySelectors[$selectorName].length === 1) {
-          _querySelectors[$selectorName] = _querySelectors[$selectorName][0];
-        }
-      }
-    }
-    return this
-  }
-  // Disable
-  disable() {
-    this.disableSelectors();
-    this.disableEvents();
-    return this
-  }
-  // Disable Selectors
-  disableSelectors($selectors) {
-    $selectors = (
-      $selectors === undefined
-    ) ? this.#_selectors
-      : $selectors;
-    const querySelectors = this.#_querySelectors;
-    for(const [
-      $selectorName, $selector
-    ] of Object.entries($selectors)) {
-      delete querySelectors[$selectorName];
-    }
-    return this
-  }
-}
-
-const Settings$3 = Object.freeze({
-  element: undefined,
-});
-const Options$3 = Object.freeze({
-  enableSelectors: true,
-  enableEvents: true,
-});
-class StaticView extends ViewBase {
-  constructor($settings = {}, $options = {}) {
-    super(
-      Object.assign({}, Settings$3, $settings),
-      Object.assign({}, Options$3, $options),
-    );
-    const {
-      enableSelectors, enableEvents
-    } = this.options;
-    this.element = this.settings.element;
-    if(enableSelectors === true) this.enableSelectors();
-    if(enableEvents === true) this.enableEvents();
-  }
-  // Element
-  #_element
-  get element() { return this.#_element }
-  set element($element) { this.#_element = $element; }
+  parse() { return this.content.parse() }
 }
 
 const Settings$2 = Object.freeze({
-  parentElement: undefined,
-  element: undefined, // document.createElement('template'),
   templates: { default: () => `` },
-  selectors: {},
+  querySelectors: {},
   events: {},
 });
 const Options$2 = Object.freeze({});
-const RenderSettings = Object.freeze({
-  templateName: 'default', 
-  content: {},
-});
-class DynamicView extends ViewBase {
+class View extends Core {
+  #_parent
+  #_element
+  #_template
+  #_querySelectors
+  #_isRendered = false
   constructor($settings = {}, $options = {}) {
     super(
       Object.assign({}, Settings$2, $settings),
       Object.assign({}, Options$2, $options),
     );
-    const { parentElement } = this.settings;
-    this.parentElement = parentElement;
-    this.element = document.createElement('template');
   }
-  // Parent
-  #_parentElement
-  get parentElement() { return this.#_parentElement }
-  set parentElement($parentElement) { this.#_parentElement = $parentElement; }
-  // Element
-  #_element
-  get element() { return this.#_element }
-  set element($element) { this.#_element = $element; }
-  // Render Element
-  renderElement($settings = {}) {
-    $settings = Object.assign({}, RenderSettings, $settings);
-    const element = this.element;
-    if(!element instanceof HTMLTemplateElement) return this
-    const { templateName, content } = $settings;
-    const template = this.templates[templateName];
-    if(
-      template !== undefined &&
-      typeOf(template) === 'function'
-    ) {
-      this.disable();
-      const templateContent = template(content);
-      element.innerHTML = templateContent;
-      this.enable();
-      this.dispatchEvent(new CustomEvent('render', {
-        detail: this
-      }));
+  get parent() { return this.settings.parent }
+  get template() {
+    if(this.#_template !== undefined) return this.#_template
+    this.#_template = document.createElement('template');
+    return this.#_template
+  }
+  get querySelectors() {
+    if(this.#_querySelectors !== undefined) return this.#_querySelectors
+    const $this = this;
+    this.#_querySelectors = {};
+    for(const [
+      $querySelectorMethod, $querySelectors
+    ] of Object.entries(this.settings.querySelectors)) {
+      for(const [
+        $querySelectorName, $querySelector
+      ] of Object.entries($querySelectors)) {
+        Object.defineProperty(this.#_querySelectors, $querySelectorName, {
+          get() {
+            return $this.parent[$querySelectorMethod]($querySelector)
+          }
+        });
+      }
     }
+    return this.#_querySelectors
+  }
+  autoinsert() {
+    try {
+      const { target, position } = this.settings.insertSelf;
+      target.insertAdjacentElement(position, this.parent);
+    } catch($err) {}
+    return this
+  }
+  autoremove() {
+    try {
+      this.parent.parentElement.removeChild(this.parent);
+    } catch($err) {}
+    return this
+  }
+  render($model, $template = 'default') {
+    this.disableEvents();
+    this.template.innerHTML = this.settings.templates[$template]($model);
+    this.parent.replaceChildren();
+    this.parent.appendChild(this.template.content);
+    this.enableEvents();
     return this
   }
 }
@@ -3110,7 +2956,7 @@ class Control extends Core {
 		] of Object.entries($models)) {
 			if($model instanceof Model) {
 				_models[$modelName] = $model;
-			} else if(typeOf($model) === 'object') {
+			} else if(typeOf$1($model) === 'object') {
 				_models[$modelName] = new Model($model);
 			}
 		}
@@ -3123,20 +2969,14 @@ class Control extends Core {
 			$viewName, $view
 		] of Object.entries($views)) {
 			if(
-				$view instanceof StaticView || 
-				$view instanceof DynamicView
+				$view instanceof View
 			) {
 				_views[$viewName] = $view;
 			} else
 			if(
-				typeOf($view) === 'object'
+				typeOf$1($view) === 'object'
 			) {
-				if($view.type === 'static') {
-					_views[$viewName] = new StaticView($view);
-				} else
-				if($view.type === 'dynamic') {
-					_views[$viewName] = new DynamicView($view);
-				}
+				_views[$viewName] = new View($view);
 			}
 		}
 	}
@@ -3149,7 +2989,7 @@ class Control extends Core {
 		] of Object.entries($controls)) {
 			if($control instanceof Control) {
 				_controls[$controlName] = $control;
-			} else if(typeOf($control) === 'object') {
+			} else if(typeOf$1($control) === 'object') {
 				_controls[$controlName] = new Control($control);
 			}
 		}
@@ -3172,7 +3012,7 @@ class Control extends Core {
 				) {
 					_routers[$routerClass][$routerName] = $router;
 				} else
-				if(typeOf($router) === 'object') {
+				if(typeOf$1($router) === 'object') {
 					const Router = (
 						$routerClass === 'static'
 					) ? StaticRouter
@@ -3202,5 +3042,5 @@ class Control extends Core {
 const DET = DynamicEventTarget$1;
 const DES = DynamicEventSystem;
 
-export { Control, Core, DES, DET, DynamicEventSystem, DynamicEventTarget$1 as DynamicEventTarget, DynamicView, FetchRouter, Model, StaticRouter, StaticView };
+export { Control, Core, DES, DET, DynamicEventSystem, DynamicEventTarget$1 as DynamicEventTarget, FetchRouter, Model, StaticRouter, View };
 //# sourceMappingURL=mvc-framework.js.map

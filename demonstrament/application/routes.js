@@ -1,96 +1,103 @@
 export default [
   {
-    name: "Index",
+    name: 'Index',
     url: '/',
     source: 'documents',
     target: 'localhost',
     main: 'index.html',
-    documents: [{
+    clear: {
+      target: [
+        '*.{html,css,js,md,map}',
+        '!static-cms',
+      ],
+      source: [
+        '**/template.js'
+      ],
+    },
+    documents: {
       simules: [{
-        input: ['favicon.ico'],
-        output: ['favicon.ico'],
-        watch: ['favicon.ico', '!photo-application', '!other-application'],
+        type: 'simule',
+        outputType: 'path',
+        input: 'favicon.ico',
+        output: 'favicon.ico',
+        watch: ['favicon.ico'],
       }, {
-        input: ['**/*.md'],
-        output: [''],
-        watch: ['**/*.md', '!photo-application', '!other-application'],
+        type: 'simule',
+        outputType: 'glob',
+        input: '**/*.md',
+        output: '',
+        watch: ['**/*.md', '!static-cms'],
       }],
       styles: [{
+        type: 'style',
         input: 'index.scss',
         output: 'index.css',
-        watch: ['**/*.scss', '!photo-application', '!other-application'],
+        watch: ['**/*.scss', '!static-cms'],
       }],
       scripts: [{
+        type: 'script',
         input: 'index.js',
         output: 'index.js',
-        watch: ['**/*.js', '!photo-application', '!other-application'],
+        watch: ['**/*.js', '!static-cms'],
       }],
       structs: [{
-        template: 'index.ejs',
-        input: 'index.json',
+        type: 'struct',
+        outputType: 'server',
+        model: 'index.json',
+        input: 'index.ejs',
         output: 'index.html',
-        watch: ['**/*.{ejs,json}', '!photo-application', '!other-application'],
+        watch: ['**/*.{ejs,json}', '!static-cms'],
       }],
-    }]
+    }
   },
   {
-    name: "Photo Application",
-    url: '/photo-application',
-    source: 'documents/photo-application',
-    target: 'localhost/photo-application',
+    name: 'Static CMS',
+    url: '/static-cms',
+    source: 'documents/static-cms',
+    target: 'localhost/static-cms',
     main: 'index.html',
-    documents: [{
+    clear: {
+      target: [
+        '/**/*.{html,css,js,md}',
+      ],
+      source: [
+        '**/template.js'
+      ],
+    },
+    documents: {
       simules: [{
-        input: ['**/*.md'],
-        output: [''],
+        type: 'simule',
+        outputType: 'glob',
+        input: '**/*.md',
+        output: '',
         watch: ['**/*.md'],
       }],
       styles: [{
+        type: 'style',
         input: 'index.scss',
         output: 'index.css',
         watch: ['**/*.scss'],
       }],
       scripts: [{
+        type: 'script',
         input: 'index.js',
         output: 'index.js',
         watch: ['**/*.js'],
       }],
       structs: [{
-        template: 'index.ejs',
-        input: 'index.json',
+        type: 'struct',
+        outputType: 'server',
+        model: 'index.json',
+        input: 'index.ejs',
         output: 'index.html',
-        watch: ['**/*.{ejs,json}'],
+        watch: ['index.ejs', 'index.json'],
+      }, {
+        type: 'struct',
+        outputType: 'client',
+        input: '**/*.ejs',
+        output: '',
+        watch: ['**/*.ejs', '!index.ejs'],
       }],
-    }]
-  },
-  {
-    name: "Other Application",
-    url: '/other-application',
-    source: 'documents/other-application',
-    target: 'localhost/other-application',
-    main: 'index.html',
-    documents: [{
-      simules: [{
-        input: ['**/*.md'],
-        output: [''],
-        watch: ['**/*.md'],
-      }],
-      styles: [{
-        input: 'index.scss',
-        output: 'index.css',
-        watch: ['**/*.scss'],
-      }],
-      scripts: [{
-        input: 'index.js',
-        output: 'index.js',
-        watch: ['**/*.js'],
-      }],
-      structs: [{
-        template: 'index.ejs',
-        input: 'index.json',
-        output: 'index.html',
-        watch: ['**/*.{ejs,json}'],
-      }],
-    }]
+    }
   }
 ]
