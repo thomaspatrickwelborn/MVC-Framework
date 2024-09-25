@@ -14,9 +14,9 @@ export default function outputPath(
     // Struct Client
     else if($document.outputType === 'client') {
       $document[$documentPathType] = path.join(
-        $route.source, $documentPath.replace(
-          new RegExp(/\.ejs$/), '.js'
-        )
+        $route.source, $documentPath
+        .replace(new RegExp(/\$/), '')
+        .replace(new RegExp(/\.ejs$/), '.js')
       )
     }
   }

@@ -12,15 +12,10 @@
 </head>
 <body>
   <header>
-    MVC Framework Projects
+    <h1><%= $content.title %></h1>
   </header>
-  <main>
-    <ul>
-      <li>
-        <a href="./static-cms">Static CMS</a>
-      </li>
-    </ul>
-  </main>
+  <main></main>
+  <footer></footer>
   <%- await include(
     '/html5/structure.ejs', 
     { structure: $content.scripts }, {

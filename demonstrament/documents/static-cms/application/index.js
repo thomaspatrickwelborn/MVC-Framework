@@ -1,4 +1,4 @@
-export default {
+export default [{
   views: {
     default: {
       querySelectors: {
@@ -8,4 +8,6 @@ export default {
   },
   models: {},
   controls: {},
-}
+}, {
+  
+}]

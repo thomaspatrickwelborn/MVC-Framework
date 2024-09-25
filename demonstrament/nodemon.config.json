@@ -5,6 +5,7 @@
     "index.js",
     "package.json",
     "nodemon.config.js",
+    "application.config.js",
     "application"
   ]
 }

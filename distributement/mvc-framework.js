@@ -2537,22 +2537,30 @@ class DynamicEventSystem extends EventTarget {
 }
 
 const Settings$3 = {};
-const Options$3 = {};
-
+const Options$3 = {
+  validSettings: [],
+  enableEvents: true,
+};
 class Core extends DynamicEventSystem {
-	settings
-	options
-	constructor($settings = Settings$3, $options = Options$3) {
-		super($settings.events, $options.enable);
-		this.options = Object.assign({}, Options$3, $options);
-		this.settings = Object.assign({}, Settings$3, $settings);
-	}
+  settings
+  options
+  constructor($settings = Settings$3, $options = Options$3) {
+    super($settings.events, $options.enable);
+    this.options = Object.assign({}, Options$3, $options);
+    this.settings = Object.assign({}, Settings$3, $settings);
+    for(const $validSetting of this.options.validSettings) {
+      Object.defineProperty(
+        this, $validSetting, { value: this.settings[$validSetting] },
+      );
+    }
+  }
 }
 
 class Model extends Core {
   #_content
 	constructor($settings = {}, $options = {}) {
 		super($settings, $options);
+    if(this.options.enableEvents === true) this.enableEvents();
 	}
   get content() {
     if(this.#_content !== undefined) return this.#_content
@@ -2562,12 +2570,12 @@ class Model extends Core {
   parse() { return this.content.parse() }
 }
 
-const Settings$2 = Object.freeze({
+const Settings$2 = {
   templates: { default: () => `` },
   querySelectors: {},
   events: {},
-});
-const Options$2 = Object.freeze({});
+};
+const Options$2 = {};
 class View extends Core {
   #_parent
   #_element
@@ -2607,7 +2615,7 @@ class View extends Core {
   }
   autoinsert() {
     try {
-      const { target, position } = this.settings.insertSelf;
+      const { target, position } = this.settings.autoinsert;
       target.insertAdjacentElement(position, this.parent);
     } catch($err) {}
     return this
@@ -2623,7 +2631,8 @@ class View extends Core {
     this.template.innerHTML = this.settings.templates[$template]($model);
     this.parent.replaceChildren();
     this.parent.appendChild(this.template.content);
-    this.enableEvents();
+    console.log(this.options);
+    if(this.options.enableEvents === true) { this.enableEvents(); }
     return this
   }
 }

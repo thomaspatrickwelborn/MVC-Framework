@@ -1,10 +1,10 @@
 import Core from '../Core/index.js'
-const Settings = Object.freeze({
+const Settings = {
   templates: { default: () => `` },
   querySelectors: {},
   events: {},
-})
-const Options = Object.freeze({})
+}
+const Options = {}
 export default class View extends Core {
   #_parent
   #_element
@@ -44,7 +44,7 @@ export default class View extends Core {
   }
   autoinsert() {
     try {
-      const { target, position } = this.settings.insertSelf
+      const { target, position } = this.settings.autoinsert
       target.insertAdjacentElement(position, this.parent)
     } catch($err) {}
     return this
@@ -60,7 +60,8 @@ export default class View extends Core {
     this.template.innerHTML = this.settings.templates[$template]($model)
     this.parent.replaceChildren()
     this.parent.appendChild(this.template.content)
-    this.enableEvents()
+    console.log(this.options)
+    if(this.options.enableEvents === true) { this.enableEvents() }
     return this
   }
 }

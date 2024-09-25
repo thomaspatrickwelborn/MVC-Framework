@@ -5,7 +5,6 @@ import https from 'node:https'
 import express from 'express'
 import browserSync from 'browser-sync'
 import Watchers from './watchers/index.js'
-import Settings from './settings.js'
 export default class Demonstrament extends EventTarget {
   #settings
   #_inspector
@@ -13,9 +12,10 @@ export default class Demonstrament extends EventTarget {
   #_https
   #_browserSync
   #_watchers
-  constructor() {
+  constructor($settings) {
     super()
-    this.#settings = Settings
+    // this.#settings = Settings
+    this.#settings = $settings
     this.inspector
     this.server
     this.https
@@ -98,7 +98,7 @@ export default class Demonstrament extends EventTarget {
     if(this.#_watchers !== undefined) {
       return this.#_watchers
     }
-    this.#_watchers = new Watchers(Settings.routes)
+    this.#_watchers = new Watchers(this.#settings.routes)
     return this.#_watchers
   }
 }

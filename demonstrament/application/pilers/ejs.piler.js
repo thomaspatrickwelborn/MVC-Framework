@@ -45,8 +45,9 @@ export default async function EJSPiler($settings, $route, $path) {
       indentSize: 2,
       indentChar: ' ',
     })
-    writeFile($path.replace(
-      new RegExp(/.ejs$/), '.js'
-    ), viewPileBeautify, ($err) => console.log)
+    const viewPilePath = $path
+    .replace(new RegExp(/\$/), '')
+    .replace(new RegExp(/.ejs$/), '.js')
+    writeFile(viewPilePath, viewPileBeautify, ($err) => console.log)
   }
 }
