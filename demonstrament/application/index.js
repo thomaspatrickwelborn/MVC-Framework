@@ -14,7 +14,6 @@ export default class Demonstrament extends EventTarget {
   #_watchers
   constructor($settings) {
     super()
-    // this.#settings = Settings
     this.#settings = $settings
     this.inspector
     this.server
@@ -39,7 +38,6 @@ export default class Demonstrament extends EventTarget {
     this.#_server = express()
     const router = {}
     for(const $static of this.#settings.express.static) {
-      console.log(process.env.PWD)
       this.#_server.use(
         express.static($static)
       )

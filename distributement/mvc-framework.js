@@ -2969,7 +2969,7 @@ class Control extends Core {
 				_models[$modelName] = new Model($model);
 			}
 			else if(typeOf$1($model) === 'array') {
-				models[$modelName] = new Model(...$model);
+				_models[$modelName] = new Model(...$model);
 			}
 		}
 	}

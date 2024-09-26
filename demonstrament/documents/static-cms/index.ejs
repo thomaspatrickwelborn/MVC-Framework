@@ -12,9 +12,10 @@
 </head>
 <body>
   <header>
-    <h1>Static Content Management System</h1>
+    <h1><%= $content.title %></h1>
   </header>
   <main></main>
+  <footer></footer>
   <%- await include(
     '/html5/structure.ejs', 
     { structure: $content.scripts }, {

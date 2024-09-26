@@ -10,7 +10,6 @@ export default async function SassPiler($settings) {
     '.', path.basename($settings.output).concat('.map')
   ].join('/')
   const sassPileSourceMapPend = `'\n/*# sourceMappingURL=${sourceMapFilePath} */`
-  console.log(sassPileSourceMapPend)
   const sassPileSourceMapPath = $settings.output.replace(
     new RegExp(/\.css$/), sourceMapExtension
   )
