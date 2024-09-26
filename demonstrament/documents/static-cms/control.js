@@ -1,7 +1,7 @@
 import DefaultTemplate from './template.js'
 export default [{
   views: {
-    default: [{
+    default: {
       parent: document.querySelector('body > main'),
       templates: { default: DefaultTemplate },
       querySelectors: {
@@ -9,10 +9,10 @@ export default [{
           'static-cms': ':scope > static-cms'
         }
       },
-    }],
+    },
   },
   models: {
-    default: [{}, {}]
+    default: {}
   },
   controls: {},
   start() {

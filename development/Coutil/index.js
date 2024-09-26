@@ -1,4 +1,3 @@
-import isDirectInstanceOf from './isDirectInstanceOf/index.js'
 import typeOf from './typeOf/index.js'
 import typedInstance from './typedInstance/index.js'
 import parseShortenedEvents from './parseShortenedEvents/index.js'
@@ -8,7 +7,6 @@ import eventCallbackNameFromEventCallback from './eventCallbackNameFromEventCall
 import eventListenerArgumentsValid from './eventListenerArgumentsValid/index.js'
 
 export {
-	isDirectInstanceOf,
 	typeOf, 
 	typedInstance, 
 	parseShortenedEvents, 

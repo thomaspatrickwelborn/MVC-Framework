@@ -2,20 +2,20 @@ import { Control, Model, View } from '/dependencies/mvc-framework.js'
 import DefaultTemplate from './template.js'
 const index = new Control({
   models: {
-    default: [{
+    default: {
       content: [{
         'href': "./static-cms",
         'textContent': "Static CMS"
-      }]
-    }, {}],
+      }],
+    },
   },
   views: {
-    default: [{
+    default: {
       parent: document.querySelector('body > main'),
       templates: {
         default: DefaultTemplate
       },
-    }, {}],
+    },
   },
   start() {
     this.views.default.render(

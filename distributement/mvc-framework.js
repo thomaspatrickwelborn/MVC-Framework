@@ -1,24 +1,10 @@
-function isDirectInstanceOf($object, $constructor) {
-  if($object === null || $object === undefined) return false
-  if(Array.isArray($constructor)) {
-    for(const $constructorClass of $constructor) {
-      if(Object.getPrototypeOf($object) === $constructorClass.prototype) {
-        return true
-      }
-    }
-    return false
-  } else {
-    return Object.getPrototypeOf($object) === $constructor.prototype
-  }
-}
-
-const typeOf = ($data) => Object
+const typeOf$1 = ($data) => Object
 	.prototype
 	.toString
 	.call($data).slice(8, -1).toLowerCase();
 
 function parseShortenedEvents($propEvents) {
-	if(typeOf($propEvents) === 'array') return $propEvents
+	if(typeOf$1($propEvents) === 'array') return $propEvents
 	const propEvents = [];
 	for(const [
 		$propEventSettings, $propEventCallback
@@ -43,191 +29,7 @@ function parseShortenedEvents($propEvents) {
 	return propEvents
 }
 
-class CoreEvent {
-  constructor($settings) { 
-    this.settings = $settings;
-  }
-  #_settings = {}
-  get settings() { return this.#_settings }
-  set settings($settings) {
-    const _settings = this.#_settings;
-    const {
-      context, type, target, callback, enable
-    } = $settings;
-    _settings.context = context;
-    this.context = context;
-    _settings.type = type;
-    this.type = type;
-    _settings.target = target;
-    this.target = target;
-    _settings.callback = callback;
-    this.callback = callback;
-    _settings.enable = enable;
-    this.enable = enable;
-
-  }
-  #_context
-  get context() { return this.#_context }
-  set context($context) { this.#_context = $context; }
-  #_type
-  get type() { return this.#_type }
-  set type($type) { this.#_type = $type; }
-  #_path = ''
-  get path() { return this.#_path }
-  set path($path) { this.#_path = $path; }
-  get target() {
-    let target = this.context;
-    for(const $targetPathKey of this.path.split('.')) {
-      if($targetPathKey === ':scope') break
-      if(target[$targetPathKey] === undefined) return undefined
-      target = target[$targetPathKey];
-    }
-    return target
-  }
-  set target($target) { this.path = $target; }
-  #_callback
-  get callback() {
-    return this.#_callback
-  }
-  set callback($callback) {
-    this.#_callback = $callback.bind(this.context);
-  }
-  #_enable = false
-  get enable() { return this.#_enable }
-  set enable($enable) {
-    if($enable === this.#_enable) return
-    const eventAbility = (
-      $enable === true
-    ) ? 'addEventListener'
-      : 'removeEventListener';
-    if(this.target instanceof NodeList) {
-      for(const $target of this.target) {
-        $target[eventAbility](this.type, this.callback);
-        this.#_enable = $enable;
-      }
-    } else if(this.target instanceof EventTarget) {
-      this.target[eventAbility](this.type, this.callback);
-      this.#_enable = $enable;
-    } else {
-      try {
-        this.target[eventAbility](this.type, this.callback);
-        this.#_enable = $enable;
-      } catch($err) { /* console.log(this.type, this.path, eventAbility) */ }
-    }
-  }
-}
-
-const Settings$3 = {};
-const Options$4 = {
-  validSettings: [],
-  enableEvents: true,
-};
-class Core extends EventTarget {
-  settings
-  options
-  #_events = []
-  constructor($settings = Settings$3, $options = Options$4) {
-    super();
-    this.options = Object.assign({}, Options$4, $options);
-    this.settings = Object.assign({}, Settings$3, $settings);
-    this.events = this.settings.events;
-    for(const $validSetting of this.options.validSettings) {
-      Object.defineProperty(
-        this, $validSetting, { value: this.settings[$validSetting] },
-      );
-    }
-  }
-  get events() { return this.#_events }
-  set events($events) { this.addEvents($events); }
-  getEvents($event = {}) {
-    const _events = this.#_events;
-    const events = [];
-    for(const _event of _events) {
-      if(((
-        $event.type !== undefined &&
-        $event.path === undefined &&
-        $event.callback === undefined
-      ) && ($event.type === _event.type)) || 
-      ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback === undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target
-      )) || ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback !== undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target &&
-        $event.callback === _event.callback
-      ))) {
-        events.push(_event);
-      }
-    }
-    return events
-  }
-  addEvents($events = {}, $enable = false) {
-    const _events = this.events;
-    for(const $event of parseShortenedEvents($events)) {
-      Object.assign($event, {
-        context: this,
-        enable: $event.enable || $enable,
-      });
-      _events.push(new CoreEvent($event));
-    }
-  }
-  removeEvents($events = {}) {
-    const _events = this.events;
-    $events = parseShortenedEvents($events) || _events;
-    let eventsIndex = _events.length - 1;
-    while(eventsIndex > -1) {
-      const event = _events[eventsIndex];
-      const removeEventIndex = $events.findIndex(
-        ($event) => (
-          $event.type === event.type &&
-          $event.target === event.path &&
-          $event.callback === event.callback
-        )
-      );
-      if(removeEventIndex !== -1) _events.splice(eventsIndex, 1);
-      eventsIndex--;
-    }
-  }
-  enableEvents($events) {
-    $events = (
-      typeof $events === 'object'
-    ) ? parseShortenedEvents($events)
-      : this.events;
-    return this.#toggleEventAbility('addEventListener', $events)
-  }
-  disableEvents($events) {
-    $events = (
-      typeof $events === 'object'
-    ) ? parseShortenedEvents($events)
-      : this.events;
-    return this.#toggleEventAbility('removeEventListener', $events)
-  }
-  #toggleEventAbility($eventListenerMethod, $events) {
-    const enability = (
-      $eventListenerMethod === 'addEventListener'
-    ) ? true
-      : (
-      $eventListenerMethod === 'removeEventListener'
-    ) ? false
-      : undefined;
-    if(enability === undefined) return this
-    $events = $events || this.events;
-    for(const $event of $events) {
-      $event.enable = enability;
-    }
-    return this
-  }
-}
-
-class ModelEvent extends Event {
+class DynamicEventTargetEvent extends Event {
   #settings
   #eventTarget
   constructor($type, $settings, $eventTarget) {
@@ -239,7 +41,7 @@ class ModelEvent extends Event {
       ($event) => {
         if(this.#eventTarget.parent !== null) {
           this.#eventTarget.parent.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               this.type, 
               {
                 basename: $event.basename,
@@ -274,6 +76,27 @@ class Trap {
   }
 }
 
+function isDirectInstanceOf($object, $constructor) {
+  if($object === null || $object === undefined) return false
+  if(Array.isArray($constructor)) {
+    for(const $constructorClass of $constructor) {
+      if(Object.getPrototypeOf($object) === $constructorClass.prototype) {
+        return true
+      }
+    }
+    return false
+  } else {
+    return Object.getPrototypeOf($object) === $constructor.prototype
+  }
+}
+
+// import { typeOf } from  '../../../../../../../Coutil/index.js'
+// export default typeOf
+const typeOf = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
 function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -295,7 +118,7 @@ function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            // Assign Root Model Property
+            // Assign Root DET Property
             if(
               isDirectInstanceOf(
                 $sourcePropVal, [Object, Array/*, Map*/]
@@ -303,22 +126,22 @@ function Assign(
             ) {
               // Merge
               if(merge === true) {
-                // Assign Existent Root Model Property
+                // Assign Existent Root DET Property
                 if(
                   root[$sourcePropKey]
-                  ?.constructor.name === 'bound Model'
+                  ?.constructor.name === 'bound DynamicEventTarget'
                 ) {
                   root[$sourcePropKey].assign($sourcePropVal);
                 } else 
-                // Assign Non-Existent Root Model Property
+                // Assign Non-Existent Root DET Property
                 {
                   const _basename = $sourcePropKey;
                   const _path = (
                     path !== null
                   ) ? path.concat('.', $sourcePropKey)
                     : $sourcePropKey;
-                  const model = new Model$1(
-                    { content: $sourcePropVal }, {
+                  const detObject = new DynamicEventTarget$1(
+                    $sourcePropVal, {
                       basename: _basename,
                       parent: eventTarget,
                       path: _path,
@@ -326,7 +149,7 @@ function Assign(
                     }
                   );
                   Object.assign(root, {
-                    [$sourcePropKey]: model
+                    [$sourcePropKey]: detObject
                   });
                 }
               } else
@@ -337,8 +160,8 @@ function Assign(
                   path !== null
                 ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
-                const model = new Model$1(
-                  { content: $sourcePropVal }, {
+                const detObject = new DynamicEventTarget$1(
+                  $sourcePropVal, {
                     basename: _basename,
                     parent: eventTarget,
                     path: _path,
@@ -346,7 +169,7 @@ function Assign(
                   }
                 );
                 Object.assign(root, {
-                  [$sourcePropKey]: model
+                  [$sourcePropKey]: detObject
                 });
               }
             } else 
@@ -359,7 +182,7 @@ function Assign(
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
               eventTarget.dispatchEvent(
-                new ModelEvent(
+                new DynamicEventTargetEvent(
                   'assignSourceProperty',
                   {
                     basename,
@@ -378,7 +201,7 @@ function Assign(
           // Assign Source Event
           if(events.includes('assignSource')) {
             eventTarget.dispatchEvent(
-              new ModelEvent(
+              new DynamicEventTargetEvent(
                 'assignSource',
                 {
                   basename,
@@ -395,7 +218,7 @@ function Assign(
         // Assign Event
         if(events.includes('assign')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'assign',
               { 
                 basename,
@@ -440,7 +263,7 @@ function DefineProperties(
         // Define Properties Event
         if(events.includes('defineProperties')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'defineProperties',
               {
                 basename,
@@ -484,10 +307,10 @@ function DefineProperty(
           ) || {};
           // Descriptor Value Merge
           if(descriptorValueMerge === true) {
-            // Root Property Descriptor Value Is Existent Model Instance
+            // Root Property Descriptor Value Is Existent DET Instance
             if(
-              rootPropertyDescriptor.value // instanceof Model
-              ?.constructor.name === 'bound Model'
+              rootPropertyDescriptor.value // instanceof DynamicEventTarget
+              ?.constructor.name === 'bound DynamicEventTarget'
             ) {
               // Root Define Properties, Descriptor Tree
               if(descriptorTree === true) {
@@ -502,7 +325,7 @@ function DefineProperty(
                 );
               }
             }
-            // Root Property Descriptor Value Is Non-Existent Model Instance
+            // Root Property Descriptor Value Is Non-Existent DET Instance
             else {
               const _basename = propertyKey;
               const _path = (
@@ -524,8 +347,8 @@ function DefineProperty(
               // ) === 'map'
               //   ? new Map()
                 : {};
-              const model = new Model$1(
-                { content: _root }, {
+              const detObject = new DynamicEventTarget$1(
+                _root, {
                   basename: _basename,
                   parent: eventTarget,
                   path: _path,
@@ -534,10 +357,10 @@ function DefineProperty(
               );
               // Root Define Properties, Descriptor Tree
               if(descriptorTree === true) {
-                model.defineProperties(
+                detObject.defineProperties(
                   propertyDescriptor.value
                 );
-                root[propertyKey] = model;
+                root[propertyKey] = detObject;
               } else 
               // Root Define Properties, No Descriptor Tree
               if(descriptorTree === false) {
@@ -569,8 +392,8 @@ function DefineProperty(
             // ) === 'map'
             //   ? new Map()
               : {};
-            const model = new Model$1(
-              { content: _root }, {
+            const detObject = new DynamicEventTarget$1(
+              _root, {
                 basename: _basename,
                 parent: eventTarget,
                 path: _path,
@@ -579,10 +402,10 @@ function DefineProperty(
             );
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
-              model.defineProperties(
+              detObject.defineProperties(
                 propertyDescriptor.value
               );
-              root[propertyKey] = model;
+              root[propertyKey] = detObject;
             } else
             // Root Define Properties, No Descriptor Tree
             if(descriptorTree === false) {
@@ -601,7 +424,7 @@ function DefineProperty(
         // Define Property Event
         if(events.includes('defineProperty')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'defineProperty',
               {
                 basename,
@@ -653,7 +476,7 @@ function Freeze(
             $propertyKey, $propertyValue
           ] of Object.entries(this)) {
             if(
-              $propertyValue.constructor.name === 'bound Model'
+              $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
               $propertyValue.freeze();
             } else {
@@ -666,7 +489,7 @@ function Freeze(
               : $propertyKey;
             if(events.includes('freeze')) {
               eventTarget.dispatchEvent(
-                new ModelEvent(
+                new DynamicEventTargetEvent(
                   'freeze',
                   {
                     path: _path,
@@ -936,7 +759,7 @@ function Seal(
             $propertyKey, $propertyValue
           ] of Object.entries(this)) {
             if(
-              $propertyValue.constructor.name === 'bound Model'
+              $propertyValue.constructor.name === 'bound DynamicEventTarget'
             ) {
               $propertyValue.seal();
             } else {
@@ -949,7 +772,7 @@ function Seal(
               : $propertyKey;
             if(events.includes('seal')) {
               eventTarget.dispatchEvent(
-                new ModelEvent(
+                new DynamicEventTargetEvent(
                   'seal',
                   {
                     path,
@@ -984,7 +807,7 @@ function SetPrototypeOf(
         const prototype = arguments[0];
         Object.setPrototypeOf(root, prototype);
         eventTarget.dispatchEvent(
-          new ModelEvent(
+          new DynamicEventTargetEvent(
             'setPrototypeOf',
             {
               basename,
@@ -1151,7 +974,7 @@ function CopyWithin(
           // Array Copy Within Index Event Data
           if(events.includes('copyWithinIndex')) {
             eventTarget.dispatchEvent(
-              new ModelEvent(
+              new DynamicEventTargetEvent(
                 'copyWithinIndex',
                 {
                   basename: eventTarget.basename,
@@ -1173,7 +996,7 @@ function CopyWithin(
         // Array Copy Within Event
         if(events.includes('copyWithin')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'copyWithin',
               {
                 basename: eventTarget.basename,
@@ -1252,9 +1075,7 @@ function Fill(
         if(isDirectInstanceOf(
           value, [Object, Array/*, Map*/]
         )) {
-          value = new Model$1({
-            content: value
-          }, {
+          value = new DynamicEventTarget$1(value, {
             rootAlias: rootAlias,
           });
         }
@@ -1296,7 +1117,7 @@ function Fill(
           // Array Fill Index Event
           if(events.includes('fillIndex')) {
             $eventTarget.dispatchEvent(
-              new ModelEvent(
+              new DynamicEventTargetEvent(
                 'fillIndex',
                 {
                   basename: _basename,
@@ -1316,7 +1137,7 @@ function Fill(
         // Array Fill Event
         if(events.includes('fill')) {
           $eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'fill',
               {
                 basename,
@@ -1571,7 +1392,7 @@ function Pop(
         // Array Pop Event
         if(events.includes('pop')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'pop',
               {
                 basename,
@@ -1617,9 +1438,7 @@ function Push(
           if(isDirectInstanceOf(
             $element, [Object, Array/*, Map*/]
           )) {
-            $element = new Model$1({
-              content: $element
-            }, {
+            $element = new DynamicEventTarget$1($element, {
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
@@ -1629,7 +1448,7 @@ function Push(
           Array.prototype.push.call(root, $element);
           if(events.includes('pushProp')) {
             eventTarget.dispatchEvent(
-              new ModelEvent(
+              new DynamicEventTargetEvent(
                 'pushProp',
                 {
                   basename: _basename,
@@ -1648,7 +1467,7 @@ function Push(
         // Push Event
         if(events.includes('push')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'push',
               {
                 basename,
@@ -1710,7 +1529,7 @@ function Reverse(
         Array.prototype.reverse.call(root, ...arguments);
         if(events.includes('reverse')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'reverse',
               {
                 basename,
@@ -1753,7 +1572,7 @@ function Shift(
         // Array Shift Event
         if(events.includes('shift')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'shift',
               {
                 basename,
@@ -1841,7 +1660,7 @@ function Splice(
             : deleteItemsIndex;
           if(events.includes('spliceDelete')) {
             eventTarget.dispatchEvent(
-              new ModelEvent(
+              new DynamicEventTargetEvent(
                 'spliceDelete',
                 {
                   _basename,
@@ -1872,7 +1691,7 @@ function Splice(
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
             eventTarget.dispatchEvent(
-              new ModelEvent(
+              new DynamicEventTargetEvent(
                 'spliceAdd',
                 {
                   basename,
@@ -1892,7 +1711,7 @@ function Splice(
         // Array Splice Event
         if(events.includes('splice')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'splice',
               {
                 basename,
@@ -2008,21 +1827,18 @@ function Unshift(
           if(isDirectInstanceOf(
             element, [Object, Array/*, Map*/]
           )) {
-            element = new Model(
-              { content: element }, 
-              {
-                basename: _basename,
-                path: _path,
-                rootAlias: rootAlias,
-              }
-            );
+            element = new DynamicEventTarget(element, {
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
+            });
           }
           elements.unshift(element);
           Array.prototype.unshift.call(root, element);
           // Array Unshift Prop Event
           if(events.includes('unshiftProp')) {
             eventTarget.dispatchEvent(
-              new ModelEvent(
+              new DynamicEventTargetEvent(
                 'unshiftProp',
                 {
                   basename: _basename,
@@ -2046,7 +1862,7 @@ function Unshift(
           : elementIndex;
         if(events.includes('unshift')) {
           eventTarget.dispatchEvent(
-            new ModelEvent(
+            new DynamicEventTargetEvent(
               'unshift',
               {
                 basename: _basename,
@@ -2184,7 +2000,7 @@ class Handler {
         return this.proxy
       } else
       // Event Target/Dynamic Event Target Property
-      if(this.#isEventTargetOrModelProperty($property)) {
+      if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
         if(typeof eventTarget[$property] === 'function') {
           return eventTarget[$property].bind(eventTarget)
         }
@@ -2227,10 +2043,8 @@ class Handler {
       } else
       // Dynamic Event Target Property
       if(typeof $value === 'object') {
-        $value = new Model$1(
-          {
-            content: $value
-          }, {
+        $value = new DynamicEventTarget$1(
+          $value, {
             basename,
             parent: eventTarget,
             path,
@@ -2246,7 +2060,7 @@ class Handler {
       ) ? path.concat('.', $property)
         : $property;
       eventTarget.dispatchEvent(
-        new ModelEvent(
+        new DynamicEventTargetEvent(
           'set',
           {
             basename,
@@ -2276,7 +2090,7 @@ class Handler {
     return function deleteProperty($target, $property) {
       delete root[$property];
       eventTarget.dispatchEvent(
-        new ModelEvent(
+        new DynamicEventTargetEvent(
           'delete',
           {
             basename,
@@ -2294,12 +2108,12 @@ class Handler {
   #isRootProperty($property) {
     return ($property === this.#settings.rootAlias)
   }
-  #isModelProperty($property) {
+  #isDynamicEventTargetProperty($property) {
     return (
       (
         Object.getOwnPropertyNames(EventTarget.prototype)
         .includes($property) ||
-        Object.getOwnPropertyNames(Model$1.prototype)
+        Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
         .includes($property)
       )
     )
@@ -2309,16 +2123,16 @@ class Handler {
       (
         Object.getOwnPropertyNames(EventTarget.prototype)
         .includes($property) ||
-        Object.getOwnPropertyNames(Model$1.prototype)
+        Object.getOwnPropertyNames(DynamicEventTarget$1.prototype)
         .includes($property)
       )
     )
   }
-  #isEventTargetOrModelProperty($property) {
+  #isEventTargetOrDynamicEventTargetProperty($property) {
     return (
       (
         this.#isEventTarget($property) ||
-        this.#isModelProperty($property)
+        this.#isDynamicEventTargetProperty($property)
       )
     )
   }
@@ -2348,7 +2162,7 @@ class Handler {
   }
 }
 
-var Options$3 = {
+var Options$4 = {
   rootAlias: 'content',
   traps: {
     properties: {
@@ -2408,7 +2222,7 @@ var Options$3 = {
   }
 };
 
-let Model$1 = class Model extends Core {
+let DynamicEventTarget$1 = class DynamicEventTarget extends EventTarget {
   #settings
   #options
   #_type // 'object' // 'array' // 'map'
@@ -2424,14 +2238,14 @@ let Model$1 = class Model extends Core {
     super();
     this.#settings = $settings;
     this.#options = Object.assign(
-      {}, Options$3, $options
+      {}, Options$4, $options
     );
     return this.proxy
   }
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.#settings.content);
+    this.#_type = typeOf$1(this.#settings);
     return this.#_type
   }
   get parent() {
@@ -2465,17 +2279,17 @@ let Model$1 = class Model extends Core {
       typeof this.#options.rootAlias === 'string' &&
       this.#options.rootAlias.length > 0
     ) ? this.#options.rootAlias
-      : Options$3.rootAlias;
+      : Options$4.rootAlias;
     return this.#_rootAlias
   }
   // Root
   get #root() {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
-      typeOf(this.#settings.content) === 'object'
+      typeOf$1(this.#settings) === 'object'
     ) ? {}
       : (
-      typeOf(this.#settings.content) === 'array'
+      typeOf$1(this.#settings) === 'array'
     ) ? []
       : {};
     return this.#_root
@@ -2486,10 +2300,10 @@ let Model$1 = class Model extends Core {
     this.#_proxy = new Proxy(this.#root, this.#handler);
     this.#handler.proxy = this.proxy;
     if(this.type === 'object') {
-      this.#_proxy.assign(this.#settings.content);
+      this.#_proxy.assign(this.#settings);
     } else
     if(this.type === 'array') {
-      this.#_proxy.assign(this.#settings.content);
+      this.#_proxy.assign(this.#settings);
     }
     return this.#_proxy
   }
@@ -2551,6 +2365,210 @@ let Model$1 = class Model extends Core {
     return undefined
   }
 };
+
+class DynamicEventSystemEvent {
+  constructor($settings) { 
+    this.settings = $settings;
+  }
+  #_settings = {}
+  get settings() { return this.#_settings }
+  set settings($settings) {
+    const _settings = this.#_settings;
+    const {
+      context, type, target, callback, enable
+    } = $settings;
+    _settings.context = context;
+    this.context = context;
+    _settings.type = type;
+    this.type = type;
+    _settings.target = target;
+    this.target = target;
+    _settings.callback = callback;
+    this.callback = callback;
+    _settings.enable = enable;
+    this.enable = enable;
+
+  }
+  #_context
+  get context() { return this.#_context }
+  set context($context) { this.#_context = $context; }
+  #_type
+  get type() { return this.#_type }
+  set type($type) { this.#_type = $type; }
+  #_path = ''
+  get path() { return this.#_path }
+  set path($path) { this.#_path = $path; }
+  get target() {
+    let target = this.context;
+    for(const $targetPathKey of this.path.split('.')) {
+      if($targetPathKey === ':scope') break
+      if(target[$targetPathKey] === undefined) return undefined
+      target = target[$targetPathKey];
+    }
+    return target
+  }
+  set target($target) { this.path = $target; }
+  #_callback
+  get callback() {
+    return this.#_callback
+  }
+  set callback($callback) {
+    this.#_callback = $callback.bind(this.context);
+  }
+  #_enable = false
+  get enable() { return this.#_enable }
+  set enable($enable) {
+    if($enable === this.#_enable) return
+    const eventAbility = (
+      $enable === true
+    ) ? 'addEventListener'
+      : 'removeEventListener';
+    if(this.target instanceof NodeList) {
+      for(const $target of this.target) {
+        $target[eventAbility](this.type, this.callback);
+        this.#_enable = $enable;
+      }
+    } else if(this.target instanceof EventTarget) {
+      this.target[eventAbility](this.type, this.callback);
+      this.#_enable = $enable;
+    } else {
+      try {
+        this.target[eventAbility](this.type, this.callback);
+        this.#_enable = $enable;
+      } catch($err) { /* console.log(this.type, this.path, eventAbility) */ }
+    }
+  }
+}
+
+class DynamicEventSystem extends EventTarget {
+  constructor($events, $enable) {
+    super();
+    this.events = $events;
+  }
+  #_events = []
+  get events() { return this.#_events }
+  set events($events) { this.addEvents($events); }
+  getEvents($event = {}) {
+    const _events = this.#_events;
+    const events = [];
+    for(const _event of _events) {
+      if(((
+        $event.type !== undefined &&
+        $event.path === undefined &&
+        $event.callback === undefined
+      ) && ($event.type === _event.type)) || 
+      ((
+        $event.type !== undefined &&
+        $event.path !== undefined &&
+        $event.callback === undefined
+      ) && (
+        $event.type === _event.type &&
+        $event.path === _event.target
+      )) || ((
+        $event.type !== undefined &&
+        $event.path !== undefined &&
+        $event.callback !== undefined
+      ) && (
+        $event.type === _event.type &&
+        $event.path === _event.target &&
+        $event.callback === _event.callback
+      ))) {
+        events.push(_event);
+      }
+    }
+    return events
+  }
+  addEvents($events = {}, $enable = false) {
+  	const _events = this.events;
+  	for(const $event of parseShortenedEvents($events)) {
+  		Object.assign($event, {
+  			context: this,
+  			enable: $event.enable || $enable,
+  		});
+  		_events.push(new DynamicEventSystemEvent($event));
+  	}
+  }
+  removeEvents($events = {}) {
+  	const _events = this.events;
+    $events = parseShortenedEvents($events) || _events;
+  	let eventsIndex = _events.length - 1;
+  	while(eventsIndex > -1) {
+  		const event = _events[eventsIndex];
+  		const removeEventIndex = $events.findIndex(
+  			($event) => (
+  				$event.type === event.type &&
+  				$event.target === event.path &&
+  				$event.callback === event.callback
+				)
+			);
+			if(removeEventIndex !== -1) _events.splice(eventsIndex, 1);
+			eventsIndex--;
+  	}
+  }
+  enableEvents($events) {
+    $events = (
+      typeof $events === 'object'
+    ) ? parseShortenedEvents($events)
+      : this.events;
+    return this.#toggleEventAbility('addEventListener', $events)
+  }
+  disableEvents($events) {
+    $events = (
+      typeof $events === 'object'
+    ) ? parseShortenedEvents($events)
+      : this.events;
+    return this.#toggleEventAbility('removeEventListener', $events)
+  }
+  #toggleEventAbility($eventListenerMethod, $events) {
+    const enability = (
+      $eventListenerMethod === 'addEventListener'
+    ) ? true
+      : (
+      $eventListenerMethod === 'removeEventListener'
+    ) ? false
+      : undefined;
+    if(enability === undefined) return this
+    $events = $events || this.events;
+    for(const $event of $events) {
+      $event.enable = enability;
+    }
+    return this
+  }
+}
+
+const Settings$3 = {};
+const Options$3 = {
+  validSettings: [],
+  enableEvents: true,
+};
+class Core extends DynamicEventSystem {
+  settings
+  options
+  constructor($settings = Settings$3, $options = Options$3) {
+    super($settings.events, $options.enable);
+    this.options = Object.assign({}, Options$3, $options);
+    this.settings = Object.assign({}, Settings$3, $settings);
+    for(const $validSetting of this.options.validSettings) {
+      Object.defineProperty(
+        this, $validSetting, { value: this.settings[$validSetting] },
+      );
+    }
+  }
+}
+
+class Model extends Core {
+  #_content
+	constructor($settings = {}, $options = {}) {
+		super($settings, $options);
+    if(this.options.enableEvents === true) this.enableEvents();
+	}
+  get content() {
+    if(this.#_content !== undefined) return this.#_content
+    this.#_content = new DynamicEventTarget$1(this.settings.content, this.options.content);
+    return this.#_content
+  }
+  parse() { return this.content.parse() }
+}
 
 const Settings$2 = {
   templates: { default: () => `` },
@@ -2944,14 +2962,14 @@ class Control extends Core {
 		for(const [
 			$modelName, $model
 		] of Object.entries($models)) {
-			if($model instanceof Model$1) {
+			if($model instanceof Model) {
 				_models[$modelName] = $model;
 			}
-			else if(typeOf($model) === 'object') {
-				_models[$modelName] = new Model$1($model);
+			else if(typeOf$1($model) === 'object') {
+				_models[$modelName] = new Model($model);
 			}
-			else if(typeOf($model) === 'array') {
-				_models[$modelName] = new Model$1(...$model);
+			else if(typeOf$1($model) === 'array') {
+				models[$modelName] = new Model(...$model);
 			}
 		}
 	}
@@ -2965,10 +2983,10 @@ class Control extends Core {
 			if($view instanceof View) {
 				_views[$viewName] = $view;
 			}
-			else if(typeOf($view) === 'object') {
+			else if(typeOf$1($view) === 'object') {
 				_views[$viewName] = new View($view);
 			}
-			else if(typeOf($view) === 'array') {
+			else if(typeOf$1($view) === 'array') {
 				_views[$viewName] = new View(...$view);
 			}
 		}
@@ -2983,10 +3001,10 @@ class Control extends Core {
 			if($control instanceof Control) {
 				_controls[$controlName] = $control;
 			}
-			else if(typeOf($control) === 'object') {
+			else if(typeOf$1($control) === 'object') {
 				_controls[$controlName] = new Control($control);
 			}
-			else if(typeOf($control) === 'array') {
+			else if(typeOf$1($control) === 'array') {
 				_controls[$controlName] = new Control(...$control);
 			}
 		}
@@ -3009,7 +3027,7 @@ class Control extends Core {
 				) {
 					_routers[$routerClass][$routerName] = $router;
 				}
-				else if(typeOf($router) === 'object') {
+				else if(typeOf$1($router) === 'object') {
 					const Router = (
 						$routerClass === 'static'
 					) ? StaticRouter
@@ -3021,7 +3039,7 @@ class Control extends Core {
 				  	_routers[$routerClass][$routerName] = new Router($router);
 				  }
 				}
-				else if(typeOf($router) === 'array') {
+				else if(typeOf$1($router) === 'array') {
 					const Router = (
 						$routerClass === 'static'
 					) ? StaticRouter
@@ -3046,5 +3064,10 @@ class Control extends Core {
 	}
 }
 
-export { Control, Core, FetchRouter, Model$1 as Model, StaticRouter, View };
+// Classes
+// Class Aliases
+const DET = DynamicEventTarget$1;
+const DES = DynamicEventSystem;
+
+export { Control, Core, DES, DET, DynamicEventSystem, DynamicEventTarget$1 as DynamicEventTarget, FetchRouter, Model, StaticRouter, View };
 //# sourceMappingURL=mvc-framework.js.map

@@ -47,7 +47,7 @@ export default class Control extends Core {
 				_models[$modelName] = new Model($model)
 			}
 			else if(typeOf($model) === 'array') {
-				_models[$modelName] = new Model(...$model)
+				models[$modelName] = new Model(...$model)
 			}
 		}
 	}

@@ -1,3 +1,4 @@
+import DynamicEventTarget from '../../Core/DynamicEventTarget/index.js'
 import FetchRoute from './FetchRoute/index.js'
 import Core from '../../Core/index.js'
 export default class FetchRouter extends Core {
