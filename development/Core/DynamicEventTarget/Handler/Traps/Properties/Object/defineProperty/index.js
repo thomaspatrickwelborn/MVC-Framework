@@ -14,6 +14,7 @@ export default function DefineProperty(
     rootAlias, 
     basename,
     path, 
+    schema,
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -75,7 +76,7 @@ export default function DefineProperty(
                   parent: eventTarget,
                   path: _path,
                   rootAlias,
-                }
+                }, schema
               )
               // Root Define Properties, Descriptor Tree
               if(descriptorTree === true) {
@@ -120,7 +121,7 @@ export default function DefineProperty(
                 parent: eventTarget,
                 path: _path,
                 rootAlias,
-              }
+              }, schema
             )
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {

@@ -1,7 +1,7 @@
 import DefaultTemplate from './template.js'
 const BrowserSyncControl = [{
   models: {
-    interface: [{
+    device: [{
       content: {
         legend: 'Browser Sync',
         port: {
@@ -21,7 +21,7 @@ const BrowserSyncControl = [{
         },
       },
     }],
-    settings: [{
+    database: [{
       schema: {
         port: Number,
         host: String,

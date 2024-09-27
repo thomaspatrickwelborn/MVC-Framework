@@ -1,3 +1,4 @@
+import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Splice(
   $trap, $trapPropertyName, $aliases, $options
@@ -9,6 +10,7 @@ export default function Splice(
     rootAlias, 
     basename,
     path, 
+    schema,
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -63,6 +65,15 @@ export default function Splice(
         spliceAdd: 
         while(addItemsIndex < addCount) {
           const addItem = addItems[addItemsIndex]
+          if(isDirectInstanceOf(
+            addItem, [Object, Array/*, Map*/]
+          )) {
+            addItem = new DynamicEventTarget(addItem, {
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
+            }, schema)
+          }
           Array.prototype.splice.call(
             root, start + addItemsIndex, 0, addItem
           )

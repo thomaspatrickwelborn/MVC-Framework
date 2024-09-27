@@ -11,7 +11,9 @@ export default function Assign(
     path, 
     root, 
     rootAlias, 
+    schema,
   } = $aliases
+  const { validation } = schema?.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -38,9 +40,9 @@ export default function Assign(
                   ?.constructor.name === 'bound DynamicEventTarget'
                 ) {
                   root[$sourcePropKey].assign($sourcePropVal)
-                } else 
+                }
                 // Assign Non-Existent Root DET Property
-                {
+                else {
                   const _basename = $sourcePropKey
                   const _path = (
                     path !== null
@@ -52,15 +54,15 @@ export default function Assign(
                       parent: eventTarget,
                       path: _path,
                       rootAlias,
-                    }
+                    }, schema
                   )
                   Object.assign(root, {
                     [$sourcePropKey]: detObject
                   })
                 }
-              } else
+              }
               // No Merge
-              if(merge === false) {
+              else if(merge === false) {
                 const _basename = $sourcePropKey
                 const _path = (
                   path !== null
@@ -72,18 +74,30 @@ export default function Assign(
                     parent: eventTarget,
                     path: _path,
                     rootAlias,
-                  }
+                  }, schema
                 )
                 Object.assign(root, {
                   [$sourcePropKey]: detObject
                 })
               }
-            } else 
+            }
             // Assign Root Property
-            {
-              Object.assign(root, {
-                [$sourcePropKey]: $sourcePropVal
-              })
+            else {
+              console.log(
+                '\n', 'schema.validateProperty', schema.validateProperty(
+                  $sourcePropKey, $sourcePropVal
+                )
+              )
+              if(
+                (schema && validation && schema.validateProperty(
+                  $sourcePropKey, $sourcePropVal
+                )) ||
+                (!schema && !validation)
+              ) {
+                Object.assign(root, {
+                  [$sourcePropKey]: $sourcePropVal
+                })
+              }
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {

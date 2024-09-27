@@ -11,6 +11,7 @@ export default function Push(
     rootAlias, 
     basename,
     path, 
+    schema,
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -32,7 +33,7 @@ export default function Push(
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
-            })
+            }, schema)
           }
           elements.push($element)
           Array.prototype.push.call(root, $element)

@@ -4,6 +4,7 @@ import Options from './Options/index.js'
 export default class DynamicEventTarget extends EventTarget {
   #settings
   #options
+  #schema
   #_type // 'object' // 'array' // 'map'
   #_rootAlias
   #_root
@@ -13,12 +14,13 @@ export default class DynamicEventTarget extends EventTarget {
   #_proxy
   #_handler
   #_aliases
-  constructor($settings = {}, $options = {}) {
+  constructor($settings = {}, $options = {}, $schema) {
     super()
     this.#settings = $settings
     this.#options = Object.assign(
       {}, Options, $options
     )
+    this.#schema = $schema
     return this.proxy
   }
   // Type
@@ -90,7 +92,7 @@ export default class DynamicEventTarget extends EventTarget {
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
     this.#_handler = new Handler(this.#aliases, {
-      traps: this.#options.traps
+      traps: this.#options.traps,
     })
     return this.#_handler
   }
@@ -105,6 +107,7 @@ export default class DynamicEventTarget extends EventTarget {
       rootAlias: { value: this.#rootAlias },
       root: { value: this.#root },
       type: { value: this.type },
+      schema: { value: this.#schema },
     })
     return this.#_aliases
   }

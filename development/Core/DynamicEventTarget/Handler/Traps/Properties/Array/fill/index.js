@@ -11,6 +11,7 @@ export default function Fill(
     rootAlias, 
     basename,
     path, 
+    schema,
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -22,7 +23,7 @@ export default function Fill(
         )) {
           value = new DynamicEventTarget(value, {
             rootAlias: rootAlias,
-          })
+          }, schema)
         }
         let start
         if(

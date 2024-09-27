@@ -1,22 +1,31 @@
+<% const { device, database } = $content %>
 <fieldset data-id="browser-sync">
-	<legend></legend>
+	<legend>${device.legend}</legend>
 	<field data-id="port">
-		<label></label>
-		<capture contenteditable></capture>
+		<label><%= device.port.label %></label>
+		<capture
+			contenteditable
+			><%= database.port %></capture>
 	</field>
 	<field data-id="host">
-		<label></label>
-		<capture contenteditable></capture>
+		<label><%= device.host.label %>%></label>
+		<capture
+			contenteditable
+		><%= database.host %></capture>
 	</field>
 	<fieldset data-id="https">
-		<legend></legend>
+		<legend><%= device.https.legend %></legend>
 		<field data-id="key">
-			<label></label>
-			<capture contenteditable></capture>
+			<label><%= device.https.key.label %></label>
+			<capture
+				contenteditable
+			><%= database.https.key %></capture>
 		</field>
 		<field data-id="cert">
-			<label></label>
-			<capture contenteditable></capture>
+			<label><%= device.https.cert.label %></label>
+			<capture
+				contenteditable
+			><%= database.https.cert %></capture>
 		</field>
 	</fieldset>
 </fieldset>

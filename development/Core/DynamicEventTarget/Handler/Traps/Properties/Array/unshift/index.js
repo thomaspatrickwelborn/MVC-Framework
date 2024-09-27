@@ -1,4 +1,5 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
+import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Unshift(
   $trap, $trapPropertyName, $aliases, $options
@@ -10,6 +11,7 @@ export default function Unshift(
     rootAlias, 
     basename,
     path, 
+    schema,
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -34,7 +36,7 @@ export default function Unshift(
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
-            })
+            }, schema)
           }
           elements.unshift(element)
           Array.prototype.unshift.call(root, element)
