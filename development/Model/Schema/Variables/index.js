@@ -1,13 +1,13 @@
-const Types = {
-  'string': String,
-  'number': Number,
-  'boolean': Boolean,
-  'object': Object,
-  'array': Array,
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
 }
-const Primitives = [String, Number, Boolean]
-const Objects = [Object, Array]
-
+const Objects = {
+  'object': Object,
+  'array': Array
+}
+const Types = Object.assign({}, Primitives, Objects)
 export {
-  Types, Primitives, Objects
+  Primitives, Objects, Types
 }

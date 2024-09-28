@@ -83,21 +83,9 @@ export default function Assign(
             }
             // Assign Root Property
             else {
-              console.log(
-                '\n', 'schema.validateProperty', schema.validateProperty(
-                  $sourcePropKey, $sourcePropVal
-                )
-              )
-              if(
-                (schema && validation && schema.validateProperty(
-                  $sourcePropKey, $sourcePropVal
-                )) ||
-                (!schema && !validation)
-              ) {
-                Object.assign(root, {
-                  [$sourcePropKey]: $sourcePropVal
-                })
-              }
+              Object.assign(root, {
+                [$sourcePropKey]: $sourcePropVal
+              })
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {

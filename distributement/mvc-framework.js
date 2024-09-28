@@ -109,7 +109,7 @@ function Assign(
     rootAlias, 
     schema,
   } = $aliases;
-  const { validation } = schema?.options;
+  schema?.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -177,21 +177,9 @@ function Assign(
             }
             // Assign Root Property
             else {
-              console.log(
-                '\n', 'schema.validateProperty', schema.validateProperty(
-                  $sourcePropKey, $sourcePropVal
-                )
-              );
-              if(
-                (schema && validation && schema.validateProperty(
-                  $sourcePropKey, $sourcePropVal
-                )) ||
-                (!schema && !validation)
-              ) {
-                Object.assign(root, {
-                  [$sourcePropKey]: $sourcePropVal
-                });
-              }
+              Object.assign(root, {
+                [$sourcePropKey]: $sourcePropVal
+              });
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
@@ -2017,29 +2005,30 @@ class Handler {
     const $this = this;
     const {
       basename,
-      eventTarget, 
-      path, 
-      root, 
-      rootAlias, 
+      eventTarget,
+      path,
+      root,
+      rootAlias,
+      schema,
     } = this.#settings;
     return function get($target, $property, $receiver) {
       // Root Property
       if(this.#isRootProperty($property)) {
         return this.proxy
-      } else
+      }
       // Event Target/Dynamic Event Target Property
-      if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
+      else if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
         if(typeof eventTarget[$property] === 'function') {
           return eventTarget[$property].bind(eventTarget)
         }
         return eventTarget[$property]
-      } else  
+      }
       // Object Property Traps
-      if(this.#isObjectProperty($property)) {
+      else if(this.#isObjectProperty($property)) {
         return $this.traps['Object'][$property] || root[$property]
-      } else
+      }
       // Array Property Traps
-      if(this.#isArrayProperty($property)) {
+      else if(this.#isArrayProperty($property)) {
         return $this.traps['Array'][$property] || root[$property]
       }
       // Root Property
@@ -2064,13 +2053,13 @@ class Handler {
       // Object Property
       if(this.#isObjectProperty($property)) {
         $this.traps['Object'][$property] = $value;
-      } else
+      }
       // Array, Array Prototype Property
-      if(this.#isArrayProperty($property)) {
+      else if(this.#isArrayProperty($property)) {
         $this.traps['Array'][$property] = $value;
-      } else
+      }
       // Dynamic Event Target Property
-      if(typeof $value === 'object') {
+      else if(typeof $value === 'object') {
         $value = new DynamicEventTarget(
           $value, {
             basename,
@@ -2657,6 +2646,7 @@ class TypeValidator extends Validator {
         let contextValIndex = 0;
         iterateContextProperties: 
         for(const $contextVal of $context) {
+          validation.contextVal = $contextVal.type;
           const typeOfContextVal = typeof $contextVal.type();
           // Context Property: Primitive
           if(
@@ -2667,38 +2657,46 @@ class TypeValidator extends Validator {
           ) {
             // Context Val Type Strictly Equals Content Val Type  
             if(typeOfContextVal === typeOfContentVal) {
-              validation.contextVal = $contextVal;
               validation.valid = true;
               break iterateContextProperties
             } else if(contextValIndex === $context.length - 1) {
               validation.valid = false;
+              break iterateContextProperties
             }
           }
-          // Context Property: Schema
-          // else if(
-          //   // Context Val Type Instance Of Schema
-          //   $contextVal.type instanceof Schema &&
-          //   // Object Types Include Content Val Type
-          //   ['object', 'array'].includes(typeOfContentVal) 
-          // ) {
-          //   const schemaValidation = $contextVal.validate($contentVal)
-          //   if(schemaValidation.valid === true) {
-          //     validation.valid = true
-          //     break iterateContextProperties
-          //   }
-          // }
           contextValIndex++;
         }
         return validation
       },
       // Validate Object
-      validateObject: ($context, $contentKey, $contentVal) => {},
+      validateObject: ($context, $contentKey, $contentVal) => {
+        console.log(
+          '\n', '$context', $context,
+          '\n', '$contentKey', $contentKey,
+          '\n', '$contentVal', $contentVal,
+        );
+        // let validation = new Validation({
+        //   contentKey: $contentKey,
+        //   contentVal: $contentVal,
+        //   type: this.type,
+        // })
+        // const typeOfContentVal = typeOf($contentVal)
+
+      },
     }));
   }
 }
 
-const Primitives = [String, Number, Boolean];
-const Objects = [Object, Array];
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+};
+const Objects = {
+  'object': Object,
+  'array': Array
+};
+Object.assign({}, Primitives, Objects);
 
 const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
@@ -2719,88 +2717,157 @@ class Schema extends EventTarget{
   }
   get context() {
     if(this.#_context !== undefined) return this.#_context
-    // Array Schema
-    if(this.contextType === 'array') {
-      this.#_context = [];
-      for(const [
-        $contextKey, $contextValSettings
-      ] of Object.entries(this.settings)) {
-        if(
-          Primitives.includes($contextValSettings.type) &&
-          !this.#_context.find(($context) => {
-            return $context.type === $contextValSettings.type
-          })
-        ) {
-          $contextValSettings.validators = Validators.concat(
-            $contextValSettings.validators || []
-          );
-          this.#_context.push($contextValSettings);
-        }
-        else if($contextValSettings.type instanceof Schema) {
-          this.#_context.push($contextValSettings);
-        }
-        else if(Objects.includes($contextValSettings.type)) {
-          this.#_context.push(new Schema($contextValSettings.type));
-        }
+    let settings;
+    if(this.contextType === 'array') { settings = this.settings.slice(0, 1);}
+    else if(this.contextType === 'object') { settings = this.settings; }
+    for(const [
+      $contextKey, $contextVal
+    ] of Object.entries(settings)) {
+      settings[$key].validators = Validators.concat(
+        settings[$key].validators || []
+      );
+      // Context Val Type: Primitive
+      if(Object.values(Primitives).includes(settings[$key].type)) {
+        this.#_context[$key] = settings[$key];
+      }
+      // Context Val Type: Object
+      else if(Object.keys(Objects).includes(typeOf$1(settings[$key].type))) {
+        this.#_context[$key] = new Schema(
+          settings[$key].type, this.options
+        );
+      }
+      // Context Val Type: Schema Instance
+      else if(settings[$key].type instanceof Schema) {
+        this.#_context[$key] = settings[$key];
       }
     }
-    else if(this.contextType === 'object') {
-      this.#_context = {};
-    }
+    // // Array Schema
+    // if(this.contextType === 'array') {
+    //   this.#_context = []
+    //   // Context Validators
+    //   this.settings[0].validators = Validators.concat(
+    //     this.settings[0].validators || []
+    //   )
+    //   // Context Val Type: Primitive
+    //   if(Object.values(Primitives).includes(this.settings[0].type)) {
+    //     this.#_context[0] = this.settings[0]
+    //   }
+    //   // Context Val Type: Object
+    //   else if(Object.keys(Objects).includes(typeOf(this.settings[0].type))) {
+    //     this.#_context[0] = new Schema(
+    //       this.settings[0].type, this.options
+    //     )
+    //   }
+    //   // Context Val Type: Schema Instance
+    //   else if(this.settings[0].type instanceof Schema) {
+    //     this.#_context[0] = this.settings[0]
+    //   }
+    // }
+    // // Object Schema
+    // else if(this.contextType === 'object') {
+    //   this.#_context = []
+    //   for(const [
+    //     $contextKey, $contextVal
+    //   ] of Object.entries(this.settings)) {
+    //     this.settings[$key].validators = Validators.concat(
+    //       this.settings[$key].validators || []
+    //     )
+    //     // Context Val Type: Primitive
+    //     if(Object.values(Primitives).includes(this.settings[$key].type)) {
+    //       this.#_context[$key] = this.settings[$key]
+    //     }
+    //     // Context Val Type: Object
+    //     else if(Object.keys(Objects).includes(typeOf(this.settings[$key].type))) {
+    //       this.#_context[$key] = new Schema(
+    //         this.settings[$key].type, this.options
+    //       )
+    //     }
+    //     // Context Val Type: Schema Instance
+    //     else if(this.settings[$key].type instanceof Schema) {
+    //       this.#_context[$key] = this.settings[$key]
+    //     }
+    //   }
+    // }
     return this.#_context
   }
   validate($content) {
-    let validation = {
-      properties: [],
-      valid: undefined,
-    };
-    const contentEntries = Object.entries($content);
-    contentEntries.reduce(($validation, [
-      $validatorKey, $validatorVal
-    ], $validatorIndex) => {
-      const propertyValidation = this.validateProperty($validatorKey, $validatorval);
+    return Object.entries($content).reduce(($validation, [
+      $contentKey, $contentVal
+    ], $validatorIndex, $contentEntries) => {
+      const typeOfContentVal = typeOf$1($contentVal);
+      let propertyValidation;
+      if(Object.keys(Primitives).includes(typeOfContentVal)) {
+        propertyValidation = this.validateProperty($contentKey, $contentVal);
+      }
+      else if(typeOfContentVal === 'array') {
+        propertyValidation = this.context[0].validate($contentVal);
+      }
+      else if(typeOfContentVal === 'object') {
+        propertyValidation = this.context[$contentKey].validate($contentVal);
+      }
       $validation.properties.push(propertyValidation);
-      if($validatorIndex === contentEntries.length - 1) {
-        $validation.valid = !$validator.properties.find(
+      if($validatorIndex === $contentEntries.length - 1) {
+        $validation.valid = !$validation.properties.find(
           ($propertyValidation) => $propertyValidation.valid === false
         );
       }
       return $validation
-    }, validation);
-    return validation
+    }, {
+      properties: [],
+      valid: undefined,
+    })
   }
   validateProperty($key, $val) {
-    let validation = {
-      advance: [], // Array
-      deadvance: [], // Array
-      valid: undefined, // Boolean
-    };
+    console.log('validateProperty', $key, $val);
+    /*
+    let context
     if(this.contextType === 'array') {
-      for(const $contextVal of this.context) {
-        const { validators } = $contextVal;
-        validators.reduce(
-          ($validation, $validator, $validatorIndex) => {
-            const arrayValidation = $validator.validateArray(
-              this.context, $key, $val
-            );
-            if(arrayValidation.valid === true) {
-              $validation.advance.push(arrayValidation);
-            }
-            else if(arrayValidation.valid === false) {
-              $validation.deadvance.push(arrayValidation);
-            }
-            if($validatorIndex === validators.length - 1) {
-              $validation.valid = (
-                $validation.deadvance.length === 0
-              ) ? true
-                : false;
-            }
-            return $validation
-          }, validation
-        );
-      }
+      context = this.context[0]
+      return context.validators.reduce(
+        ($validation, $validator, $validatorIndex, $validators) => {
+          const validation = $validator.validateArray(
+            this.context, $key, $val
+          )
+          if(validation.valid === true) {
+            $validation.advance.push(validation)
+          }
+          else if(validation.valid === false) {
+            $validation.deadvance.push(validation)
+          }
+          if($validatorIndex === $validators.length - 1) {
+            $validation.valid = (
+              $validation.deadvance.length === 0
+            ) ? true
+              : false
+          }
+          return $validation
+        }, Object.create(Validation)
+      )
     }
-    return validation
+    else if(this.contextType === 'object') {
+      context = this.context[$key]
+      return context.validators.reduce(
+        ($validation, $validator, $validatorIndex, $validators) => {
+          const validation = $validator.validateObject(
+            this.context, $key, $val
+          )
+          if(validation.valid === true) {
+            $validation.advance.push(validation)
+          }
+          else if(validation.valid === false) {
+            $validation.deadvance.push(validation)
+          }
+          if($validatorIndex === $validators.length - 1) {
+            $validation.valid = (
+              $validation.deadvance.length === 0
+            ) ? true
+              : false
+          }
+          return $validation
+        }, Object.create(Validation)
+      )
+    }
+    */
   }
 }
 

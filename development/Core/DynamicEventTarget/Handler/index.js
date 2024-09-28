@@ -18,29 +18,30 @@ export default class Handler {
     const $this = this
     const {
       basename,
-      eventTarget, 
-      path, 
-      root, 
-      rootAlias, 
+      eventTarget,
+      path,
+      root,
+      rootAlias,
+      schema,
     } = this.#settings
     return function get($target, $property, $receiver) {
       // Root Property
       if(this.#isRootProperty($property)) {
         return this.proxy
-      } else
+      }
       // Event Target/Dynamic Event Target Property
-      if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
+      else if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
         if(typeof eventTarget[$property] === 'function') {
           return eventTarget[$property].bind(eventTarget)
         }
         return eventTarget[$property]
-      } else  
+      }
       // Object Property Traps
-      if(this.#isObjectProperty($property)) {
+      else if(this.#isObjectProperty($property)) {
         return $this.traps['Object'][$property] || root[$property]
-      } else
+      }
       // Array Property Traps
-      if(this.#isArrayProperty($property)) {
+      else if(this.#isArrayProperty($property)) {
         return $this.traps['Array'][$property] || root[$property]
       }
       // Root Property
@@ -65,13 +66,13 @@ export default class Handler {
       // Object Property
       if(this.#isObjectProperty($property)) {
         $this.traps['Object'][$property] = $value
-      } else
+      }
       // Array, Array Prototype Property
-      if(this.#isArrayProperty($property)) {
+      else if(this.#isArrayProperty($property)) {
         $this.traps['Array'][$property] = $value
-      } else
+      }
       // Dynamic Event Target Property
-      if(typeof $value === 'object') {
+      else if(typeof $value === 'object') {
         $value = new DynamicEventTarget(
           $value, {
             basename,
