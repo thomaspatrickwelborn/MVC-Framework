@@ -15,7 +15,7 @@ const model = new Model({
     validation: true,
   }
 })
-console.log(  model)
+console.log(model)
 // const validators = []
 // // -----
 // // Model Without Configuration Object

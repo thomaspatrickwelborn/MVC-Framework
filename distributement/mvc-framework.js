@@ -2749,12 +2749,36 @@ class Schema extends EventTarget{
     }
     return this.#_context
   }
+  validate($content) {
+    let validation = {
+      properties: [],
+      valid: undefined,
+    };
+    const contentEntries = Object.entries($content);
+    contentEntries.reduce(($validation, [
+      $validatorKey, $validatorVal
+    ], $validatorIndex) => {
+      const propertyValidation = this.validateProperty($validatorKey, $validatorval);
+      $validation.properties.push(propertyValidation);
+      if($validatorIndex === contentEntries.length - 1) {
+        $validation.valid = !$validator.properties.find(
+          ($propertyValidation) => $propertyValidation.valid === false
+        );
+      }
+      return $validation
+    }, validation);
+    return validation
+  }
   validateProperty($key, $val) {
-    let validation;
+    let validation = {
+      advance: [], // Array
+      deadvance: [], // Array
+      valid: undefined, // Boolean
+    };
     if(this.contextType === 'array') {
       for(const $contextVal of this.context) {
         const { validators } = $contextVal;
-        validation = validators.reduce(
+        validators.reduce(
           ($validation, $validator, $validatorIndex) => {
             const arrayValidation = $validator.validateArray(
               this.context, $key, $val
@@ -2772,11 +2796,7 @@ class Schema extends EventTarget{
                 : false;
             }
             return $validation
-          }, {
-            advance: [], // Array
-            deadvance: [], // Array
-            valid: undefined, // Boolean
-          }
+          }, validation
         );
       }
     }
