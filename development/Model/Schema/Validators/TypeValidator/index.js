@@ -7,55 +7,29 @@ export default class TypeValidator extends Validator {
   #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
-      // Type
       type: 'type',
-      // Validate Array
-      validateArray: ($context, $contentKey, $contentVal) => {
+      validate: ($contextVal, $contentKey, $contentVal) => {
         let validation = new Validation({
+          contextVal: $contextVal,
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
+          validation: undefined,
         })
         const typeOfContentVal = typeOf($contentVal)
-        let contextValIndex = 0
-        iterateContextProperties: 
-        for(const $contextVal of $context) {
-          validation.contextVal = $contextVal.type
-          const typeOfContextVal = typeof $contextVal.type()
-          // Context Property: Primitive
-          if(
-            // Primitives Include Context Val Type
-            [Number, String, Boolean].includes($contextVal.type) &&
-            // Primitive Types Include Content Val Type
-            ['number', 'string', 'boolean'].includes(typeOfContentVal)
-          ) {
-            // Context Val Type Strictly Equals Content Val Type  
-            if(typeOfContextVal === typeOfContentVal) {
-              validation.valid = true
-              break iterateContextProperties
-            } else if(contextValIndex === $context.length - 1) {
-              validation.valid = false
-              break iterateContextProperties
-            }
+        const typeOfContextVal = typeOf($contextVal.type())
+        if(
+          [Number, String, Boolean].includes($contextVal.type) &&
+          ['number', 'string', 'boolean'].includes(typeOfContentVal)
+        ) {
+          if(typeOfContextVal === typeOfContentVal) {
+            validation.valid = true
           }
-          contextValIndex++
+          else {
+            validation.valid = false
+          }
         }
         return validation
-      },
-      // Validate Object
-      validateObject: ($context, $contentKey, $contentVal) => {
-        console.log(
-          '\n', '$context', $context,
-          '\n', '$contentKey', $contentKey,
-          '\n', '$contentVal', $contentVal,
-        )
-        // let validation = new Validation({
-        //   contentKey: $contentKey,
-        //   contentVal: $contentVal,
-        //   type: this.type,
-        // })
-        // const typeOfContentVal = typeOf($contentVal)
-
       },
     }))
   }

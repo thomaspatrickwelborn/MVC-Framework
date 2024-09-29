@@ -4,13 +4,6 @@ export default class Validator extends EventTarget {
     super()
     this.#settings = $settings
   }
-  get type() {
-    return this.#settings.type
-  }
-  get validateArray() {
-    return this.#settings.validateArray
-  }
-  get validateObject() {
-    return this.#settings.validateObject
-  }
+  get type() { return this.#settings.type }
+  get validate() { return this.#settings.validate }
 }

@@ -1,7 +1,7 @@
 export default class Validation extends EventTarget {
   #settings
   #_type
-  #_valid
+  #_valid = false
   #_contentKey
   #_contentVal
   #_contextVal

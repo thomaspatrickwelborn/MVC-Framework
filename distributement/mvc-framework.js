@@ -2582,21 +2582,14 @@ class Validator extends EventTarget {
     super();
     this.#settings = $settings;
   }
-  get type() {
-    return this.#settings.type
-  }
-  get validateArray() {
-    return this.#settings.validateArray
-  }
-  get validateObject() {
-    return this.#settings.validateObject
-  }
+  get type() { return this.#settings.type }
+  get validate() { return this.#settings.validate }
 }
 
 class Validation extends EventTarget {
   #settings
   #_type
-  #_valid
+  #_valid = false
   #_contentKey
   #_contentVal
   #_contextVal
@@ -2633,55 +2626,29 @@ class TypeValidator extends Validator {
   #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
-      // Type
       type: 'type',
-      // Validate Array
-      validateArray: ($context, $contentKey, $contentVal) => {
+      validate: ($contextVal, $contentKey, $contentVal) => {
         let validation = new Validation({
+          contextVal: $contextVal,
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
+          validation: undefined,
         });
         const typeOfContentVal = typeOf$1($contentVal);
-        let contextValIndex = 0;
-        iterateContextProperties: 
-        for(const $contextVal of $context) {
-          validation.contextVal = $contextVal.type;
-          const typeOfContextVal = typeof $contextVal.type();
-          // Context Property: Primitive
-          if(
-            // Primitives Include Context Val Type
-            [Number, String, Boolean].includes($contextVal.type) &&
-            // Primitive Types Include Content Val Type
-            ['number', 'string', 'boolean'].includes(typeOfContentVal)
-          ) {
-            // Context Val Type Strictly Equals Content Val Type  
-            if(typeOfContextVal === typeOfContentVal) {
-              validation.valid = true;
-              break iterateContextProperties
-            } else if(contextValIndex === $context.length - 1) {
-              validation.valid = false;
-              break iterateContextProperties
-            }
+        const typeOfContextVal = typeOf$1($contextVal.type());
+        if(
+          [Number, String, Boolean].includes($contextVal.type) &&
+          ['number', 'string', 'boolean'].includes(typeOfContentVal)
+        ) {
+          if(typeOfContextVal === typeOfContentVal) {
+            validation.valid = true;
           }
-          contextValIndex++;
+          else {
+            validation.valid = false;
+          }
         }
         return validation
-      },
-      // Validate Object
-      validateObject: ($context, $contentKey, $contentVal) => {
-        console.log(
-          '\n', '$context', $context,
-          '\n', '$contentKey', $contentKey,
-          '\n', '$contentVal', $contentVal,
-        );
-        // let validation = new Validation({
-        //   contentKey: $contentKey,
-        //   contentVal: $contentVal,
-        //   type: this.type,
-        // })
-        // const typeOfContentVal = typeOf($contentVal)
-
       },
     }));
   }
@@ -2747,53 +2714,6 @@ class Schema extends EventTarget{
         this.#_context[$contextKey] = settings[$contextKey];
       }
     }
-    // // Array Schema
-    // if(this.contextType === 'array') {
-    //   this.#_context = []
-    //   // Context Validators
-    //   this.settings[0].validators = Validators.concat(
-    //     this.settings[0].validators || []
-    //   )
-    //   // Context Val Type: Primitive
-    //   if(Object.values(Primitives).includes(this.settings[0].type)) {
-    //     this.#_context[0] = this.settings[0]
-    //   }
-    //   // Context Val Type: Object
-    //   else if(Object.keys(Objects).includes(typeOf(this.settings[0].type))) {
-    //     this.#_context[0] = new Schema(
-    //       this.settings[0].type, this.options
-    //     )
-    //   }
-    //   // Context Val Type: Schema Instance
-    //   else if(this.settings[0].type instanceof Schema) {
-    //     this.#_context[0] = this.settings[0]
-    //   }
-    // }
-    // // Object Schema
-    // else if(this.contextType === 'object') {
-    //   this.#_context = []
-    //   for(const [
-    //     $contextKey, $contextVal
-    //   ] of Object.entries(this.settings)) {
-    //     this.settings[$key].validators = Validators.concat(
-    //       this.settings[$key].validators || []
-    //     )
-    //     // Context Val Type: Primitive
-    //     if(Object.values(Primitives).includes(this.settings[$key].type)) {
-    //       this.#_context[$key] = this.settings[$key]
-    //     }
-    //     // Context Val Type: Object
-    //     else if(Object.keys(Objects).includes(typeOf(this.settings[$key].type))) {
-    //       this.#_context[$key] = new Schema(
-    //         this.settings[$key].type, this.options
-    //       )
-    //     }
-    //     // Context Val Type: Schema Instance
-    //     else if(this.settings[$key].type instanceof Schema) {
-    //       this.#_context[$key] = this.settings[$key]
-    //     }
-    //   }
-    // }
     return this.#_context
   }
   validate($content) {
@@ -2811,8 +2731,6 @@ class Schema extends EventTarget{
       else if(typeOfContentVal === 'object') {
         propertyValidation = this.context[$contentKey].validate($contentVal);
       }
-      // >>><<<
-      console.log(propertyValidation);
       $validation.properties.push(propertyValidation);
       if($validatorIndex === $contentEntries.length - 1) {
         $validation.valid = !$validation.properties.find(
@@ -2831,54 +2749,29 @@ class Schema extends EventTarget{
       deadvance: [], // Array
       valid: undefined, // Boolean
     };
-    let context;
-    if(this.contextType === 'array') {
-      context = this.context[0];
-      return context.validators.reduce(
-        ($validation, $validator, $validatorIndex, $validators) => {
-          const validation = $validator.validateArray(
-            this.context, $key, $val
-          );
-          if(validation.valid === true) {
-            $validation.advance.push(validation);
-          }
-          else if(validation.valid === false) {
-            $validation.deadvance.push(validation);
-          }
-          if($validatorIndex === $validators.length - 1) {
-            $validation.valid = (
-              $validation.deadvance.length === 0
-            ) ? true
-              : false;
-          }
-          return $validation
-        }, Object.create(Validation)
-      )
-    }
-    else if(this.contextType === 'object') {
-      context = this.context[$key];
-      return context.validators.reduce(
-        ($validation, $validator, $validatorIndex, $validators) => {
-          const validation = $validator.validateObject(
-            this.context, $key, $val
-          );
-          if(validation.valid === true) {
-            $validation.advance.push(validation);
-          }
-          else if(validation.valid === false) {
-            $validation.deadvance.push(validation);
-          }
-          if($validatorIndex === $validators.length - 1) {
-            $validation.valid = (
-              $validation.deadvance.length === 0
-            ) ? true
-              : false;
-          }
-          return $validation
-        }, Object.create(Validation)
-      )
-    }
-    
+    let contextVal;
+    if(this.contextType === 'array') { contextVal = this.context[0]; }
+    else if(this.contextType === 'object') { contextVal = this.context[$key]; }
+    return contextVal.validators.reduce(
+      ($validation, $validator, $validatorIndex, $validators) => {
+        const validation = $validator.validate(
+          contextVal, $key, $val
+        );
+        if(validation.valid === true) {
+          $validation.advance.push(validation);
+        }
+        else if(validation.valid === false) {
+          $validation.deadvance.push(validation);
+        }
+        if($validatorIndex === $validators.length - 1) {
+          $validation.valid = (
+            $validation.deadvance.length === 0
+          ) ? true
+            : false;
+        }
+        return $validation
+      }, Object.assign({}, Validation)
+    )
   }
 }
 
