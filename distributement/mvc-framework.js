@@ -2718,27 +2718,33 @@ class Schema extends EventTarget{
   get context() {
     if(this.#_context !== undefined) return this.#_context
     let settings;
-    if(this.contextType === 'array') { settings = this.settings.slice(0, 1);}
-    else if(this.contextType === 'object') { settings = this.settings; }
+    if(this.contextType === 'array') {
+      settings = this.settings.slice(0, 1);
+      this.#_context = [];
+    }
+    else if(this.contextType === 'object') {
+      settings = this.settings; 
+      this.#_context = {};
+    }
     for(const [
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
-      settings[$key].validators = Validators.concat(
-        settings[$key].validators || []
+      settings[$contextKey].validators = Validators.concat(
+        settings[$contextKey].validators || []
       );
       // Context Val Type: Primitive
-      if(Object.values(Primitives).includes(settings[$key].type)) {
-        this.#_context[$key] = settings[$key];
+      if(Object.values(Primitives).includes(settings[$contextKey].type)) {
+        this.#_context[$contextKey] = settings[$contextKey];
       }
       // Context Val Type: Object
-      else if(Object.keys(Objects).includes(typeOf$1(settings[$key].type))) {
-        this.#_context[$key] = new Schema(
-          settings[$key].type, this.options
+      else if(Object.keys(Objects).includes(typeOf$1(settings[$contextKey].type))) {
+        this.#_context[$contextKey] = new Schema(
+          settings[$contextKey].type, this.options
         );
       }
       // Context Val Type: Schema Instance
-      else if(settings[$key].type instanceof Schema) {
-        this.#_context[$key] = settings[$key];
+      else if(settings[$contextKey].type instanceof Schema) {
+        this.#_context[$contextKey] = settings[$contextKey];
       }
     }
     // // Array Schema
@@ -2805,6 +2811,8 @@ class Schema extends EventTarget{
       else if(typeOfContentVal === 'object') {
         propertyValidation = this.context[$contentKey].validate($contentVal);
       }
+      // >>><<<
+      console.log(propertyValidation);
       $validation.properties.push(propertyValidation);
       if($validatorIndex === $contentEntries.length - 1) {
         $validation.valid = !$validation.properties.find(
@@ -2818,56 +2826,59 @@ class Schema extends EventTarget{
     })
   }
   validateProperty($key, $val) {
-    console.log('validateProperty', $key, $val);
-    /*
-    let context
+    const Validation = {
+      advance: [], // Array
+      deadvance: [], // Array
+      valid: undefined, // Boolean
+    };
+    let context;
     if(this.contextType === 'array') {
-      context = this.context[0]
+      context = this.context[0];
       return context.validators.reduce(
         ($validation, $validator, $validatorIndex, $validators) => {
           const validation = $validator.validateArray(
             this.context, $key, $val
-          )
+          );
           if(validation.valid === true) {
-            $validation.advance.push(validation)
+            $validation.advance.push(validation);
           }
           else if(validation.valid === false) {
-            $validation.deadvance.push(validation)
+            $validation.deadvance.push(validation);
           }
           if($validatorIndex === $validators.length - 1) {
             $validation.valid = (
               $validation.deadvance.length === 0
             ) ? true
-              : false
+              : false;
           }
           return $validation
         }, Object.create(Validation)
       )
     }
     else if(this.contextType === 'object') {
-      context = this.context[$key]
+      context = this.context[$key];
       return context.validators.reduce(
         ($validation, $validator, $validatorIndex, $validators) => {
           const validation = $validator.validateObject(
             this.context, $key, $val
-          )
+          );
           if(validation.valid === true) {
-            $validation.advance.push(validation)
+            $validation.advance.push(validation);
           }
           else if(validation.valid === false) {
-            $validation.deadvance.push(validation)
+            $validation.deadvance.push(validation);
           }
           if($validatorIndex === $validators.length - 1) {
             $validation.valid = (
               $validation.deadvance.length === 0
             ) ? true
-              : false
+              : false;
           }
           return $validation
         }, Object.create(Validation)
       )
     }
-    */
+    
   }
 }
 

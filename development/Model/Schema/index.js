@@ -26,27 +26,33 @@ export default class Schema extends EventTarget{
   get context() {
     if(this.#_context !== undefined) return this.#_context
     let settings
-    if(this.contextType === 'array') { settings = this.settings.slice(0, 1)}
-    else if(this.contextType === 'object') { settings = this.settings }
+    if(this.contextType === 'array') {
+      settings = this.settings.slice(0, 1)
+      this.#_context = []
+    }
+    else if(this.contextType === 'object') {
+      settings = this.settings 
+      this.#_context = {}
+    }
     for(const [
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
-      settings[$key].validators = Validators.concat(
-        settings[$key].validators || []
+      settings[$contextKey].validators = Validators.concat(
+        settings[$contextKey].validators || []
       )
       // Context Val Type: Primitive
-      if(Object.values(Primitives).includes(settings[$key].type)) {
-        this.#_context[$key] = settings[$key]
+      if(Object.values(Primitives).includes(settings[$contextKey].type)) {
+        this.#_context[$contextKey] = settings[$contextKey]
       }
       // Context Val Type: Object
-      else if(Object.keys(Objects).includes(typeOf(settings[$key].type))) {
-        this.#_context[$key] = new Schema(
-          settings[$key].type, this.options
+      else if(Object.keys(Objects).includes(typeOf(settings[$contextKey].type))) {
+        this.#_context[$contextKey] = new Schema(
+          settings[$contextKey].type, this.options
         )
       }
       // Context Val Type: Schema Instance
-      else if(settings[$key].type instanceof Schema) {
-        this.#_context[$key] = settings[$key]
+      else if(settings[$contextKey].type instanceof Schema) {
+        this.#_context[$contextKey] = settings[$contextKey]
       }
     }
     // // Array Schema
@@ -113,6 +119,8 @@ export default class Schema extends EventTarget{
       else if(typeOfContentVal === 'object') {
         propertyValidation = this.context[$contentKey].validate($contentVal)
       }
+      // >>><<<
+      console.log(propertyValidation)
       $validation.properties.push(propertyValidation)
       if($validatorIndex === $contentEntries.length - 1) {
         $validation.valid = !$validation.properties.find(
@@ -132,8 +140,6 @@ export default class Schema extends EventTarget{
       deadvance: [], // Array
       valid: undefined, // Boolean
     }
-    console.log('validateProperty', $key, $val)
-    /*
     let context
     if(this.contextType === 'array') {
       context = this.context[0]
@@ -181,6 +187,6 @@ export default class Schema extends EventTarget{
         }, Object.create(Validation)
       )
     }
-    */
+    
   }
 }

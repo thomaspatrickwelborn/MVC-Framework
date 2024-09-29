@@ -1,4 +1,7 @@
 import { Schema } from '/dependencies/mvc-framework.js'
+const schemaA = new Schema([ { type: Number } ])
+const content = [111,222,333]
+console.log(schemaA.validate(content))
 // import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
 // import DefaultTemplate from './template.js'
 // const index = new Control({
