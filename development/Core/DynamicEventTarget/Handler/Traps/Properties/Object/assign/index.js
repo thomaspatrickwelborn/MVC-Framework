@@ -1,4 +1,4 @@
-import { isDirectInstanceOf } from '../../Coutil/index.js'
+import { typeOf, isDirectInstanceOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../../../../index.js'
 import DETEvent from '../../../../../DynamicEvent/index.js'
 export default function Assign(
@@ -13,6 +13,9 @@ export default function Assign(
     rootAlias, 
     schema,
   } = $aliases
+  let schemaContext
+  if(typeOf(schema.context) === 'array') schemaContext = schema.context[0]
+  else if(typeOf(schema.context) === 'object') schemaContext = schema.context
   const { validation } = schema?.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
@@ -21,6 +24,11 @@ export default function Assign(
         // Iterate Sources
         iterateSources: 
         for(let $source of sources) {
+          // if((
+          //   schemaContext && validation && !schemaContext.validate($source).valid
+          // ) /*  || (!schema && !validation) */) {
+          //   continue iterateSources
+          // }
           // Iterate Source Props
           iterateSourceProps:
           for(let [
@@ -48,17 +56,22 @@ export default function Assign(
                     path !== null
                   ) ? path.concat('.', $sourcePropKey)
                     : $sourcePropKey
-                  const detObject = new DynamicEventTarget(
-                    $sourcePropVal, {
-                      basename: _basename,
-                      parent: eventTarget,
-                      path: _path,
-                      rootAlias,
-                    }, schema
-                  )
-                  Object.assign(root, {
-                    [$sourcePropKey]: detObject
-                  })
+                  // if((
+                  //   schemaContext && validation && schemaContext.validate(
+                  //   $sourcePropVal
+                  // ).valid) || (!schema && !validation)) {
+                    const detObject = new DynamicEventTarget(
+                      $sourcePropVal, {
+                        basename: _basename,
+                        parent: eventTarget,
+                        path: _path,
+                        rootAlias,
+                      }, schemaContext
+                    )
+                    Object.assign(root, {
+                      [$sourcePropKey]: detObject
+                    })
+                  // }
                 }
               }
               // No Merge
@@ -68,24 +81,37 @@ export default function Assign(
                   path !== null
                 ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey
-                const detObject = new DynamicEventTarget(
-                  $sourcePropVal, {
-                    basename: _basename,
-                    parent: eventTarget,
-                    path: _path,
-                    rootAlias,
-                  }, schema
-                )
-                Object.assign(root, {
-                  [$sourcePropKey]: detObject
-                })
+                // if((
+                //   schemaContext && validation && schemaContext.validate(
+                //   $sourcePropVal
+                // ).valid) || (!schema && !validation)) {
+                  const detObject = new DynamicEventTarget(
+                    $sourcePropVal, {
+                      basename: _basename,
+                      parent: eventTarget,
+                      path: _path,
+                      rootAlias,
+                    }, schemaContext
+                  )
+                  Object.assign(root, {
+                    [$sourcePropKey]: detObject
+                  })
+                // }
               }
             }
             // Assign Root Property
             else {
-              Object.assign(root, {
-                [$sourcePropKey]: $sourcePropVal
-              })
+              // console.log('schema', schema)
+              // console.log('schemaContext', schemaContext)
+              if((
+                schema && validation && schema.validateProperty(
+                  $sourcePropKey, $sourcePropVal
+                ).valid
+              ) || (!schema && !validation)) {
+                Object.assign(root, {
+                  [$sourcePropKey]: $sourcePropVal
+                })
+              }
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {

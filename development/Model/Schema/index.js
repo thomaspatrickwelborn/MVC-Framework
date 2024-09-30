@@ -2,7 +2,6 @@ import { typeOf } from '../../Coutil/index.js'
 import DynamicEventTarget from '../../Core/DynamicEventTarget/index.js'
 import { TypeValidator } from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
-const Settings = {}
 const Options = {
   validation: true,
 }
@@ -12,15 +11,17 @@ export default class Schema extends EventTarget{
   options
   #_contextType
   #_context
-  constructor($settings = {}, $options = {}) {
+  constructor($settings, $options = {}) {
     super()
     this.settings = $settings
-    this.options = $options
+    this.options = Object.assign({}, Options, $options)
     this.context
   }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
-    this.#_contextType = typeOf(this.settings)
+    if(Array.isArray(this.settings)) { this.#_contextType = 'array' }
+    else if(typeOf(this.settings) === 'object') { this.#_contextType = 'object' }
+    console.log(this.contextType)
     return this.#_contextType
   }
   get context() {
@@ -40,19 +41,25 @@ export default class Schema extends EventTarget{
       settings[$contextKey].validators = Validators.concat(
         settings[$contextKey].validators || []
       )
-      // Context Val Type: Primitive
-      if(Object.values(Primitives).includes(settings[$contextKey].type)) {
+      // Context Val Type: Schema Instance
+      if(settings[$contextKey].type instanceof Schema) {
         this.#_context[$contextKey] = settings[$contextKey]
       }
-      // Context Val Type: Object
+      // Context Val Type: Primitive Prototype
+      else if(Object.values(Primitives).includes(settings[$contextKey].type)) {
+        this.#_context[$contextKey] = settings[$contextKey]
+      }
+      // Context Val Type: Object Prototype
+      else if(Object.values(Objects).includes(settings[$contextKey].type)) {
+        this.#_context[$contentKey] = new Schema(
+          new settings[$contentKey].type(), this.options
+        )
+      }
+      // Context Val Type: Object Literal
       else if(Object.keys(Objects).includes(typeOf(settings[$contextKey].type))) {
         this.#_context[$contextKey] = new Schema(
           settings[$contextKey].type, this.options
         )
-      }
-      // Context Val Type: Schema Instance
-      else if(settings[$contextKey].type instanceof Schema) {
-        this.#_context[$contextKey] = settings[$contextKey]
       }
     }
     return this.#_context
@@ -66,10 +73,10 @@ export default class Schema extends EventTarget{
       if(Object.keys(Primitives).includes(typeOfContentVal)) {
         propertyValidation = this.validateProperty($contentKey, $contentVal)
       }
-      else if(typeOfContentVal === 'array') {
+      else if(this.contextType === 'array') {
         propertyValidation = this.context[0].validate($contentVal)
       }
-      else if(typeOfContentVal === 'object') {
+      else if(this.contextType === 'object') {
         propertyValidation = this.context[$contentKey].validate($contentVal)
       }
       $validation.properties.push(propertyValidation)
@@ -94,6 +101,7 @@ export default class Schema extends EventTarget{
     let contextVal
     if(this.contextType === 'array') { contextVal = this.context[0] }
     else if(this.contextType === 'object') { contextVal = this.context[$key] }
+    console.log(this.contextType)
     return contextVal.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(

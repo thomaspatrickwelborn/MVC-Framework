@@ -109,13 +109,21 @@ function Assign(
     rootAlias, 
     schema,
   } = $aliases;
-  schema?.options;
+  let schemaContext;
+  if(typeOf(schema.context) === 'array') schemaContext = schema.context[0];
+  else if(typeOf(schema.context) === 'object') schemaContext = schema.context;
+  const { validation } = schema?.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const sources = [...arguments];
         // Iterate Sources
         for(let $source of sources) {
+          // if((
+          //   schemaContext && validation && !schemaContext.validate($source).valid
+          // ) /*  || (!schema && !validation) */) {
+          //   continue iterateSources
+          // }
           // Iterate Source Props
           for(let [
             $sourcePropKey, $sourcePropVal
@@ -142,17 +150,22 @@ function Assign(
                     path !== null
                   ) ? path.concat('.', $sourcePropKey)
                     : $sourcePropKey;
-                  const detObject = new DynamicEventTarget(
-                    $sourcePropVal, {
-                      basename: _basename,
-                      parent: eventTarget,
-                      path: _path,
-                      rootAlias,
-                    }, schema
-                  );
-                  Object.assign(root, {
-                    [$sourcePropKey]: detObject
-                  });
+                  // if((
+                  //   schemaContext && validation && schemaContext.validate(
+                  //   $sourcePropVal
+                  // ).valid) || (!schema && !validation)) {
+                    const detObject = new DynamicEventTarget(
+                      $sourcePropVal, {
+                        basename: _basename,
+                        parent: eventTarget,
+                        path: _path,
+                        rootAlias,
+                      }, schemaContext
+                    );
+                    Object.assign(root, {
+                      [$sourcePropKey]: detObject
+                    });
+                  // }
                 }
               }
               // No Merge
@@ -162,24 +175,37 @@ function Assign(
                   path !== null
                 ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
-                const detObject = new DynamicEventTarget(
-                  $sourcePropVal, {
-                    basename: _basename,
-                    parent: eventTarget,
-                    path: _path,
-                    rootAlias,
-                  }, schema
-                );
-                Object.assign(root, {
-                  [$sourcePropKey]: detObject
-                });
+                // if((
+                //   schemaContext && validation && schemaContext.validate(
+                //   $sourcePropVal
+                // ).valid) || (!schema && !validation)) {
+                  const detObject = new DynamicEventTarget(
+                    $sourcePropVal, {
+                      basename: _basename,
+                      parent: eventTarget,
+                      path: _path,
+                      rootAlias,
+                    }, schemaContext
+                  );
+                  Object.assign(root, {
+                    [$sourcePropKey]: detObject
+                  });
+                // }
               }
             }
             // Assign Root Property
             else {
-              Object.assign(root, {
-                [$sourcePropKey]: $sourcePropVal
-              });
+              // console.log('schema', schema)
+              // console.log('schemaContext', schemaContext)
+              if((
+                schema && validation && schema.validateProperty(
+                  $sourcePropKey, $sourcePropVal
+                ).valid
+              ) || (!schema && !validation)) {
+                Object.assign(root, {
+                  [$sourcePropKey]: $sourcePropVal
+                });
+              }
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
@@ -2179,7 +2205,7 @@ class Handler {
   }
 }
 
-var Options$5 = {
+var Options$6 = {
   rootAlias: 'content',
   traps: {
     properties: {
@@ -2256,7 +2282,7 @@ class DynamicEventTarget extends EventTarget {
     super();
     this.#settings = $settings;
     this.#options = Object.assign(
-      {}, Options$5, $options
+      {}, Options$6, $options
     );
     this.#schema = $schema;
     return this.proxy
@@ -2298,7 +2324,7 @@ class DynamicEventTarget extends EventTarget {
       typeof this.#options.rootAlias === 'string' &&
       this.#options.rootAlias.length > 0
     ) ? this.#options.rootAlias
-      : Options$5.rootAlias;
+      : Options$6.rootAlias;
     return this.#_rootAlias
   }
   // Root
@@ -2557,16 +2583,16 @@ class DynamicEventSystem extends EventTarget {
 }
 
 const Settings$4 = {};
-const Options$4 = {
+const Options$5 = {
   validSettings: [],
   enableEvents: true,
 };
 class Core extends DynamicEventSystem {
   settings
   options
-  constructor($settings = Settings$4, $options = Options$4) {
+  constructor($settings = Settings$4, $options = Options$5) {
     super($settings.events, $options.enable);
-    this.options = Object.assign({}, Options$4, $options);
+    this.options = Object.assign({}, Options$5, $options);
     this.settings = Object.assign({}, Settings$4, $settings);
     for(const $validSetting of this.options.validSettings) {
       Object.defineProperty(
@@ -2665,21 +2691,26 @@ const Objects = {
 };
 Object.assign({}, Primitives, Objects);
 
+const Options$4 = {
+  validation: true,
+};
 const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
   settings
   options
   #_contextType
   #_context
-  constructor($settings = {}, $options = {}) {
+  constructor($settings, $options = {}) {
     super();
     this.settings = $settings;
-    this.options = $options;
+    this.options = Object.assign({}, Options$4, $options);
     this.context;
   }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
-    this.#_contextType = typeOf$1(this.settings);
+    if(Array.isArray(this.settings)) { this.#_contextType = 'array'; }
+    else if(typeOf$1(this.settings) === 'object') { this.#_contextType = 'object'; }
+    console.log(this.contextType);
     return this.#_contextType
   }
   get context() {
@@ -2699,19 +2730,25 @@ class Schema extends EventTarget{
       settings[$contextKey].validators = Validators.concat(
         settings[$contextKey].validators || []
       );
-      // Context Val Type: Primitive
-      if(Object.values(Primitives).includes(settings[$contextKey].type)) {
+      // Context Val Type: Schema Instance
+      if(settings[$contextKey].type instanceof Schema) {
         this.#_context[$contextKey] = settings[$contextKey];
       }
-      // Context Val Type: Object
+      // Context Val Type: Primitive Prototype
+      else if(Object.values(Primitives).includes(settings[$contextKey].type)) {
+        this.#_context[$contextKey] = settings[$contextKey];
+      }
+      // Context Val Type: Object Prototype
+      else if(Object.values(Objects).includes(settings[$contextKey].type)) {
+        this.#_context[$contentKey] = new Schema(
+          new settings[$contentKey].type(), this.options
+        );
+      }
+      // Context Val Type: Object Literal
       else if(Object.keys(Objects).includes(typeOf$1(settings[$contextKey].type))) {
         this.#_context[$contextKey] = new Schema(
           settings[$contextKey].type, this.options
         );
-      }
-      // Context Val Type: Schema Instance
-      else if(settings[$contextKey].type instanceof Schema) {
-        this.#_context[$contextKey] = settings[$contextKey];
       }
     }
     return this.#_context
@@ -2725,10 +2762,10 @@ class Schema extends EventTarget{
       if(Object.keys(Primitives).includes(typeOfContentVal)) {
         propertyValidation = this.validateProperty($contentKey, $contentVal);
       }
-      else if(typeOfContentVal === 'array') {
+      else if(this.contextType === 'array') {
         propertyValidation = this.context[0].validate($contentVal);
       }
-      else if(typeOfContentVal === 'object') {
+      else if(this.contextType === 'object') {
         propertyValidation = this.context[$contentKey].validate($contentVal);
       }
       $validation.properties.push(propertyValidation);
@@ -2752,6 +2789,7 @@ class Schema extends EventTarget{
     let contextVal;
     if(this.contextType === 'array') { contextVal = this.context[0]; }
     else if(this.contextType === 'object') { contextVal = this.context[$key]; }
+    console.log(this.contextType);
     return contextVal.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(
