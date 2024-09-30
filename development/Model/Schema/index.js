@@ -11,7 +11,7 @@ export default class Schema extends EventTarget{
   options
   #_contextType
   #_context
-  constructor($settings, $options = {}) {
+  constructor($settings = {}, $options = {}) {
     super()
     this.settings = $settings
     this.options = Object.assign({}, Options, $options)
@@ -98,8 +98,10 @@ export default class Schema extends EventTarget{
       valid: undefined, // Boolean
     }
     let contextVal
-    if(this.contextType === 'array') { contextVal = this.context[0] }
-    else if(this.contextType === 'object') { contextVal = this.context[$key] }
+    switch(this.contextType) {
+      case 'array': contextVal = this.context[0]; break
+      case 'object': contextVal = this.context[$key]; break
+    } 
     return contextVal.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(

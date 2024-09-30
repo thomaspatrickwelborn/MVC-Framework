@@ -119,89 +119,60 @@ function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
+            let valid, validateSourceProperty;
             let subschema;
-            let validateSourceProperty;
-            if(typeOf(schema.context) === 'array') subschema = schema.context[0];
-            else if(typeOf(schema.context) === 'object') subschema = schema.context[$sourcePropKey];
-            const { enableValidation } = schema?.options;
+            switch(schema.contextType) {
+              case 'array': subschema = schema.context[0]; break
+              case 'object': subschema = schema.context[$sourcePropKey]; break
+            }
+            const { enableValidation } = schema.options;
             // Assign Root DET Property
-            if(isDirectInstanceOf$1(
-              $sourcePropVal, [Object, Array/*, Map*/]
-            )) {
-              // Merge
-              if(merge === true) {
-                // Assign Existent Root DET Property
-                if(
-                  root[$sourcePropKey]
-                  ?.constructor.name === 'bound DynamicEventTarget'
-                ) {
-                  root[$sourcePropKey].assign($sourcePropVal);
-                }
-                // Assign Non-Existent Root DET Property
-                else {
-                  const _basename = $sourcePropKey;
-                  const _path = (
-                    path !== null
-                  ) ? path.concat('.', $sourcePropKey)
-                    : $sourcePropKey;
-                  // if((
-                  //   subschema && enableValidation && subschema.validate(
-                  //   $sourcePropVal
-                  // ).valid) || (!schema && !enableValidation)) {
-                    const detObject = new DynamicEventTarget(
-                      $sourcePropVal, {
-                        basename: _basename,
-                        parent: eventTarget,
-                        path: _path,
-                        rootAlias,
-                      }, subschema
-                    );
-                    Object.assign(root, {
-                      [$sourcePropKey]: detObject
-                    });
-                  // }
-                }
+            if(isDirectInstanceOf$1($sourcePropVal, [Object, Array/*, Map*/])) {
+              validateSourceProperty = (enableValidation)
+                ? subschema.validate($sourcePropVal)
+                : null;
+              valid = ((
+                enableValidation && validateSourceProperty.valid
+              ) || !enableValidation);
+              // Assign Root DET Property: Existent 
+              if(root[$sourcePropKey]?.constructor.name === 'bound DynamicEventTarget') {
+                root[$sourcePropKey].assign($sourcePropVal);
               }
-              // No Merge
-              else if(merge === false) {
+              // Assign Root DET Property: Non-Existent
+              else {
                 const _basename = $sourcePropKey;
-                const _path = (
-                  path !== null
-                ) ? path.concat('.', $sourcePropKey)
+                const _path = (path !== null)
+                  ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
-                // if((
-                //   subschema && enableValidation && subschema.validate(
-                //   $sourcePropVal
-                // ).valid) || (!schema && !enableValidation)) {
-                  const detObject = new DynamicEventTarget(
-                    $sourcePropVal, {
-                      basename: _basename,
-                      parent: eventTarget,
-                      path: _path,
-                      rootAlias,
-                    }, subschema
-                  );
-                  Object.assign(root, {
-                    [$sourcePropKey]: detObject
-                  });
-                // }
+                const detObject = new DynamicEventTarget(
+                  $sourcePropVal, {
+                    basename: _basename,
+                    parent: eventTarget,
+                    path: _path,
+                    rootAlias,
+                  }, subschema
+                );
+                Object.assign(root, {
+                  [$sourcePropKey]: detObject
+                });
               }
             }
             // Assign Root Property
             else {
-              validateSourceProperty = (schema && schema?.options.enableValidation)
+              validateSourceProperty = (enableValidation)
                 ? schema.validateProperty($sourcePropKey, $sourcePropVal)
                 : null;
-              if((
-                schema && enableValidation && validateSourceProperty.valid
-              ) || (!schema && !enableValidation)) {
+              valid = ((
+                enableValidation && validateSourceProperty.valid
+              ) || !enableValidation);
+              if(valid) {
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 });
               }
             }
             // Assign Source Property Event
-            if(events.includes('assignSourceProperty')) {
+            if(events.includes('assignSourceProperty') && valid) {
               eventTarget.dispatchEvent(
                 new DynamicEventTargetEvent('assignSourceProperty', {
                   basename,
@@ -2681,7 +2652,7 @@ class Schema extends EventTarget{
   options
   #_contextType
   #_context
-  constructor($settings, $options = {}) {
+  constructor($settings = {}, $options = {}) {
     super();
     this.settings = $settings;
     this.options = Object.assign({}, Options$4, $options);
@@ -2767,8 +2738,10 @@ class Schema extends EventTarget{
       valid: undefined, // Boolean
     };
     let contextVal;
-    if(this.contextType === 'array') { contextVal = this.context[0]; }
-    else if(this.contextType === 'object') { contextVal = this.context[$key]; }
+    switch(this.contextType) {
+      case 'array': contextVal = this.context[0]; break
+      case 'object': contextVal = this.context[$key]; break
+    } 
     return contextVal.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(
@@ -2793,21 +2766,22 @@ class Schema extends EventTarget{
 }
 
 const Settings$3 = {
-  content: undefined,
-  schema: undefined,
+  content: {}, // [],
+  schema: {}, // [],
 };
 const Options$3 = {
-  content: undefined,
-  schema: undefined,
+  content: {}, // [],
+  schema: {}, // [],
 };
 class Model extends Core {
   #_schema
   #_content
 	constructor($settings = {}, $options = {}) {
 		super(
-      Object.assign(Settings$3, $settings), 
-      Object.assign(Options$3, $options),
+      Object.assign({}, Settings$3, $settings), 
+      Object.assign({}, Options$3, $options),
     );
+    this.schema;
     this.content;
     if(this.options.enableEvents === true) this.enableEvents();
 	}
