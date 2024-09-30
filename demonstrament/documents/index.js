@@ -12,6 +12,9 @@ import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
 //   { aaa: 111111 , bbb: 222222 },
 // ]
 // console.log(schemaA.validate(contentA))
+
+// -----
+/*
 const model = new Model({
   schema: {
     aaa: { type: String },
@@ -26,7 +29,7 @@ const model = new Model({
     // bbb: 444444,
   },
   events: {
-    'content assignSource': ($event) => {
+    'content assignSourceProperty': ($event) => {
       console.log($event.type, $event.detail)
     }
   },
@@ -37,6 +40,44 @@ model.content.assign(
   { eee: 333333 , fff: 444444 },
 )
 console.log(model)
+*/
+
+// -----
+const model = new Model({
+  schema: {
+    aaa: { type: {
+      bbb: { type: String },
+      ccc: { type: Number },
+      ddd: { type: Boolean },
+    } },
+    eee: { type: {
+      fff: { type: Boolean },
+      ggg: { type: String },
+      hhh: { type: Number },
+    } }
+  },
+  content: {},
+  events: {
+    'content assignSourceProperty': ($event) => {
+      console.log($event.type, $event.detail)
+    },
+  }
+})
+model.content.assign({
+  aaa: {
+    bbb: "BBB",
+    ccc: 333,
+    ddd: true,
+  }
+}, {
+  eee: {
+    fff: false,
+    ggg: "FFF",
+    hhh: 777,
+  }
+})
+console.log(model)
+
 // import DefaultTemplate from './template.js'
 // const index = new Control({
 //   models: {

@@ -109,31 +109,25 @@ function Assign(
     rootAlias, 
     schema,
   } = $aliases;
-  let schemaContext;
-  if(typeOf(schema.context) === 'array') schemaContext = schema.context[0];
-  else if(typeOf(schema.context) === 'object') schemaContext = schema.context;
-  const { validation } = schema?.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const sources = [...arguments];
         // Iterate Sources
         for(let $source of sources) {
-          // if((
-          //   schemaContext && validation && !schemaContext.validate($source).valid
-          // ) /*  || (!schema && !validation) */) {
-          //   continue iterateSources
-          // }
           // Iterate Source Props
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
+            let subschema;
+            let validateSourceProperty;
+            if(typeOf(schema.context) === 'array') subschema = schema.context[0];
+            else if(typeOf(schema.context) === 'object') subschema = schema.context[$sourcePropKey];
+            const { enableValidation } = schema?.options;
             // Assign Root DET Property
-            if(
-              isDirectInstanceOf$1(
-                $sourcePropVal, [Object, Array/*, Map*/]
-              )
-            ) {
+            if(isDirectInstanceOf$1(
+              $sourcePropVal, [Object, Array/*, Map*/]
+            )) {
               // Merge
               if(merge === true) {
                 // Assign Existent Root DET Property
@@ -151,16 +145,16 @@ function Assign(
                   ) ? path.concat('.', $sourcePropKey)
                     : $sourcePropKey;
                   // if((
-                  //   schemaContext && validation && schemaContext.validate(
+                  //   subschema && enableValidation && subschema.validate(
                   //   $sourcePropVal
-                  // ).valid) || (!schema && !validation)) {
+                  // ).valid) || (!schema && !enableValidation)) {
                     const detObject = new DynamicEventTarget(
                       $sourcePropVal, {
                         basename: _basename,
                         parent: eventTarget,
                         path: _path,
                         rootAlias,
-                      }, schemaContext
+                      }, subschema
                     );
                     Object.assign(root, {
                       [$sourcePropKey]: detObject
@@ -176,16 +170,16 @@ function Assign(
                 ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
                 // if((
-                //   schemaContext && validation && schemaContext.validate(
+                //   subschema && enableValidation && subschema.validate(
                 //   $sourcePropVal
-                // ).valid) || (!schema && !validation)) {
+                // ).valid) || (!schema && !enableValidation)) {
                   const detObject = new DynamicEventTarget(
                     $sourcePropVal, {
                       basename: _basename,
                       parent: eventTarget,
                       path: _path,
                       rootAlias,
-                    }, schemaContext
+                    }, subschema
                   );
                   Object.assign(root, {
                     [$sourcePropKey]: detObject
@@ -195,13 +189,12 @@ function Assign(
             }
             // Assign Root Property
             else {
-              // console.log('schema', schema)
-              // console.log('schemaContext', schemaContext)
+              validateSourceProperty = (schema && schema?.options.enableValidation)
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal)
+                : null;
               if((
-                schema && validation && schema.validateProperty(
-                  $sourcePropKey, $sourcePropVal
-                ).valid
-              ) || (!schema && !validation)) {
+                schema && enableValidation && validateSourceProperty.valid
+              ) || (!schema && !enableValidation)) {
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 });
@@ -210,53 +203,41 @@ function Assign(
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
               eventTarget.dispatchEvent(
-                new DynamicEventTargetEvent(
-                  'assignSourceProperty',
-                  {
-                    basename,
-                    path,
-                    detail: {
-                      key: $sourcePropKey,
-                      val: $sourcePropVal,
-                      source: $source,
-                    }
-                  },
-                  eventTarget
-                )
+                new DynamicEventTargetEvent('assignSourceProperty', {
+                  basename,
+                  path,
+                  detail: {
+                    key: $sourcePropKey,
+                    val: $sourcePropVal,
+                    source: $source,
+                  }
+                }, eventTarget)
               );
             }
           }
           // Assign Source Event
           if(events.includes('assignSource')) {
             eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
-                'assignSource',
-                {
-                  basename,
-                  path,
-                  detail: {
-                    source: $source,
-                  },
+              new DynamicEventTargetEvent('assignSource', {
+                basename,
+                path,
+                detail: {
+                  source: $source,
                 },
-                eventTarget
-              )
+              }, eventTarget)
             );
           }
         }
         // Assign Event
         if(events.includes('assign')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
-              'assign',
-              { 
-                basename,
-                path,
-                detail: {
-                  sources
-                },
+            new DynamicEventTargetEvent('assign', { 
+              basename,
+              path,
+              detail: {
+                sources
               },
-              eventTarget
-            )
+            }, eventTarget)
           );
         }
         return root
@@ -2692,7 +2673,7 @@ const Objects = {
 Object.assign({}, Primitives, Objects);
 
 const Options$4 = {
-  validation: true,
+  enableValidation: true,
 };
 const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
@@ -2710,7 +2691,6 @@ class Schema extends EventTarget{
     if(this.#_contextType !== undefined) return this.#_contextType
     if(Array.isArray(this.settings)) { this.#_contextType = 'array'; }
     else if(typeOf$1(this.settings) === 'object') { this.#_contextType = 'object'; }
-    console.log(this.contextType);
     return this.#_contextType
   }
   get context() {
@@ -2789,7 +2769,6 @@ class Schema extends EventTarget{
     let contextVal;
     if(this.contextType === 'array') { contextVal = this.context[0]; }
     else if(this.contextType === 'object') { contextVal = this.context[$key]; }
-    console.log(this.contextType);
     return contextVal.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(

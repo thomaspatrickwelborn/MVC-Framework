@@ -3,7 +3,7 @@ import DynamicEventTarget from '../../Core/DynamicEventTarget/index.js'
 import { TypeValidator } from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
 const Options = {
-  validation: true,
+  enableValidation: true,
 }
 const Validators = [new TypeValidator()]
 export default class Schema extends EventTarget{
@@ -21,7 +21,6 @@ export default class Schema extends EventTarget{
     if(this.#_contextType !== undefined) return this.#_contextType
     if(Array.isArray(this.settings)) { this.#_contextType = 'array' }
     else if(typeOf(this.settings) === 'object') { this.#_contextType = 'object' }
-    console.log(this.contextType)
     return this.#_contextType
   }
   get context() {
@@ -101,7 +100,6 @@ export default class Schema extends EventTarget{
     let contextVal
     if(this.contextType === 'array') { contextVal = this.context[0] }
     else if(this.contextType === 'object') { contextVal = this.context[$key] }
-    console.log(this.contextType)
     return contextVal.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(

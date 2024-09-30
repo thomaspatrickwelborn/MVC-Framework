@@ -13,10 +13,6 @@ export default function Assign(
     rootAlias, 
     schema,
   } = $aliases
-  let schemaContext
-  if(typeOf(schema.context) === 'array') schemaContext = schema.context[0]
-  else if(typeOf(schema.context) === 'object') schemaContext = schema.context
-  const { validation } = schema?.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -24,22 +20,20 @@ export default function Assign(
         // Iterate Sources
         iterateSources: 
         for(let $source of sources) {
-          // if((
-          //   schemaContext && validation && !schemaContext.validate($source).valid
-          // ) /*  || (!schema && !validation) */) {
-          //   continue iterateSources
-          // }
           // Iterate Source Props
           iterateSourceProps:
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
+            let subschema
+            let validateSourceProperty
+            if(typeOf(schema.context) === 'array') subschema = schema.context[0]
+            else if(typeOf(schema.context) === 'object') subschema = schema.context[$sourcePropKey]
+            const { enableValidation } = schema?.options
             // Assign Root DET Property
-            if(
-              isDirectInstanceOf(
-                $sourcePropVal, [Object, Array/*, Map*/]
-              )
-            ) {
+            if(isDirectInstanceOf(
+              $sourcePropVal, [Object, Array/*, Map*/]
+            )) {
               // Merge
               if(merge === true) {
                 // Assign Existent Root DET Property
@@ -57,16 +51,16 @@ export default function Assign(
                   ) ? path.concat('.', $sourcePropKey)
                     : $sourcePropKey
                   // if((
-                  //   schemaContext && validation && schemaContext.validate(
+                  //   subschema && enableValidation && subschema.validate(
                   //   $sourcePropVal
-                  // ).valid) || (!schema && !validation)) {
+                  // ).valid) || (!schema && !enableValidation)) {
                     const detObject = new DynamicEventTarget(
                       $sourcePropVal, {
                         basename: _basename,
                         parent: eventTarget,
                         path: _path,
                         rootAlias,
-                      }, schemaContext
+                      }, subschema
                     )
                     Object.assign(root, {
                       [$sourcePropKey]: detObject
@@ -82,16 +76,16 @@ export default function Assign(
                 ) ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey
                 // if((
-                //   schemaContext && validation && schemaContext.validate(
+                //   subschema && enableValidation && subschema.validate(
                 //   $sourcePropVal
-                // ).valid) || (!schema && !validation)) {
+                // ).valid) || (!schema && !enableValidation)) {
                   const detObject = new DynamicEventTarget(
                     $sourcePropVal, {
                       basename: _basename,
                       parent: eventTarget,
                       path: _path,
                       rootAlias,
-                    }, schemaContext
+                    }, subschema
                   )
                   Object.assign(root, {
                     [$sourcePropKey]: detObject
@@ -101,13 +95,12 @@ export default function Assign(
             }
             // Assign Root Property
             else {
-              // console.log('schema', schema)
-              // console.log('schemaContext', schemaContext)
+              validateSourceProperty = (schema && schema?.options.enableValidation)
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal)
+                : null
               if((
-                schema && validation && schema.validateProperty(
-                  $sourcePropKey, $sourcePropVal
-                ).valid
-              ) || (!schema && !validation)) {
+                schema && enableValidation && validateSourceProperty.valid
+              ) || (!schema && !enableValidation)) {
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 })
@@ -116,53 +109,41 @@ export default function Assign(
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
               eventTarget.dispatchEvent(
-                new DETEvent(
-                  'assignSourceProperty',
-                  {
-                    basename,
-                    path,
-                    detail: {
-                      key: $sourcePropKey,
-                      val: $sourcePropVal,
-                      source: $source,
-                    }
-                  },
-                  eventTarget
-                )
+                new DETEvent('assignSourceProperty', {
+                  basename,
+                  path,
+                  detail: {
+                    key: $sourcePropKey,
+                    val: $sourcePropVal,
+                    source: $source,
+                  }
+                }, eventTarget)
               )
             }
           }
           // Assign Source Event
           if(events.includes('assignSource')) {
             eventTarget.dispatchEvent(
-              new DETEvent(
-                'assignSource',
-                {
-                  basename,
-                  path,
-                  detail: {
-                    source: $source,
-                  },
+              new DETEvent('assignSource', {
+                basename,
+                path,
+                detail: {
+                  source: $source,
                 },
-                eventTarget
-              )
+              }, eventTarget)
             )
           }
         }
         // Assign Event
         if(events.includes('assign')) {
           eventTarget.dispatchEvent(
-            new DETEvent(
-              'assign',
-              { 
-                basename,
-                path,
-                detail: {
-                  sources
-                },
+            new DETEvent('assign', { 
+              basename,
+              path,
+              detail: {
+                sources
               },
-              eventTarget
-            )
+            }, eventTarget)
           )
         }
         return root
