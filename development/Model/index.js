@@ -18,8 +18,6 @@ export default class Model extends Core {
       Object.assign({}, Settings, $settings), 
       Object.assign({}, Options, $options),
     )
-    this.schema
-    this.content
     if(this.options.enableEvents === true) this.enableEvents()
 	}
   get schema() {
