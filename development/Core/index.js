@@ -1,11 +1,11 @@
 import { typeOf, parseShortenedEvents } from '../Coutil/index.js'
-import DESEvent from './Event/index.js'
+import CoreEvent from './Event/index.js'
 const Settings = {}
 const Options = {
   validSettings: [],
   enableEvents: true,
 }
-export default class DynamicEventSystem extends EventTarget {
+export default class Core extends EventTarget {
   constructor($settings = {}, $options = {}) {
     super()
     this.options = Object.assign({}, Options, $options)
@@ -57,7 +57,7 @@ export default class DynamicEventSystem extends EventTarget {
         context: this,
         enable: $event.enable || $enable,
       })
-      _events.push(new DESEvent($event))
+      _events.push(new CoreEvent($event))
     }
   }
   removeEvents($events = {}) {

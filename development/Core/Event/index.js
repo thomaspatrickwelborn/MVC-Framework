@@ -1,5 +1,5 @@
 import { typeOf, propFromPropPath } from '../../Coutil/index.js'
-export default class DynamicEventSystemEvent {
+export default class CoreEvent {
   constructor($settings) { 
     this.settings = $settings
   }

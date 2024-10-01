@@ -29,7 +29,7 @@ function parseShortenedEvents($propEvents) {
 	return propEvents
 }
 
-class DynamicEventSystemEvent {
+class CoreEvent {
   constructor($settings) { 
     this.settings = $settings;
   }
@@ -108,7 +108,7 @@ const Options$6 = {
   validSettings: [],
   enableEvents: true,
 };
-class DynamicEventSystem extends EventTarget {
+class Core extends EventTarget {
   constructor($settings = {}, $options = {}) {
     super();
     this.options = Object.assign({}, Options$6, $options);
@@ -160,7 +160,7 @@ class DynamicEventSystem extends EventTarget {
         context: this,
         enable: $event.enable || $enable,
       });
-      _events.push(new DynamicEventSystemEvent($event));
+      _events.push(new CoreEvent($event));
     }
   }
   removeEvents($events = {}) {
@@ -2763,7 +2763,7 @@ const Options$3 = {
   content: {},
   schema: {},
 };
-class Model extends DynamicEventSystem {
+class Model extends Core {
   #_schema
   #_content
 	constructor($settings = {}, $options = {}) {
@@ -2817,7 +2817,7 @@ const Settings$2 = {
   events: {},
 };
 const Options$2 = {};
-class View extends DynamicEventSystem {
+class View extends Core {
   #_parent
   #_element
   #_template
@@ -3067,7 +3067,7 @@ class FetchRoute extends EventTarget {
   }
 }
 
-class FetchRouter extends DynamicEventSystem {
+class FetchRouter extends Core {
   #scheme
   #domain
   #port
@@ -3127,7 +3127,7 @@ const Settings$1 = {
 const Options$1 = {
 	enable: true,
 };
-class StaticRouter extends DynamicEventSystem {
+class StaticRouter extends Core {
 	constructor($settings = Settings$1, $options = Options$1) {
 		super(...arguments);
 		this.routes = $settings.routes;
@@ -3184,7 +3184,7 @@ const Options = Object.freeze({
 	enableEvents: true
 });
 
-class Control extends DynamicEventSystem {
+class Control extends Core {
 	constructor($settings = {}, $options = {}) {
 		super(
 			Object.assign({}, Settings, $settings),
@@ -3305,5 +3305,5 @@ class Control extends DynamicEventSystem {
 	}
 }
 
-export { Control, DynamicEventSystem as Core, FetchRouter, Model, Schema, StaticRouter, View };
+export { Control, Core, FetchRouter, Model, Schema, StaticRouter, View };
 //# sourceMappingURL=mvc-framework.js.map
