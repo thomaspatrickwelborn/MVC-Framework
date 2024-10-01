@@ -11,6 +11,12 @@ export default class Handler {
     this.#settings = $settings
     this.#options = $options
     this.traps = new Traps(this.#settings, $options.traps)
+    Object.defineProperty(this, '__context__', {
+      enumerable: false,
+      configurable: false,
+      writable: false,
+      value: this.#settings.eventTarget,
+    })
     return this
   }
   // Get Property
@@ -56,6 +62,7 @@ export default class Handler {
       eventTarget, 
       root, 
       rootAlias, 
+      schema,
     } = this.#settings
     let {
       basename,
@@ -73,14 +80,17 @@ export default class Handler {
       }
       // Dynamic Event Target Property
       else if(typeof $value === 'object') {
-        $value = new DynamicEventTarget(
-          $value, {
-            basename,
-            parent: eventTarget,
-            path,
-            rootAlias,
-          }
-        )
+        let subschema
+        switch(schema.contextType) {
+          case 'array': subschema = schema.context[0]; break
+          case 'object': subschema = schema.context[$sourcePropKey]; break
+        }
+        $value = new DynamicEventTarget($value, {
+          basename,
+          parent: eventTarget,
+          path,
+          rootAlias,
+        }, subschema)
       }
       // Property Assignment
       root[$property] = $value
@@ -90,19 +100,16 @@ export default class Handler {
       ) ? path.concat('.', $property)
         : $property
       eventTarget.dispatchEvent(
-        new DETEvent(
-          'set',
-          {
-            basename,
-            path,
-            detail: {
-              property: $property,
-              value: $value,
-            },
+        new DETEvent('set', {
+          basename,
+          path,
+          detail: {
+            property: $property,
+            value: $value,
           },
-          eventTarget
-        )
-      )
+        },
+        eventTarget
+      ))
       return true
     }
   }
@@ -121,18 +128,15 @@ export default class Handler {
     return function deleteProperty($target, $property) {
       delete root[$property]
       eventTarget.dispatchEvent(
-        new DETEvent(
-          'delete',
-          {
-            basename,
-            path,
-            detail: {
-              property: $property
-            },
+        new DETEvent('delete', {
+          basename,
+          path,
+          detail: {
+            property: $property
           },
-          eventTarget
-        )
-      )
+        },
+        eventTarget
+      ))
       return true
     }
   }

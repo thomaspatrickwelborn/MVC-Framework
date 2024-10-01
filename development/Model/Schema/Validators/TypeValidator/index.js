@@ -14,7 +14,7 @@ export default class TypeValidator extends Validator {
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
-          validation: undefined,
+          valid: false,
         })
         const typeOfContentVal = typeOf($contentVal)
         const typeOfContextVal = typeOf($contextVal.type())
@@ -24,9 +24,6 @@ export default class TypeValidator extends Validator {
         ) {
           if(typeOfContextVal === typeOfContentVal) {
             validation.valid = true
-          }
-          else {
-            validation.valid = false
           }
         }
         return validation

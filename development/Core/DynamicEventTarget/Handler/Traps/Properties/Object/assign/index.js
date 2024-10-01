@@ -32,14 +32,10 @@ export default function Assign(
               case 'object': subschema = schema.context[$sourcePropKey]; break
             }
             const { enableValidation } = schema.options
+            // Enable Validation, No Subschema: Iterate Source Props
+            if(enableValidation && !subschema) continue iterateSourceProps
             // Assign Root DET Property
             if(isDirectInstanceOf($sourcePropVal, [Object, Array/*, Map*/])) {
-              validateSourceProperty = (enableValidation)
-                ? subschema.validate($sourcePropVal)
-                : null
-              valid = ((
-                enableValidation && validateSourceProperty.valid
-              ) || !enableValidation)
               // Assign Root DET Property: Existent 
               if(root[$sourcePropKey]?.constructor.name === 'bound DynamicEventTarget') {
                 root[$sourcePropKey].assign($sourcePropVal)
