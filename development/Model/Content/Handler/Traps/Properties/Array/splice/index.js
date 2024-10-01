@@ -44,19 +44,15 @@ export default function Splice(
             : deleteItemsIndex
           if(events.includes('spliceDelete')) {
             eventTarget.dispatchEvent(
-              new ContentEvent(
-                'spliceDelete',
-                {
-                  _basename,
-                  _path,
-                  detail: {
-                    index: start + deleteItemsIndex,
-                    deleteIndex: deleteItemsIndex,
-                    deleteItem: deleteItem,
-                  },
+              new ContentEvent('spliceDelete', {
+                _basename,
+                _path,
+                detail: {
+                  index: start + deleteItemsIndex,
+                  deleteIndex: deleteItemsIndex,
+                  deleteItem: deleteItem,
                 },
-                eventTarget
-              )
+              }, eventTarget)
             )
           }
           deleteItemsIndex++
@@ -64,6 +60,7 @@ export default function Splice(
         let addItemsIndex = 0
         spliceAdd: 
         while(addItemsIndex < addCount) {
+          const subschema = schema.context[0]
           const addItem = addItems[addItemsIndex]
           if(isDirectInstanceOf(
             addItem, [Object, Array/*, Map*/]
@@ -72,7 +69,7 @@ export default function Splice(
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
-            }, schema)
+            }, subschema)
           }
           Array.prototype.splice.call(
             root, start + addItemsIndex, 0, addItem
@@ -85,19 +82,15 @@ export default function Splice(
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
             eventTarget.dispatchEvent(
-              new ContentEvent(
-                'spliceAdd',
-                {
-                  basename,
-                  path,
-                  detail: {
-                    index: start + addItemsIndex,
-                    addIndex: addItemsIndex,
-                    addItem: addItem,
-                  },
+              new ContentEvent('spliceAdd', {
+                basename,
+                path,
+                detail: {
+                  index: start + addItemsIndex,
+                  addIndex: addItemsIndex,
+                  addItem: addItem,
                 },
-                eventTarget
-              )
+              }, eventTarget)
             )
           }
           addItemsIndex++
@@ -105,20 +98,17 @@ export default function Splice(
         // Array Splice Event
         if(events.includes('splice')) {
           eventTarget.dispatchEvent(
-            new ContentEvent(
-              'splice',
-              {
-                basename,
-                path: path,
-                detail: {
-                  start,
-                  deleted: deleteItems,
-                  added: addItems,
-                  length: root.length,
-                },
+            new ContentEvent('splice', {
+              basename,
+              path: path,
+              detail: {
+                start,
+                deleted: deleteItems,
+                added: addItems,
+                length: root.length,
               },
-              eventTarget
-            )
+            },
+            eventTarget)
           )
         }
         return deleteItems

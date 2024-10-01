@@ -496,12 +496,10 @@ function DefineProperty(
               rootPropertyDescriptor.value.defineProperties(
                 propertyDescriptor.value
               );
-            } else
+            }
             // Root Define Properties, No Descriptor Tree
-            {
-              Object.defineProperty(
-                root, propertyKey, propertyDescriptor
-              );
+            else {
+              Object.defineProperty(root, propertyKey, propertyDescriptor);
             }
           }
           // Root Property Descriptor Value: Non-Existent DET Instance
@@ -511,19 +509,11 @@ function DefineProperty(
               path !== null
             ) ? path.concat('.', propertyKey)
               : propertyKey;
-            const _root = (
-              typeOf(
-                propertyDescriptor.value
-              ) === 'object'
-            ) ? {}
-              : (
-              typeOf(
-                propertyDescriptor.value
-              ) === 'array'
-            ) ? []
-            //   : typeOf(
-            //   propertyDescriptor.value
-            // ) === 'map'
+            const _root = (typeOf(propertyDescriptor.value) === 'object')
+              ? {}
+              : (typeOf(propertyDescriptor.value) === 'array')
+              ? []
+            //   : (typeOf(propertyDescriptor.value) === 'map')
             //   ? new Map()
               : {};
             const contentObject = new Content(
@@ -536,16 +526,12 @@ function DefineProperty(
             );
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
-              contentObject.defineProperties(
-                propertyDescriptor.value
-              );
+              contentObject.defineProperties(propertyDescriptor.value);
               root[propertyKey] = contentObject;
             } else 
             // Root Define Properties, No Descriptor Tree
             if(descriptorTree === false) {
-              Object.defineProperty(
-                root, propertyKey, propertyDescriptor
-              );
+              Object.defineProperty(root, propertyKey, propertyDescriptor);
             }
           }
         }
@@ -560,9 +546,7 @@ function DefineProperty(
           ) || !enableValidation);
           if(valid) {
             // [VALIDATION:CONSTAT]
-            Object.defineProperty(
-              root, propertyKey, propertyDescriptor
-            );
+            Object.defineProperty(root, propertyKey, propertyDescriptor);
             // [VALIDATION:CONSTAT]
           }
           // [VALIDATION:STOP]
@@ -570,19 +554,15 @@ function DefineProperty(
         // Define Property Event
         if(events.includes('defineProperty') && valid) {
           eventTarget.dispatchEvent(
-            new ContentEvent(
-              'defineProperty',
-              {
-                basename,
-                path,
-                detail: {
-                  prop: propertyKey,
-                  descriptor: propertyDescriptor,
-                },
+            new ContentEvent('defineProperty', {
+              basename,
+              path,
+              detail: {
+                prop: propertyKey,
+                descriptor: propertyDescriptor,
               },
-              eventTarget
-            )
-          );
+            }, eventTarget
+          ));
         }
         return root
       }
@@ -1222,9 +1202,10 @@ function Fill(
         if(isDirectInstanceOf$1(
           value, [Object, Array/*, Map*/]
         )) {
+          const subschema = schema.context[0];
           value = new Content(value, {
             rootAlias: rootAlias,
-          }, schema);
+          }, subschema);
         }
         let start;
         if(
@@ -1264,19 +1245,15 @@ function Fill(
           // Array Fill Index Event
           if(events.includes('fillIndex')) {
             $eventTarget.dispatchEvent(
-              new ContentEvent(
-                'fillIndex',
-                {
-                  basename: _basename,
-                  path: _path,
-                  detail: {
-                    start: fillIndex,
-                    end: fillIndex + 1,
-                    value,
-                  },
+              new ContentEvent('fillIndex', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  start: fillIndex,
+                  end: fillIndex + 1,
+                  value,
                 },
-                $eventTarget
-              )
+              }, $eventTarget)
             );
           }
           fillIndex++;
@@ -1284,19 +1261,16 @@ function Fill(
         // Array Fill Event
         if(events.includes('fill')) {
           $eventTarget.dispatchEvent(
-            new ContentEvent(
-              'fill',
-              {
-                basename,
-                path,
-                detail: {
-                  start,
-                  end,
-                  value,
-                },
+            new ContentEvent('fill', {
+              basename,
+              path,
+              detail: {
+                start,
+                end,
+                value,
               },
-              $eventTarget
-            )
+            },
+            $eventTarget)
           );
         }
         return root
@@ -1583,31 +1557,27 @@ function Push(
           ) ? path.concat('.', elementIndex)
             : elementIndex;
           // Push Prop Event
-          if(isDirectInstanceOf$1(
-            $element, [Object, Array/*, Map*/]
-          )) {
+          if(isDirectInstanceOf$1($element, [Object, Array/*, Map*/])) {
+            const subschema = schema.context[0];
             $element = new Content($element, {
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
-            }, schema);
+            }, subschema);
           }
           elements.push($element);
           Array.prototype.push.call(root, $element);
           if(events.includes('pushProp')) {
             eventTarget.dispatchEvent(
-              new ContentEvent(
-                'pushProp',
-                {
-                  basename: _basename,
-                  path: _path,
-                  detail: {
-                    elementIndex, 
-                    element: $element,
-                  },
+              new ContentEvent('pushProp', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elementIndex, 
+                  element: $element,
                 },
-                eventTarget
-              )
+              },
+              eventTarget)
             );
           }
           elementIndex++;
@@ -1615,17 +1585,14 @@ function Push(
         // Push Event
         if(events.includes('push')) {
           eventTarget.dispatchEvent(
-            new ContentEvent(
-              'push',
-              {
-                basename,
-                path,
-                detail: {
-                  elements,
-                },
+            new ContentEvent('push', {
+              basename,
+              path,
+              detail: {
+                elements,
               },
-              eventTarget
-            )
+            },
+            eventTarget)
           );
         }
         return root.length
@@ -1809,25 +1776,22 @@ function Splice(
             : deleteItemsIndex;
           if(events.includes('spliceDelete')) {
             eventTarget.dispatchEvent(
-              new ContentEvent(
-                'spliceDelete',
-                {
-                  _basename,
-                  _path,
-                  detail: {
-                    index: start + deleteItemsIndex,
-                    deleteIndex: deleteItemsIndex,
-                    deleteItem: deleteItem,
-                  },
+              new ContentEvent('spliceDelete', {
+                _basename,
+                _path,
+                detail: {
+                  index: start + deleteItemsIndex,
+                  deleteIndex: deleteItemsIndex,
+                  deleteItem: deleteItem,
                 },
-                eventTarget
-              )
+              }, eventTarget)
             );
           }
           deleteItemsIndex++;
         }
         let addItemsIndex = 0;
         while(addItemsIndex < addCount) {
+          const subschema = schema.context[0];
           const addItem = addItems[addItemsIndex];
           if(isDirectInstanceOf(
             addItem, [Object, Array/*, Map*/]
@@ -1836,7 +1800,7 @@ function Splice(
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
-            }, schema);
+            }, subschema);
           }
           Array.prototype.splice.call(
             root, start + addItemsIndex, 0, addItem
@@ -1849,19 +1813,15 @@ function Splice(
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
             eventTarget.dispatchEvent(
-              new ContentEvent(
-                'spliceAdd',
-                {
-                  basename,
-                  path,
-                  detail: {
-                    index: start + addItemsIndex,
-                    addIndex: addItemsIndex,
-                    addItem: addItem,
-                  },
+              new ContentEvent('spliceAdd', {
+                basename,
+                path,
+                detail: {
+                  index: start + addItemsIndex,
+                  addIndex: addItemsIndex,
+                  addItem: addItem,
                 },
-                eventTarget
-              )
+              }, eventTarget)
             );
           }
           addItemsIndex++;
@@ -1869,20 +1829,17 @@ function Splice(
         // Array Splice Event
         if(events.includes('splice')) {
           eventTarget.dispatchEvent(
-            new ContentEvent(
-              'splice',
-              {
-                basename,
-                path: path,
-                detail: {
-                  start,
-                  deleted: deleteItems,
-                  added: addItems,
-                  length: root.length,
-                },
+            new ContentEvent('splice', {
+              basename,
+              path: path,
+              detail: {
+                start,
+                deleted: deleteItems,
+                added: addItems,
+                length: root.length,
               },
-              eventTarget
-            )
+            },
+            eventTarget)
           );
         }
         return deleteItems
@@ -1976,12 +1933,13 @@ function Unshift(
         const elementsLength = $arguments.length;
         let elementIndex = elementsLength - 1;
         while(elementIndex > -1) {
-        $arguments.length;
-          const element = $arguments[elementIndex];
+          const subschema = schema.context[0];
+          $arguments.length;
+          let element = $arguments[elementIndex];
           const _basename = elementIndex;
           const _path = (
-            $path !== null
-          ) ? $path.concat('.', elementIndex)
+            path !== null
+          ) ? path.concat('.', elementIndex)
             : elementIndex;
           if(isDirectInstanceOf$1(
             element, [Object, Array/*, Map*/]
@@ -1990,25 +1948,21 @@ function Unshift(
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
-            }, schema);
+            }, subschema);
           }
           elements.unshift(element);
           Array.prototype.unshift.call(root, element);
           // Array Unshift Prop Event
           if(events.includes('unshiftProp')) {
             eventTarget.dispatchEvent(
-              new ContentEvent(
-                'unshiftProp',
-                {
-                  basename: _basename,
-                  path: _path,
-                  detail: {
-                    elementIndex, 
-                    element: element,
-                  },
+              new ContentEvent('unshiftProp', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elementIndex, 
+                  element: element,
                 },
-                eventTarget
-              )
+              }, eventTarget)
             );
           }
           elementIndex--;
@@ -2016,22 +1970,19 @@ function Unshift(
         // Array Unshift Event
         const _basename = elementIndex;
         const _path = (
-          $path !== null
-        ) ? $path.concat('.', elementIndex)
+          path !== null
+        ) ? path.concat('.', elementIndex)
           : elementIndex;
         if(events.includes('unshift')) {
           eventTarget.dispatchEvent(
-            new ContentEvent(
-              'unshift',
-              {
-                basename: _basename,
-                path: _path,
-                detail: {
-                  elements,
-                },
+            new ContentEvent('unshift', {
+              basename: _basename,
+              path: _path,
+              detail: {
+                elements,
               },
-              eventTarget
-            )
+            },
+            eventTarget)
           );
         }
         return root.length

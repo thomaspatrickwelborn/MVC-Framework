@@ -21,9 +21,10 @@ export default function Fill(
         if(isDirectInstanceOf(
           value, [Object, Array/*, Map*/]
         )) {
+          const subschema = schema.context[0]
           value = new Content(value, {
             rootAlias: rootAlias,
-          }, schema)
+          }, subschema)
         }
         let start
         if(
@@ -63,19 +64,15 @@ export default function Fill(
           // Array Fill Index Event
           if(events.includes('fillIndex')) {
             $eventTarget.dispatchEvent(
-              new ContentEvent(
-                'fillIndex',
-                {
-                  basename: _basename,
-                  path: _path,
-                  detail: {
-                    start: fillIndex,
-                    end: fillIndex + 1,
-                    value,
-                  },
+              new ContentEvent('fillIndex', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  start: fillIndex,
+                  end: fillIndex + 1,
+                  value,
                 },
-                $eventTarget
-              )
+              }, $eventTarget)
             )
           }
           fillIndex++
@@ -83,19 +80,16 @@ export default function Fill(
         // Array Fill Event
         if(events.includes('fill')) {
           $eventTarget.dispatchEvent(
-            new ContentEvent(
-              'fill',
-              {
-                basename,
-                path,
-                detail: {
-                  start,
-                  end,
-                  value,
-                },
+            new ContentEvent('fill', {
+              basename,
+              path,
+              detail: {
+                start,
+                end,
+                value,
               },
-              $eventTarget
-            )
+            },
+            $eventTarget)
           )
         }
         return root

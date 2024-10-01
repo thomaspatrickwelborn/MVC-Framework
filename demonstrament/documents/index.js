@@ -1,30 +1,54 @@
 import { Model } from '/dependencies/mvc-framework.js'
-const { content, schema } = new Model({
-  schema: {
+const model = new Model({
+  schema: [{ type: {
     aaa: { type: String },
     BBB: { type: Number },
     ccc: { type: Boolean },
-  },
+  } }],
+  content: [],
   events: {
     'content defineProperty': ($event) => { console.log($event.type, $event.detail) }
   },
   // content: ,
 })
-/*console.log(*/content.defineProperties({
-  aaa: { value: "AAA", writable: true, configurable: true, enumerable: true },
-  BBB: { value: 222, writable: true, configurable: true, enumerable: true },
-  ccc: { value: true, writable: true, configurable: true, enumerable: true },
-})/*)*/
-/*console.log(*/content.defineProperties({
-  aaa: { value: 111, writable: true, configurable: true, enumerable: true },
-  BBB: { value: "bbb", writable: true, configurable: true, enumerable: true },
-  ccc: { value: null, writable: true, configurable: true, enumerable: true },
-})/*)*/
-/*console.log(*/content.defineProperties({
-  aaa: { value: "AAAAAA", writable: true, configurable: true, enumerable: true },
-  BBB: { value: 222222, writable: true, configurable: true, enumerable: true },
-  ccc: { value: false, writable: true, configurable: true, enumerable: true },
-})/*)*/
+const { content, schema } = model
+content.unshift({
+  aaa: 111,
+  BBB: "bbb",
+  ccc: null,
+})
+content.unshift({
+  aaa: "111",
+  BBB: 222,
+  ccc: true,
+})
+content.push({
+  aaa: 111,
+  BBB: "bbb",
+  ccc: null,
+})
+content.push({
+  aaa: "111",
+  BBB: 222,
+  ccc: true,
+})
+console.log(content)
+
+// /*console.log(*/content.defineProperties({
+//   aaa: { value: "AAA", writable: true, configurable: true, enumerable: true },
+//   BBB: { value: 222, writable: true, configurable: true, enumerable: true },
+//   ccc: { value: true, writable: true, configurable: true, enumerable: true },
+// })/*)*/
+// /*console.log(*/content.defineProperties({
+//   aaa: { value: 111, writable: true, configurable: true, enumerable: true },
+//   BBB: { value: "bbb", writable: true, configurable: true, enumerable: true },
+//   ccc: { value: null, writable: true, configurable: true, enumerable: true },
+// })/*)*/
+// /*console.log(*/content.defineProperties({
+//   aaa: { value: "AAAAAA", writable: true, configurable: true, enumerable: true },
+//   BBB: { value: 222222, writable: true, configurable: true, enumerable: true },
+//   ccc: { value: false, writable: true, configurable: true, enumerable: true },
+// })/*)*/
 // console.log(content.assign({
 //   aaa: 111,
 //   BBB: "bbb",

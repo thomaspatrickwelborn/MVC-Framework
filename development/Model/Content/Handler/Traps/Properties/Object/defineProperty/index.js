@@ -51,12 +51,10 @@ export default function DefineProperty(
               rootPropertyDescriptor.value.defineProperties(
                 propertyDescriptor.value
               )
-            } else
+            }
             // Root Define Properties, No Descriptor Tree
-            {
-              Object.defineProperty(
-                root, propertyKey, propertyDescriptor
-              )
+            else {
+              Object.defineProperty(root, propertyKey, propertyDescriptor)
             }
           }
           // Root Property Descriptor Value: Non-Existent DET Instance
@@ -66,19 +64,11 @@ export default function DefineProperty(
               path !== null
             ) ? path.concat('.', propertyKey)
               : propertyKey
-            const _root = (
-              typeOf(
-                propertyDescriptor.value
-              ) === 'object'
-            ) ? {}
-              : (
-              typeOf(
-                propertyDescriptor.value
-              ) === 'array'
-            ) ? []
-            //   : typeOf(
-            //   propertyDescriptor.value
-            // ) === 'map'
+            const _root = (typeOf(propertyDescriptor.value) === 'object')
+              ? {}
+              : (typeOf(propertyDescriptor.value) === 'array')
+              ? []
+            //   : (typeOf(propertyDescriptor.value) === 'map')
             //   ? new Map()
               : {}
             const contentObject = new Content(
@@ -91,16 +81,12 @@ export default function DefineProperty(
             )
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
-              contentObject.defineProperties(
-                propertyDescriptor.value
-              )
+              contentObject.defineProperties(propertyDescriptor.value)
               root[propertyKey] = contentObject
             } else 
             // Root Define Properties, No Descriptor Tree
             if(descriptorTree === false) {
-              Object.defineProperty(
-                root, propertyKey, propertyDescriptor
-              )
+              Object.defineProperty(root, propertyKey, propertyDescriptor)
             }
           }
         }
@@ -115,9 +101,7 @@ export default function DefineProperty(
           ) || !enableValidation)
           if(valid) {
             // [VALIDATION:CONSTAT]
-            Object.defineProperty(
-              root, propertyKey, propertyDescriptor
-            )
+            Object.defineProperty(root, propertyKey, propertyDescriptor)
             // [VALIDATION:CONSTAT]
           }
           // [VALIDATION:STOP]
@@ -125,19 +109,15 @@ export default function DefineProperty(
         // Define Property Event
         if(events.includes('defineProperty') && valid) {
           eventTarget.dispatchEvent(
-            new ContentEvent(
-              'defineProperty',
-              {
-                basename,
-                path,
-                detail: {
-                  prop: propertyKey,
-                  descriptor: propertyDescriptor,
-                },
+            new ContentEvent('defineProperty', {
+              basename,
+              path,
+              detail: {
+                prop: propertyKey,
+                descriptor: propertyDescriptor,
               },
-              eventTarget
-            )
-          )
+            }, eventTarget
+          ))
         }
         return root
       }

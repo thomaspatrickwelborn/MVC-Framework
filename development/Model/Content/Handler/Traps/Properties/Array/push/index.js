@@ -26,31 +26,27 @@ export default function Push(
           ) ? path.concat('.', elementIndex)
             : elementIndex
           // Push Prop Event
-          if(isDirectInstanceOf(
-            $element, [Object, Array/*, Map*/]
-          )) {
+          if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
+            const subschema = schema.context[0]
             $element = new Content($element, {
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
-            }, schema)
+            }, subschema)
           }
           elements.push($element)
           Array.prototype.push.call(root, $element)
           if(events.includes('pushProp')) {
             eventTarget.dispatchEvent(
-              new ContentEvent(
-                'pushProp',
-                {
-                  basename: _basename,
-                  path: _path,
-                  detail: {
-                    elementIndex, 
-                    element: $element,
-                  },
+              new ContentEvent('pushProp', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elementIndex, 
+                  element: $element,
                 },
-                eventTarget
-              )
+              },
+              eventTarget)
             )
           }
           elementIndex++
@@ -58,17 +54,14 @@ export default function Push(
         // Push Event
         if(events.includes('push')) {
           eventTarget.dispatchEvent(
-            new ContentEvent(
-              'push',
-              {
-                basename,
-                path,
-                detail: {
-                  elements,
-                },
+            new ContentEvent('push', {
+              basename,
+              path,
+              detail: {
+                elements,
               },
-              eventTarget
-            )
+            },
+            eventTarget)
           )
         }
         return root.length
