@@ -1,5 +1,5 @@
 import { typeOf } from '../../Coutil/index.js'
-import DynamicEventTarget from '../../Core/DynamicEventTarget/index.js'
+import DynamicEventTarget from '../DynamicEventTarget/index.js'
 import { TypeValidator } from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
 const Options = {

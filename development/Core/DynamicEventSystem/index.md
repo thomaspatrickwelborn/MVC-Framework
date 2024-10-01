@@ -1,1 +1,0 @@
-# MVC Framework - Dynamic Event System

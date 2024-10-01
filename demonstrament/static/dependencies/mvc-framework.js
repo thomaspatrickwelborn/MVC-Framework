@@ -29,6 +29,188 @@ function parseShortenedEvents($propEvents) {
 	return propEvents
 }
 
+class DynamicEventSystemEvent {
+  constructor($settings) { 
+    this.settings = $settings;
+  }
+  #_settings = {}
+  get settings() { return this.#_settings }
+  set settings($settings) {
+    const _settings = this.#_settings;
+    const {
+      context, type, target, callback, enable
+    } = $settings;
+    _settings.context = context;
+    this.context = context;
+    _settings.type = type;
+    this.type = type;
+    _settings.target = target;
+    this.target = target;
+    _settings.callback = callback;
+    this.callback = callback;
+    _settings.enable = enable;
+    this.enable = enable;
+
+  }
+  #_context
+  get context() { return this.#_context }
+  set context($context) { this.#_context = $context; }
+  #_type
+  get type() { return this.#_type }
+  set type($type) { this.#_type = $type; }
+  #_path = ''
+  get path() { return this.#_path }
+  set path($path) { this.#_path = $path; }
+  get target() {
+    let target = this.context;
+    for(const $targetPathKey of this.path.split('.')) {
+      if($targetPathKey === ':scope') break
+      if(target[$targetPathKey] === undefined) return undefined
+      target = target[$targetPathKey];
+    }
+    return target
+  }
+  set target($target) { this.path = $target; }
+  #_callback
+  get callback() {
+    return this.#_callback
+  }
+  set callback($callback) {
+    this.#_callback = $callback.bind(this.context);
+  }
+  #_enable = false
+  get enable() { return this.#_enable }
+  set enable($enable) {
+    if($enable === this.#_enable) return
+    const eventAbility = (
+      $enable === true
+    ) ? 'addEventListener'
+      : 'removeEventListener';
+    if(this.target instanceof NodeList) {
+      for(const $target of this.target) {
+        $target[eventAbility](this.type, this.callback);
+        this.#_enable = $enable;
+      }
+    } else if(this.target instanceof EventTarget) {
+      this.target[eventAbility](this.type, this.callback);
+      this.#_enable = $enable;
+    } else {
+      try {
+        this.target[eventAbility](this.type, this.callback);
+        this.#_enable = $enable;
+      } catch($err) { /* console.log(this.type, this.path, eventAbility) */ }
+    }
+  }
+}
+
+const Settings$4 = {};
+const Options$6 = {
+  validSettings: [],
+  enableEvents: true,
+};
+class DynamicEventSystem extends EventTarget {
+  constructor($settings = {}, $options = {}) {
+    super();
+    this.options = Object.assign({}, Options$6, $options);
+    this.settings = Object.assign({}, Settings$4, $settings);
+    for(const $validSetting of this.options.validSettings) {
+      Object.defineProperty(
+        this, $validSetting, { value: this.settings[$validSetting] },
+      );
+    }
+    this.events = $settings.events;
+  }
+  #_events = []
+  get events() { return this.#_events }
+  set events($events) { this.addEvents($events); }
+  getEvents($event = {}) {
+    const _events = this.#_events;
+    const events = [];
+    for(const _event of _events) {
+      if(((
+        $event.type !== undefined &&
+        $event.path === undefined &&
+        $event.callback === undefined
+      ) && ($event.type === _event.type)) || 
+      ((
+        $event.type !== undefined &&
+        $event.path !== undefined &&
+        $event.callback === undefined
+      ) && (
+        $event.type === _event.type &&
+        $event.path === _event.target
+      )) || ((
+        $event.type !== undefined &&
+        $event.path !== undefined &&
+        $event.callback !== undefined
+      ) && (
+        $event.type === _event.type &&
+        $event.path === _event.target &&
+        $event.callback === _event.callback
+      ))) {
+        events.push(_event);
+      }
+    }
+    return events
+  }
+  addEvents($events = {}, $enable = false) {
+    const _events = this.events;
+    for(const $event of parseShortenedEvents($events)) {
+      Object.assign($event, {
+        context: this,
+        enable: $event.enable || $enable,
+      });
+      _events.push(new DynamicEventSystemEvent($event));
+    }
+  }
+  removeEvents($events = {}) {
+    const _events = this.events;
+    $events = parseShortenedEvents($events) || _events;
+    let eventsIndex = _events.length - 1;
+    while(eventsIndex > -1) {
+      const event = _events[eventsIndex];
+      const removeEventIndex = $events.findIndex(
+        ($event) => (
+          $event.type === event.type &&
+          $event.target === event.path &&
+          $event.callback === event.callback
+        )
+      );
+      if(removeEventIndex !== -1) _events.splice(eventsIndex, 1);
+      eventsIndex--;
+    }
+  }
+  enableEvents($events) {
+    $events = (
+      typeof $events === 'object'
+    ) ? parseShortenedEvents($events)
+      : this.events;
+    return this.#toggleEventAbility('addEventListener', $events)
+  }
+  disableEvents($events) {
+    $events = (
+      typeof $events === 'object'
+    ) ? parseShortenedEvents($events)
+      : this.events;
+    return this.#toggleEventAbility('removeEventListener', $events)
+  }
+  #toggleEventAbility($eventListenerMethod, $events) {
+    const enability = (
+      $eventListenerMethod === 'addEventListener'
+    ) ? true
+      : (
+      $eventListenerMethod === 'removeEventListener'
+    ) ? false
+      : undefined;
+    if(enability === undefined) return this
+    $events = $events || this.events;
+    for(const $event of $events) {
+      $event.enable = enability;
+    }
+    return this
+  }
+}
+
 class DynamicEventTargetEvent extends Event {
   #settings
   #eventTarget
@@ -2158,7 +2340,7 @@ class Handler {
   }
 }
 
-var Options$6 = {
+var Options$5 = {
   rootAlias: 'content',
   traps: {
     properties: {
@@ -2235,7 +2417,7 @@ class DynamicEventTarget extends EventTarget {
     super();
     this.#settings = $settings;
     this.#options = Object.assign(
-      {}, Options$6, $options
+      {}, Options$5, $options
     );
     this.#schema = $schema;
     return this.proxy
@@ -2277,7 +2459,7 @@ class DynamicEventTarget extends EventTarget {
       typeof this.#options.rootAlias === 'string' &&
       this.#options.rootAlias.length > 0
     ) ? this.#options.rootAlias
-      : Options$6.rootAlias;
+      : Options$5.rootAlias;
     return this.#_rootAlias
   }
   // Root
@@ -2362,196 +2544,6 @@ class DynamicEventTarget extends EventTarget {
       return JSON.stringify(parsement, null, 2)
     }
     return undefined
-  }
-}
-
-class DynamicEventSystemEvent {
-  constructor($settings) { 
-    this.settings = $settings;
-  }
-  #_settings = {}
-  get settings() { return this.#_settings }
-  set settings($settings) {
-    const _settings = this.#_settings;
-    const {
-      context, type, target, callback, enable
-    } = $settings;
-    _settings.context = context;
-    this.context = context;
-    _settings.type = type;
-    this.type = type;
-    _settings.target = target;
-    this.target = target;
-    _settings.callback = callback;
-    this.callback = callback;
-    _settings.enable = enable;
-    this.enable = enable;
-
-  }
-  #_context
-  get context() { return this.#_context }
-  set context($context) { this.#_context = $context; }
-  #_type
-  get type() { return this.#_type }
-  set type($type) { this.#_type = $type; }
-  #_path = ''
-  get path() { return this.#_path }
-  set path($path) { this.#_path = $path; }
-  get target() {
-    let target = this.context;
-    for(const $targetPathKey of this.path.split('.')) {
-      if($targetPathKey === ':scope') break
-      if(target[$targetPathKey] === undefined) return undefined
-      target = target[$targetPathKey];
-    }
-    return target
-  }
-  set target($target) { this.path = $target; }
-  #_callback
-  get callback() {
-    return this.#_callback
-  }
-  set callback($callback) {
-    this.#_callback = $callback.bind(this.context);
-  }
-  #_enable = false
-  get enable() { return this.#_enable }
-  set enable($enable) {
-    if($enable === this.#_enable) return
-    const eventAbility = (
-      $enable === true
-    ) ? 'addEventListener'
-      : 'removeEventListener';
-    if(this.target instanceof NodeList) {
-      for(const $target of this.target) {
-        $target[eventAbility](this.type, this.callback);
-        this.#_enable = $enable;
-      }
-    } else if(this.target instanceof EventTarget) {
-      this.target[eventAbility](this.type, this.callback);
-      this.#_enable = $enable;
-    } else {
-      try {
-        this.target[eventAbility](this.type, this.callback);
-        this.#_enable = $enable;
-      } catch($err) { /* console.log(this.type, this.path, eventAbility) */ }
-    }
-  }
-}
-
-class DynamicEventSystem extends EventTarget {
-  constructor($events, $enable) {
-    super();
-    this.events = $events;
-  }
-  #_events = []
-  get events() { return this.#_events }
-  set events($events) { this.addEvents($events); }
-  getEvents($event = {}) {
-    const _events = this.#_events;
-    const events = [];
-    for(const _event of _events) {
-      if(((
-        $event.type !== undefined &&
-        $event.path === undefined &&
-        $event.callback === undefined
-      ) && ($event.type === _event.type)) || 
-      ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback === undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target
-      )) || ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback !== undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target &&
-        $event.callback === _event.callback
-      ))) {
-        events.push(_event);
-      }
-    }
-    return events
-  }
-  addEvents($events = {}, $enable = false) {
-  	const _events = this.events;
-  	for(const $event of parseShortenedEvents($events)) {
-  		Object.assign($event, {
-  			context: this,
-  			enable: $event.enable || $enable,
-  		});
-  		_events.push(new DynamicEventSystemEvent($event));
-  	}
-  }
-  removeEvents($events = {}) {
-  	const _events = this.events;
-    $events = parseShortenedEvents($events) || _events;
-  	let eventsIndex = _events.length - 1;
-  	while(eventsIndex > -1) {
-  		const event = _events[eventsIndex];
-  		const removeEventIndex = $events.findIndex(
-  			($event) => (
-  				$event.type === event.type &&
-  				$event.target === event.path &&
-  				$event.callback === event.callback
-				)
-			);
-			if(removeEventIndex !== -1) _events.splice(eventsIndex, 1);
-			eventsIndex--;
-  	}
-  }
-  enableEvents($events) {
-    $events = (
-      typeof $events === 'object'
-    ) ? parseShortenedEvents($events)
-      : this.events;
-    return this.#toggleEventAbility('addEventListener', $events)
-  }
-  disableEvents($events) {
-    $events = (
-      typeof $events === 'object'
-    ) ? parseShortenedEvents($events)
-      : this.events;
-    return this.#toggleEventAbility('removeEventListener', $events)
-  }
-  #toggleEventAbility($eventListenerMethod, $events) {
-    const enability = (
-      $eventListenerMethod === 'addEventListener'
-    ) ? true
-      : (
-      $eventListenerMethod === 'removeEventListener'
-    ) ? false
-      : undefined;
-    if(enability === undefined) return this
-    $events = $events || this.events;
-    for(const $event of $events) {
-      $event.enable = enability;
-    }
-    return this
-  }
-}
-
-const Settings$4 = {};
-const Options$5 = {
-  validSettings: [],
-  enableEvents: true,
-};
-class Core extends DynamicEventSystem {
-  settings
-  options
-  constructor($settings = Settings$4, $options = Options$5) {
-    super($settings.events, $options.enable);
-    this.options = Object.assign({}, Options$5, $options);
-    this.settings = Object.assign({}, Settings$4, $settings);
-    for(const $validSetting of this.options.validSettings) {
-      Object.defineProperty(
-        this, $validSetting, { value: this.settings[$validSetting] },
-      );
-    }
   }
 }
 
@@ -2771,7 +2763,7 @@ const Options$3 = {
   content: {},
   schema: {},
 };
-class Model extends Core {
+class Model extends DynamicEventSystem {
   #_schema
   #_content
 	constructor($settings = {}, $options = {}) {
@@ -2825,7 +2817,7 @@ const Settings$2 = {
   events: {},
 };
 const Options$2 = {};
-class View extends Core {
+class View extends DynamicEventSystem {
   #_parent
   #_element
   #_template
@@ -3075,7 +3067,7 @@ class FetchRoute extends EventTarget {
   }
 }
 
-class FetchRouter extends Core {
+class FetchRouter extends DynamicEventSystem {
   #scheme
   #domain
   #port
@@ -3135,7 +3127,7 @@ const Settings$1 = {
 const Options$1 = {
 	enable: true,
 };
-class StaticRouter extends Core {
+class StaticRouter extends DynamicEventSystem {
 	constructor($settings = Settings$1, $options = Options$1) {
 		super(...arguments);
 		this.routes = $settings.routes;
@@ -3192,7 +3184,7 @@ const Options = Object.freeze({
 	enableEvents: true
 });
 
-class Control extends Core {
+class Control extends DynamicEventSystem {
 	constructor($settings = {}, $options = {}) {
 		super(
 			Object.assign({}, Settings, $settings),
@@ -3313,10 +3305,5 @@ class Control extends Core {
 	}
 }
 
-// Classes
-// Class Aliases
-const DET = DynamicEventTarget;
-const DES = DynamicEventSystem;
-
-export { Control, Core, DES, DET, DynamicEventSystem, DynamicEventTarget, FetchRouter, Model, Schema, StaticRouter, View };
+export { Control, DynamicEventSystem as Core, FetchRouter, Model, Schema, StaticRouter, View };
 //# sourceMappingURL=mvc-framework.js.map

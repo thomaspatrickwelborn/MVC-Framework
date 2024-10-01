@@ -1,5 +1,5 @@
 import { typeOf } from '../Coutil/index.js'
-import DynamicEventTarget from '../Core/DynamicEventTarget/index.js'
+import DynamicEventTarget from './DynamicEventTarget/index.js'
 import Core from '../Core/index.js'
 import Schema from './Schema/index.js'
 const Settings = {
