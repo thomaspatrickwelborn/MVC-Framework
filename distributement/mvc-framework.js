@@ -211,7 +211,7 @@ class Core extends EventTarget {
   }
 }
 
-class DynamicEventTargetEvent extends Event {
+class ContentEvent extends Event {
   #settings
   #eventTarget
   constructor($type, $settings, $eventTarget) {
@@ -223,7 +223,7 @@ class DynamicEventTargetEvent extends Event {
       ($event) => {
         if(this.#eventTarget.parent !== null) {
           this.#eventTarget.parent.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               this.type, 
               {
                 basename: $event.basename,
@@ -302,19 +302,23 @@ function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
+            // [VALIDATION:START]
             let valid, validateSourceProperty;
-            let subschema;
-            switch(schema.contextType) {
-              case 'array': subschema = schema.context[0]; break
-              case 'object': subschema = schema.context[$sourcePropKey]; break
-            }
             const { enableValidation } = schema.options;
-            // Enable Validation, No Subschema: Iterate Source Props
-            if(enableValidation && !subschema) continue iterateSourceProps
+            // [VALIDATION:CONSTAT]
             // Assign Root DET Property
             if(isDirectInstanceOf$1($sourcePropVal, [Object, Array/*, Map*/])) {
+              // [SUBSCHEMA:START]
+              let subschema;
+              switch(schema.contextType) {
+                case 'array': subschema = schema.context[0]; break
+                case 'object': subschema = schema.context[$sourcePropKey]; break
+              }
+              // Enable Validation, No Subschema: Iterate Source Props
+              if(enableValidation && !subschema) continue iterateSourceProps
+              // [SUBSCHEMA:STOP]
               // Assign Root DET Property: Existent 
-              if(root[$sourcePropKey]?.constructor.name === 'bound DynamicEventTarget') {
+              if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
                 root[$sourcePropKey].assign($sourcePropVal);
               }
               // Assign Root DET Property: Non-Existent
@@ -323,7 +327,7 @@ function Assign(
                 const _path = (path !== null)
                   ? path.concat('.', $sourcePropKey)
                   : $sourcePropKey;
-                const detObject = new DynamicEventTarget(
+                const contentObject = new Content(
                   $sourcePropVal, {
                     basename: _basename,
                     parent: eventTarget,
@@ -332,12 +336,13 @@ function Assign(
                   }, subschema
                 );
                 Object.assign(root, {
-                  [$sourcePropKey]: detObject
+                  [$sourcePropKey]: contentObject
                 });
               }
             }
             // Assign Root Property
             else {
+              // [VALIDATION:CONSTAT]
               validateSourceProperty = (enableValidation)
                 ? schema.validateProperty($sourcePropKey, $sourcePropVal)
                 : null;
@@ -345,15 +350,18 @@ function Assign(
                 enableValidation && validateSourceProperty.valid
               ) || !enableValidation);
               if(valid) {
+                // [VALIDATION:CONSTAT]
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 });
+                // [VALIDATION:CONSTAT]
               }
+              // [VALIDATION:STOP]
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty') && valid) {
               eventTarget.dispatchEvent(
-                new DynamicEventTargetEvent('assignSourceProperty', {
+                new ContentEvent('assignSourceProperty', {
                   basename,
                   path,
                   detail: {
@@ -368,7 +376,7 @@ function Assign(
           // Assign Source Event
           if(events.includes('assignSource')) {
             eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent('assignSource', {
+              new ContentEvent('assignSource', {
                 basename,
                 path,
                 detail: {
@@ -381,7 +389,7 @@ function Assign(
         // Assign Event
         if(events.includes('assign')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent('assign', { 
+            new ContentEvent('assign', { 
               basename,
               path,
               detail: {
@@ -422,7 +430,7 @@ function DefineProperties(
         // Define Properties Event
         if(events.includes('defineProperties')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'defineProperties',
               {
                 basename,
@@ -456,82 +464,48 @@ function DefineProperty(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
+        // [VALIDATION:START]
+        let valid, validateSourceProperty;
+        const { enableValidation } = schema.options;
+        // [VALIDATION:CONSTAT]
         const propertyKey = arguments[0];
         const propertyDescriptor = arguments[1];
-        // Property Descriptor Value Is Direct Instance Of Array/Object/Map
+        // Property Descriptor Value: Direct Instance Array/Object/Map
         if(isDirectInstanceOf$1(
           propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
+          // [SUBSCHEMA:START]
+          let subschema;
+          switch(schema.contextType) {
+            case 'array': subschema = schema.context[0]; break
+            case 'object': subschema = schema.context[propertyKey]; break
+          }
+          // Enable Validation, No Subschema: Iterate Source Props
+          // if(enableValidation && !subschema) continue iterateSourceProps
+          // [SUBSCHEMA:STOP]
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
             root, propertyKey
           ) || {};
-          // Descriptor Value Merge
-          if(descriptorValueMerge === true) {
-            // Root Property Descriptor Value Is Existent DET Instance
-            if(
-              rootPropertyDescriptor.value // instanceof DynamicEventTarget
-              ?.constructor.name === 'bound DynamicEventTarget'
-            ) {
-              // Root Define Properties, Descriptor Tree
-              if(descriptorTree === true) {
-                rootPropertyDescriptor.value.defineProperties(
-                  propertyDescriptor.value
-                );
-              } else
-              // Root Define Properties, No Descriptor Tree
-              {
-                Object.defineProperty(
-                  root, propertyKey, propertyDescriptor
-                );
-              }
-            }
-            // Root Property Descriptor Value Is Non-Existent DET Instance
-            else {
-              const _basename = propertyKey;
-              const _path = (
-                path !== null
-              ) ? path.concat('.', propertyKey)
-                : propertyKey;
-              const _root = (
-                typeOf(
-                  propertyDescriptor.value
-                ) === 'object'
-              ) ? {}
-                : (
-                typeOf(
-                  propertyDescriptor.value
-                ) === 'array'
-              ) ? []
-              //   : typeOf(
-              //   propertyDescriptor.value
-              // ) === 'map'
-              //   ? new Map()
-                : {};
-              const detObject = new DynamicEventTarget(
-                _root, {
-                  basename: _basename,
-                  parent: eventTarget,
-                  path: _path,
-                  rootAlias,
-                }, schema
+          // Root Property Descriptor Value: Existent DET Instance
+          if(
+            rootPropertyDescriptor.value // instanceof Content
+            ?.constructor.name === 'bound Content'
+          ) {
+            // Root Define Properties, Descriptor Tree
+            if(descriptorTree === true) {
+              rootPropertyDescriptor.value.defineProperties(
+                propertyDescriptor.value
               );
-              // Root Define Properties, Descriptor Tree
-              if(descriptorTree === true) {
-                detObject.defineProperties(
-                  propertyDescriptor.value
-                );
-                root[propertyKey] = detObject;
-              } else 
-              // Root Define Properties, No Descriptor Tree
-              if(descriptorTree === false) {
-                Object.defineProperty(
-                  root, propertyKey, propertyDescriptor
-                );
-              }
+            } else
+            // Root Define Properties, No Descriptor Tree
+            {
+              Object.defineProperty(
+                root, propertyKey, propertyDescriptor
+              );
             }
-          } else
-          // No Descriptor Value Merge
-          if(descriptorValueMerge === false) {
+          }
+          // Root Property Descriptor Value: Non-Existent DET Instance
+          else {
             const _basename = propertyKey;
             const _path = (
               path !== null
@@ -552,21 +526,21 @@ function DefineProperty(
             // ) === 'map'
             //   ? new Map()
               : {};
-            const detObject = new DynamicEventTarget(
+            const contentObject = new Content(
               _root, {
                 basename: _basename,
                 parent: eventTarget,
                 path: _path,
                 rootAlias,
-              }, schema
+              }, subschema
             );
             // Root Define Properties, Descriptor Tree
             if(descriptorTree === true) {
-              detObject.defineProperties(
+              contentObject.defineProperties(
                 propertyDescriptor.value
               );
-              root[propertyKey] = detObject;
-            } else
+              root[propertyKey] = contentObject;
+            } else 
             // Root Define Properties, No Descriptor Tree
             if(descriptorTree === false) {
               Object.defineProperty(
@@ -574,17 +548,29 @@ function DefineProperty(
               );
             }
           }
-        } else
+        }
         // Property Descriptor Value Not Array/Object/Map
-        {
-          Object.defineProperty(
-            root, propertyKey, propertyDescriptor
-          );
+        else {
+          // [VALIDATION:CONSTAT]
+          validateSourceProperty = (enableValidation)
+            ? schema.validateProperty(propertyKey, propertyDescriptor.value)
+            : null;
+          valid = ((
+            enableValidation && validateSourceProperty.valid
+          ) || !enableValidation);
+          if(valid) {
+            // [VALIDATION:CONSTAT]
+            Object.defineProperty(
+              root, propertyKey, propertyDescriptor
+            );
+            // [VALIDATION:CONSTAT]
+          }
+          // [VALIDATION:STOP]
         }
         // Define Property Event
-        if(events.includes('defineProperty')) {
+        if(events.includes('defineProperty') && valid) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'defineProperty',
               {
                 basename,
@@ -636,7 +622,7 @@ function Freeze(
             $propertyKey, $propertyValue
           ] of Object.entries(this)) {
             if(
-              $propertyValue.constructor.name === 'bound DynamicEventTarget'
+              $propertyValue.constructor.name === 'bound Content'
             ) {
               $propertyValue.freeze();
             } else {
@@ -649,7 +635,7 @@ function Freeze(
               : $propertyKey;
             if(events.includes('freeze')) {
               eventTarget.dispatchEvent(
-                new DynamicEventTargetEvent(
+                new ContentEvent(
                   'freeze',
                   {
                     path: _path,
@@ -919,7 +905,7 @@ function Seal(
             $propertyKey, $propertyValue
           ] of Object.entries(this)) {
             if(
-              $propertyValue.constructor.name === 'bound DynamicEventTarget'
+              $propertyValue.constructor.name === 'bound Content'
             ) {
               $propertyValue.seal();
             } else {
@@ -932,7 +918,7 @@ function Seal(
               : $propertyKey;
             if(events.includes('seal')) {
               eventTarget.dispatchEvent(
-                new DynamicEventTargetEvent(
+                new ContentEvent(
                   'seal',
                   {
                     path,
@@ -967,7 +953,7 @@ function SetPrototypeOf(
         const prototype = arguments[0];
         Object.setPrototypeOf(root, prototype);
         eventTarget.dispatchEvent(
-          new DynamicEventTargetEvent(
+          new ContentEvent(
             'setPrototypeOf',
             {
               basename,
@@ -1134,7 +1120,7 @@ function CopyWithin(
           // Array Copy Within Index Event Data
           if(events.includes('copyWithinIndex')) {
             eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
+              new ContentEvent(
                 'copyWithinIndex',
                 {
                   basename: eventTarget.basename,
@@ -1156,7 +1142,7 @@ function CopyWithin(
         // Array Copy Within Event
         if(events.includes('copyWithin')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'copyWithin',
               {
                 basename: eventTarget.basename,
@@ -1236,7 +1222,7 @@ function Fill(
         if(isDirectInstanceOf$1(
           value, [Object, Array/*, Map*/]
         )) {
-          value = new DynamicEventTarget(value, {
+          value = new Content(value, {
             rootAlias: rootAlias,
           }, schema);
         }
@@ -1278,7 +1264,7 @@ function Fill(
           // Array Fill Index Event
           if(events.includes('fillIndex')) {
             $eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
+              new ContentEvent(
                 'fillIndex',
                 {
                   basename: _basename,
@@ -1298,7 +1284,7 @@ function Fill(
         // Array Fill Event
         if(events.includes('fill')) {
           $eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'fill',
               {
                 basename,
@@ -1553,7 +1539,7 @@ function Pop(
         // Array Pop Event
         if(events.includes('pop')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'pop',
               {
                 basename,
@@ -1600,7 +1586,7 @@ function Push(
           if(isDirectInstanceOf$1(
             $element, [Object, Array/*, Map*/]
           )) {
-            $element = new DynamicEventTarget($element, {
+            $element = new Content($element, {
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
@@ -1610,7 +1596,7 @@ function Push(
           Array.prototype.push.call(root, $element);
           if(events.includes('pushProp')) {
             eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
+              new ContentEvent(
                 'pushProp',
                 {
                   basename: _basename,
@@ -1629,7 +1615,7 @@ function Push(
         // Push Event
         if(events.includes('push')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'push',
               {
                 basename,
@@ -1691,7 +1677,7 @@ function Reverse(
         Array.prototype.reverse.call(root, ...arguments);
         if(events.includes('reverse')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'reverse',
               {
                 basename,
@@ -1734,7 +1720,7 @@ function Shift(
         // Array Shift Event
         if(events.includes('shift')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'shift',
               {
                 basename,
@@ -1823,7 +1809,7 @@ function Splice(
             : deleteItemsIndex;
           if(events.includes('spliceDelete')) {
             eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
+              new ContentEvent(
                 'spliceDelete',
                 {
                   _basename,
@@ -1846,7 +1832,7 @@ function Splice(
           if(isDirectInstanceOf(
             addItem, [Object, Array/*, Map*/]
           )) {
-            addItem = new DynamicEventTarget(addItem, {
+            addItem = new Content(addItem, {
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
@@ -1863,7 +1849,7 @@ function Splice(
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
             eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
+              new ContentEvent(
                 'spliceAdd',
                 {
                   basename,
@@ -1883,7 +1869,7 @@ function Splice(
         // Array Splice Event
         if(events.includes('splice')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'splice',
               {
                 basename,
@@ -2000,7 +1986,7 @@ function Unshift(
           if(isDirectInstanceOf$1(
             element, [Object, Array/*, Map*/]
           )) {
-            element = new DynamicEventTarget(element, {
+            element = new Content(element, {
               basename: _basename,
               path: _path,
               rootAlias: rootAlias,
@@ -2011,7 +1997,7 @@ function Unshift(
           // Array Unshift Prop Event
           if(events.includes('unshiftProp')) {
             eventTarget.dispatchEvent(
-              new DynamicEventTargetEvent(
+              new ContentEvent(
                 'unshiftProp',
                 {
                   basename: _basename,
@@ -2035,7 +2021,7 @@ function Unshift(
           : elementIndex;
         if(events.includes('unshift')) {
           eventTarget.dispatchEvent(
-            new DynamicEventTargetEvent(
+            new ContentEvent(
               'unshift',
               {
                 basename: _basename,
@@ -2180,7 +2166,7 @@ class Handler {
         return this.proxy
       }
       // Event Target/Dynamic Event Target Property
-      else if(this.#isEventTargetOrDynamicEventTargetProperty($property)) {
+      else if(this.#isEventTargetOrContentProperty($property)) {
         if(typeof eventTarget[$property] === 'function') {
           return eventTarget[$property].bind(eventTarget)
         }
@@ -2229,7 +2215,7 @@ class Handler {
           case 'array': subschema = schema.context[0]; break
           case 'object': subschema = schema.context[$sourcePropKey]; break
         }
-        $value = new DynamicEventTarget($value, {
+        $value = new Content($value, {
           basename,
           parent: eventTarget,
           path,
@@ -2244,7 +2230,7 @@ class Handler {
       ) ? path.concat('.', $property)
         : $property;
       eventTarget.dispatchEvent(
-        new DynamicEventTargetEvent('set', {
+        new ContentEvent('set', {
           basename,
           path,
           detail: {
@@ -2271,7 +2257,7 @@ class Handler {
     return function deleteProperty($target, $property) {
       delete root[$property];
       eventTarget.dispatchEvent(
-        new DynamicEventTargetEvent('delete', {
+        new ContentEvent('delete', {
           basename,
           path,
           detail: {
@@ -2286,12 +2272,12 @@ class Handler {
   #isRootProperty($property) {
     return ($property === this.#settings.rootAlias)
   }
-  #isDynamicEventTargetProperty($property) {
+  #isContentProperty($property) {
     return (
       (
         Object.getOwnPropertyNames(EventTarget.prototype)
         .includes($property) ||
-        Object.getOwnPropertyNames(DynamicEventTarget.prototype)
+        Object.getOwnPropertyNames(Content.prototype)
         .includes($property)
       )
     )
@@ -2301,16 +2287,16 @@ class Handler {
       (
         Object.getOwnPropertyNames(EventTarget.prototype)
         .includes($property) ||
-        Object.getOwnPropertyNames(DynamicEventTarget.prototype)
+        Object.getOwnPropertyNames(Content.prototype)
         .includes($property)
       )
     )
   }
-  #isEventTargetOrDynamicEventTargetProperty($property) {
+  #isEventTargetOrContentProperty($property) {
     return (
       (
         this.#isEventTarget($property) ||
-        this.#isDynamicEventTargetProperty($property)
+        this.#isContentProperty($property)
       )
     )
   }
@@ -2345,20 +2331,24 @@ var Options$5 = {
   traps: {
     properties: {
       set: {
-        merge: true,
-        events: ['setProperty', 'set'],
+        events: [
+          'setProperty',
+          'set'
+        ],
       },
     },
     object: {
       assign: {
-        merge: true,
-        events: ['assignSourceProperty', 'assignSource', 'assign'],
+        events: [
+          'assignSourceProperty',
+          'assignSource',
+          'assign'
+        ],
       },
       defineProperties: {
         events: ['defineProperties'],
       },
       defineProperty: {
-        descriptorValueMerge: true,
         descriptorTree: true,
         events: ['defineProperty'],
       },
@@ -2373,13 +2363,23 @@ var Options$5 = {
     },
     array: {
       copyWithin: {
-        events: ['copyWithinIndex', 'copyWithin']
+        events: [
+          'copyWithinIndex',
+          'copyWithin'
+        ]
       },
       unshift: {
-        events: ['unshiftProp', 'unshift']
+        events: [
+          'unshiftProp',
+          'unshift'
+        ]
       },
       splice: {
-        events: ['spliceDelete', 'spliceAdd', 'splice']
+        events: [
+          'spliceDelete',
+          'spliceAdd',
+          'splice'
+        ]
       },
       shift: {
         events: ['shift']
@@ -2388,19 +2388,25 @@ var Options$5 = {
         events: ['reverse']
       },
       push: {
-        events: ['pushProp', 'push']
+        events: [
+          'pushProp',
+          'push'
+        ]
       },
       pop: {
         events: ['pop']
       },
       fill: {
-        events: ['fillIndex', 'fill']
+        events: [
+          'fillIndex',
+          'fill'
+        ]
       },
     }
   }
 };
 
-class DynamicEventTarget extends EventTarget {
+class Content extends EventTarget {
   #settings
   #options
   #schema
@@ -2802,7 +2808,7 @@ class Model extends Core {
     ((
       schema instanceof Schema || typeOf$1(schema) === 'object'
     ) && typeOf$1(content) === 'object')) {
-      this.#_content = new DynamicEventTarget(
+      this.#_content = new Content(
         content, this.options.content, this.schema
       ); 
     }

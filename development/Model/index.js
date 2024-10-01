@@ -1,5 +1,5 @@
 import { typeOf } from '../Coutil/index.js'
-import DynamicEventTarget from './DynamicEventTarget/index.js'
+import Content from './Content/index.js'
 import Core from '../Core/index.js'
 import Schema from './Schema/index.js'
 const Settings = {
@@ -49,7 +49,7 @@ export default class Model extends Core {
     ((
       schema instanceof Schema || typeOf(schema) === 'object'
     ) && typeOf(content) === 'object')) {
-      this.#_content = new DynamicEventTarget(
+      this.#_content = new Content(
         content, this.options.content, this.schema
       ) 
     }
