@@ -4,13 +4,11 @@ const Settings = {
   querySelectors: {},
   events: {},
 }
-const Options = {}
+const Options = { enableQuerySelectors: true }
 export default class View extends Core {
   #_parent
-  #_element
   #_template
-  #_querySelectors
-  #_isRendered = false
+  #_querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
       Object.assign({}, Settings, $settings),
@@ -23,24 +21,67 @@ export default class View extends Core {
     this.#_template = document.createElement('template')
     return this.#_template
   }
-  get querySelectors() {
-    if(this.#_querySelectors !== undefined) return this.#_querySelectors
-    const $this = this
-    this.#_querySelectors = {}
+  get querySelectors() { return this.#_querySelectors }
+  get qs() { return this.querySelectors }
+  addQuerySelectors($querySelectorMethods) {
+    if($querySelectorMethods === undefined) return this
     for(const [
       $querySelectorMethod, $querySelectors
-    ] of Object.entries(this.settings.querySelectors)) {
+    ] of Object.entries($querySelectorMethods)) {
       for(const [
         $querySelectorName, $querySelector
       ] of Object.entries($querySelectors)) {
-        Object.defineProperty(this.#_querySelectors, $querySelectorName, {
-          get() {
-            return $this.template.content[$querySelectorMethod]($querySelector)
-          }
+        this.settings.querySelectors[$querySelectorMethod] = this.settings.querySelectors[$querySelectorMethod] || {}
+        this.settings.querySelectors[$querySelectorMethod][$querySelectorName] = $querySelector
+      }
+    }
+    return this
+  }
+  removeQuerySelectors($querySelectorMethods) {
+    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors
+    for(const [
+      $querySelectorMethod, $querySelectors
+    ] of Object.entries($querySelectorMethods)) {
+      for(const [
+        $querySelectorName, $querySelector
+      ] of Object.entries($querySelectors)) {
+        if(this.settings.querySelectors[$querySelectorMethod] !== undefined) {
+          delete this.settings.querySelectors[$querySelectorMethod][$querySelectorName]
+        }
+      }
+    }
+    return this
+  }
+  enableQuerySelectors($querySelectorMethods) {
+    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors
+    const $this = this
+    for(const [
+      $querySelectorMethod, $querySelectors
+    ] of Object.entries($querySelectorMethods)) {
+      for(const [
+        $querySelectorName, $querySelector
+      ] of Object.entries($querySelectors)) {
+        Object.defineProperty(this.querySelectors, $querySelectorName, {
+          enumerable: true,
+          configurable: true,
+          get() { return $this.parent[$querySelectorMethod]($querySelector) }
         })
       }
     }
-    return this.#_querySelectors
+    return this
+  }
+  disableQuerySelectors($querySelectorMethods) {
+    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors
+    for(const [
+      $querySelectorMethod, $querySelectors
+    ] of Object.entries($querySelectorMethods)) {
+      for(const [
+        $querySelectorName, $querySelector
+      ] of Object.entries($querySelectors)) {
+        delete this.querySelectors[$querySelectorName]
+      }
+    }
+    return this
   }
   autoinsert() {
     try {
@@ -57,11 +98,15 @@ export default class View extends Core {
   }
   render($model, $template = 'default') {
     this.disableEvents()
-    this.#_querySelectors = undefined
+    this.disableQuerySelectors()
+    const preelement = this.element
     this.template.innerHTML = this.settings.templates[$template]($model)
-    this.querySelectors
-    this.parent.replaceChildren()
-    this.parent.appendChild(this.template.content)
+    this.element = this.template.content.childNodes
+    if(preelement?.length) {
+      for(const $preelement of preelement) { $preelement.remove() }
+    }
+    this.parent.append(...this.element)
+    if(this.options.enableQuerySelectors === true) { this.enableQuerySelectors() }
     if(this.options.enableEvents === true) { this.enableEvents() }
     return this
   }

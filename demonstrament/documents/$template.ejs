@@ -1,9 +1,9 @@
 <ul>
   <li>
     <% for(const $anchor of $content) { %>
-      <a href="<%= $anchor.href %>">
-        <span><%= $anchor.textContent %></span>
-      </a>
+      <button data-href="<%= $anchor['data-href'] %>">
+        <span><%= $anchor['textContent'] %></span>
+      </button>
     <% } %>
   </li>
 </ul>

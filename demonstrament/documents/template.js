@@ -25,11 +25,11 @@ export default function anonymous($content, escapeFn, include, rethrow) {
     __append("<ul>\n  <li>\n    ");
     for (const $anchor of $content) {
         ;
-        __append("\n      <a href=\"");
-        __append(escapeFn($anchor.href));
+        __append("\n      <button data-href=\"");
+        __append(escapeFn($anchor['data-href']));
         __append("\">\n        <span>");
-        __append(escapeFn($anchor.textContent));
-        __append("</span>\n      </a>\n    ");
+        __append(escapeFn($anchor['textContent']));
+        __append("</span>\n      </button>\n    ");
     };
     __append("\n  </li>\n</ul>")
     return __output;

@@ -78,26 +78,22 @@ export default class Core extends EventTarget {
     }
   }
   enableEvents($events) {
-    $events = (
-      typeof $events === 'object'
-    ) ? parseShortenedEvents($events)
+    $events = (typeof $events === 'object')
+      ? parseShortenedEvents($events)
       : this.events
     return this.#toggleEventAbility('addEventListener', $events)
   }
   disableEvents($events) {
-    $events = (
-      typeof $events === 'object'
-    ) ? parseShortenedEvents($events)
+    $events = (typeof $events === 'object')
+      ? parseShortenedEvents($events)
       : this.events
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #toggleEventAbility($eventListenerMethod, $events) {
-    const enability = (
-      $eventListenerMethod === 'addEventListener'
-    ) ? true
-      : (
-      $eventListenerMethod === 'removeEventListener'
-    ) ? false
+    const enability = ($eventListenerMethod === 'addEventListener')
+      ? true
+      : ($eventListenerMethod === 'removeEventListener')
+      ? false
       : undefined
     if(enability === undefined) return this
     $events = $events || this.events

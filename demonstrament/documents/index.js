@@ -4,12 +4,12 @@ const index = new Control({
   models: {
     default: [{
       schema: [{ type: {
-        href: { type: String }, 
-        textContent: { type: String },
+        'data-href': { type: String }, 
+        'textContent': { type: String },
       } }],
       content: [{
-        href: "./static-cms",
-        textContent: "Static CMS"
+        'data-href': "./static-cms",
+        'textContent': "Static CMS"
       }],
     }, {}],
   },
@@ -19,15 +19,25 @@ const index = new Control({
       templates: {
         default: DefaultTemplate
       },
+      querySelectors: {
+        querySelectorAll: {
+          'button': ':scope > ul > li > button',
+        },
+      },
+      events: {
+        'querySelectors.button click': ($event) => { console.log($event.type, $event) }
+      },
     }, {}],
   },
   start() {
     this.views.default.render(
       this.models.default.parse()
     )
+    console.log(this.views.default)
     return this
   }
 }, {
   validSettings: ['start'],
 })
+index.start()
 index.start()
