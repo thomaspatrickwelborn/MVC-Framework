@@ -2592,7 +2592,6 @@ Object.assign({}, Primitives, Objects);
 
 const Options$4 = {
   enableValidation: true,
-  validationType: 'primitive', // object
 };
 const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
@@ -2729,6 +2728,8 @@ class Model extends Core {
       Object.assign({}, Settings$3, $settings), 
       Object.assign({}, Options$3, $options),
     );
+    this.schema;
+    this.content;
     if(this.options.enableEvents === true) this.enableEvents();
 	}
   get schema() {
