@@ -19,17 +19,14 @@ export default function DefineProperty(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        // [VALIDATION:START]
         let valid, validateSourceProperty
         const { enableValidation } = schema.options
-        // [VALIDATION:CONSTAT]
         const propertyKey = arguments[0]
         const propertyDescriptor = arguments[1]
         // Property Descriptor Value: Direct Instance Array/Object/Map
         if(isDirectInstanceOf(
           propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
-          // [SUBSCHEMA:START]
           let subschema
           switch(schema.contextType) {
             case 'array': subschema = schema.context[0]; break
@@ -37,7 +34,6 @@ export default function DefineProperty(
           }
           // Enable Validation, No Subschema: Iterate Source Props
           // if(enableValidation && !subschema) continue iterateSourceProps
-          // [SUBSCHEMA:STOP]
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
             root, propertyKey
           ) || {}
@@ -92,7 +88,6 @@ export default function DefineProperty(
         }
         // Property Descriptor Value Not Array/Object/Map
         else {
-          // [VALIDATION:CONSTAT]
           validateSourceProperty = (enableValidation)
             ? schema.validateProperty(propertyKey, propertyDescriptor.value)
             : null
@@ -100,11 +95,8 @@ export default function DefineProperty(
             enableValidation && validateSourceProperty.valid
           ) || !enableValidation)
           if(valid) {
-            // [VALIDATION:CONSTAT]
             Object.defineProperty(root, propertyKey, propertyDescriptor)
-            // [VALIDATION:CONSTAT]
           }
-          // [VALIDATION:STOP]
         }
         // Define Property Event
         if(events.includes('defineProperty') && valid) {

@@ -302,13 +302,10 @@ function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            // [VALIDATION:START]
             let valid, validateSourceProperty;
             const { enableValidation } = schema.options;
-            // [VALIDATION:CONSTAT]
             // Assign Root DET Property
             if(isDirectInstanceOf$1($sourcePropVal, [Object, Array/*, Map*/])) {
-              // [SUBSCHEMA:START]
               let subschema;
               switch(schema.contextType) {
                 case 'array': subschema = schema.context[0]; break
@@ -316,7 +313,6 @@ function Assign(
               }
               // Enable Validation, No Subschema: Iterate Source Props
               if(enableValidation && !subschema) continue iterateSourceProps
-              // [SUBSCHEMA:STOP]
               // Assign Root DET Property: Existent 
               if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
                 root[$sourcePropKey].assign($sourcePropVal);
@@ -342,7 +338,6 @@ function Assign(
             }
             // Assign Root Property
             else {
-              // [VALIDATION:CONSTAT]
               validateSourceProperty = (enableValidation)
                 ? schema.validateProperty($sourcePropKey, $sourcePropVal)
                 : null;
@@ -350,13 +345,10 @@ function Assign(
                 enableValidation && validateSourceProperty.valid
               ) || !enableValidation);
               if(valid) {
-                // [VALIDATION:CONSTAT]
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 });
-                // [VALIDATION:CONSTAT]
               }
-              // [VALIDATION:STOP]
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty') && valid) {
@@ -464,17 +456,14 @@ function DefineProperty(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        // [VALIDATION:START]
         let valid, validateSourceProperty;
         const { enableValidation } = schema.options;
-        // [VALIDATION:CONSTAT]
         const propertyKey = arguments[0];
         const propertyDescriptor = arguments[1];
         // Property Descriptor Value: Direct Instance Array/Object/Map
         if(isDirectInstanceOf$1(
           propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
-          // [SUBSCHEMA:START]
           let subschema;
           switch(schema.contextType) {
             case 'array': subschema = schema.context[0]; break
@@ -482,7 +471,6 @@ function DefineProperty(
           }
           // Enable Validation, No Subschema: Iterate Source Props
           // if(enableValidation && !subschema) continue iterateSourceProps
-          // [SUBSCHEMA:STOP]
           const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
             root, propertyKey
           ) || {};
@@ -537,7 +525,6 @@ function DefineProperty(
         }
         // Property Descriptor Value Not Array/Object/Map
         else {
-          // [VALIDATION:CONSTAT]
           validateSourceProperty = (enableValidation)
             ? schema.validateProperty(propertyKey, propertyDescriptor.value)
             : null;
@@ -545,11 +532,8 @@ function DefineProperty(
             enableValidation && validateSourceProperty.valid
           ) || !enableValidation);
           if(valid) {
-            // [VALIDATION:CONSTAT]
             Object.defineProperty(root, propertyKey, propertyDescriptor);
-            // [VALIDATION:CONSTAT]
           }
-          // [VALIDATION:STOP]
         }
         // Define Property Event
         if(events.includes('defineProperty') && valid) {
@@ -2804,7 +2788,7 @@ class View extends Core {
       ] of Object.entries($querySelectors)) {
         Object.defineProperty(this.#_querySelectors, $querySelectorName, {
           get() {
-            return $this.parent[$querySelectorMethod]($querySelector)
+            return $this.template.content[$querySelectorMethod]($querySelector)
           }
         });
       }
@@ -2826,7 +2810,9 @@ class View extends Core {
   }
   render($model, $template = 'default') {
     this.disableEvents();
+    this.#_querySelectors = undefined;
     this.template.innerHTML = this.settings.templates[$template]($model);
+    this.querySelectors;
     this.parent.replaceChildren();
     this.parent.appendChild(this.template.content);
     if(this.options.enableEvents === true) { this.enableEvents(); }

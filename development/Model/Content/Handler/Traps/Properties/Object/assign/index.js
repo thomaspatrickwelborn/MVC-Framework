@@ -25,13 +25,10 @@ export default function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            // [VALIDATION:START]
             let valid, validateSourceProperty
             const { enableValidation } = schema.options
-            // [VALIDATION:CONSTAT]
             // Assign Root DET Property
             if(isDirectInstanceOf($sourcePropVal, [Object, Array/*, Map*/])) {
-              // [SUBSCHEMA:START]
               let subschema
               switch(schema.contextType) {
                 case 'array': subschema = schema.context[0]; break
@@ -39,7 +36,6 @@ export default function Assign(
               }
               // Enable Validation, No Subschema: Iterate Source Props
               if(enableValidation && !subschema) continue iterateSourceProps
-              // [SUBSCHEMA:STOP]
               // Assign Root DET Property: Existent 
               if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
                 root[$sourcePropKey].assign($sourcePropVal)
@@ -65,7 +61,6 @@ export default function Assign(
             }
             // Assign Root Property
             else {
-              // [VALIDATION:CONSTAT]
               validateSourceProperty = (enableValidation)
                 ? schema.validateProperty($sourcePropKey, $sourcePropVal)
                 : null
@@ -73,13 +68,10 @@ export default function Assign(
                 enableValidation && validateSourceProperty.valid
               ) || !enableValidation)
               if(valid) {
-                // [VALIDATION:CONSTAT]
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 })
-                // [VALIDATION:CONSTAT]
               }
-              // [VALIDATION:STOP]
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty') && valid) {

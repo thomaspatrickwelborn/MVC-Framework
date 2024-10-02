@@ -35,7 +35,7 @@ export default class View extends Core {
       ] of Object.entries($querySelectors)) {
         Object.defineProperty(this.#_querySelectors, $querySelectorName, {
           get() {
-            return $this.parent[$querySelectorMethod]($querySelector)
+            return $this.template.content[$querySelectorMethod]($querySelector)
           }
         })
       }
@@ -57,7 +57,9 @@ export default class View extends Core {
   }
   render($model, $template = 'default') {
     this.disableEvents()
+    this.#_querySelectors = undefined
     this.template.innerHTML = this.settings.templates[$template]($model)
+    this.querySelectors
     this.parent.replaceChildren()
     this.parent.appendChild(this.template.content)
     if(this.options.enableEvents === true) { this.enableEvents() }
