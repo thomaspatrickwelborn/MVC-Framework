@@ -114,36 +114,29 @@ export default class Content extends EventTarget {
   parse($settings = {
     type: 'object', // 'json',
   }) {
-    let parsement = (
-      this.type === 'object'
-    ) ? {}
-      : (
-      this.type === 'array'
-    ) ? []
-      : {}
-    if(this.type !== 'map') {
-      for(const [$key, $val] of Object.entries(this.#root)) {
-        if(
-          $val !== null &&
-          typeof $val === 'object'
-        ) {
-          parsement[$key] = $val.parse()
-        } else(
-          parsement[$key] = $val
-        )
+    let parsement
+    if(this.type === 'object') { parsement = {} }
+    if(this.type === 'array') { parsement = [] }
+    parsement = Object.entries(
+      Object.getOwnPropertyDescriptors(this.proxy)
+    ).reduce(($parsement, [
+      $propertyDescriptorName, $propertyDescriptor
+    ]) => {
+      if(typeof $propertyDescriptor.value === 'object') {
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value.parse()
+      } else {
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value
       }
-    }
+      return $parsement
+    }, parsement)
     if(
       $settings.type === 'object' || 
       $settings.type === 'Object'
-    ) {
-      return parsement
-    } else if(
+    ) return parsement
+    else if(
       $settings.type === 'json' || 
       $settings.type === 'JSON' 
-    ) {
-      return JSON.stringify(parsement, null, 2)
-    }
+    ) return JSON.stringify(parsement, null, 2)
     return undefined
   }
 }

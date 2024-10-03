@@ -13,11 +13,13 @@ export default function Assign(
     rootAlias, 
     schema,
   } = $aliases
+  const { enableValidation, validationType } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const sources = [...arguments]
         // Iterate Sources
+        let validSource, validSourceProp
         iterateSources: 
         for(let $source of sources) {
           // Iterate Source Props
@@ -25,8 +27,6 @@ export default function Assign(
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            let valid, validateSourceProperty
-            const { enableValidation } = schema.options
             // Assign Root DET Property
             if(isDirectInstanceOf($sourcePropVal, [Object, Array/*, Map*/])) {
               let subschema
@@ -34,71 +34,73 @@ export default function Assign(
                 case 'array': subschema = schema.context[0]; break
                 case 'object': subschema = schema.context[$sourcePropKey]; break
               }
-              // Enable Validation, No Subschema: Iterate Source Props
-              if(enableValidation && !subschema) continue iterateSourceProps
-              // Assign Root DET Property: Existent 
-              if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
-                root[$sourcePropKey].assign($sourcePropVal)
-              }
-              // Assign Root DET Property: Non-Existent
-              else {
-                const _basename = $sourcePropKey
-                const _path = (path !== null)
-                  ? path.concat('.', $sourcePropKey)
-                  : $sourcePropKey
-                const contentObject = new Content(
-                  $sourcePropVal, {
+              validSource = (enableValidation && validationType === 'object')
+                ? subchema.validate($sourcePropVal).valid
+                : null
+              if(validSource === true || validSource === null) {
+                // Assign Root DET Property: Existent
+                if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
+                  root[$sourcePropKey].assign($sourcePropVal)
+                }
+                // Assign Root DET Property: Non-Existent
+                else {
+                  const _basename = $sourcePropKey
+                  const _path = (path !== null)
+                    ? path.concat('.', $sourcePropKey)
+                    : $sourcePropKey
+                  const contentObject = new Content($sourcePropVal, {
                     basename: _basename,
                     parent: eventTarget,
                     path: _path,
                     rootAlias,
-                  }, subschema
-                )
-                Object.assign(root, {
-                  [$sourcePropKey]: contentObject
-                })
+                  }, subschema)
+                  Object.assign(root, {
+                    [$sourcePropKey]: contentObject
+                  })
+                }
               }
             }
             // Assign Root Property
             else {
-              validateSourceProperty = (enableValidation)
-                ? schema.validateProperty($sourcePropKey, $sourcePropVal)
+              validSourceProp = (enableValidation && validationType === 'property')
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal).valid
                 : null
-              valid = ((
-                enableValidation && validateSourceProperty.valid
-              ) || !enableValidation)
-              if(valid) {
+              if(validSourceProp === true || validSourceProp === null) {
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 })
               }
             }
             // Assign Source Property Event
-            if(events.includes('assignSourceProperty') && valid) {
-              eventTarget.dispatchEvent(
-                new ContentEvent('assignSourceProperty', {
-                  basename,
-                  path,
-                  detail: {
-                    key: $sourcePropKey,
-                    val: $sourcePropVal,
-                    source: $source,
-                  }
-                }, eventTarget)
-              )
+            if(events.includes('assignSourceProperty')) {
+              if(validSourceProp === true || validSourceProp === null) {
+                eventTarget.dispatchEvent(
+                  new ContentEvent('assignSourceProperty', {
+                    basename,
+                    path,
+                    detail: {
+                      key: $sourcePropKey,
+                      val: $sourcePropVal,
+                      source: $source,
+                    }
+                  }, eventTarget)
+                )
+              }
             }
           }
           // Assign Source Event
           if(events.includes('assignSource')) {
-            eventTarget.dispatchEvent(
-              new ContentEvent('assignSource', {
-                basename,
-                path,
-                detail: {
-                  source: $source,
-                },
-              }, eventTarget)
-            )
+            if(validSource === true || validSource === null) {
+              eventTarget.dispatchEvent(
+                new ContentEvent('assignSource', {
+                  basename,
+                  path,
+                  detail: {
+                    source: $source,
+                  },
+                }, eventTarget)
+              )
+            }
           }
         }
         // Assign Event

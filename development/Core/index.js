@@ -15,41 +15,10 @@ export default class Core extends EventTarget {
         this, $validSetting, { value: this.settings[$validSetting] },
       )
     }
-    this.events = $settings.events
+    this.addEvents(this.settings.events)
   }
   #_events = []
   get events() { return this.#_events }
-  set events($events) { this.addEvents($events) }
-  getEvents($event = {}) {
-    const _events = this.#_events
-    const events = []
-    for(const _event of _events) {
-      if(((
-        $event.type !== undefined &&
-        $event.path === undefined &&
-        $event.callback === undefined
-      ) && ($event.type === _event.type)) || 
-      ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback === undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target
-      )) || ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback !== undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target &&
-        $event.callback === _event.callback
-      ))) {
-        events.push(_event)
-      }
-    }
-    return events
-  }
   addEvents($events = {}, $enable = false) {
     const _events = this.events
     for(const $event of parseShortenedEvents($events)) {

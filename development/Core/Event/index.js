@@ -1,36 +1,14 @@
 import { typeOf, propFromPropPath } from '../../Coutil/index.js'
 export default class CoreEvent {
+  #settings
+  #boundCallback
+  #_enable
   constructor($settings) { 
-    this.settings = $settings
+    this.#settings = $settings
   }
-  #_settings = {}
-  get settings() { return this.#_settings }
-  set settings($settings) {
-    const _settings = this.#_settings
-    const {
-      context, type, target, callback, enable
-    } = $settings
-    _settings.context = context
-    this.context = context
-    _settings.type = type
-    this.type = type
-    _settings.target = target
-    this.target = target
-    _settings.callback = callback
-    this.callback = callback
-    _settings.enable = enable
-    this.enable = enable
-
-  }
-  #_context
-  get context() { return this.#_context }
-  set context($context) { this.#_context = $context }
-  #_type
-  get type() { return this.#_type }
-  set type($type) { this.#_type = $type }
-  #_path = ''
-  get path() { return this.#_path }
-  set path($path) { this.#_path = $path }
+  get context() { return this.#settings.context }
+  get type() { return this.#settings.type }
+  get path() { return this.#settings.target }
   get target() {
     let target = this.context
     for(const $targetPathKey of this.path.split('.')) {
@@ -40,15 +18,12 @@ export default class CoreEvent {
     }
     return target
   }
-  set target($target) { this.path = $target }
-  #_callback
   get callback() {
-    return this.#_callback
+    if(this.#boundCallback === undefined) {
+      this.#boundCallback = this.#settings.callback.bind(this.context)
+    }
+    return this.#boundCallback
   }
-  set callback($callback) {
-    this.#_callback = $callback.bind(this.context)
-  }
-  #_enable = false
   get enable() { return this.#_enable }
   set enable($enable) {
     if($enable === this.#_enable) return

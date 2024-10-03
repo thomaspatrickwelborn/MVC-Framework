@@ -4,6 +4,7 @@ import { TypeValidator } from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
 const Options = {
   enableValidation: true,
+  validationType: 'property', // 'object', 
 }
 const Validators = [new TypeValidator()]
 export default class Schema extends EventTarget{

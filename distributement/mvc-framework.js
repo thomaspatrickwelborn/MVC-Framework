@@ -30,37 +30,15 @@ function parseShortenedEvents($propEvents) {
 }
 
 class CoreEvent {
+  #settings
+  #boundCallback
+  #_enable
   constructor($settings) { 
-    this.settings = $settings;
+    this.#settings = $settings;
   }
-  #_settings = {}
-  get settings() { return this.#_settings }
-  set settings($settings) {
-    const _settings = this.#_settings;
-    const {
-      context, type, target, callback, enable
-    } = $settings;
-    _settings.context = context;
-    this.context = context;
-    _settings.type = type;
-    this.type = type;
-    _settings.target = target;
-    this.target = target;
-    _settings.callback = callback;
-    this.callback = callback;
-    _settings.enable = enable;
-    this.enable = enable;
-
-  }
-  #_context
-  get context() { return this.#_context }
-  set context($context) { this.#_context = $context; }
-  #_type
-  get type() { return this.#_type }
-  set type($type) { this.#_type = $type; }
-  #_path = ''
-  get path() { return this.#_path }
-  set path($path) { this.#_path = $path; }
+  get context() { return this.#settings.context }
+  get type() { return this.#settings.type }
+  get path() { return this.#settings.target }
   get target() {
     let target = this.context;
     for(const $targetPathKey of this.path.split('.')) {
@@ -70,15 +48,12 @@ class CoreEvent {
     }
     return target
   }
-  set target($target) { this.path = $target; }
-  #_callback
   get callback() {
-    return this.#_callback
+    if(this.#boundCallback === undefined) {
+      this.#boundCallback = this.#settings.callback.bind(this.context);
+    }
+    return this.#boundCallback
   }
-  set callback($callback) {
-    this.#_callback = $callback.bind(this.context);
-  }
-  #_enable = false
   get enable() { return this.#_enable }
   set enable($enable) {
     if($enable === this.#_enable) return
@@ -118,41 +93,10 @@ class Core extends EventTarget {
         this, $validSetting, { value: this.settings[$validSetting] },
       );
     }
-    this.events = $settings.events;
+    this.addEvents(this.settings.events);
   }
   #_events = []
   get events() { return this.#_events }
-  set events($events) { this.addEvents($events); }
-  getEvents($event = {}) {
-    const _events = this.#_events;
-    const events = [];
-    for(const _event of _events) {
-      if(((
-        $event.type !== undefined &&
-        $event.path === undefined &&
-        $event.callback === undefined
-      ) && ($event.type === _event.type)) || 
-      ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback === undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target
-      )) || ((
-        $event.type !== undefined &&
-        $event.path !== undefined &&
-        $event.callback !== undefined
-      ) && (
-        $event.type === _event.type &&
-        $event.path === _event.target &&
-        $event.callback === _event.callback
-      ))) {
-        events.push(_event);
-      }
-    }
-    return events
-  }
   addEvents($events = {}, $enable = false) {
     const _events = this.events;
     for(const $event of parseShortenedEvents($events)) {
@@ -254,7 +198,7 @@ class Trap {
   }
 }
 
-function isDirectInstanceOf$1($object, $constructor) {
+function isDirectInstanceOf($object, $constructor) {
   if($object === null || $object === undefined) return false
   if(Array.isArray($constructor)) {
     for(const $constructorClass of $constructor) {
@@ -287,91 +231,92 @@ function Assign(
     rootAlias, 
     schema,
   } = $aliases;
+  const { enableValidation, validationType } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const sources = [...arguments];
         // Iterate Sources
+        let validSource, validSourceProp;
         for(let $source of sources) {
           // Iterate Source Props
-          iterateSourceProps:
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
-            let valid, validateSourceProperty;
-            const { enableValidation } = schema.options;
             // Assign Root DET Property
-            if(isDirectInstanceOf$1($sourcePropVal, [Object, Array/*, Map*/])) {
+            if(isDirectInstanceOf($sourcePropVal, [Object, Array/*, Map*/])) {
               let subschema;
               switch(schema.contextType) {
                 case 'array': subschema = schema.context[0]; break
                 case 'object': subschema = schema.context[$sourcePropKey]; break
               }
-              // Enable Validation, No Subschema: Iterate Source Props
-              if(enableValidation && !subschema) continue iterateSourceProps
-              // Assign Root DET Property: Existent 
-              if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
-                root[$sourcePropKey].assign($sourcePropVal);
-              }
-              // Assign Root DET Property: Non-Existent
-              else {
-                const _basename = $sourcePropKey;
-                const _path = (path !== null)
-                  ? path.concat('.', $sourcePropKey)
-                  : $sourcePropKey;
-                const contentObject = new Content(
-                  $sourcePropVal, {
+              validSource = (enableValidation && validationType === 'object')
+                ? subchema.validate($sourcePropVal).valid
+                : null;
+              if(validSource === true || validSource === null) {
+                // Assign Root DET Property: Existent
+                if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
+                  root[$sourcePropKey].assign($sourcePropVal);
+                }
+                // Assign Root DET Property: Non-Existent
+                else {
+                  const _basename = $sourcePropKey;
+                  const _path = (path !== null)
+                    ? path.concat('.', $sourcePropKey)
+                    : $sourcePropKey;
+                  const contentObject = new Content($sourcePropVal, {
                     basename: _basename,
                     parent: eventTarget,
                     path: _path,
                     rootAlias,
-                  }, subschema
-                );
-                Object.assign(root, {
-                  [$sourcePropKey]: contentObject
-                });
+                  }, subschema);
+                  Object.assign(root, {
+                    [$sourcePropKey]: contentObject
+                  });
+                }
               }
             }
             // Assign Root Property
             else {
-              validateSourceProperty = (enableValidation)
-                ? schema.validateProperty($sourcePropKey, $sourcePropVal)
+              validSourceProp = (enableValidation && validationType === 'property')
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal).valid
                 : null;
-              valid = ((
-                enableValidation && validateSourceProperty.valid
-              ) || !enableValidation);
-              if(valid) {
+              if(validSourceProp === true || validSourceProp === null) {
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 });
               }
             }
             // Assign Source Property Event
-            if(events.includes('assignSourceProperty') && valid) {
-              eventTarget.dispatchEvent(
-                new ContentEvent('assignSourceProperty', {
-                  basename,
-                  path,
-                  detail: {
-                    key: $sourcePropKey,
-                    val: $sourcePropVal,
-                    source: $source,
-                  }
-                }, eventTarget)
-              );
+            if(events.includes('assignSourceProperty')) {
+              if(validSourceProp === true || validSourceProp === null) {
+                eventTarget.dispatchEvent(
+                  new ContentEvent('assignSourceProperty', {
+                    basename,
+                    path,
+                    detail: {
+                      key: $sourcePropKey,
+                      val: $sourcePropVal,
+                      source: $source,
+                    }
+                  }, eventTarget)
+                );
+              }
             }
           }
           // Assign Source Event
           if(events.includes('assignSource')) {
-            eventTarget.dispatchEvent(
-              new ContentEvent('assignSource', {
-                basename,
-                path,
-                detail: {
-                  source: $source,
-                },
-              }, eventTarget)
-            );
+            if(validSource === true || validSource === null) {
+              eventTarget.dispatchEvent(
+                new ContentEvent('assignSource', {
+                  basename,
+                  path,
+                  detail: {
+                    source: $source,
+                  },
+                }, eventTarget)
+              );
+            }
           }
         }
         // Assign Event
@@ -449,17 +394,20 @@ function DefineProperty(
     path, 
     schema,
   } = $aliases;
+  const { enableValidation, validationType } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        let valid, validateSourceProperty;
-        const { enableValidation } = schema.options;
+        let validProperty;
         const propertyKey = arguments[0];
         const propertyDescriptor = arguments[1];
         // Property Descriptor Value: Direct Instance Array/Object/Map
-        if(isDirectInstanceOf$1(
+        if(isDirectInstanceOf(
           propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
+          valid = (enableValidation && validationType === 'object')
+            ? subschema.validate(propertyDescriptor.value)
+            : null;
           let subschema;
           switch(schema.contextType) {
             case 'array': subschema = schema.context[0]; break
@@ -521,11 +469,11 @@ function DefineProperty(
         }
         // Property Descriptor Value Not Array/Object/Map
         else {
-          validateSourceProperty = (enableValidation)
-            ? schema.validateProperty(propertyKey, propertyDescriptor.value)
+          validProperty = (enableValidation)
+            ? schema.validProperty(propertyKey, propertyDescriptor.value).valid
             : null;
           valid = ((
-            enableValidation && validateSourceProperty.valid
+            enableValidation && validProperty.valid
           ) || !enableValidation);
           if(valid) {
             Object.defineProperty(root, propertyKey, propertyDescriptor);
@@ -1124,13 +1072,128 @@ function CopyWithin(
 }
 
 function Concat(
-  $trap, $trapPropertyName, $aliases
+  $trap, $trapPropertyName, $aliases, $options
 ) {
-  const { root } = $aliases;
+  const { events } = $options;
+  const {
+    eventTarget, 
+    // root,
+    rootAlias, 
+    basename,
+    path, 
+    schema,
+  } = $aliases;
+  let { root } = $aliases; 
+  const { enableValidation, validationType } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        return Array.prototype.concat.call(root, ...arguments)
+        const $arguments = [...arguments];
+        let valuesIndex = 0;
+        const values = [];
+        for(const $value of $arguments) {
+          let valid;
+          const _basename = valuesIndex;
+          const _path = (path !== null)
+            ? path.concat('.', valuesIndex)
+            : valuesIndex;
+          // Value: Array
+          if(Array.isArray($value)) {
+            let subvaluesIndex = 0;
+            const subvalues = [];
+            for(const $subvalue of $value) {
+              // Subvalue: Objects
+              if(isDirectInstanceOf($subvalue, [Object, Array])) {
+                let subschema = schema.context[0];
+                valid = (enableValidation && validationType === 'object')
+                  ? subschema.validate($subvalue).valid
+                  : null;
+                if(valid === true || valid === null) {
+                  const subvalue = new Content($subvalue, {
+                    basename: _basename,
+                    parent: eventTarget,
+                    path: _path,
+                    rootAlias,
+                  }, subschema);
+                  subvalues[subvaluesIndex] = subvalue;
+                }
+              }
+              // Subvalue: Primitives
+              else {
+                valid = (enableValidation && validationType === 'property')
+                  ? schema.validateProperty(valuesIndex, $subvalue).valid
+                  : null; 
+                if(valid === true || valid === null) {
+                  subvalues[subvaluesIndex] = $subvalue;
+                }
+              }
+              subvaluesIndex++;
+            }
+            values[valuesIndex] = subvalues;
+          }
+          // Value: Not Array
+          else {
+            // Value: Objects
+            if(isDirectInstanceOf($value, [Object])) {
+              let subschema = schema.context[0];
+              valid = (enableValidation && validationType === 'object')
+                ? subschema.validate($value).valid
+                : null;
+              if(valid === true || valid === null) {
+                const value = new Content($value, {
+                  basename: _basename,
+                  parent: eventTarget,
+                  path: _path,
+                  rootAlias,
+                }, subschema);
+                values[valuesIndex] = value;
+              }
+            }
+            // Value: Primitives
+            else {
+              valid = (enableValidation && validationType === 'property')
+                ? schema.validateProperty(valuesIndex, $value).valid
+                : null; 
+              if(valid === true || valid === null) {
+                values[valuesIndex] = $value;
+              }
+            }
+          }
+          if(valid === true || valid === null) {
+            root = Array.prototype.concat.call(root, values[valuesIndex]);
+          }
+          // EVENT:START
+          if(events.includes('concatValue')) {
+            if(valid === true || valid === null) {
+              eventTarget.dispatchEvent(
+                new ContentEvent('concatValue', {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    valuesIndex,
+                    value: values[valuesIndex],
+                  },
+                }, eventTarget)
+              );
+            }
+          }
+          // EVENT:STOP
+          valuesIndex++;
+        }
+        // EVENT:START
+        if(events.includes('concat')) {
+          eventTarget.dispatchEvent(
+            new ContentEvent('concat', {
+              basename,
+              path,
+              detail: {
+                values
+              },
+            }, eventTarget)
+          );
+        }
+        // EVENT:STOP
+        return root
       }
     }
   )
@@ -1167,30 +1230,40 @@ function Fill(
 ) {
   const { events } = $options;
   const {
-    $eventTarget, 
+    eventTarget, 
     root, 
     rootAlias, 
     basename,
     path, 
     schema,
   } = $aliases;
+  const { enableValidation, validationType } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments];
         let value = $arguments[0];
-        if(isDirectInstanceOf$1(
+        let validValue;
+        if(isDirectInstanceOf(
           value, [Object, Array/*, Map*/]
         )) {
           const subschema = schema.context[0];
-          value = new Content(value, {
-            rootAlias: rootAlias,
-          }, subschema);
+          validValue = (enableValidation && validationType === 'object')
+            ? subschema.validate(value).valid
+            : null;
+          if(validValue === true || validValue === null) {
+            value = new Content(value, {
+              rootAlias: rootAlias,
+            }, subschema);
+          }
+        } else {
+          validValue = (enableValidation && validationType === 'property')
+            ? schema.validateProperty(0, value).valid
+            : null;
         }
+        if(validValue === false) return root
         let start;
-        if(
-          typeof $arguments[1] === 'number'
-        ) {
+        if(typeof $arguments[1] === 'number') {
           start = (
             $arguments[1] >= 0
           ) ? $arguments[1]
@@ -1199,9 +1272,7 @@ function Fill(
           start = 0;
         }
         let end;
-        if(
-          typeof $arguments[2] === 'number'
-        ) {
+        if(typeof $arguments[2] === 'number') {
           end = (
             $arguments[2] >= 0
           ) ? $arguments[2]
@@ -1224,7 +1295,7 @@ function Fill(
             : fillIndex;
           // Array Fill Index Event
           if(events.includes('fillIndex')) {
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new ContentEvent('fillIndex', {
                 basename: _basename,
                 path: _path,
@@ -1233,14 +1304,14 @@ function Fill(
                   end: fillIndex + 1,
                   value,
                 },
-              }, $eventTarget)
+              }, eventTarget)
             );
           }
           fillIndex++;
         }
         // Array Fill Event
         if(events.includes('fill')) {
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new ContentEvent('fill', {
               basename,
               path,
@@ -1250,7 +1321,7 @@ function Fill(
                 value,
               },
             },
-            $eventTarget)
+            eventTarget)
           );
         }
         return root
@@ -1525,42 +1596,56 @@ function Push(
     path, 
     schema,
   } = $aliases;
+  const { enableValidation, validationType } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const elements = [];
-        let elementIndex = 0;
+        let elementsIndex = 0;
         for(let $element of arguments) {
-          const _basename = elementIndex;
-          const _path = (
-            path !== null
-          ) ? path.concat('.', elementIndex)
-            : elementIndex;
-          // Push Prop Event
-          if(isDirectInstanceOf$1($element, [Object, Array/*, Map*/])) {
+          let validElement;
+          const _basename = elementsIndex;
+          const _path = (path !== null)
+            ? path.concat('.', elementsIndex)
+            : elementsIndex;
+          if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
             const subschema = schema.context[0];
-            $element = new Content($element, {
-              basename: _basename,
-              path: _path,
-              rootAlias: rootAlias,
-            }, subschema);
-          }
-          elements.push($element);
-          Array.prototype.push.call(root, $element);
-          if(events.includes('pushProp')) {
-            eventTarget.dispatchEvent(
-              new ContentEvent('pushProp', {
+            validElement = (enableValidation && validationType === 'object')
+              ? subschema.validate($element).valid
+              : null;
+            if(validElement === true || validElement === null) {
+              $element = new Content($element, {
                 basename: _basename,
                 path: _path,
-                detail: {
-                  elementIndex, 
-                  element: $element,
-                },
-              },
-              eventTarget)
-            );
+                rootAlias: rootAlias,
+              }, subschema);
+              elements.push($element);
+              Array.prototype.push.call(root, $element);
+            }
+          } else {
+            validElement = (enableValidation && validationType === 'property')
+              ? schema.validateProperty(elementsIndex, $element).valid
+              : null; 
+            if(validElement === true || validElement === null) {
+              elements.push($element);
+              Array.prototype.push.call(root, $element);
+            }
           }
-          elementIndex++;
+          if(events.includes('pushProp')) {
+            if(validElement === true || validElement === null) {
+              eventTarget.dispatchEvent(
+                new ContentEvent('pushProp', {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    elementsIndex, 
+                    element: elements[elementsIndex],
+                  },
+                }, eventTarget)
+              );
+            }
+          }
+          elementsIndex++;
         }
         // Push Event
         if(events.includes('push')) {
@@ -1571,8 +1656,7 @@ function Push(
               detail: {
                 elements,
               },
-            },
-            eventTarget)
+            }, eventTarget)
           );
         }
         return root.length
@@ -1687,6 +1771,27 @@ function Shift(
   )
 }
 
+function Splice$1(
+  $trap, $trapPropertyName, $aliases, $options
+) {
+  const {
+    eventTarget, 
+    root, 
+    rootAlias, 
+    basename,
+    path, 
+    schema,
+  } = $aliases;
+  schema.options;
+  return Object.defineProperty(
+    $trap, $trapPropertyName, {
+      value: function() {
+        // 
+      }
+    }
+  )
+}
+
 function Some(
   $trap, $trapPropertyName, $aliases
 ) {
@@ -1725,22 +1830,21 @@ function Splice(
     path, 
     schema,
   } = $aliases;
+  const { enableValidation, validationType } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments];
-        const start = (
-          $arguments[0] >= 0
-        ) ? $arguments[0]
+        const start = ($arguments[0] >= 0)
+          ? $arguments[0]
           : root.length + $arguments[0];
-        const deleteCount = (
-          $arguments[1] <= 0
-        ) ? 0
+        const deleteCount = ($arguments[1] <= 0)
+          ? 0
           : (
-          $arguments[1] === undefined ||
-          start + $arguments[1] >= root.length
-        ) ? root.length - start
-          : $arguments[1];
+            $arguments[1] === undefined ||
+            start + $arguments[1] >= root.length
+          ) ? root.length - start
+            : $arguments[1];
         const addItems = $arguments.slice(2);
         const addCount = addItems.length;
         const deleteItems = [];
@@ -1750,9 +1854,8 @@ function Splice(
           deleteItems.push(deleteItem);
           // Array Splice Delete Event
           const _basename = deleteItemsIndex;
-          const _path = (
-            path !== null
-          ) ? path.concat('.', deleteItemsIndex)
+          const _path = (path !== null)
+            ? path.concat('.', deleteItemsIndex)
             : deleteItemsIndex;
           if(events.includes('spliceDelete')) {
             eventTarget.dispatchEvent(
@@ -1771,38 +1874,58 @@ function Splice(
         }
         let addItemsIndex = 0;
         while(addItemsIndex < addCount) {
-          const subschema = schema.context[0];
-          const addItem = addItems[addItemsIndex];
-          if(isDirectInstanceOf(
-            addItem, [Object, Array/*, Map*/]
-          )) {
-            addItem = new Content(addItem, {
-              basename: _basename,
-              path: _path,
-              rootAlias: rootAlias,
-            }, subschema);
+          let _basename, _path;
+          let addItem = addItems[addItemsIndex];
+          let validAddItem;
+          _basename = addItemsIndex;
+          _path = (path !== null)
+            ? path.concat('.', addItemsIndex)
+            : addItemsIndex;
+          let startIndex = start + addItemsIndex;
+          if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
+            const subschema = schema.context[0];
+            validAddItem = (enableValidation && validationType === 'object')
+              ? subschema.validate(addItem).valid
+              : null;
+            if(validAddItem === true || validAddItem === null) {
+              addItem = new Content(addItem, {
+                basename: _basename,
+                path: _path,
+                rootAlias: rootAlias,
+              }, subschema);
+              Array.prototype.splice.call(
+                root, startIndex, 0, addItem
+              );
+            }
+          } else {
+            validAddItem = (enableValidation && validationType === 'property')
+              ? schema.validateProperty(startIndex, addItem)
+              : null;
+            if(validAddItem === true || validAddItem === null) {
+              Array.prototype.splice.call(
+                root, startIndex, 0, addItem
+              );
+            }
           }
-          Array.prototype.splice.call(
-            root, start + addItemsIndex, 0, addItem
-          );
-          const basename = addItemsIndex;
-          const path = (
-            path !== null
-          ) ? path.concat('.', addItemsIndex)
+          _basename = addItemsIndex;
+          _path = (path !== null)
+            ? path.concat('.', addItemsIndex)
             : addItemsIndex;
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
-            eventTarget.dispatchEvent(
-              new ContentEvent('spliceAdd', {
-                basename,
-                path,
-                detail: {
-                  index: start + addItemsIndex,
-                  addIndex: addItemsIndex,
-                  addItem: addItem,
-                },
-              }, eventTarget)
-            );
+            if(validAddItem === true || validAddItem === null) {
+              eventTarget.dispatchEvent(
+                new ContentEvent('spliceAdd', {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    index: start + addItemsIndex,
+                    addIndex: addItemsIndex,
+                    addItem: addItem,
+                  },
+                }, eventTarget)
+              );
+            }
           }
           addItemsIndex++;
         }
@@ -1905,6 +2028,7 @@ function Unshift(
     path, 
     schema,
   } = $aliases;
+  const { enableValidation, validationType } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -1913,7 +2037,7 @@ function Unshift(
         const elementsLength = $arguments.length;
         let elementIndex = elementsLength - 1;
         while(elementIndex > -1) {
-          const subschema = schema.context[0];
+          let validElement;
           $arguments.length;
           let element = $arguments[elementIndex];
           const _basename = elementIndex;
@@ -1921,29 +2045,44 @@ function Unshift(
             path !== null
           ) ? path.concat('.', elementIndex)
             : elementIndex;
-          if(isDirectInstanceOf$1(
-            element, [Object, Array/*, Map*/]
-          )) {
-            element = new Content(element, {
-              basename: _basename,
-              path: _path,
-              rootAlias: rootAlias,
-            }, subschema);
-          }
-          elements.unshift(element);
-          Array.prototype.unshift.call(root, element);
-          // Array Unshift Prop Event
-          if(events.includes('unshiftProp')) {
-            eventTarget.dispatchEvent(
-              new ContentEvent('unshiftProp', {
+          if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
+            const subschema = schema.context[0];
+            validElement = (enableValidation && validationType === 'object')
+              ? subschema.validate(element).valid
+              : null;
+            if(validElement === true || validElement === null) {
+              element = new Content(element, {
                 basename: _basename,
                 path: _path,
-                detail: {
-                  elementIndex, 
-                  element: element,
-                },
-              }, eventTarget)
-            );
+                rootAlias: rootAlias,
+              }, subschema);
+              elements.unshift(element);
+              Array.prototype.unshift.call(root, element);
+            }
+          }
+          else {
+            validElement = (enableValidation && validationType === 'property')
+              ? schema.validateProperty(elementIndex, element).valid
+              : null;
+            if(validElement === true || validElement === null) {
+              elements.unshift(element);
+              Array.prototype.unshift.call(root, element);
+            }
+          }
+          // Array Unshift Prop Event
+          if(events.includes('unshiftProp')) {
+            if(validElement === true || validElement === null) {
+              eventTarget.dispatchEvent(
+                new ContentEvent('unshiftProp', {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    elementIndex, 
+                    element: element,
+                  },
+                }, eventTarget)
+              );
+            }
           }
           elementIndex--;
         }
@@ -1953,7 +2092,7 @@ function Unshift(
           path !== null
         ) ? path.concat('.', elementIndex)
           : elementIndex;
-        if(events.includes('unshift')) {
+        if(events.includes('unshift') && elements.length) {
           eventTarget.dispatchEvent(
             new ContentEvent('unshift', {
               basename: _basename,
@@ -2026,6 +2165,7 @@ var ArrayProperty = {
   reduceRight: ReduceRight,
   reverse: Reverse,
   shift: Shift,
+  slice: Splice$1,
   some: Some,
   sort: Sort,
   splice: Splice,
@@ -2072,12 +2212,6 @@ class Handler {
     this.#settings = $settings;
     this.#options = $options;
     this.traps = new Traps(this.#settings, $options.traps);
-    Object.defineProperty(this, '__context__', {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: this.#settings.eventTarget,
-    });
     return this
   }
   // Get Property
@@ -2117,6 +2251,7 @@ class Handler {
       }
     }
   }
+  // Set Property
   get set() {
     const $this = this;
     const {
@@ -2124,12 +2259,10 @@ class Handler {
       root, 
       rootAlias, 
       schema,
-    } = this.#settings;
-    let {
       basename,
       path,
     } = this.#settings;
-    this.#options.traps.properties.set;
+    const { enableValidation, validationType } = schema.options;
     return function set($target, $property, $value, $receiver) {
       // Object Property
       if(this.#isObjectProperty($property)) {
@@ -2144,33 +2277,44 @@ class Handler {
         let subschema;
         switch(schema.contextType) {
           case 'array': subschema = schema.context[0]; break
-          case 'object': subschema = schema.context[$sourcePropKey]; break
+          case 'object': subschema = schema.context[$property]; break
         }
-        $value = new Content($value, {
-          basename,
-          parent: eventTarget,
-          path,
-          rootAlias,
-        }, subschema);
+        (enableValidation && validationType === 'object')
+          ? subschema.validate($value).valid
+          : null;
+        if(validElement === true || validElement === null) {
+          $value = new Content($value, {
+            basename,
+            parent: eventTarget,
+            path,
+            rootAlias,
+          }, subschema);
+          root[$property] = $value;
+        }
+      } else {
+        (enableValidation && validationType === 'property')
+          ? subschema.validateProperty($property, $value).valid
+          : null;
+        if(validElement === true || validElement === null) {
+          root[$property] = $value;
+        }
       }
-      // Property Assignment
-      root[$property] = $value;
-      basename = $property;
-      path = (
-        path !== null
-      ) ? path.concat('.', $property)
-        : $property;
-      eventTarget.dispatchEvent(
-        new ContentEvent('set', {
-          basename,
-          path,
-          detail: {
-            property: $property,
-            value: $value,
-          },
-        },
-        eventTarget
-      ));
+      if(validElement === true || validElement === null) {
+        basename = $property;
+        path = (path !== null)
+          ? path.concat('.', $property)
+          : $property;
+        eventTarget.dispatchEvent(
+          new ContentEvent('set', {
+            basename,
+            path,
+            detail: {
+              property: $property,
+              value: $value,
+            },
+          }, eventTarget)
+        );
+      }  
       return true
     }
   }
@@ -2194,9 +2338,8 @@ class Handler {
           detail: {
             property: $property
           },
-        },
-        eventTarget
-      ));
+        }, eventTarget)
+      );
       return true
     }
   }
@@ -2204,50 +2347,40 @@ class Handler {
     return ($property === this.#settings.rootAlias)
   }
   #isContentProperty($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(EventTarget.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Content.prototype)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(EventTarget.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(Content.prototype)
+      .includes($property)
+    ))
   }
   #isEventTarget($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(EventTarget.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Content.prototype)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(EventTarget.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(Content.prototype)
+      .includes($property)
+    ))
   }
   #isEventTargetOrContentProperty($property) {
-    return (
-      (
-        this.#isEventTarget($property) ||
-        this.#isContentProperty($property)
-      )
-    )
+    return ((
+      this.#isEventTarget($property) ||
+      this.#isContentProperty($property)
+    ))
   }
   #isObjectProperty($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(Object)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(Object)
+      .includes($property)
+    ))
   }
   #isArrayProperty($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(Array.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Array)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(Array.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(Array)
+      .includes($property)
+    ))
   }
   #isFunctionProperty($property) {
     return (
@@ -2317,6 +2450,12 @@ var Options$5 = {
       },
       reverse: {
         events: ['reverse']
+      },
+      concat: {
+        events: [
+          'concatValue',
+          'concat'
+        ]
       },
       push: {
         events: [
@@ -2450,36 +2589,29 @@ class Content extends EventTarget {
   parse($settings = {
     type: 'object', // 'json',
   }) {
-    let parsement = (
-      this.type === 'object'
-    ) ? {}
-      : (
-      this.type === 'array'
-    ) ? []
-      : {};
-    if(this.type !== 'map') {
-      for(const [$key, $val] of Object.entries(this.#root)) {
-        if(
-          $val !== null &&
-          typeof $val === 'object'
-        ) {
-          parsement[$key] = $val.parse();
-        } else (
-          parsement[$key] = $val
-        );
+    let parsement;
+    if(this.type === 'object') { parsement = {}; }
+    if(this.type === 'array') { parsement = []; }
+    parsement = Object.entries(
+      Object.getOwnPropertyDescriptors(this.proxy)
+    ).reduce(($parsement, [
+      $propertyDescriptorName, $propertyDescriptor
+    ]) => {
+      if(typeof $propertyDescriptor.value === 'object') {
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value.parse();
+      } else {
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value;
       }
-    }
+      return $parsement
+    }, parsement);
     if(
       $settings.type === 'object' || 
       $settings.type === 'Object'
-    ) {
-      return parsement
-    } else if(
+    ) return parsement
+    else if(
       $settings.type === 'json' || 
       $settings.type === 'JSON' 
-    ) {
-      return JSON.stringify(parsement, null, 2)
-    }
+    ) return JSON.stringify(parsement, null, 2)
     return undefined
   }
 }
@@ -2572,6 +2704,7 @@ Object.assign({}, Primitives, Objects);
 
 const Options$4 = {
   enableValidation: true,
+  validationType: 'property', // 'object', 
 };
 const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
@@ -2748,6 +2881,37 @@ class Model extends Core {
   parse() { return this.content.parse() }
 }
 
+class QuerySelector {
+  #settings
+  #_enable
+  constructor($settings) {
+    this.#settings = $settings;
+  }
+  get context() { return this.#settings.context }
+  get method() { return this.#settings.method }
+  get name() { return this.#settings.name }
+  get selector() { return this.#settings.selector }
+  get enable() { return this.#_enable }
+  set enable($enable) {
+    // Unable
+    if($enable === this.#_enable) return
+    // Enable
+    if($enable === true) {
+      const { context, name, method, selector } = this;
+      Object.defineProperty(context.querySelectors, name, {
+        enumerable: true,
+        configurable: true,
+        get() { return context.parent[method](selector) }
+      });
+    }
+    // Disable
+    else if($enable === false) {
+      delete this.context.querySelectors[this.name];
+    }
+    this.#_enable = $enable;
+  }
+}
+
 const Settings$2 = {
   templates: { default: () => `` },
   querySelectors: {},
@@ -2763,6 +2927,7 @@ class View extends Core {
       Object.assign({}, Settings$2, $settings),
       Object.assign({}, Options$2, $options),
     );
+    this.addQuerySelectors(this.settings.querySelectors);
   }
   get parent() { return this.settings.parent }
   get template() {
@@ -2772,62 +2937,52 @@ class View extends Core {
   }
   get querySelectors() { return this.#_querySelectors }
   get qs() { return this.querySelectors }
-  addQuerySelectors($querySelectorMethods) {
-    if($querySelectorMethods === undefined) return this
-    for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
-      for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        this.settings.querySelectors[$querySelectorMethod] = this.settings.querySelectors[$querySelectorMethod] || {};
-        this.settings.querySelectors[$querySelectorMethod][$querySelectorName] = $querySelector;
-      }
-    }
-    return this
-  }
-  removeQuerySelectors($querySelectorMethods) {
-    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors;
-    for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
-      for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        if(this.settings.querySelectors[$querySelectorMethod] !== undefined) {
-          delete this.settings.querySelectors[$querySelectorMethod][$querySelectorName];
-        }
-      }
-    }
-    return this
-  }
-  enableQuerySelectors($querySelectorMethods) {
-    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors;
-    const $this = this;
-    for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
-      for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        Object.defineProperty(this.querySelectors, $querySelectorName, {
-          enumerable: true,
-          configurable: true,
-          get() { return $this.parent[$querySelectorMethod]($querySelector) }
+  addQuerySelectors($queryMethods) {
+    if($queryMethods === undefined) return this
+    const { querySelectors } = this.settings;
+    for(const [$queryMethod, $selectors] of Object.entries($queryMethods)) {
+      for(const [$selectorName, $selector] of Object.entries($selectors)) {
+        querySelectors[$queryMethod] = querySelectors[$queryMethod] || {};
+        querySelectors[$queryMethod][$selectorName] = new QuerySelector({
+          context: this,
+          name: $selectorName,
+          method: $queryMethod,
+          selector: $selector,
+          enable: false,
         });
       }
     }
     return this
   }
-  disableQuerySelectors($querySelectorMethods) {
-    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors;
+  removeQuerySelectors($queryMethods) {
+    $queryMethods = $queryMethods || this.settings.querySelectors;
     for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
+      $queryMethod, $selectors
+    ] of Object.entries($queryMethods)) {
       for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        delete this.querySelectors[$querySelectorName];
+        $selectorName, $selector
+      ] of Object.entries($selectors)) {
+        if(this.settings.querySelectors[$queryMethod] !== undefined) {
+          delete this.settings.querySelectors[$queryMethod][$selectorName];
+        }
+      }
+    }
+    return this
+  }
+  enableQuerySelectors($queryMethods) {
+    $queryMethods = $queryMethods || this.settings.querySelectors;
+    for(const $selectors of Object.values($queryMethods)) {
+      for(const $selector of Object.values($selectors)) {
+        $selector.enable = true;
+      }
+    }
+    return this
+  }
+  disableQuerySelectors($queryMethods) {
+    $queryMethods = $queryMethods || this.settings.querySelectors;
+    for(const $selectors of Object.values($queryMethods)) {
+      for(const $selector of Object.values($selectors)) {
+        $selector.enable = false;
       }
     }
     return this

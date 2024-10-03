@@ -11,12 +11,6 @@ export default class Handler {
     this.#settings = $settings
     this.#options = $options
     this.traps = new Traps(this.#settings, $options.traps)
-    Object.defineProperty(this, '__context__', {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: this.#settings.eventTarget,
-    })
     return this
   }
   // Get Property
@@ -56,6 +50,7 @@ export default class Handler {
       }
     }
   }
+  // Set Property
   get set() {
     const $this = this
     const {
@@ -63,13 +58,12 @@ export default class Handler {
       root, 
       rootAlias, 
       schema,
-    } = this.#settings
-    let {
       basename,
       path,
     } = this.#settings
-    const { merge } = this.#options.traps.properties.set
+    const { enableValidation, validationType } = schema.options
     return function set($target, $property, $value, $receiver) {
+      let valid
       // Object Property
       if(this.#isObjectProperty($property)) {
         $this.traps['Object'][$property] = $value
@@ -83,33 +77,44 @@ export default class Handler {
         let subschema
         switch(schema.contextType) {
           case 'array': subschema = schema.context[0]; break
-          case 'object': subschema = schema.context[$sourcePropKey]; break
+          case 'object': subschema = schema.context[$property]; break
         }
-        $value = new Content($value, {
-          basename,
-          parent: eventTarget,
-          path,
-          rootAlias,
-        }, subschema)
+        valid = (enableValidation && validationType === 'object')
+          ? subschema.validate($value).valid
+          : null
+        if(validElement === true || validElement === null) {
+          $value = new Content($value, {
+            basename,
+            parent: eventTarget,
+            path,
+            rootAlias,
+          }, subschema)
+          root[$property] = $value
+        }
+      } else {
+        valid = (enableValidation && validationType === 'property')
+          ? subschema.validateProperty($property, $value).valid
+          : null
+        if(validElement === true || validElement === null) {
+          root[$property] = $value
+        }
       }
-      // Property Assignment
-      root[$property] = $value
-      basename = $property
-      path = (
-        path !== null
-      ) ? path.concat('.', $property)
-        : $property
-      eventTarget.dispatchEvent(
-        new ContentEvent('set', {
-          basename,
-          path,
-          detail: {
-            property: $property,
-            value: $value,
-          },
-        },
-        eventTarget
-      ))
+      if(validElement === true || validElement === null) {
+        basename = $property
+        path = (path !== null)
+          ? path.concat('.', $property)
+          : $property
+        eventTarget.dispatchEvent(
+          new ContentEvent('set', {
+            basename,
+            path,
+            detail: {
+              property: $property,
+              value: $value,
+            },
+          }, eventTarget)
+        )
+      }  
       return true
     }
   }
@@ -134,9 +139,8 @@ export default class Handler {
           detail: {
             property: $property
           },
-        },
-        eventTarget
-      ))
+        }, eventTarget)
+      )
       return true
     }
   }
@@ -144,50 +148,40 @@ export default class Handler {
     return ($property === this.#settings.rootAlias)
   }
   #isContentProperty($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(EventTarget.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Content.prototype)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(EventTarget.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(Content.prototype)
+      .includes($property)
+    ))
   }
   #isEventTarget($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(EventTarget.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Content.prototype)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(EventTarget.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(Content.prototype)
+      .includes($property)
+    ))
   }
   #isEventTargetOrContentProperty($property) {
-    return (
-      (
-        this.#isEventTarget($property) ||
-        this.#isContentProperty($property)
-      )
-    )
+    return ((
+      this.#isEventTarget($property) ||
+      this.#isContentProperty($property)
+    ))
   }
   #isObjectProperty($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(Object)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(Object)
+      .includes($property)
+    ))
   }
   #isArrayProperty($property) {
-    return (
-      (
-        Object.getOwnPropertyNames(Array.prototype)
-        .includes($property) ||
-        Object.getOwnPropertyNames(Array)
-        .includes($property)
-      )
-    )
+    return ((
+      Object.getOwnPropertyNames(Array.prototype)
+      .includes($property) ||
+      Object.getOwnPropertyNames(Array)
+      .includes($property)
+    ))
   }
   #isFunctionProperty($property) {
     return (

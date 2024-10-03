@@ -16,17 +16,20 @@ export default function DefineProperty(
     path, 
     schema,
   } = $aliases
+  const { enableValidation, validationType } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        let valid, validateSourceProperty
-        const { enableValidation } = schema.options
+        let validProperty
         const propertyKey = arguments[0]
         const propertyDescriptor = arguments[1]
         // Property Descriptor Value: Direct Instance Array/Object/Map
         if(isDirectInstanceOf(
           propertyDescriptor.value, [Object, Array/*, Map*/]
         )) {
+          valid = (enableValidation && validationType === 'object')
+            ? subschema.validate(propertyDescriptor.value)
+            : null
           let subschema
           switch(schema.contextType) {
             case 'array': subschema = schema.context[0]; break
@@ -88,11 +91,11 @@ export default function DefineProperty(
         }
         // Property Descriptor Value Not Array/Object/Map
         else {
-          validateSourceProperty = (enableValidation)
-            ? schema.validateProperty(propertyKey, propertyDescriptor.value)
+          validProperty = (enableValidation)
+            ? schema.validProperty(propertyKey, propertyDescriptor.value).valid
             : null
           valid = ((
-            enableValidation && validateSourceProperty.valid
+            enableValidation && validProperty.valid
           ) || !enableValidation)
           if(valid) {
             Object.defineProperty(root, propertyKey, propertyDescriptor)

@@ -26,6 +26,7 @@ import Reduce from './reduce/index.js'
 import ReduceRight from './reduceRight/index.js'
 import Reverse from './reverse/index.js'
 import Shift from './shift/index.js'
+import Slice from './slice/index.js'
 import Some from './some/index.js'
 import Sort from './sort/index.js'
 import Splice from './splice/index.js'
@@ -66,6 +67,7 @@ export default {
   reduceRight: ReduceRight,
   reverse: Reverse,
   shift: Shift,
+  slice: Slice,
   some: Some,
   sort: Sort,
   splice: Splice,

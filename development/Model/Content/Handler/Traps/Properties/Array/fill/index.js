@@ -6,30 +6,40 @@ export default function Fill(
 ) {
   const { events } = $options
   const {
-    $eventTarget, 
+    eventTarget, 
     root, 
     rootAlias, 
     basename,
     path, 
     schema,
   } = $aliases
+  const { enableValidation, validationType } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments]
         let value = $arguments[0]
+        let validValue
         if(isDirectInstanceOf(
           value, [Object, Array/*, Map*/]
         )) {
           const subschema = schema.context[0]
-          value = new Content(value, {
-            rootAlias: rootAlias,
-          }, subschema)
+          validValue = (enableValidation && validationType === 'object')
+            ? subschema.validate(value).valid
+            : null
+          if(validValue === true || validValue === null) {
+            value = new Content(value, {
+              rootAlias: rootAlias,
+            }, subschema)
+          }
+        } else {
+          validValue = (enableValidation && validationType === 'property')
+            ? schema.validateProperty(0, value).valid
+            : null
         }
+        if(validValue === false) return root
         let start
-        if(
-          typeof $arguments[1] === 'number'
-        ) {
+        if(typeof $arguments[1] === 'number') {
           start = (
             $arguments[1] >= 0
           ) ? $arguments[1]
@@ -38,9 +48,7 @@ export default function Fill(
           start = 0
         }
         let end
-        if(
-          typeof $arguments[2] === 'number'
-        ) {
+        if(typeof $arguments[2] === 'number') {
           end = (
             $arguments[2] >= 0
           ) ? $arguments[2]
@@ -63,7 +71,7 @@ export default function Fill(
             : fillIndex
           // Array Fill Index Event
           if(events.includes('fillIndex')) {
-            $eventTarget.dispatchEvent(
+            eventTarget.dispatchEvent(
               new ContentEvent('fillIndex', {
                 basename: _basename,
                 path: _path,
@@ -72,14 +80,14 @@ export default function Fill(
                   end: fillIndex + 1,
                   value,
                 },
-              }, $eventTarget)
+              }, eventTarget)
             )
           }
           fillIndex++
         }
         // Array Fill Event
         if(events.includes('fill')) {
-          $eventTarget.dispatchEvent(
+          eventTarget.dispatchEvent(
             new ContentEvent('fill', {
               basename,
               path,
@@ -89,7 +97,7 @@ export default function Fill(
                 value,
               },
             },
-            $eventTarget)
+            eventTarget)
           )
         }
         return root

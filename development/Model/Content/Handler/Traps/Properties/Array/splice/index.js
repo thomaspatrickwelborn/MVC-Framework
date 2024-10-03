@@ -1,3 +1,4 @@
+import { isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
 import ContentEvent from '../../../../../Event/index.js'
 export default function Splice(
@@ -12,22 +13,21 @@ export default function Splice(
     path, 
     schema,
   } = $aliases
+  const { enableValidation, validationType } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments]
-        const start = (
-          $arguments[0] >= 0
-        ) ? $arguments[0]
+        const start = ($arguments[0] >= 0)
+          ? $arguments[0]
           : root.length + $arguments[0]
-        const deleteCount = (
-          $arguments[1] <= 0
-        ) ? 0
+        const deleteCount = ($arguments[1] <= 0)
+          ? 0
           : (
-          $arguments[1] === undefined ||
-          start + $arguments[1] >= root.length
-        ) ? root.length - start
-          : $arguments[1]
+            $arguments[1] === undefined ||
+            start + $arguments[1] >= root.length
+          ) ? root.length - start
+            : $arguments[1]
         const addItems = $arguments.slice(2)
         const addCount = addItems.length
         const deleteItems = []
@@ -38,9 +38,8 @@ export default function Splice(
           deleteItems.push(deleteItem)
           // Array Splice Delete Event
           const _basename = deleteItemsIndex
-          const _path = (
-            path !== null
-          ) ? path.concat('.', deleteItemsIndex)
+          const _path = (path !== null)
+            ? path.concat('.', deleteItemsIndex)
             : deleteItemsIndex
           if(events.includes('spliceDelete')) {
             eventTarget.dispatchEvent(
@@ -60,38 +59,58 @@ export default function Splice(
         let addItemsIndex = 0
         spliceAdd: 
         while(addItemsIndex < addCount) {
-          const subschema = schema.context[0]
-          const addItem = addItems[addItemsIndex]
-          if(isDirectInstanceOf(
-            addItem, [Object, Array/*, Map*/]
-          )) {
-            addItem = new Content(addItem, {
-              basename: _basename,
-              path: _path,
-              rootAlias: rootAlias,
-            }, subschema)
+          let _basename, _path
+          let addItem = addItems[addItemsIndex]
+          let validAddItem
+          _basename = addItemsIndex
+          _path = (path !== null)
+            ? path.concat('.', addItemsIndex)
+            : addItemsIndex
+          let startIndex = start + addItemsIndex
+          if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
+            const subschema = schema.context[0]
+            validAddItem = (enableValidation && validationType === 'object')
+              ? subschema.validate(addItem).valid
+              : null
+            if(validAddItem === true || validAddItem === null) {
+              addItem = new Content(addItem, {
+                basename: _basename,
+                path: _path,
+                rootAlias: rootAlias,
+              }, subschema)
+              Array.prototype.splice.call(
+                root, startIndex, 0, addItem
+              )
+            }
+          } else {
+            validAddItem = (enableValidation && validationType === 'property')
+              ? schema.validateProperty(startIndex, addItem)
+              : null
+            if(validAddItem === true || validAddItem === null) {
+              Array.prototype.splice.call(
+                root, startIndex, 0, addItem
+              )
+            }
           }
-          Array.prototype.splice.call(
-            root, start + addItemsIndex, 0, addItem
-          )
-          const basename = addItemsIndex
-          const path = (
-            path !== null
-          ) ? path.concat('.', addItemsIndex)
+          _basename = addItemsIndex
+          _path = (path !== null)
+            ? path.concat('.', addItemsIndex)
             : addItemsIndex
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
-            eventTarget.dispatchEvent(
-              new ContentEvent('spliceAdd', {
-                basename,
-                path,
-                detail: {
-                  index: start + addItemsIndex,
-                  addIndex: addItemsIndex,
-                  addItem: addItem,
-                },
-              }, eventTarget)
-            )
+            if(validAddItem === true || validAddItem === null) {
+              eventTarget.dispatchEvent(
+                new ContentEvent('spliceAdd', {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    index: start + addItemsIndex,
+                    addIndex: addItemsIndex,
+                    addItem: addItem,
+                  },
+                }, eventTarget)
+              )
+            }
           }
           addItemsIndex++
         }

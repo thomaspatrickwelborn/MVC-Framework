@@ -59,6 +59,12 @@ export default {
       reverse: {
         events: ['reverse']
       },
+      concat: {
+        events: [
+          'concatValue',
+          'concat'
+        ]
+      },
       push: {
         events: [
           'pushProp',

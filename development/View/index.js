@@ -1,4 +1,5 @@
 import Core from '../Core/index.js'
+import QuerySelector from './QuerySelector/index.js'
 const Settings = {
   templates: { default: () => `` },
   querySelectors: {},
@@ -14,6 +15,7 @@ export default class View extends Core {
       Object.assign({}, Settings, $settings),
       Object.assign({}, Options, $options),
     )
+    this.addQuerySelectors(this.settings.querySelectors)
   }
   get parent() { return this.settings.parent }
   get template() {
@@ -23,62 +25,53 @@ export default class View extends Core {
   }
   get querySelectors() { return this.#_querySelectors }
   get qs() { return this.querySelectors }
-  addQuerySelectors($querySelectorMethods) {
-    if($querySelectorMethods === undefined) return this
-    for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
-      for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        this.settings.querySelectors[$querySelectorMethod] = this.settings.querySelectors[$querySelectorMethod] || {}
-        this.settings.querySelectors[$querySelectorMethod][$querySelectorName] = $querySelector
-      }
-    }
-    return this
-  }
-  removeQuerySelectors($querySelectorMethods) {
-    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors
-    for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
-      for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        if(this.settings.querySelectors[$querySelectorMethod] !== undefined) {
-          delete this.settings.querySelectors[$querySelectorMethod][$querySelectorName]
-        }
-      }
-    }
-    return this
-  }
-  enableQuerySelectors($querySelectorMethods) {
-    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors
-    const $this = this
-    for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
-      for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        Object.defineProperty(this.querySelectors, $querySelectorName, {
-          enumerable: true,
-          configurable: true,
-          get() { return $this.parent[$querySelectorMethod]($querySelector) }
+  addQuerySelectors($queryMethods) {
+    if($queryMethods === undefined) return this
+    const { querySelectors } = this.settings
+    for(const [$queryMethod, $selectors] of Object.entries($queryMethods)) {
+      for(const [$selectorName, $selector] of Object.entries($selectors)) {
+        querySelectors[$queryMethod] = querySelectors[$queryMethod] || {}
+        querySelectors[$queryMethod][$selectorName] = new QuerySelector({
+          context: this,
+          name: $selectorName,
+          method: $queryMethod,
+          selector: $selector,
+          enable: false,
         })
       }
     }
     return this
   }
-  disableQuerySelectors($querySelectorMethods) {
-    $querySelectorMethods = $querySelectorMethods || this.settings.querySelectors
+  removeQuerySelectors($queryMethods) {
+    $queryMethods = $queryMethods || this.settings.querySelectors
     for(const [
-      $querySelectorMethod, $querySelectors
-    ] of Object.entries($querySelectorMethods)) {
+      $queryMethod, $selectors
+    ] of Object.entries($queryMethods)) {
       for(const [
-        $querySelectorName, $querySelector
-      ] of Object.entries($querySelectors)) {
-        delete this.querySelectors[$querySelectorName]
+        $selectorName, $selector
+      ] of Object.entries($selectors)) {
+        if(this.settings.querySelectors[$queryMethod] !== undefined) {
+          delete this.settings.querySelectors[$queryMethod][$selectorName]
+        }
+      }
+    }
+    return this
+  }
+  enableQuerySelectors($queryMethods) {
+    $queryMethods = $queryMethods || this.settings.querySelectors
+    const $this = this 
+    for(const $selectors of Object.values($queryMethods)) {
+      for(const $selector of Object.values($selectors)) {
+        $selector.enable = true
+      }
+    }
+    return this
+  }
+  disableQuerySelectors($queryMethods) {
+    $queryMethods = $queryMethods || this.settings.querySelectors
+    for(const $selectors of Object.values($queryMethods)) {
+      for(const $selector of Object.values($selectors)) {
+        $selector.enable = false
       }
     }
     return this
