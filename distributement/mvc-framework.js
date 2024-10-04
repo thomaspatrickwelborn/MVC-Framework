@@ -2492,9 +2492,7 @@ class Content extends EventTarget {
   constructor($settings = {}, $options = {}, $schema) {
     super();
     this.#settings = $settings;
-    this.#options = Object.assign(
-      {}, Options$5, $options
-    );
+    this.#options = Object.assign({}, Options$5, $options);
     this.#schema = $schema;
     return this.proxy
   }
@@ -2716,7 +2714,7 @@ class Schema extends EventTarget{
     super();
     this.settings = $settings;
     this.options = Object.assign({}, Options$4, $options);
-    this.context;
+    // this.context
   }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
@@ -2765,31 +2763,31 @@ class Schema extends EventTarget{
     return this.#_context
   }
   validate($content) {
-    return Object.entries($content).reduce(($validation, [
-      $contentKey, $contentVal
-    ], $validatorIndex, $contentEntries) => {
-      const typeOfContentVal = typeOf$1($contentVal);
-      let propertyValidation;
-      if(Object.keys(Primitives).includes(typeOfContentVal)) {
-        propertyValidation = this.validateProperty($contentKey, $contentVal);
+    return Object.entries($content).reduce(
+      ($validation, [$contentKey, $contentVal], $validatorIndex, $contentEntries) => {
+        const typeOfContentVal = typeOf$1($contentVal);
+        let propertyValidation;
+        if(Object.keys(Primitives).includes(typeOfContentVal)) {
+          propertyValidation = this.validateProperty($contentKey, $contentVal);
+        }
+        else if(this.contextType === 'array') {
+          propertyValidation = this.context[0].validate($contentVal);
+        }
+        else if(this.contextType === 'object') {
+          propertyValidation = this.context[$contentKey].validate($contentVal);
+        }
+        $validation.properties.push(propertyValidation);
+        if($validatorIndex === $contentEntries.length - 1) {
+          $validation.valid = !$validation.properties.find(
+            ($propertyValidation) => $propertyValidation.valid === false
+          );
+        }
+        return $validation
+      }, {
+        properties: [],
+        valid: undefined,
       }
-      else if(this.contextType === 'array') {
-        propertyValidation = this.context[0].validate($contentVal);
-      }
-      else if(this.contextType === 'object') {
-        propertyValidation = this.context[$contentKey].validate($contentVal);
-      }
-      $validation.properties.push(propertyValidation);
-      if($validatorIndex === $contentEntries.length - 1) {
-        $validation.valid = !$validation.properties.find(
-          ($propertyValidation) => $propertyValidation.valid === false
-        );
-      }
-      return $validation
-    }, {
-      properties: [],
-      valid: undefined,
-    })
+    )
   }
   validateProperty($key, $val) {
     const Validation = {
@@ -2841,8 +2839,8 @@ class Model extends Core {
       Object.assign({}, Settings$3, $settings), 
       Object.assign({}, Options$3, $options),
     );
-    this.schema;
-    this.content;
+    // this.schema
+    // this.content
     if(this.options.enableEvents === true) this.enableEvents();
 	}
   get schema() {

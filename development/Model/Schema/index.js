@@ -16,7 +16,7 @@ export default class Schema extends EventTarget{
     super()
     this.settings = $settings
     this.options = Object.assign({}, Options, $options)
-    this.context
+    // this.context
   }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
@@ -65,32 +65,31 @@ export default class Schema extends EventTarget{
     return this.#_context
   }
   validate($content) {
-    return Object.entries($content).reduce(($validation, [
-      $contentKey, $contentVal
-    ], $validatorIndex, $contentEntries) => {
-      const typeOfContentVal = typeOf($contentVal)
-      let propertyValidation
-      if(Object.keys(Primitives).includes(typeOfContentVal)) {
-        propertyValidation = this.validateProperty($contentKey, $contentVal)
+    return Object.entries($content).reduce(
+      ($validation, [$contentKey, $contentVal], $validatorIndex, $contentEntries) => {
+        const typeOfContentVal = typeOf($contentVal)
+        let propertyValidation
+        if(Object.keys(Primitives).includes(typeOfContentVal)) {
+          propertyValidation = this.validateProperty($contentKey, $contentVal)
+        }
+        else if(this.contextType === 'array') {
+          propertyValidation = this.context[0].validate($contentVal)
+        }
+        else if(this.contextType === 'object') {
+          propertyValidation = this.context[$contentKey].validate($contentVal)
+        }
+        $validation.properties.push(propertyValidation)
+        if($validatorIndex === $contentEntries.length - 1) {
+          $validation.valid = !$validation.properties.find(
+            ($propertyValidation) => $propertyValidation.valid === false
+          )
+        }
+        return $validation
+      }, {
+        properties: [],
+        valid: undefined,
       }
-      else if(this.contextType === 'array') {
-        propertyValidation = this.context[0].validate($contentVal)
-      }
-      else if(this.contextType === 'object') {
-        propertyValidation = this.context[$contentKey].validate($contentVal)
-      }
-      $validation.properties.push(propertyValidation)
-      if($validatorIndex === $contentEntries.length - 1) {
-        $validation.valid = !$validation.properties.find(
-          ($propertyValidation) => $propertyValidation.valid === false
-        )
-      }
-      return $validation
-    }, {
-      properties: [],
-      valid: undefined,
-    })
-    return validation
+    )
   }
   validateProperty($key, $val) {
     const Validation = {
