@@ -2,6 +2,7 @@ const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
+  'undefined': undefined,
 }
 const Objects = {
   'object': Object,

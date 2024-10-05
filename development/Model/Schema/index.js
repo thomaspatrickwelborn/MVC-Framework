@@ -16,7 +16,7 @@ export default class Schema extends EventTarget{
     super()
     this.settings = $settings
     this.options = Object.assign({}, Options, $options)
-    // this.context
+    this.context
   }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
@@ -38,9 +38,12 @@ export default class Schema extends EventTarget{
     for(const [
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
+      // Transform Setting
+      const typeOfSetting = typeOf(settings[$contextKey])
       settings[$contextKey].validators = Validators.concat(
         settings[$contextKey].validators || []
       )
+      console.log(settings[$contextKey].validators)
       // Context Val Type: Schema Instance
       if(settings[$contextKey].type instanceof Schema) {
         this.#_context[$contextKey] = settings[$contextKey]
@@ -97,15 +100,15 @@ export default class Schema extends EventTarget{
       deadvance: [], // Array
       valid: undefined, // Boolean
     }
-    let contextVal
+    let context
     switch(this.contextType) {
-      case 'array': contextVal = this.context[0]; break
-      case 'object': contextVal = this.context[$key]; break
+      case 'array': context = this.context[0]; break
+      case 'object': context = this.context[$key]; break
     } 
-    return contextVal.validators.reduce(
+    return context.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(
-          contextVal, $key, $val
+          context, $key, $val
         )
         if(validation.valid === true) {
           $validation.advance.push(validation)

@@ -1,9 +1,7 @@
-<ul>
-  <li>
-    <% for(const $anchor of $content) { %>
-      <button data-href="<%= $anchor['data-href'] %>">
-        <span><%= $anchor['textContent'] %></span>
-      </button>
-    <% } %>
-  </li>
-</ul>
+<nav>
+  <% for(const $anchor of $content) { %>
+    <button data-href="<%= $anchor['data-href'] %>">
+      <span><%= $anchor['textContent'] %></span>
+    </button>
+  <% } %>
+</nav>

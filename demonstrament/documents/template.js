@@ -22,16 +22,16 @@ export default function anonymous($content, escapeFn, include, rethrow) {
     function __append(s) {
         if (s !== undefined && s !== null) __output += s
     };
-    __append("<ul>\n  <li>\n    ");
+    __append("<nav>\n  ");
     for (const $anchor of $content) {
         ;
-        __append("\n      <button data-href=\"");
+        __append("\n    <button data-href=\"");
         __append(escapeFn($anchor['data-href']));
-        __append("\">\n        <span>");
+        __append("\">\n      <span>");
         __append(escapeFn($anchor['textContent']));
-        __append("</span>\n      </button>\n    ");
+        __append("</span>\n    </button>\n  ");
     };
-    __append("\n  </li>\n</ul>")
+    __append("\n</nav>")
     return __output;
 
 }

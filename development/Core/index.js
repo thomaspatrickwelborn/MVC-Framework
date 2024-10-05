@@ -3,7 +3,6 @@ import CoreEvent from './Event/index.js'
 const Settings = {}
 const Options = {
   validSettings: [],
-  enableEvents: true,
 }
 export default class Core extends EventTarget {
   constructor($settings = {}, $options = {}) {

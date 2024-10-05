@@ -2,7 +2,7 @@ import { typeOf, propFromPropPath } from '../../Coutil/index.js'
 export default class CoreEvent {
   #settings
   #boundCallback
-  #_enable
+  #_enable = false
   constructor($settings) { 
     this.#settings = $settings
   }
@@ -27,6 +27,7 @@ export default class CoreEvent {
   get enable() { return this.#_enable }
   set enable($enable) {
     if($enable === this.#_enable) return
+    console.log('$enable', $enable)
     const eventAbility = (
       $enable === true
     ) ? 'addEventListener'
@@ -34,12 +35,14 @@ export default class CoreEvent {
     if(this.target instanceof NodeList) {
       for(const $target of this.target) {
         $target[eventAbility](this.type, this.callback)
-        this.#_enable = $enable
       }
-    } else if(this.target instanceof EventTarget) {
+      this.#_enable = $enable
+    }
+    else if(this.target instanceof EventTarget) {
       this.target[eventAbility](this.type, this.callback)
       this.#_enable = $enable
-    } else {
+    }
+    else {
       try {
         this.target[eventAbility](this.type, this.callback)
         this.#_enable = $enable

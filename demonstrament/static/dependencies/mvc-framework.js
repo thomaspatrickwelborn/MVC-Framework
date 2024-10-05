@@ -32,7 +32,7 @@ function parseShortenedEvents($propEvents) {
 class CoreEvent {
   #settings
   #boundCallback
-  #_enable
+  #_enable = false
   constructor($settings) { 
     this.#settings = $settings;
   }
@@ -57,6 +57,7 @@ class CoreEvent {
   get enable() { return this.#_enable }
   set enable($enable) {
     if($enable === this.#_enable) return
+    console.log('$enable', $enable);
     const eventAbility = (
       $enable === true
     ) ? 'addEventListener'
@@ -64,12 +65,14 @@ class CoreEvent {
     if(this.target instanceof NodeList) {
       for(const $target of this.target) {
         $target[eventAbility](this.type, this.callback);
-        this.#_enable = $enable;
       }
-    } else if(this.target instanceof EventTarget) {
+      this.#_enable = $enable;
+    }
+    else if(this.target instanceof EventTarget) {
       this.target[eventAbility](this.type, this.callback);
       this.#_enable = $enable;
-    } else {
+    }
+    else {
       try {
         this.target[eventAbility](this.type, this.callback);
         this.#_enable = $enable;
@@ -81,7 +84,6 @@ class CoreEvent {
 const Settings$4 = {};
 const Options$6 = {
   validSettings: [],
-  enableEvents: true,
 };
 class Core extends EventTarget {
   constructor($settings = {}, $options = {}) {
@@ -2264,6 +2266,7 @@ class Handler {
     } = this.#settings;
     const { enableValidation, validationType } = schema.options;
     return function set($target, $property, $value, $receiver) {
+      let valid;
       // Object Property
       if(this.#isObjectProperty($property)) {
         $this.traps['Object'][$property] = $value;
@@ -2279,10 +2282,10 @@ class Handler {
           case 'array': subschema = schema.context[0]; break
           case 'object': subschema = schema.context[$property]; break
         }
-        (enableValidation && validationType === 'object')
+        valid = (enableValidation && validationType === 'object')
           ? subschema.validate($value).valid
           : null;
-        if(validElement === true || validElement === null) {
+        if(valid === true || valid === null) {
           $value = new Content($value, {
             basename,
             parent: eventTarget,
@@ -2291,23 +2294,24 @@ class Handler {
           }, subschema);
           root[$property] = $value;
         }
-      } else {
-        (enableValidation && validationType === 'property')
-          ? subschema.validateProperty($property, $value).valid
+      }
+      else {
+        valid = (enableValidation && validationType === 'property')
+          ? schema.validateProperty($property, $value).valid
           : null;
-        if(validElement === true || validElement === null) {
+        if(valid === true || valid === null) {
           root[$property] = $value;
         }
       }
-      if(validElement === true || validElement === null) {
-        basename = $property;
-        path = (path !== null)
+      if(valid === true || valid === null) {
+        const _basename = $property;
+        const _path = (path !== null)
           ? path.concat('.', $property)
           : $property;
         eventTarget.dispatchEvent(
           new ContentEvent('set', {
-            basename,
-            path,
+            basename: _basename,
+            path: _path,
             detail: {
               property: $property,
               value: $value,
@@ -2395,10 +2399,7 @@ var Options$5 = {
   traps: {
     properties: {
       set: {
-        events: [
-          'setProperty',
-          'set'
-        ],
+        events: ['set'],
       },
     },
     object: {
@@ -2628,18 +2629,18 @@ class Validation extends EventTarget {
   #settings
   #_type
   #_valid = false
+  #_context
   #_contentKey
   #_contentVal
-  #_contextVal
   constructor($settings = {}) {
     super();
     this.#settings = $settings;
     const {
-      type, valid, contextVal, contentKey, contentVal
+      type, valid, context, contentKey, contentVal
     } = this.#settings;
     this.type = type;
     this.valid = valid;
-    this.contextVal = contextVal;
+    this.context = context;
     this.contentKey = contentKey;
     this.contentVal = contentVal;
   }
@@ -2650,8 +2651,8 @@ class Validation extends EventTarget {
   get valid() { return this.#_valid }
   set valid($valid) { this.#_valid = $valid; }
   // Context Key
-  get contextVal() { return this.#_contextVal }
-  set contextVal($contextVal) { this.#_contextVal = $contextVal; }
+  get context() { return this.#_context }
+  set context($context) { this.#_context = $context; }
   // Content Key
   get contentKey() { return this.#_contentKey }
   set contentKey($contentKey) { this.#_contentKey = $contentKey; }
@@ -2660,26 +2661,43 @@ class Validation extends EventTarget {
   set contentVal($contentVal) { this.#_contentVal = $contentVal; }
 }
 
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'undefined': undefined,
+};
+const Objects = {
+  'object': Object,
+  'array': Array
+};
+Object.assign({}, Primitives, Objects);
+
 class TypeValidator extends Validator {
   #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'type',
-      validate: ($contextVal, $contentKey, $contentVal) => {
+      validate: ($context, $contentKey, $contentVal) => {
         let validation = new Validation({
-          contextVal: $contextVal,
+          context: $context,
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
           valid: false,
         });
         const typeOfContentVal = typeOf$1($contentVal);
-        const typeOfContextVal = typeOf$1($contextVal.type());
+        const typeOfContextVal = ($context === undefined)
+          ? undefined
+          : typeOf$1($context.type());
         if(
-          [Number, String, Boolean].includes($contextVal.type) &&
-          ['number', 'string', 'boolean'].includes(typeOfContentVal)
+          Object.values(Primitives).includes($context.type) &&
+          Object.keys(Primitives).includes(typeOfContentVal)
         ) {
-          if(typeOfContextVal === typeOfContentVal) {
+          if(
+            typeOfContextVal === typeOfContentVal ||
+            typeOfContextVal === undefined
+          ) {
             validation.valid = true;
           }
         }
@@ -2688,17 +2706,6 @@ class TypeValidator extends Validator {
     }));
   }
 }
-
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-};
-const Objects = {
-  'object': Object,
-  'array': Array
-};
-Object.assign({}, Primitives, Objects);
 
 const Options$4 = {
   enableValidation: true,
@@ -2714,7 +2721,7 @@ class Schema extends EventTarget{
     super();
     this.settings = $settings;
     this.options = Object.assign({}, Options$4, $options);
-    // this.context
+    this.context;
   }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
@@ -2736,9 +2743,12 @@ class Schema extends EventTarget{
     for(const [
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
+      // Transform Setting
+      typeOf$1(settings[$contextKey]);
       settings[$contextKey].validators = Validators.concat(
         settings[$contextKey].validators || []
       );
+      console.log(settings[$contextKey].validators);
       // Context Val Type: Schema Instance
       if(settings[$contextKey].type instanceof Schema) {
         this.#_context[$contextKey] = settings[$contextKey];
@@ -2795,15 +2805,15 @@ class Schema extends EventTarget{
       deadvance: [], // Array
       valid: undefined, // Boolean
     };
-    let contextVal;
+    let context;
     switch(this.contextType) {
-      case 'array': contextVal = this.context[0]; break
-      case 'object': contextVal = this.context[$key]; break
+      case 'array': context = this.context[0]; break
+      case 'object': context = this.context[$key]; break
     } 
-    return contextVal.validators.reduce(
+    return context.validators.reduce(
       ($validation, $validator, $validatorIndex, $validators) => {
         const validation = $validator.validate(
-          contextVal, $key, $val
+          context, $key, $val
         );
         if(validation.valid === true) {
           $validation.advance.push(validation);
@@ -2839,8 +2849,8 @@ class Model extends Core {
       Object.assign({}, Settings$3, $settings), 
       Object.assign({}, Options$3, $options),
     );
-    // this.schema
-    // this.content
+    this.schema;
+    this.content;
     if(this.options.enableEvents === true) this.enableEvents();
 	}
   get schema() {
@@ -2983,19 +2993,6 @@ class View extends Core {
         $selector.enable = false;
       }
     }
-    return this
-  }
-  autoinsert() {
-    try {
-      const { target, position } = this.settings.autoinsert;
-      target.insertAdjacentElement(position, this.parent);
-    } catch($err) {}
-    return this
-  }
-  autoremove() {
-    try {
-      this.parent.parentElement.removeChild(this.parent);
-    } catch($err) {}
     return this
   }
   render($model, $template = 'default') {
@@ -3442,5 +3439,5 @@ class Control extends Core {
 	}
 }
 
-export { Control, Core, FetchRouter, Model, Schema, StaticRouter, View };
+export { Control, Core, FetchRouter, Model, Schema, StaticRouter, Validation, Validator, View };
 //# sourceMappingURL=mvc-framework.js.map

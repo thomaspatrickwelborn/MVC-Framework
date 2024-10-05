@@ -3,10 +3,7 @@ export default {
   traps: {
     properties: {
       set: {
-        events: [
-          'setProperty',
-          'set'
-        ],
+        events: ['set'],
       },
     },
     object: {

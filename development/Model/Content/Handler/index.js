@@ -82,7 +82,7 @@ export default class Handler {
         valid = (enableValidation && validationType === 'object')
           ? subschema.validate($value).valid
           : null
-        if(validElement === true || validElement === null) {
+        if(valid === true || valid === null) {
           $value = new Content($value, {
             basename,
             parent: eventTarget,
@@ -91,23 +91,24 @@ export default class Handler {
           }, subschema)
           root[$property] = $value
         }
-      } else {
+      }
+      else {
         valid = (enableValidation && validationType === 'property')
-          ? subschema.validateProperty($property, $value).valid
+          ? schema.validateProperty($property, $value).valid
           : null
-        if(validElement === true || validElement === null) {
+        if(valid === true || valid === null) {
           root[$property] = $value
         }
       }
-      if(validElement === true || validElement === null) {
-        basename = $property
-        path = (path !== null)
+      if(valid === true || valid === null) {
+        const _basename = $property
+        const _path = (path !== null)
           ? path.concat('.', $property)
           : $property
         eventTarget.dispatchEvent(
           new ContentEvent('set', {
-            basename,
-            path,
+            basename: _basename,
+            path: _path,
             detail: {
               property: $property,
               value: $value,

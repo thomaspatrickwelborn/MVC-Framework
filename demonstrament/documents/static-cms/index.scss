@@ -1,5 +1,2 @@
-body {
-	background-color: mediumaquamarine;
-	width: 100vw;
-	height: 100vh;
-}
+@use './Coutil/index.scss' as Coutil;
+@use './Inspector/style.scss' as InspectorStyle;

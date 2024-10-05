@@ -1,0 +1,28 @@
+<% const { device, database } = $content %>
+<fieldset data-id="inspector">
+	<legend><%= device.legend %></legend>
+	<resource>
+		<a
+		  href="<%= device.resource.href %>"
+		  target="_blank"
+	  ><%= device.resource.textContent %></a>
+	</resource>
+	<field data-id="host">
+		<label><%= device.host.label %>%></label>
+		<input
+			type="text"
+		  value="<%= database.host %>"
+		  pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+		  required
+	  >
+	  <detail><%= device.host.detail %></detail>
+	</field>
+	<field data-id="port">
+		<label><%= device.port.label %></label>
+		<input
+		  type="number"
+		  value="<%= database.port %>"
+	  >
+	  <detail><%= device.port.detail %></detail>
+	</field>
+</fieldset>

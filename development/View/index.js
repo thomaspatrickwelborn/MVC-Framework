@@ -76,19 +76,6 @@ export default class View extends Core {
     }
     return this
   }
-  autoinsert() {
-    try {
-      const { target, position } = this.settings.autoinsert
-      target.insertAdjacentElement(position, this.parent)
-    } catch($err) {}
-    return this
-  }
-  autoremove() {
-    try {
-      this.parent.parentElement.removeChild(this.parent)
-    } catch($err) {}
-    return this
-  }
   render($model, $template = 'default') {
     this.disableEvents()
     this.disableQuerySelectors()
