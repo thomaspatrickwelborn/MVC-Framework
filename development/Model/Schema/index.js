@@ -4,7 +4,8 @@ import { TypeValidator } from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
 const Options = {
   enableValidation: true,
-  validationType: 'property', // 'object', 
+  validationType: 'primitive', // 'object', 
+  validationEvents: true,
 }
 const Validators = [new TypeValidator()]
 export default class Schema extends EventTarget{
@@ -39,11 +40,9 @@ export default class Schema extends EventTarget{
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
       // Transform Setting
-      const typeOfSetting = typeOf(settings[$contextKey])
       settings[$contextKey].validators = Validators.concat(
         settings[$contextKey].validators || []
       )
-      console.log(settings[$contextKey].validators)
       // Context Val Type: Schema Instance
       if(settings[$contextKey].type instanceof Schema) {
         this.#_context[$contextKey] = settings[$contextKey]
@@ -63,6 +62,9 @@ export default class Schema extends EventTarget{
         this.#_context[$contextKey] = new Schema(
           settings[$contextKey].type, this.options
         )
+      }
+      else {
+        this.#_context[$contextKey] = settings[$contextKey]
       }
     }
     return this.#_context
@@ -96,6 +98,8 @@ export default class Schema extends EventTarget{
   }
   validateProperty($key, $val) {
     const Validation = {
+      key: $key,
+      val: $val,
       advance: [], // Array
       deadvance: [], // Array
       valid: undefined, // Boolean

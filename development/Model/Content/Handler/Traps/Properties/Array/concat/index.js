@@ -1,6 +1,6 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent } from '../../../../../Events/index.js'
 export default function Concat(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -51,7 +51,7 @@ export default function Concat(
               }
               // Subvalue: Primitives
               else {
-                valid = (enableValidation && validationType === 'property')
+                valid = (enableValidation && validationType === 'primitive')
                   ? schema.validateProperty(valuesIndex, $subvalue).valid
                   : null 
                 if(valid === true || valid === null) {
@@ -82,7 +82,7 @@ export default function Concat(
             }
             // Value: Primitives
             else {
-              valid = (enableValidation && validationType === 'property')
+              valid = (enableValidation && validationType === 'primitive')
                 ? schema.validateProperty(valuesIndex, $value).valid
                 : null 
               if(valid === true || valid === null) {

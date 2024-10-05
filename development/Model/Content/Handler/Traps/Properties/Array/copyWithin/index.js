@@ -1,4 +1,4 @@
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent } from '../../../../../Events/index.js'
 export default function CopyWithin(
   $trap, $trapPropertyName, $aliases, $options
 ) {

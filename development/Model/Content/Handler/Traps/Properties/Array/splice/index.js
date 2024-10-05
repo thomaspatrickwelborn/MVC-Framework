@@ -1,6 +1,6 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent } from '../../../../../Events/index.js'
 export default function Splice(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -83,7 +83,7 @@ export default function Splice(
               )
             }
           } else {
-            validAddItem = (enableValidation && validationType === 'property')
+            validAddItem = (enableValidation && validationType === 'primitive')
               ? schema.validateProperty(startIndex, addItem)
               : null
             if(validAddItem === true || validAddItem === null) {

@@ -1,6 +1,6 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent } from '../../../../../Events/index.js'
 export default function Push(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -41,7 +41,7 @@ export default function Push(
               Array.prototype.push.call(root, $element)
             }
           } else {
-            validElement = (enableValidation && validationType === 'property')
+            validElement = (enableValidation && validationType === 'primitive')
               ? schema.validateProperty(elementsIndex, $element).valid
               : null 
             if(validElement === true || validElement === null) {

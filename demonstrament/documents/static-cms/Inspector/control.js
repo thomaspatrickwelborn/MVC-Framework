@@ -64,15 +64,8 @@ export default ($viewParent) => [{
     },
   },
   events: {
-    'models.database.content set': function ($event) {
-      const { property, value } = $event.detail
-      console.log(property, value)
-      // if(property === 'host') {
-      //   this.views.default.querySelectors.inputHost.value = value
-      // }
-      // else if(property === 'port') {
-      //   this.views.default.querySelectors.inputPort.value = value
-      // }
+    'models.database.content valid:err': function ($event) {
+      console.log($event.type, $event.detail)
     },
     'views.default.querySelectors.inputPort change': function ($event) {
       $event.preventDefault()

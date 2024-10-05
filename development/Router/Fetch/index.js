@@ -22,7 +22,7 @@ export default class FetchRouter extends Core {
     }
     return this.#_origin
   }
-  constructor($settings = {}, $options = { enableEvents: false }) {
+  constructor($settings = {}, $options = { enableEvents: true }) {
     super(...arguments)
     const { scheme, domain, port, routes } = $settings
     this.#scheme = scheme

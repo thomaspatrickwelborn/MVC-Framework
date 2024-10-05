@@ -1,6 +1,6 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent } from '../../../../../Events/index.js'
 export default function Unshift(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -47,7 +47,7 @@ export default function Unshift(
             }
           }
           else {
-            validElement = (enableValidation && validationType === 'property')
+            validElement = (enableValidation && validationType === 'primitive')
               ? schema.validateProperty(elementIndex, element).valid
               : null
             if(validElement === true || validElement === null) {
@@ -69,6 +69,15 @@ export default function Unshift(
                 }, eventTarget)
               )
             }
+          }
+          if(enableValidation === true && validationEvents === true) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent('validateProperty', {
+                basename,
+                path,
+                detail: validSourceProp,
+              }, eventTarget)
+            )
           }
           elementIndex--
         }

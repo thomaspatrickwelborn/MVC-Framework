@@ -1,6 +1,6 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent } from '../../../../../Events/index.js'
 export default function Fill(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -33,7 +33,7 @@ export default function Fill(
             }, subschema)
           }
         } else {
-          validValue = (enableValidation && validationType === 'property')
+          validValue = (enableValidation && validationType === 'primitive')
             ? schema.validateProperty(0, value).valid
             : null
         }

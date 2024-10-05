@@ -2,7 +2,7 @@ import {
   typeOf,
   isDirectInstanceOf,
 } from '../../Coutil/index.js'
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent } from '../../../../../Events/index.js'
 export default function SetPrototypeOf(
   $trap, $trapPropertyName, $aliases
 ) {

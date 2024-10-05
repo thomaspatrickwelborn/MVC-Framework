@@ -1,6 +1,6 @@
 import { typeOf } from '../../../Coutil/index.js'
 import Content from '../index.js'
-import ContentEvent from '../Event/index.js'
+import { ContentEvent } from '../Events/index.js'
 import Traps from './Traps/index.js'
 
 export default class Handler {
@@ -93,7 +93,7 @@ export default class Handler {
         }
       }
       else {
-        valid = (enableValidation && validationType === 'property')
+        valid = (enableValidation && validationType === 'primitive')
           ? schema.validateProperty($property, $value).valid
           : null
         if(valid === true || valid === null) {

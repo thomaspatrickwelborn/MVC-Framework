@@ -84,6 +84,7 @@ class CoreEvent {
 const Settings$4 = {};
 const Options$6 = {
   validSettings: [],
+  enableEvents: true,
 };
 class Core extends EventTarget {
   constructor($settings = {}, $options = {}) {
@@ -187,6 +188,42 @@ class ContentEvent extends Event {
   get detail() { return this.#settings.detail }
 }
 
+let ValidatorEvent$1 = class ValidatorEvent extends Event {
+  #settings
+  #eventTarget
+  constructor($type, $settings, $eventTarget) {
+    super($type);
+    this.#settings = $settings;
+    this.#eventTarget = $eventTarget;
+    this.#eventTarget.addEventListener(
+      $type, 
+      ($event) => {
+        if(this.#eventTarget.parent !== null) {
+          this.#eventTarget.parent.dispatchEvent(
+            new ValidatorEvent(
+              this.type, 
+              {
+                basename: $event.basename,
+                path: $event.path,
+                detail: $event.detail,
+                results: $event.results,
+              },
+              this.#eventTarget.parent
+            )
+          );
+        }
+      }, 
+      {
+        once: true
+      }
+    );
+  }
+  get basename() { return this.#settings.basename }
+  get path() { return this.#settings.path }
+  get detail() { return this.#settings.detail }
+  get results() { return this.#settings.results }
+};
+
 class Trap {
   constructor($methods, $aliases, $options = {}) {
     for(let [
@@ -233,7 +270,7 @@ function Assign(
     rootAlias, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType } = schema.options;
+  const { enableValidation, validationType, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -253,9 +290,10 @@ function Assign(
                 case 'object': subschema = schema.context[$sourcePropKey]; break
               }
               validSource = (enableValidation && validationType === 'object')
-                ? subchema.validate($sourcePropVal).valid
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal)//.valid
+                // ? subchema.validate($sourcePropVal)//.valid
                 : null;
-              if(validSource === true || validSource === null) {
+              if(validSource?.valid === true || validSource === null) {
                 // Assign Root DET Property: Existent
                 if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
                   root[$sourcePropKey].assign($sourcePropVal);
@@ -280,10 +318,10 @@ function Assign(
             }
             // Assign Root Property
             else {
-              validSourceProp = (enableValidation && validationType === 'property')
-                ? schema.validateProperty($sourcePropKey, $sourcePropVal).valid
+              validSourceProp = (enableValidation && validationType === 'primitive')
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal)//.valid
                 : null;
-              if(validSourceProp === true || validSourceProp === null) {
+              if(validSourceProp.valid === true || validSourceProp === null) {
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 });
@@ -291,7 +329,7 @@ function Assign(
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
-              if(validSourceProp === true || validSourceProp === null) {
+              if(validSourceProp.valid === true || validSourceProp === null) {
                 eventTarget.dispatchEvent(
                   new ContentEvent('assignSourceProperty', {
                     basename,
@@ -305,10 +343,19 @@ function Assign(
                 );
               }
             }
+            if(enableValidation === true && validationEvents === true) {
+              eventTarget.dispatchEvent(
+                new ValidatorEvent$1('validateProperty', {
+                  basename,
+                  path,
+                  detail: validSourceProp,
+                }, eventTarget)
+              );
+            }
           }
           // Assign Source Event
           if(events.includes('assignSource')) {
-            if(validSource === true || validSource === null) {
+            if(validSource?.valid === true || validSource === null) {
               eventTarget.dispatchEvent(
                 new ContentEvent('assignSource', {
                   basename,
@@ -319,6 +366,15 @@ function Assign(
                 }, eventTarget)
               );
             }
+          }
+          if(enableValidation === true && validationEvents === true) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent$1('validate', {
+                basename,
+                path,
+                detail: validSource,
+              }, eventTarget)
+            );
           }
         }
         // Assign Event
@@ -396,103 +452,117 @@ function DefineProperty(
     path, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType } = schema.options;
+  const { enableValidation, validationType, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         let validProperty;
         const propertyKey = arguments[0];
         const propertyDescriptor = arguments[1];
+        const _basename = propertyKey;
+        const _path = (
+          path !== null
+        ) ? path.concat('.', propertyKey)
+          : propertyKey;
         // Property Descriptor Value: Direct Instance Array/Object/Map
-        if(isDirectInstanceOf(
-          propertyDescriptor.value, [Object, Array/*, Map*/]
-        )) {
-          valid = (enableValidation && validationType === 'object')
-            ? subschema.validate(propertyDescriptor.value)
-            : null;
+        if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array/*, Map*/])) {
           let subschema;
           switch(schema.contextType) {
             case 'array': subschema = schema.context[0]; break
             case 'object': subschema = schema.context[propertyKey]; break
           }
+          validProperty = (enableValidation && validationType === 'object')
+            ? subschema.validate(propertyDescriptor.value)//.valid
+            : null;
           // Enable Validation, No Subschema: Iterate Source Props
-          // if(enableValidation && !subschema) continue iterateSourceProps
-          const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
-            root, propertyKey
-          ) || {};
-          // Root Property Descriptor Value: Existent DET Instance
-          if(
-            rootPropertyDescriptor.value // instanceof Content
-            ?.constructor.name === 'bound Content'
-          ) {
-            // Root Define Properties, Descriptor Tree
-            if(descriptorTree === true) {
-              rootPropertyDescriptor.value.defineProperties(
-                propertyDescriptor.value
-              );
+          if(validProperty?.valid === false) return root
+          if(validProperty?.valid === true || validProperty === null) {
+            const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
+              root, propertyKey
+            ) || {};
+            // Root Property Descriptor Value: Existent DET Instance
+            if(
+              rootPropertyDescriptor.value // instanceof Content
+              ?.constructor.name === 'bound Content'
+            ) {
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                rootPropertyDescriptor.value.defineProperties(
+                  propertyDescriptor.value
+                );
+              }
+              // Root Define Properties, No Descriptor Tree
+              else {
+                Object.defineProperty(root, propertyKey, propertyDescriptor);
+              }
             }
-            // Root Define Properties, No Descriptor Tree
+            // Root Property Descriptor Value: Non-Existent DET Instance
             else {
-              Object.defineProperty(root, propertyKey, propertyDescriptor);
-            }
-          }
-          // Root Property Descriptor Value: Non-Existent DET Instance
-          else {
-            const _basename = propertyKey;
-            const _path = (
-              path !== null
-            ) ? path.concat('.', propertyKey)
-              : propertyKey;
-            const _root = (typeOf(propertyDescriptor.value) === 'object')
-              ? {}
-              : (typeOf(propertyDescriptor.value) === 'array')
-              ? []
-            //   : (typeOf(propertyDescriptor.value) === 'map')
-            //   ? new Map()
-              : {};
-            const contentObject = new Content(
-              _root, {
-                basename: _basename,
-                parent: eventTarget,
-                path: _path,
-                rootAlias,
-              }, subschema
-            );
-            // Root Define Properties, Descriptor Tree
-            if(descriptorTree === true) {
-              contentObject.defineProperties(propertyDescriptor.value);
-              root[propertyKey] = contentObject;
-            } else 
-            // Root Define Properties, No Descriptor Tree
-            if(descriptorTree === false) {
-              Object.defineProperty(root, propertyKey, propertyDescriptor);
+              // const _basename = propertyKey
+              // const _path = (
+              //   path !== null
+              // ) ? path.concat('.', propertyKey)
+              //   : propertyKey
+              const _root = (typeOf(propertyDescriptor.value) === 'object')
+                ? {}
+                : (typeOf(propertyDescriptor.value) === 'array')
+                ? []
+              //   : (typeOf(propertyDescriptor.value) === 'map')
+              //   ? new Map()
+                : {};
+              const contentObject = new Content(
+                _root, {
+                  basename: _basename,
+                  parent: eventTarget,
+                  path: _path,
+                  rootAlias,
+                }, subschema
+              );
+              // Root Define Properties, Descriptor Tree
+              if(descriptorTree === true) {
+                contentObject.defineProperties(propertyDescriptor.value);
+                root[propertyKey] = contentObject;
+              } else 
+              // Root Define Properties, No Descriptor Tree
+              if(descriptorTree === false) {
+                Object.defineProperty(root, propertyKey, propertyDescriptor);
+              }
             }
           }
         }
         // Property Descriptor Value Not Array/Object/Map
         else {
-          validProperty = (enableValidation)
-            ? schema.validProperty(propertyKey, propertyDescriptor.value).valid
+          validProperty = (enableValidation && validationType === 'primitive')
+            ? schema.validateProperty(propertyKey, propertyDescriptor.value)//.valid
             : null;
-          valid = ((
-            enableValidation && validProperty.valid
-          ) || !enableValidation);
-          if(valid) {
+          if(validProperty?.valid === true || validProperty === null) {
             Object.defineProperty(root, propertyKey, propertyDescriptor);
           }
         }
         // Define Property Event
-        if(events.includes('defineProperty') && valid) {
+        if(
+          events.includes('defineProperty') &&
+          (validProperty?.valid === true || validProperty === null)
+        ) {
           eventTarget.dispatchEvent(
             new ContentEvent('defineProperty', {
-              basename,
-              path,
+              basename: _basename,
+              path: _path,
               detail: {
                 prop: propertyKey,
                 descriptor: propertyDescriptor,
               },
             }, eventTarget
           ));
+        }
+        if(enableValidation === true && validationEvents === true) {
+          eventTarget.dispatchEvent(
+            new ValidatorEvent$1('validate', {
+              basename: _basename,
+              path: _path,
+              detail: validProperty,
+            }, eventTarget)
+          );
         }
         return root
       }
@@ -1122,7 +1192,7 @@ function Concat(
               }
               // Subvalue: Primitives
               else {
-                valid = (enableValidation && validationType === 'property')
+                valid = (enableValidation && validationType === 'primitive')
                   ? schema.validateProperty(valuesIndex, $subvalue).valid
                   : null; 
                 if(valid === true || valid === null) {
@@ -1153,7 +1223,7 @@ function Concat(
             }
             // Value: Primitives
             else {
-              valid = (enableValidation && validationType === 'property')
+              valid = (enableValidation && validationType === 'primitive')
                 ? schema.validateProperty(valuesIndex, $value).valid
                 : null; 
               if(valid === true || valid === null) {
@@ -1259,7 +1329,7 @@ function Fill(
             }, subschema);
           }
         } else {
-          validValue = (enableValidation && validationType === 'property')
+          validValue = (enableValidation && validationType === 'primitive')
             ? schema.validateProperty(0, value).valid
             : null;
         }
@@ -1625,7 +1695,7 @@ function Push(
               Array.prototype.push.call(root, $element);
             }
           } else {
-            validElement = (enableValidation && validationType === 'property')
+            validElement = (enableValidation && validationType === 'primitive')
               ? schema.validateProperty(elementsIndex, $element).valid
               : null; 
             if(validElement === true || validElement === null) {
@@ -1900,7 +1970,7 @@ function Splice(
               );
             }
           } else {
-            validAddItem = (enableValidation && validationType === 'property')
+            validAddItem = (enableValidation && validationType === 'primitive')
               ? schema.validateProperty(startIndex, addItem)
               : null;
             if(validAddItem === true || validAddItem === null) {
@@ -2063,7 +2133,7 @@ function Unshift(
             }
           }
           else {
-            validElement = (enableValidation && validationType === 'property')
+            validElement = (enableValidation && validationType === 'primitive')
               ? schema.validateProperty(elementIndex, element).valid
               : null;
             if(validElement === true || validElement === null) {
@@ -2085,6 +2155,15 @@ function Unshift(
                 }, eventTarget)
               );
             }
+          }
+          if(enableValidation === true && validationEvents === true) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent('validateProperty', {
+                basename,
+                path,
+                detail: validSourceProp,
+              }, eventTarget)
+            );
           }
           elementIndex--;
         }
@@ -2296,7 +2375,7 @@ class Handler {
         }
       }
       else {
-        valid = (enableValidation && validationType === 'property')
+        valid = (enableValidation && validationType === 'primitive')
           ? schema.validateProperty($property, $value).valid
           : null;
         if(valid === true || valid === null) {
@@ -2709,7 +2788,8 @@ class TypeValidator extends Validator {
 
 const Options$4 = {
   enableValidation: true,
-  validationType: 'property', // 'object', 
+  validationType: 'primitive', // 'object', 
+  validationEvents: true,
 };
 const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
@@ -2744,11 +2824,9 @@ class Schema extends EventTarget{
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
       // Transform Setting
-      typeOf$1(settings[$contextKey]);
       settings[$contextKey].validators = Validators.concat(
         settings[$contextKey].validators || []
       );
-      console.log(settings[$contextKey].validators);
       // Context Val Type: Schema Instance
       if(settings[$contextKey].type instanceof Schema) {
         this.#_context[$contextKey] = settings[$contextKey];
@@ -2768,6 +2846,9 @@ class Schema extends EventTarget{
         this.#_context[$contextKey] = new Schema(
           settings[$contextKey].type, this.options
         );
+      }
+      else {
+        this.#_context[$contextKey] = settings[$contextKey];
       }
     }
     return this.#_context
@@ -2801,6 +2882,8 @@ class Schema extends EventTarget{
   }
   validateProperty($key, $val) {
     const Validation = {
+      key: $key,
+      val: $val,
       advance: [], // Array
       deadvance: [], // Array
       valid: undefined, // Boolean
@@ -3223,7 +3306,7 @@ class FetchRouter extends Core {
     }
     return this.#_origin
   }
-  constructor($settings = {}, $options = { enableEvents: false }) {
+  constructor($settings = {}, $options = { enableEvents: true }) {
     super(...arguments);
     const { scheme, domain, port, routes } = $settings;
     this.#scheme = scheme;

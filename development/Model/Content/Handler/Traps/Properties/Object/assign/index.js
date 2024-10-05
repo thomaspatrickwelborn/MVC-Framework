@@ -1,6 +1,6 @@
 import { typeOf, isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
-import ContentEvent from '../../../../../Event/index.js'
+import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function Assign(
   $trap, $trapPropertyName, $aliases, $options
 ) {
@@ -13,7 +13,7 @@ export default function Assign(
     rootAlias, 
     schema,
   } = $aliases
-  const { enableValidation, validationType } = schema.options
+  const { enableValidation, validationType, validationEvents } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -35,9 +35,10 @@ export default function Assign(
                 case 'object': subschema = schema.context[$sourcePropKey]; break
               }
               validSource = (enableValidation && validationType === 'object')
-                ? subchema.validate($sourcePropVal).valid
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal)//.valid
+                // ? subchema.validate($sourcePropVal)//.valid
                 : null
-              if(validSource === true || validSource === null) {
+              if(validSource?.valid === true || validSource === null) {
                 // Assign Root DET Property: Existent
                 if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
                   root[$sourcePropKey].assign($sourcePropVal)
@@ -62,10 +63,10 @@ export default function Assign(
             }
             // Assign Root Property
             else {
-              validSourceProp = (enableValidation && validationType === 'property')
-                ? schema.validateProperty($sourcePropKey, $sourcePropVal).valid
+              validSourceProp = (enableValidation && validationType === 'primitive')
+                ? schema.validateProperty($sourcePropKey, $sourcePropVal)//.valid
                 : null
-              if(validSourceProp === true || validSourceProp === null) {
+              if(validSourceProp.valid === true || validSourceProp === null) {
                 Object.assign(root, {
                   [$sourcePropKey]: $sourcePropVal
                 })
@@ -73,7 +74,7 @@ export default function Assign(
             }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
-              if(validSourceProp === true || validSourceProp === null) {
+              if(validSourceProp.valid === true || validSourceProp === null) {
                 eventTarget.dispatchEvent(
                   new ContentEvent('assignSourceProperty', {
                     basename,
@@ -87,10 +88,19 @@ export default function Assign(
                 )
               }
             }
+            if(enableValidation === true && validationEvents === true) {
+              eventTarget.dispatchEvent(
+                new ValidatorEvent('validateProperty', {
+                  basename,
+                  path,
+                  detail: validSourceProp,
+                }, eventTarget)
+              )
+            }
           }
           // Assign Source Event
           if(events.includes('assignSource')) {
-            if(validSource === true || validSource === null) {
+            if(validSource?.valid === true || validSource === null) {
               eventTarget.dispatchEvent(
                 new ContentEvent('assignSource', {
                   basename,
@@ -101,6 +111,15 @@ export default function Assign(
                 }, eventTarget)
               )
             }
+          }
+          if(enableValidation === true && validationEvents === true) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent('validate', {
+                basename,
+                path,
+                detail: validSource,
+              }, eventTarget)
+            )
           }
         }
         // Assign Event
