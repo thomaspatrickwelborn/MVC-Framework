@@ -15,11 +15,19 @@ export default function DefineProperties(
     rootAlias, 
     basename,
     path, 
+    schema,
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $propertyDescriptors = arguments[0]
+        const properties = Object.entries($propertyDescriptors)
+        .reduce(($properties, [
+          $propertyDescriptorKey, $propertyDescriptor
+        ]) => {
+          $properties[$propertyDescriptorKey] = $propertyDescriptor.value
+          return $properties
+        }, {})
         // Iterate Property Descriptors
         iteratePropertyDescriptors: 
         for(const [

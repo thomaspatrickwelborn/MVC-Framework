@@ -1,5 +1,5 @@
 export default {
-  rootAlias: 'content',
+  rootAlias: 'root',
   traps: {
     properties: {
       set: {

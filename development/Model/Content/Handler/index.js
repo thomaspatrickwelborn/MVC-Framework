@@ -1,6 +1,6 @@
 import { typeOf } from '../../../Coutil/index.js'
 import Content from '../index.js'
-import { ContentEvent } from '../Events/index.js'
+import { ContentEvent, ValidatorEvent } from '../Events/index.js'
 import Traps from './Traps/index.js'
 
 export default class Handler {
@@ -61,9 +61,8 @@ export default class Handler {
       basename,
       path,
     } = this.#settings
-    const { enableValidation, validationType } = schema.options
+    const { enableValidation, validationEvents } = schema.options
     return function set($target, $property, $value, $receiver) {
-      let valid
       // Object Property
       if(this.#isObjectProperty($property)) {
         $this.traps['Object'][$property] = $value
@@ -72,50 +71,52 @@ export default class Handler {
       else if(this.#isArrayProperty($property)) {
         $this.traps['Array'][$property] = $value
       }
+      // Validation
+      if(enableValidation) {
+        const validValue = schema.validateProperty($property, $value)
+        if(validationEvents) {
+          eventTarget.dispatchEvent(
+            new ValidatorEvent('validateProperty', {
+              basename,
+              path,
+              detail: validValue,
+            }, eventTarget)
+          )
+        }
+        if(!validValue.valid) { return false }
+      }
       // Dynamic Event Target Property
-      else if(typeof $value === 'object') {
+      if(typeof $value === 'object') {
         let subschema
         switch(schema.contextType) {
           case 'array': subschema = schema.context[0]; break
           case 'object': subschema = schema.context[$property]; break
         }
-        valid = (enableValidation && validationType === 'object')
-          ? subschema.validate($value).valid
-          : null
-        if(valid === true || valid === null) {
-          $value = new Content($value, {
-            basename,
-            parent: eventTarget,
-            path,
-            rootAlias,
-          }, subschema)
-          root[$property] = $value
-        }
+        $value = new Content($value, {
+          basename,
+          parent: eventTarget,
+          path,
+          rootAlias,
+        }, subschema)
+        root[$property] = $value
       }
       else {
-        valid = (enableValidation && validationType === 'primitive')
-          ? schema.validateProperty($property, $value).valid
-          : null
-        if(valid === true || valid === null) {
-          root[$property] = $value
-        }
+        root[$property] = $value
       }
-      if(valid === true || valid === null) {
-        const _basename = $property
-        const _path = (path !== null)
-          ? path.concat('.', $property)
-          : $property
-        eventTarget.dispatchEvent(
-          new ContentEvent('set', {
-            basename: _basename,
-            path: _path,
-            detail: {
-              property: $property,
-              value: $value,
-            },
-          }, eventTarget)
-        )
-      }  
+      const _basename = $property
+      const _path = (path !== null)
+        ? path.concat('.', $property)
+        : $property
+      eventTarget.dispatchEvent(
+        new ContentEvent('set', {
+          basename: _basename,
+          path: _path,
+          detail: {
+            property: $property,
+            value: $value,
+          },
+        }, eventTarget)
+      )
       return true
     }
   }

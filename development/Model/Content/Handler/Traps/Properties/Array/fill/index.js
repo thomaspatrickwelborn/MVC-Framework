@@ -13,31 +13,33 @@ export default function Fill(
     path, 
     schema,
   } = $aliases
-  const { enableValidation, validationType } = schema.options
+  const { enableValidation, validationEvents } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments]
         let value = $arguments[0]
-        let validValue
+        if(enableValidation) {
+          let validValue = schema.validate(validValue)
+          if(validationEvents) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent('validateProperty', {
+                basename: _basename,
+                path: _path,
+                detail: validValue,
+              }, eventTarget)
+            )
+          }
+          if(!validValue.valid) { return root }
+        }
         if(isDirectInstanceOf(
           value, [Object, Array/*, Map*/]
         )) {
           const subschema = schema.context[0]
-          validValue = (enableValidation && validationType === 'object')
-            ? subschema.validate(value).valid
-            : null
-          if(validValue === true || validValue === null) {
-            value = new Content(value, {
-              rootAlias: rootAlias,
-            }, subschema)
-          }
-        } else {
-          validValue = (enableValidation && validationType === 'primitive')
-            ? schema.validateProperty(0, value).valid
-            : null
+          value = new Content(value, {
+            rootAlias: rootAlias,
+          }, subschema)
         }
-        if(validValue === false) return root
         let start
         if(typeof $arguments[1] === 'number') {
           start = (

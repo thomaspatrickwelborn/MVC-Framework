@@ -13,7 +13,7 @@ export default function Unshift(
     path, 
     schema,
   } = $aliases
-  const { enableValidation, validationType } = schema.options
+  const { enableValidation, validationEvents } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -23,7 +23,6 @@ export default function Unshift(
         let elementIndex = elementsLength - 1
         iterateElements:
         while(elementIndex > -1) {
-          let validElement
           const elementsLength = $arguments.length
           let element = $arguments[elementIndex]
           const _basename = elementIndex
@@ -31,51 +30,45 @@ export default function Unshift(
             path !== null
           ) ? path.concat('.', elementIndex)
             : elementIndex
-          if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
-            const subschema = schema.context[0]
-            validElement = (enableValidation && validationType === 'object')
-              ? subschema.validate(element).valid
-              : null
-            if(validElement === true || validElement === null) {
-              element = new Content(element, {
-                basename: _basename,
-                path: _path,
-                rootAlias: rootAlias,
-              }, subschema)
-              elements.unshift(element)
-              Array.prototype.unshift.call(root, element)
-            }
-          }
-          else {
-            validElement = (enableValidation && validationType === 'primitive')
-              ? schema.validateProperty(elementIndex, element).valid
-              : null
-            if(validElement === true || validElement === null) {
-              elements.unshift(element)
-              Array.prototype.unshift.call(root, element)
-            }
-          }
-          // Array Unshift Prop Event
-          if(events.includes('unshiftProp')) {
-            if(validElement === true || validElement === null) {
+          // Validation
+          if(enableValidation) {
+            const validElement = schema.validateProperty(elementIndex, element)
+            if(validationEvents) {
               eventTarget.dispatchEvent(
-                new ContentEvent('unshiftProp', {
+                new ValidatorEvent('validateProperty', {
                   basename: _basename,
                   path: _path,
-                  detail: {
-                    elementIndex, 
-                    element: element,
-                  },
+                  detail: validElement,
                 }, eventTarget)
               )
             }
+            if(!validElement.valid) { return root.length }
           }
-          if(enableValidation === true && validationEvents === true) {
+
+          if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
+            const subschema = schema.context[0]
+            element = new Content(element, {
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
+            }, subschema)
+            elements.unshift(element)
+            Array.prototype.unshift.call(root, element)
+          }
+          else {
+            elements.unshift(element)
+            Array.prototype.unshift.call(root, element)
+          }
+          // Array Unshift Prop Event
+          if(events.includes('unshiftProp')) {
             eventTarget.dispatchEvent(
-              new ValidatorEvent('validateProperty', {
-                basename,
-                path,
-                detail: validSourceProp,
+              new ContentEvent('unshiftProp', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elementIndex, 
+                  element: element,
+                },
               }, eventTarget)
             )
           }

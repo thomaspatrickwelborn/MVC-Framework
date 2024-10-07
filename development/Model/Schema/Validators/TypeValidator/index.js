@@ -15,11 +15,11 @@ export default class TypeValidator extends Validator {
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
-          valid: false,
+          valid: undefined,
         })
         const typeOfContentVal = typeOf($contentVal)
-        const typeOfContextVal = ($context === undefined)
-          ? undefined
+        const typeOfContextVal = ($context.type === undefined)
+          ? $context.type
           : typeOf($context.type())
         if(
           Object.values(Primitives).includes($context.type) &&
@@ -28,9 +28,8 @@ export default class TypeValidator extends Validator {
           if(
             typeOfContextVal === typeOfContentVal ||
             typeOfContextVal === undefined
-          ) {
-            validation.valid = true
-          }
+          ) { validation.valid = true }
+          else { validation.valid = false }
         }
         return validation
       },

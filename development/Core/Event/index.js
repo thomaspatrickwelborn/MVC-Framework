@@ -27,7 +27,6 @@ export default class CoreEvent {
   get enable() { return this.#_enable }
   set enable($enable) {
     if($enable === this.#_enable) return
-    console.log('$enable', $enable)
     const eventAbility = (
       $enable === true
     ) ? 'addEventListener'

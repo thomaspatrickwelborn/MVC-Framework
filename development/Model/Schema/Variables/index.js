@@ -3,10 +3,11 @@ const Primitives = {
   'number': Number, 
   'boolean': Boolean, 
   'undefined': undefined,
+  'null': null,
 }
 const Objects = {
   'object': Object,
-  'array': Array
+  'array': Array,
 }
 const Types = Object.assign({}, Primitives, Objects)
 export {

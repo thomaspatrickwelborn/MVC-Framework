@@ -1,7 +1,7 @@
 import { isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../Events/index.js'
-export default function Splice(
+export default function Slice(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const { events } = $options
@@ -13,11 +13,10 @@ export default function Splice(
     path, 
     schema,
   } = $aliases
-  const { enableValidation, validationType } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        // 
+        return Array.prototype.slice.call(root, ...arguments)
       }
     }
   )

@@ -21,6 +21,8 @@ export default class Content extends EventTarget {
     this.#schema = $schema
     return this.proxy
   }
+  // Object
+  get object() { return this.parse({ type: 'object' }) }
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type

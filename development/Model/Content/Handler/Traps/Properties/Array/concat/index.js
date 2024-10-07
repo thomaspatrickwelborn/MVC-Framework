@@ -14,49 +14,54 @@ export default function Concat(
     schema,
   } = $aliases
   let { root } = $aliases 
-  const { enableValidation, validationType } = schema.options
+  const { enableValidation, validationEvents } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments]
         let valuesIndex = 0
+        let subvaluesIndex = 0
         const values = []
+        iterateValues: 
         for(const $value of $arguments) {
-          let valid
           const _basename = valuesIndex
           const _path = (path !== null)
             ? path.concat('.', valuesIndex)
             : valuesIndex
           // Value: Array
           if(Array.isArray($value)) {
-            let subvaluesIndex = 0
+            subvaluesIndex = 0
             const subvalues = []
             iterateSubvalues: 
+            // Validation: Subvalue
             for(const $subvalue of $value) {
+              if(enableValidation) {
+                const validSubvalue = schema.validate($subvalue)
+                if(validationEvents) {
+                  eventTarget.dispatchEvent(
+                    new ValidatorEvent('validateProperty', {
+                      basename: _basename,
+                      path: _path,
+                      detail: validSubvalue,
+                    }, eventTarget)
+                  )
+                }
+                if(!validSubvalue.valid) { subvaluesIndex++; continue iterateSubvalues }
+              }
               // Subvalue: Objects
               if(isDirectInstanceOf($subvalue, [Object, Array])) {
                 let subschema = schema.context[0]
-                valid = (enableValidation && validationType === 'object')
-                  ? subschema.validate($subvalue).valid
-                  : null
-                if(valid === true || valid === null) {
-                  const subvalue = new Content($subvalue, {
-                    basename: _basename,
-                    parent: eventTarget,
-                    path: _path,
-                    rootAlias,
-                  }, subschema)
-                  subvalues[subvaluesIndex] = subvalue
-                }
+                const subvalue = new Content($subvalue, {
+                  basename: _basename,
+                  parent: eventTarget,
+                  path: _path,
+                  rootAlias,
+                }, subschema)
+                subvalues[subvaluesIndex] = subvalue
               }
               // Subvalue: Primitives
               else {
-                valid = (enableValidation && validationType === 'primitive')
-                  ? schema.validateProperty(valuesIndex, $subvalue).valid
-                  : null 
-                if(valid === true || valid === null) {
-                  subvalues[subvaluesIndex] = $subvalue
-                }
+                subvalues[subvaluesIndex] = $subvalue
               }
               subvaluesIndex++
             }
@@ -64,36 +69,37 @@ export default function Concat(
           }
           // Value: Not Array
           else {
+            // Validation: Value
+            if(enableValidation) {
+              const validValue = schema.validateProperty(valuesIndex, $subvalue)
+              if(validationEvents) {
+                eventTarget.dispatchEvent(
+                  new ValidatorEvent('validateProperty', {
+                    basename: _basename,
+                    path: _path,
+                    detail: validValue,
+                  }, eventTarget)
+                )
+              }
+              if(!validValue.valid) { valuesIndex++; continue iterateValues }
+            }
             // Value: Objects
             if(isDirectInstanceOf($value, [Object])) {
               let subschema = schema.context[0]
-              valid = (enableValidation && validationType === 'object')
-                ? subschema.validate($value).valid
-                : null
-              if(valid === true || valid === null) {
-                const value = new Content($value, {
-                  basename: _basename,
-                  parent: eventTarget,
-                  path: _path,
-                  rootAlias,
-                }, subschema)
-                values[valuesIndex] = value
-              }
+              const value = new Content($value, {
+                basename: _basename,
+                parent: eventTarget,
+                path: _path,
+                rootAlias,
+              }, subschema)
+              values[valuesIndex] = value
             }
             // Value: Primitives
             else {
-              valid = (enableValidation && validationType === 'primitive')
-                ? schema.validateProperty(valuesIndex, $value).valid
-                : null 
-              if(valid === true || valid === null) {
-                values[valuesIndex] = $value
-              }
+              values[valuesIndex] = $value
             }
           }
-          if(valid === true || valid === null) {
-            root = Array.prototype.concat.call(root, values[valuesIndex])
-          }
-          // EVENT:START
+          root = Array.prototype.concat.call(root, values[valuesIndex])
           if(events.includes('concatValue')) {
             if(valid === true || valid === null) {
               eventTarget.dispatchEvent(
@@ -108,10 +114,8 @@ export default function Concat(
               )
             }
           }
-          // EVENT:STOP
           valuesIndex++
         }
-        // EVENT:START
         if(events.includes('concat')) {
           eventTarget.dispatchEvent(
             new ContentEvent('concat', {
@@ -123,7 +127,6 @@ export default function Concat(
             }, eventTarget)
           )
         }
-        // EVENT:STOP
         return root
       }
     }

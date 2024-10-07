@@ -57,7 +57,6 @@ class CoreEvent {
   get enable() { return this.#_enable }
   set enable($enable) {
     if($enable === this.#_enable) return
-    console.log('$enable', $enable);
     const eventAbility = (
       $enable === true
     ) ? 'addEventListener'
@@ -270,109 +269,91 @@ function Assign(
     rootAlias, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType, validationEvents } = schema.options;
+  const { enableValidation, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const sources = [...arguments];
         // Iterate Sources
-        let validSource, validSourceProp;
         for(let $source of sources) {
           // Iterate Source Props
+          iterateSourceProps:
           for(let [
             $sourcePropKey, $sourcePropVal
           ] of Object.entries($source)) {
+            const _basename = $sourcePropKey;
+            const _path = (path !== null)
+              ? path.concat('.', $sourcePropKey)
+              : $sourcePropKey;
+            // Validation
+            if(enableValidation) {
+              const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal);
+              if(validationEvents) {
+                eventTarget.dispatchEvent(
+                  new ValidatorEvent$1('validateProperty', {
+                    basename: _basename,
+                    path: _path,
+                    detail: validSourceProp,
+                  }, eventTarget)
+                );
+              }
+              if(!validSourceProp.valid) { continue iterateSourceProps }
+            }
             // Assign Root DET Property
+            // Source Prop: Object Type
             if(isDirectInstanceOf($sourcePropVal, [Object, Array/*, Map*/])) {
               let subschema;
               switch(schema.contextType) {
                 case 'array': subschema = schema.context[0]; break
                 case 'object': subschema = schema.context[$sourcePropKey]; break
               }
-              validSource = (enableValidation && validationType === 'object')
-                ? schema.validateProperty($sourcePropKey, $sourcePropVal)//.valid
-                // ? subchema.validate($sourcePropVal)//.valid
-                : null;
-              if(validSource?.valid === true || validSource === null) {
-                // Assign Root DET Property: Existent
-                if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
-                  root[$sourcePropKey].assign($sourcePropVal);
-                }
-                // Assign Root DET Property: Non-Existent
-                else {
-                  const _basename = $sourcePropKey;
-                  const _path = (path !== null)
-                    ? path.concat('.', $sourcePropKey)
-                    : $sourcePropKey;
-                  const contentObject = new Content($sourcePropVal, {
-                    basename: _basename,
-                    parent: eventTarget,
-                    path: _path,
-                    rootAlias,
-                  }, subschema);
-                  Object.assign(root, {
-                    [$sourcePropKey]: contentObject
-                  });
-                }
+              // Assign Root DET Property: Existent
+              if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
+                root[$sourcePropKey].assign($sourcePropVal);
               }
-            }
-            // Assign Root Property
-            else {
-              validSourceProp = (enableValidation && validationType === 'primitive')
-                ? schema.validateProperty($sourcePropKey, $sourcePropVal)//.valid
-                : null;
-              if(validSourceProp.valid === true || validSourceProp === null) {
+              // Assign Root DET Property: Non-Existent
+              else {
+                const contentObject = new Content($sourcePropVal, {
+                  basename: _basename,
+                  parent: eventTarget,
+                  path: _path,
+                  rootAlias,
+                }, subschema);
                 Object.assign(root, {
-                  [$sourcePropKey]: $sourcePropVal
+                  [$sourcePropKey]: contentObject
                 });
               }
             }
+            // Source Prop: Primitive Type
+            else {
+              Object.assign(root, {
+                [$sourcePropKey]: $sourcePropVal
+              });
+            }
             // Assign Source Property Event
             if(events.includes('assignSourceProperty')) {
-              if(validSourceProp.valid === true || validSourceProp === null) {
-                eventTarget.dispatchEvent(
-                  new ContentEvent('assignSourceProperty', {
-                    basename,
-                    path,
-                    detail: {
-                      key: $sourcePropKey,
-                      val: $sourcePropVal,
-                      source: $source,
-                    }
-                  }, eventTarget)
-                );
-              }
-            }
-            if(enableValidation === true && validationEvents === true) {
               eventTarget.dispatchEvent(
-                new ValidatorEvent$1('validateProperty', {
-                  basename,
-                  path,
-                  detail: validSourceProp,
+                new ContentEvent('assignSourceProperty', {
+                  basename: _basename,
+                  path: _path,
+                  detail: {
+                    key: $sourcePropKey,
+                    val: $sourcePropVal,
+                    source: $source,
+                  }
                 }, eventTarget)
               );
             }
           }
           // Assign Source Event
           if(events.includes('assignSource')) {
-            if(validSource?.valid === true || validSource === null) {
-              eventTarget.dispatchEvent(
-                new ContentEvent('assignSource', {
-                  basename,
-                  path,
-                  detail: {
-                    source: $source,
-                  },
-                }, eventTarget)
-              );
-            }
-          }
-          if(enableValidation === true && validationEvents === true) {
             eventTarget.dispatchEvent(
-              new ValidatorEvent$1('validate', {
+              new ContentEvent('assignSource', {
                 basename,
                 path,
-                detail: validSource,
+                detail: {
+                  source: $source,
+                },
               }, eventTarget)
             );
           }
@@ -406,11 +387,19 @@ function DefineProperties(
     rootAlias, 
     basename,
     path, 
+    schema,
   } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $propertyDescriptors = arguments[0];
+        Object.entries($propertyDescriptors)
+        .reduce(($properties, [
+          $propertyDescriptorKey, $propertyDescriptor
+        ]) => {
+          $properties[$propertyDescriptorKey] = $propertyDescriptor.value;
+          return $properties
+        }, {});
         // Iterate Property Descriptors
         for(const [
           $propertyKey, $propertyDescriptor
@@ -452,11 +441,10 @@ function DefineProperty(
     path, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType, validationEvents } = schema.options;
+  const { enableValidation, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        let validProperty;
         const propertyKey = arguments[0];
         const propertyDescriptor = arguments[1];
         const _basename = propertyKey;
@@ -464,6 +452,20 @@ function DefineProperty(
           path !== null
         ) ? path.concat('.', propertyKey)
           : propertyKey;
+        // Validation
+        if(enableValidation) {
+          const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value);
+          if(validationEvents) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent$1('validateProperty', {
+                basename: _basename,
+                path: _path,
+                detail: validSourceProp,
+              }, eventTarget)
+            );
+          }
+          if(!validSourceProp.valid) { return root }
+        }
         // Property Descriptor Value: Direct Instance Array/Object/Map
         if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array/*, Map*/])) {
           let subschema;
@@ -471,12 +473,6 @@ function DefineProperty(
             case 'array': subschema = schema.context[0]; break
             case 'object': subschema = schema.context[propertyKey]; break
           }
-          validProperty = (enableValidation && validationType === 'object')
-            ? subschema.validate(propertyDescriptor.value)//.valid
-            : null;
-          // Enable Validation, No Subschema: Iterate Source Props
-          if(validProperty?.valid === false) return root
-          if(validProperty?.valid === true || validProperty === null) {
             const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
               root, propertyKey
             ) || {};
@@ -498,11 +494,6 @@ function DefineProperty(
             }
             // Root Property Descriptor Value: Non-Existent DET Instance
             else {
-              // const _basename = propertyKey
-              // const _path = (
-              //   path !== null
-              // ) ? path.concat('.', propertyKey)
-              //   : propertyKey
               const _root = (typeOf(propertyDescriptor.value) === 'object')
                 ? {}
                 : (typeOf(propertyDescriptor.value) === 'array')
@@ -528,22 +519,14 @@ function DefineProperty(
                 Object.defineProperty(root, propertyKey, propertyDescriptor);
               }
             }
-          }
+          // }
         }
         // Property Descriptor Value Not Array/Object/Map
         else {
-          validProperty = (enableValidation && validationType === 'primitive')
-            ? schema.validateProperty(propertyKey, propertyDescriptor.value)//.valid
-            : null;
-          if(validProperty?.valid === true || validProperty === null) {
-            Object.defineProperty(root, propertyKey, propertyDescriptor);
-          }
+          Object.defineProperty(root, propertyKey, propertyDescriptor);
         }
         // Define Property Event
-        if(
-          events.includes('defineProperty') &&
-          (validProperty?.valid === true || validProperty === null)
-        ) {
+        if(events.includes('defineProperty')) {
           eventTarget.dispatchEvent(
             new ContentEvent('defineProperty', {
               basename: _basename,
@@ -554,15 +537,6 @@ function DefineProperty(
               },
             }, eventTarget
           ));
-        }
-        if(enableValidation === true && validationEvents === true) {
-          eventTarget.dispatchEvent(
-            new ValidatorEvent$1('validate', {
-              basename: _basename,
-              path: _path,
-              detail: validProperty,
-            }, eventTarget)
-          );
         }
         return root
       }
@@ -1156,48 +1130,54 @@ function Concat(
     schema,
   } = $aliases;
   let { root } = $aliases; 
-  const { enableValidation, validationType } = schema.options;
+  const { enableValidation, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments];
         let valuesIndex = 0;
+        let subvaluesIndex = 0;
         const values = [];
+        iterateValues: 
         for(const $value of $arguments) {
-          let valid;
           const _basename = valuesIndex;
           const _path = (path !== null)
             ? path.concat('.', valuesIndex)
             : valuesIndex;
           // Value: Array
           if(Array.isArray($value)) {
-            let subvaluesIndex = 0;
+            subvaluesIndex = 0;
             const subvalues = [];
+            iterateSubvalues: 
+            // Validation: Subvalue
             for(const $subvalue of $value) {
+              if(enableValidation) {
+                const validSubvalue = schema.validate($subvalue);
+                if(validationEvents) {
+                  eventTarget.dispatchEvent(
+                    new ValidatorEvent('validateProperty', {
+                      basename: _basename,
+                      path: _path,
+                      detail: validSubvalue,
+                    }, eventTarget)
+                  );
+                }
+                if(!validSubvalue.valid) { subvaluesIndex++; continue iterateSubvalues }
+              }
               // Subvalue: Objects
               if(isDirectInstanceOf($subvalue, [Object, Array])) {
                 let subschema = schema.context[0];
-                valid = (enableValidation && validationType === 'object')
-                  ? subschema.validate($subvalue).valid
-                  : null;
-                if(valid === true || valid === null) {
-                  const subvalue = new Content($subvalue, {
-                    basename: _basename,
-                    parent: eventTarget,
-                    path: _path,
-                    rootAlias,
-                  }, subschema);
-                  subvalues[subvaluesIndex] = subvalue;
-                }
+                const subvalue = new Content($subvalue, {
+                  basename: _basename,
+                  parent: eventTarget,
+                  path: _path,
+                  rootAlias,
+                }, subschema);
+                subvalues[subvaluesIndex] = subvalue;
               }
               // Subvalue: Primitives
               else {
-                valid = (enableValidation && validationType === 'primitive')
-                  ? schema.validateProperty(valuesIndex, $subvalue).valid
-                  : null; 
-                if(valid === true || valid === null) {
-                  subvalues[subvaluesIndex] = $subvalue;
-                }
+                subvalues[subvaluesIndex] = $subvalue;
               }
               subvaluesIndex++;
             }
@@ -1205,36 +1185,37 @@ function Concat(
           }
           // Value: Not Array
           else {
+            // Validation: Value
+            if(enableValidation) {
+              const validValue = schema.validateProperty(valuesIndex, $subvalue);
+              if(validationEvents) {
+                eventTarget.dispatchEvent(
+                  new ValidatorEvent('validateProperty', {
+                    basename: _basename,
+                    path: _path,
+                    detail: validValue,
+                  }, eventTarget)
+                );
+              }
+              if(!validValue.valid) { valuesIndex++; continue iterateValues }
+            }
             // Value: Objects
             if(isDirectInstanceOf($value, [Object])) {
               let subschema = schema.context[0];
-              valid = (enableValidation && validationType === 'object')
-                ? subschema.validate($value).valid
-                : null;
-              if(valid === true || valid === null) {
-                const value = new Content($value, {
-                  basename: _basename,
-                  parent: eventTarget,
-                  path: _path,
-                  rootAlias,
-                }, subschema);
-                values[valuesIndex] = value;
-              }
+              const value = new Content($value, {
+                basename: _basename,
+                parent: eventTarget,
+                path: _path,
+                rootAlias,
+              }, subschema);
+              values[valuesIndex] = value;
             }
             // Value: Primitives
             else {
-              valid = (enableValidation && validationType === 'primitive')
-                ? schema.validateProperty(valuesIndex, $value).valid
-                : null; 
-              if(valid === true || valid === null) {
-                values[valuesIndex] = $value;
-              }
+              values[valuesIndex] = $value;
             }
           }
-          if(valid === true || valid === null) {
-            root = Array.prototype.concat.call(root, values[valuesIndex]);
-          }
-          // EVENT:START
+          root = Array.prototype.concat.call(root, values[valuesIndex]);
           if(events.includes('concatValue')) {
             if(valid === true || valid === null) {
               eventTarget.dispatchEvent(
@@ -1249,10 +1230,8 @@ function Concat(
               );
             }
           }
-          // EVENT:STOP
           valuesIndex++;
         }
-        // EVENT:START
         if(events.includes('concat')) {
           eventTarget.dispatchEvent(
             new ContentEvent('concat', {
@@ -1264,7 +1243,6 @@ function Concat(
             }, eventTarget)
           );
         }
-        // EVENT:STOP
         return root
       }
     }
@@ -1309,31 +1287,33 @@ function Fill(
     path, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType } = schema.options;
+  const { enableValidation, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const $arguments = [...arguments];
         let value = $arguments[0];
-        let validValue;
+        if(enableValidation) {
+          let validValue = schema.validate(validValue);
+          if(validationEvents) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent('validateProperty', {
+                basename: _basename,
+                path: _path,
+                detail: validValue,
+              }, eventTarget)
+            );
+          }
+          if(!validValue.valid) { return root }
+        }
         if(isDirectInstanceOf(
           value, [Object, Array/*, Map*/]
         )) {
           const subschema = schema.context[0];
-          validValue = (enableValidation && validationType === 'object')
-            ? subschema.validate(value).valid
-            : null;
-          if(validValue === true || validValue === null) {
-            value = new Content(value, {
-              rootAlias: rootAlias,
-            }, subschema);
-          }
-        } else {
-          validValue = (enableValidation && validationType === 'primitive')
-            ? schema.validateProperty(0, value).valid
-            : null;
+          value = new Content(value, {
+            rootAlias: rootAlias,
+          }, subschema);
         }
-        if(validValue === false) return root
         let start;
         if(typeof $arguments[1] === 'number') {
           start = (
@@ -1668,54 +1648,55 @@ function Push(
     path, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType } = schema.options;
+  const { enableValidation, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
         const elements = [];
         let elementsIndex = 0;
         for(let $element of arguments) {
-          let validElement;
           const _basename = elementsIndex;
           const _path = (path !== null)
             ? path.concat('.', elementsIndex)
             : elementsIndex;
-          if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
-            const subschema = schema.context[0];
-            validElement = (enableValidation && validationType === 'object')
-              ? subschema.validate($element).valid
-              : null;
-            if(validElement === true || validElement === null) {
-              $element = new Content($element, {
-                basename: _basename,
-                path: _path,
-                rootAlias: rootAlias,
-              }, subschema);
-              elements.push($element);
-              Array.prototype.push.call(root, $element);
-            }
-          } else {
-            validElement = (enableValidation && validationType === 'primitive')
-              ? schema.validateProperty(elementsIndex, $element).valid
-              : null; 
-            if(validElement === true || validElement === null) {
-              elements.push($element);
-              Array.prototype.push.call(root, $element);
-            }
-          }
-          if(events.includes('pushProp')) {
-            if(validElement === true || validElement === null) {
+          // Validation
+          if(enableValidation) {
+            const validElement = schema.validateProperty(elementsIndex, $element);
+            if(validationEvents) {
               eventTarget.dispatchEvent(
-                new ContentEvent('pushProp', {
+                new ValidatorEvent('validateProperty', {
                   basename: _basename,
                   path: _path,
-                  detail: {
-                    elementsIndex, 
-                    element: elements[elementsIndex],
-                  },
+                  detail: validElement,
                 }, eventTarget)
               );
             }
+            if(!validElement.valid) { return root.length }
+          }
+          if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
+          const subschema = schema.context[0];
+            $element = new Content($element, {
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
+            }, subschema);
+            elements.push($element);
+            Array.prototype.push.call(root, $element);
+          } else {
+            elements.push($element);
+            Array.prototype.push.call(root, $element);
+          }
+          if(events.includes('pushProp')) {
+            eventTarget.dispatchEvent(
+              new ContentEvent('pushProp', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elementsIndex, 
+                  element: elements[elementsIndex],
+                },
+              }, eventTarget)
+            );
           }
           elementsIndex++;
         }
@@ -1843,7 +1824,7 @@ function Shift(
   )
 }
 
-function Splice$1(
+function Slice(
   $trap, $trapPropertyName, $aliases, $options
 ) {
   const {
@@ -1854,11 +1835,10 @@ function Splice$1(
     path, 
     schema,
   } = $aliases;
-  schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        // 
+        return Array.prototype.slice.call(root, ...arguments)
       }
     }
   )
@@ -1902,7 +1882,7 @@ function Splice(
     path, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType } = schema.options;
+  const { enableValidation, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -1945,10 +1925,25 @@ function Splice(
           deleteItemsIndex++;
         }
         let addItemsIndex = 0;
+        spliceAdd: 
         while(addItemsIndex < addCount) {
           let _basename, _path;
           let addItem = addItems[addItemsIndex];
-          let validAddItem;
+
+          // Validation
+          if(enableValidation) {
+            const validAddItem = schema.validateProperty(elementIndex, element);
+            if(validationEvents) {
+              eventTarget.dispatchEvent(
+                new ValidatorEvent('validateProperty', {
+                  basename: _basename,
+                  path: _path,
+                  detail: validAddItem,
+                }, eventTarget)
+              );
+            }
+            if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
+          }
           _basename = addItemsIndex;
           _path = (path !== null)
             ? path.concat('.', addItemsIndex)
@@ -1956,28 +1951,18 @@ function Splice(
           let startIndex = start + addItemsIndex;
           if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
             const subschema = schema.context[0];
-            validAddItem = (enableValidation && validationType === 'object')
-              ? subschema.validate(addItem).valid
-              : null;
-            if(validAddItem === true || validAddItem === null) {
-              addItem = new Content(addItem, {
-                basename: _basename,
-                path: _path,
-                rootAlias: rootAlias,
-              }, subschema);
-              Array.prototype.splice.call(
-                root, startIndex, 0, addItem
-              );
-            }
+            addItem = new Content(addItem, {
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
+            }, subschema);
+            Array.prototype.splice.call(
+              root, startIndex, 0, addItem
+            );
           } else {
-            validAddItem = (enableValidation && validationType === 'primitive')
-              ? schema.validateProperty(startIndex, addItem)
-              : null;
-            if(validAddItem === true || validAddItem === null) {
-              Array.prototype.splice.call(
-                root, startIndex, 0, addItem
-              );
-            }
+            Array.prototype.splice.call(
+              root, startIndex, 0, addItem
+            );
           }
           _basename = addItemsIndex;
           _path = (path !== null)
@@ -1985,19 +1970,17 @@ function Splice(
             : addItemsIndex;
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
-            if(validAddItem === true || validAddItem === null) {
-              eventTarget.dispatchEvent(
-                new ContentEvent('spliceAdd', {
-                  basename: _basename,
-                  path: _path,
-                  detail: {
-                    index: start + addItemsIndex,
-                    addIndex: addItemsIndex,
-                    addItem: addItem,
-                  },
-                }, eventTarget)
-              );
-            }
+            eventTarget.dispatchEvent(
+              new ContentEvent('spliceAdd', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  index: start + addItemsIndex,
+                  addIndex: addItemsIndex,
+                  addItem: addItem,
+                },
+              }, eventTarget)
+            );
           }
           addItemsIndex++;
         }
@@ -2100,7 +2083,7 @@ function Unshift(
     path, 
     schema,
   } = $aliases;
-  const { enableValidation, validationType } = schema.options;
+  const { enableValidation, validationEvents } = schema.options;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -2109,7 +2092,6 @@ function Unshift(
         const elementsLength = $arguments.length;
         let elementIndex = elementsLength - 1;
         while(elementIndex > -1) {
-          let validElement;
           $arguments.length;
           let element = $arguments[elementIndex];
           const _basename = elementIndex;
@@ -2117,51 +2099,45 @@ function Unshift(
             path !== null
           ) ? path.concat('.', elementIndex)
             : elementIndex;
-          if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
-            const subschema = schema.context[0];
-            validElement = (enableValidation && validationType === 'object')
-              ? subschema.validate(element).valid
-              : null;
-            if(validElement === true || validElement === null) {
-              element = new Content(element, {
-                basename: _basename,
-                path: _path,
-                rootAlias: rootAlias,
-              }, subschema);
-              elements.unshift(element);
-              Array.prototype.unshift.call(root, element);
-            }
-          }
-          else {
-            validElement = (enableValidation && validationType === 'primitive')
-              ? schema.validateProperty(elementIndex, element).valid
-              : null;
-            if(validElement === true || validElement === null) {
-              elements.unshift(element);
-              Array.prototype.unshift.call(root, element);
-            }
-          }
-          // Array Unshift Prop Event
-          if(events.includes('unshiftProp')) {
-            if(validElement === true || validElement === null) {
+          // Validation
+          if(enableValidation) {
+            const validElement = schema.validateProperty(elementIndex, element);
+            if(validationEvents) {
               eventTarget.dispatchEvent(
-                new ContentEvent('unshiftProp', {
+                new ValidatorEvent('validateProperty', {
                   basename: _basename,
                   path: _path,
-                  detail: {
-                    elementIndex, 
-                    element: element,
-                  },
+                  detail: validElement,
                 }, eventTarget)
               );
             }
+            if(!validElement.valid) { return root.length }
           }
-          if(enableValidation === true && validationEvents === true) {
+
+          if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
+            const subschema = schema.context[0];
+            element = new Content(element, {
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
+            }, subschema);
+            elements.unshift(element);
+            Array.prototype.unshift.call(root, element);
+          }
+          else {
+            elements.unshift(element);
+            Array.prototype.unshift.call(root, element);
+          }
+          // Array Unshift Prop Event
+          if(events.includes('unshiftProp')) {
             eventTarget.dispatchEvent(
-              new ValidatorEvent('validateProperty', {
-                basename,
-                path,
-                detail: validSourceProp,
+              new ContentEvent('unshiftProp', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  elementIndex, 
+                  element: element,
+                },
               }, eventTarget)
             );
           }
@@ -2246,7 +2222,7 @@ var ArrayProperty = {
   reduceRight: ReduceRight,
   reverse: Reverse,
   shift: Shift,
-  slice: Splice$1,
+  slice: Slice,
   some: Some,
   sort: Sort,
   splice: Splice,
@@ -2343,9 +2319,8 @@ class Handler {
       basename,
       path,
     } = this.#settings;
-    const { enableValidation, validationType } = schema.options;
+    const { enableValidation, validationEvents } = schema.options;
     return function set($target, $property, $value, $receiver) {
-      let valid;
       // Object Property
       if(this.#isObjectProperty($property)) {
         $this.traps['Object'][$property] = $value;
@@ -2354,50 +2329,52 @@ class Handler {
       else if(this.#isArrayProperty($property)) {
         $this.traps['Array'][$property] = $value;
       }
+      // Validation
+      if(enableValidation) {
+        const validValue = schema.validateProperty($property, $value);
+        if(validationEvents) {
+          eventTarget.dispatchEvent(
+            new ValidatorEvent$1('validateProperty', {
+              basename,
+              path,
+              detail: validValue,
+            }, eventTarget)
+          );
+        }
+        if(!validValue.valid) { return false }
+      }
       // Dynamic Event Target Property
-      else if(typeof $value === 'object') {
+      if(typeof $value === 'object') {
         let subschema;
         switch(schema.contextType) {
           case 'array': subschema = schema.context[0]; break
           case 'object': subschema = schema.context[$property]; break
         }
-        valid = (enableValidation && validationType === 'object')
-          ? subschema.validate($value).valid
-          : null;
-        if(valid === true || valid === null) {
-          $value = new Content($value, {
-            basename,
-            parent: eventTarget,
-            path,
-            rootAlias,
-          }, subschema);
-          root[$property] = $value;
-        }
+        $value = new Content($value, {
+          basename,
+          parent: eventTarget,
+          path,
+          rootAlias,
+        }, subschema);
+        root[$property] = $value;
       }
       else {
-        valid = (enableValidation && validationType === 'primitive')
-          ? schema.validateProperty($property, $value).valid
-          : null;
-        if(valid === true || valid === null) {
-          root[$property] = $value;
-        }
+        root[$property] = $value;
       }
-      if(valid === true || valid === null) {
-        const _basename = $property;
-        const _path = (path !== null)
-          ? path.concat('.', $property)
-          : $property;
-        eventTarget.dispatchEvent(
-          new ContentEvent('set', {
-            basename: _basename,
-            path: _path,
-            detail: {
-              property: $property,
-              value: $value,
-            },
-          }, eventTarget)
-        );
-      }  
+      const _basename = $property;
+      const _path = (path !== null)
+        ? path.concat('.', $property)
+        : $property;
+      eventTarget.dispatchEvent(
+        new ContentEvent('set', {
+          basename: _basename,
+          path: _path,
+          detail: {
+            property: $property,
+            value: $value,
+          },
+        }, eventTarget)
+      );
       return true
     }
   }
@@ -2474,7 +2451,7 @@ class Handler {
 }
 
 var Options$5 = {
-  rootAlias: 'content',
+  rootAlias: 'root',
   traps: {
     properties: {
       set: {
@@ -2576,6 +2553,8 @@ class Content extends EventTarget {
     this.#schema = $schema;
     return this.proxy
   }
+  // Object
+  get object() { return this.parse({ type: 'object' }) }
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
@@ -2694,16 +2673,6 @@ class Content extends EventTarget {
   }
 }
 
-class Validator extends EventTarget {
-  #settings
-  constructor($settings = {}) {
-    super();
-    this.#settings = $settings;
-  }
-  get type() { return this.#settings.type }
-  get validate() { return this.#settings.validate }
-}
-
 class Validation extends EventTarget {
   #settings
   #_type
@@ -2740,15 +2709,26 @@ class Validation extends EventTarget {
   set contentVal($contentVal) { this.#_contentVal = $contentVal; }
 }
 
+class Validator extends EventTarget {
+  #settings
+  constructor($settings = {}) {
+    super();
+    this.#settings = $settings;
+  }
+  get type() { return this.#settings.type }
+  get validate() { return this.#settings.validate }
+}
+
 const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
   'undefined': undefined,
+  'null': null,
 };
 const Objects = {
   'object': Object,
-  'array': Array
+  'array': Array,
 };
 Object.assign({}, Primitives, Objects);
 
@@ -2763,11 +2743,11 @@ class TypeValidator extends Validator {
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
-          valid: false,
+          valid: undefined,
         });
         const typeOfContentVal = typeOf$1($contentVal);
-        const typeOfContextVal = ($context === undefined)
-          ? undefined
+        const typeOfContextVal = ($context.type === undefined)
+          ? $context.type
           : typeOf$1($context.type());
         if(
           Object.values(Primitives).includes($context.type) &&
@@ -2776,9 +2756,8 @@ class TypeValidator extends Validator {
           if(
             typeOfContextVal === typeOfContentVal ||
             typeOfContextVal === undefined
-          ) {
-            validation.valid = true;
-          }
+          ) { validation.valid = true; }
+          else { validation.valid = false; }
         }
         return validation
       },
@@ -2803,6 +2782,7 @@ class Schema extends EventTarget{
     this.options = Object.assign({}, Options$4, $options);
     this.context;
   }
+  get validationType() { return this.options.validationType }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
     if(Array.isArray(this.settings)) { this.#_contextType = 'array'; }
@@ -2823,7 +2803,7 @@ class Schema extends EventTarget{
     for(const [
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
-      // Transform Setting
+      // Context Validators: Transform
       settings[$contextKey].validators = Validators.concat(
         settings[$contextKey].validators || []
       );
@@ -2847,6 +2827,7 @@ class Schema extends EventTarget{
           settings[$contextKey].type, this.options
         );
       }
+      // Context Val Type: Primitive Literal
       else {
         this.#_context[$contextKey] = settings[$contextKey];
       }
@@ -2854,65 +2835,81 @@ class Schema extends EventTarget{
     return this.#_context
   }
   validate($content) {
-    return Object.entries($content).reduce(
-      ($validation, [$contentKey, $contentVal], $validatorIndex, $contentEntries) => {
-        const typeOfContentVal = typeOf$1($contentVal);
-        let propertyValidation;
-        if(Object.keys(Primitives).includes(typeOfContentVal)) {
-          propertyValidation = this.validateProperty($contentKey, $contentVal);
-        }
-        else if(this.contextType === 'array') {
-          propertyValidation = this.context[0].validate($contentVal);
-        }
-        else if(this.contextType === 'object') {
-          propertyValidation = this.context[$contentKey].validate($contentVal);
-        }
-        $validation.properties.push(propertyValidation);
-        if($validatorIndex === $contentEntries.length - 1) {
-          $validation.valid = !$validation.properties.find(
-            ($propertyValidation) => $propertyValidation.valid === false
-          );
-        }
+    let validateProperties;
+    if(this.contextType === 'array') { validateProperties = []; }
+    else if(this.contextType === 'object') { validateProperties = {}; }
+    const Validation = {
+      properties: validateProperties,
+      valid: undefined,
+    };
+    const validation = Object.entries($content).reduce(
+      ($validation, [
+        $contentKey, $contentVal
+      ], $validatorIndex, $contentEntries) => {
+        const validation = this.validateProperty($contentKey, $contentVal);
+        if(validation === null) return $validation
+        if($validation.valid !== false) $validation.valid = validation.valid;
+        $validation.properties[$contentKey] = validation;
         return $validation
-      }, {
-        properties: [],
-        valid: undefined,
-      }
-    )
+      }, structuredClone(Validation)
+    );
+    return validation
   }
   validateProperty($key, $val) {
-    const Validation = {
+    const PropertyValidation = {
       key: $key,
       val: $val,
-      advance: [], // Array
-      deadvance: [], // Array
+      advance: [], 
+      deadvance: [], 
+      unadvance: [], 
       valid: undefined, // Boolean
     };
-    let context;
-    switch(this.contextType) {
-      case 'array': context = this.context[0]; break
-      case 'object': context = this.context[$key]; break
-    } 
-    return context.validators.reduce(
-      ($validation, $validator, $validatorIndex, $validators) => {
-        const validation = $validator.validate(
-          context, $key, $val
-        );
-        if(validation.valid === true) {
-          $validation.advance.push(validation);
-        }
-        else if(validation.valid === false) {
-          $validation.deadvance.push(validation);
-        }
-        if($validatorIndex === $validators.length - 1) {
-          $validation.valid = (
-            $validation.deadvance.length === 0
-          ) ? true
-            : false;
-        }
-        return $validation
-      }, Object.assign({}, Validation)
-    )
+    const propertyValidation = structuredClone(PropertyValidation);
+    let validation;
+    let contextVal;
+    if(this.contextType === 'array') { contextVal = this.context[0]; }
+    else if(this.contextType === 'object') { contextVal = this.context[$key]; }
+    // Context Val: Undefined
+    if(contextVal === undefined) {
+      validation = new Validation({
+        context: contextVal,
+        contentKey: $key,
+        contentVal: $val,
+        type: 'key',
+        valid: null,
+      });
+      propertyValidation.unadvance.push(validation);
+      return propertyValidation
+    }
+    // Context Val: Object
+    else if(contextVal instanceof Schema) {
+      validation = contextVal.validate($val);
+      // 
+      if(validation.valid === true) { propertyValidation.advance.push(validation); }
+      else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
+      // 
+      if(this.validationType === 'object') { propertyValidation.valid === validation.valid; }
+      else if(this.validationType === 'primitive') {
+        propertyValidation.valid = (validation.valid === false)
+          ? !validation.valid
+          : validation.valid; 
+      }
+    }
+    // Context Val: Primitive
+    else {
+      validation = contextVal.validators.reduce(
+        ($propertyValidation, $validator, $validatorIndex, $validators) => {
+          const validation = $validator.validate(contextVal, $key, $val);
+          // 
+          if(validation.valid === true) { $propertyValidation.advance.push(validation); }
+          else if(validation.valid === false) { $propertyValidation.deadvance.push(validation); }
+          // 
+          if($propertyValidation.valid !== false) $propertyValidation.valid = validation.valid;
+          return $propertyValidation
+        }, propertyValidation
+      );
+    }
+    return propertyValidation
   }
 }
 

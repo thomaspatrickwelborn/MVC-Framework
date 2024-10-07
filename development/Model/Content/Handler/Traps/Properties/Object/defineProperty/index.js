@@ -16,11 +16,10 @@ export default function DefineProperty(
     path, 
     schema,
   } = $aliases
-  const { enableValidation, validationType, validationEvents } = schema.options
+  const { enableValidation, validationEvents } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
-        let validProperty
         const propertyKey = arguments[0]
         const propertyDescriptor = arguments[1]
         const _basename = propertyKey
@@ -28,6 +27,20 @@ export default function DefineProperty(
           path !== null
         ) ? path.concat('.', propertyKey)
           : propertyKey
+        // Validation
+        if(enableValidation) {
+          const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value)
+          if(validationEvents) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent('validateProperty', {
+                basename: _basename,
+                path: _path,
+                detail: validSourceProp,
+              }, eventTarget)
+            )
+          }
+          if(!validSourceProp.valid) { return root }
+        }
         // Property Descriptor Value: Direct Instance Array/Object/Map
         if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array/*, Map*/])) {
           let subschema
@@ -35,12 +48,6 @@ export default function DefineProperty(
             case 'array': subschema = schema.context[0]; break
             case 'object': subschema = schema.context[propertyKey]; break
           }
-          validProperty = (enableValidation && validationType === 'object')
-            ? subschema.validate(propertyDescriptor.value)//.valid
-            : null
-          // Enable Validation, No Subschema: Iterate Source Props
-          if(validProperty?.valid === false) return root
-          if(validProperty?.valid === true || validProperty === null) {
             const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
               root, propertyKey
             ) || {}
@@ -62,11 +69,6 @@ export default function DefineProperty(
             }
             // Root Property Descriptor Value: Non-Existent DET Instance
             else {
-              // const _basename = propertyKey
-              // const _path = (
-              //   path !== null
-              // ) ? path.concat('.', propertyKey)
-              //   : propertyKey
               const _root = (typeOf(propertyDescriptor.value) === 'object')
                 ? {}
                 : (typeOf(propertyDescriptor.value) === 'array')
@@ -92,22 +94,14 @@ export default function DefineProperty(
                 Object.defineProperty(root, propertyKey, propertyDescriptor)
               }
             }
-          }
+          // }
         }
         // Property Descriptor Value Not Array/Object/Map
         else {
-          validProperty = (enableValidation && validationType === 'primitive')
-            ? schema.validateProperty(propertyKey, propertyDescriptor.value)//.valid
-            : null
-          if(validProperty?.valid === true || validProperty === null) {
-            Object.defineProperty(root, propertyKey, propertyDescriptor)
-          }
+          Object.defineProperty(root, propertyKey, propertyDescriptor)
         }
         // Define Property Event
-        if(
-          events.includes('defineProperty') &&
-          (validProperty?.valid === true || validProperty === null)
-        ) {
+        if(events.includes('defineProperty')) {
           eventTarget.dispatchEvent(
             new ContentEvent('defineProperty', {
               basename: _basename,
@@ -118,15 +112,6 @@ export default function DefineProperty(
               },
             }, eventTarget
           ))
-        }
-        if(enableValidation === true && validationEvents === true) {
-          eventTarget.dispatchEvent(
-            new ValidatorEvent('validate', {
-              basename: _basename,
-              path: _path,
-              detail: validProperty,
-            }, eventTarget)
-          )
         }
         return root
       }

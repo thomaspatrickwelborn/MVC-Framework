@@ -13,7 +13,7 @@ export default function Splice(
     path, 
     schema,
   } = $aliases
-  const { enableValidation, validationType } = schema.options
+  const { enableValidation, validationEvents } = schema.options
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function() {
@@ -61,7 +61,21 @@ export default function Splice(
         while(addItemsIndex < addCount) {
           let _basename, _path
           let addItem = addItems[addItemsIndex]
-          let validAddItem
+
+          // Validation
+          if(enableValidation) {
+            const validAddItem = schema.validateProperty(elementIndex, element)
+            if(validationEvents) {
+              eventTarget.dispatchEvent(
+                new ValidatorEvent('validateProperty', {
+                  basename: _basename,
+                  path: _path,
+                  detail: validAddItem,
+                }, eventTarget)
+              )
+            }
+            if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
+          }
           _basename = addItemsIndex
           _path = (path !== null)
             ? path.concat('.', addItemsIndex)
@@ -69,28 +83,18 @@ export default function Splice(
           let startIndex = start + addItemsIndex
           if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
             const subschema = schema.context[0]
-            validAddItem = (enableValidation && validationType === 'object')
-              ? subschema.validate(addItem).valid
-              : null
-            if(validAddItem === true || validAddItem === null) {
-              addItem = new Content(addItem, {
-                basename: _basename,
-                path: _path,
-                rootAlias: rootAlias,
-              }, subschema)
-              Array.prototype.splice.call(
-                root, startIndex, 0, addItem
-              )
-            }
+            addItem = new Content(addItem, {
+              basename: _basename,
+              path: _path,
+              rootAlias: rootAlias,
+            }, subschema)
+            Array.prototype.splice.call(
+              root, startIndex, 0, addItem
+            )
           } else {
-            validAddItem = (enableValidation && validationType === 'primitive')
-              ? schema.validateProperty(startIndex, addItem)
-              : null
-            if(validAddItem === true || validAddItem === null) {
-              Array.prototype.splice.call(
-                root, startIndex, 0, addItem
-              )
-            }
+            Array.prototype.splice.call(
+              root, startIndex, 0, addItem
+            )
           }
           _basename = addItemsIndex
           _path = (path !== null)
@@ -98,19 +102,17 @@ export default function Splice(
             : addItemsIndex
           // Array Splice Add Event
           if(events.includes('spliceAdd')) {
-            if(validAddItem === true || validAddItem === null) {
-              eventTarget.dispatchEvent(
-                new ContentEvent('spliceAdd', {
-                  basename: _basename,
-                  path: _path,
-                  detail: {
-                    index: start + addItemsIndex,
-                    addIndex: addItemsIndex,
-                    addItem: addItem,
-                  },
-                }, eventTarget)
-              )
-            }
+            eventTarget.dispatchEvent(
+              new ContentEvent('spliceAdd', {
+                basename: _basename,
+                path: _path,
+                detail: {
+                  index: start + addItemsIndex,
+                  addIndex: addItemsIndex,
+                  addItem: addItem,
+                },
+              }, eventTarget)
+            )
           }
           addItemsIndex++
         }
