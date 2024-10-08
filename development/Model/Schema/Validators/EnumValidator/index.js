@@ -17,7 +17,6 @@ export default class EnumValidator extends Validator {
           contentVal: $contentVal,
           type: this.type,
           valid: undefined,
-          enum: enumeration
         })
         validation.valid = enumeration.includes($contentVal)
         return validation

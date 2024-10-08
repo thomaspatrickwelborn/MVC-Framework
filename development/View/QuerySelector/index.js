@@ -1,4 +1,3 @@
-import { propFromPropPath } from '../../Coutil/index.js'
 export default class QuerySelector {
   #settings
   #_enable

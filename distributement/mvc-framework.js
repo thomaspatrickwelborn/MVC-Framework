@@ -2213,14 +2213,140 @@ var ArrayProperty = {
   with: With,
 };
 
+function GetProperty(
+  $trap, $trapPropertyName, $aliases
+) {
+  const { root, eventTarget } = $aliases;
+  return Object.defineProperty(
+    $trap, $trapPropertyName, {
+      value: function($path) {
+        const pathSegments = $path.split('.');
+        let value = root;
+        let pathSegmentsIndex = 0;
+        for(const $pathSegment of pathSegments) {
+          if(pathSegmentsIndex === 0) { value = value[$pathSegment]; }
+          else {
+            try { value = value.get($pathSegment); }
+            catch($err) { return }
+          }
+          pathSegmentsIndex++;
+        }
+        return value
+      }
+    }
+  )
+}
+
+function SetProperty(
+  $trap, $trapPropertyName, $aliases, $options
+) {
+  const { events } = $options;
+  const { root, schema, basename, path, eventTarget } = $aliases;
+  const { enableValidation, validationEvents } = schema.options;
+  return Object.defineProperty(
+    $trap, $trapPropertyName, {
+      value: function($path, $value) {
+        const pathSegments = $path.split('.');
+        const rootPathSegment = pathSegments.shift();
+        if(pathSegments.length) {
+          return root[rootPathSegment].set(pathSegments.join('.'), $value)
+        }
+        if(enableValidation) {
+          const _basename = $path;
+          const _path = (path !== null)
+            ? path.concat('.', $path)
+            : $path;
+          const validValue = schema.validateProperty(rootPathSegment, $value);
+          if(validationEvents) {
+            eventTarget.dispatchEvent(
+              new ValidatorEvent$1('validateProperty', {
+                basename: _basename,
+                path: _path,
+                detail: validValue,
+              }, eventTarget)
+            );
+          }
+          if(!validValue.valid) { return false }
+        }
+        // Dynamic Event Target Property
+        if(typeof $value === 'object') {
+          let subschema;
+          switch(schema.contextType) {
+            case 'array': subschema = schema.context[0]; break
+            case 'object': subschema = schema.context[$path]; break
+          }
+          $value = new Content($value, {
+            path,
+            basename,
+            parent: eventTarget,
+          }, subschema);
+        }
+        root[rootPathSegment] = $value;
+        if(events.includes('set')) {
+          eventTarget.dispatchEvent(
+            new ContentEvent('set', {
+              basename: basename, // : _basename,
+              path: $path, // : _path,
+              detail: {
+                property: $path,
+                value: $value,
+              },
+            }, eventTarget)
+          );
+        }
+        return root[rootPathSegment]
+      }
+    }
+  )
+}
+
+function DeleteProperty(
+  $trap, $trapPropertyName, $aliases, $options
+) {
+  const { events } = $options;
+  const { eventTarget, root, basename, path } = $aliases;
+  return Object.defineProperty(
+    $trap, $trapPropertyName, {
+      value: function($path) {
+        const pathSegments = $path.split('.');
+        const rootPathSegment = pathSegments.shift();
+        if(pathSegments.length) {
+          return root[rootPathSegment].delete(pathSegments.join('.'))
+        }
+        const value = delete root[rootPathSegment];
+        if(events.includes('delete')) {
+          eventTarget.dispatchEvent(
+            new ContentEvent('delete', {
+              basename, 
+              path, 
+              detail: {
+                property: $path,
+                value: value,
+              },
+            }, eventTarget)
+          );
+        }
+      }
+    }
+  )
+}
+
+var AccessorProperty = {
+  get: GetProperty,
+  set: SetProperty,
+  delete: DeleteProperty,
+};
+
 var PropertyClasses = {
   Object: ObjectProperty,
   Array: ArrayProperty,
+  Accessor: AccessorProperty,
 };
 
 class Traps {
   Object
   Array
+  Accessor
   // Map
   constructor($settings, $options) {
     // Iterate Property Classes
@@ -2259,68 +2385,13 @@ class Handler {
       path,
     } = this.#settings;
     return function get($target, $property, $receiver) {
-      // ------------
-      // Get Function
-      // ------------
-      if($property === 'get') { return function get($key) {
-        return root[$key]
-      } }
-      // ------------
-      // Set Function
-      // ------------
-      else if($property === 'set') { return function set($key, $val) {
-        if(enableValidation) {
-          const validValue = schema.validateProperty($property, $value);
-          if(validationEvents) {
-            eventTarget.dispatchEvent(
-              new ValidatorEvent$1('validateProperty', {
-                basename,
-                path,
-                detail: validValue,
-              }, eventTarget)
-            );
-          }
-          if(!validValue.valid) { return false }
-        }
-        // Dynamic Event Target Property
-        if(typeof $value === 'object') {
-          let subschema;
-          switch(schema.contextType) {
-            case 'array': subschema = schema.context[0]; break
-            case 'object': subschema = schema.context[$property]; break
-          }
-          $value = new Content($value, {
-            basename,
-            parent: eventTarget,
-            path,
-          }, subschema);
-          root[$property] = $value;
-        }
-        else {
-          root[$property] = $value;
-        }
-        const _basename = $property;
-        const _path = (path !== null)
-          ? path.concat('.', $property)
-          : $property;
-        eventTarget.dispatchEvent(
-          new ContentEvent('set', {
-            basename: _basename,
-            path: _path,
-            detail: {
-              property: $property,
-              value: $value,
-            },
-          }, eventTarget)
-        );
-        return root[$key]
-      } }
-      // ---------------
-      // Delete Function
-      // ---------------
-      else if($property === 'delete') { return function deleteProperty($key) {
-        return delete root[$key]
-      } }
+      // --------------
+      // Accessor Traps
+      // --------------
+      if(['get', 'set', 'delete'].includes($property)) {
+        return $this.traps['Accessor'][$property]
+
+      }
       // ------------------------------------------
       // Event Target/Dynamic Event Target Property
       // ------------------------------------------
@@ -2401,9 +2472,12 @@ class Handler {
 
 var Options$5 = {
   traps: {
-    properties: {
+    accessor: {
       set: {
         events: ['set'],
+      },
+      delete: {
+        events: ['delete'],
       },
     },
     object: {
@@ -2612,37 +2686,45 @@ class Content extends EventTarget {
 class Validation extends EventTarget {
   #settings
   #_type
-  #_valid = false
+  #_valid
   #_context
   #_contentKey
   #_contentVal
+  #_message
   constructor($settings = {}) {
     super();
-    this.#settings = $settings;
-    const {
-      type, valid, context, contentKey, contentVal
-    } = this.#settings;
-    this.type = type;
-    this.valid = valid;
-    this.context = context;
-    this.contentKey = contentKey;
-    this.contentVal = contentVal;
+    this.#settings = Object.freeze($settings);
   }
-  // Type
-  get type() { return this.#_type }
-  set type($type) { this.#_type = $type; }
-  // Valid
+  // Property: Type
+  get type() { return this.#settings.type }
+  // Property: Valid
   get valid() { return this.#_valid }
-  set valid($valid) { this.#_valid = $valid; }
-  // Context Key
-  get context() { return this.#_context }
-  set context($context) { this.#_context = $context; }
-  // Content Key
-  get contentKey() { return this.#_contentKey }
-  set contentKey($contentKey) { this.#_contentKey = $contentKey; }
-  // Content Val
-  get contentVal() { return this.#_contentVal }
-  set contentVal($contentVal) { this.#_contentVal = $contentVal; }
+  set valid($valid) {
+    if(this.#_valid === undefined) {
+      this.#_valid = $valid;
+    }
+  }
+  // Property: Message
+  get message() {
+    if(this.#_message !== undefined) return this.#_message
+    if(
+      this.valid !== undefined &&
+      this.#_message === undefined
+    ) {
+      this.#_message = this.#settings.messages[this.#_valid](this);
+    }
+    return this.#_message
+  }
+  // Property: Context
+  get context() { return this.#settings.context }
+  // Property: Context Key
+  get contextKey() { return this.#settings.contentKey }
+  // Property: Context Val
+  get contextVal() { return this.#settings.context[this.contentKey] }
+  // Property: Content Key
+  get contentKey() { return this.#settings.contentKey }
+  // Property: Content Val
+  get contentVal() { return this.#settings.contentVal }
 }
 
 class Validator extends EventTarget {
@@ -2650,9 +2732,20 @@ class Validator extends EventTarget {
   constructor($settings = {}) {
     super();
     this.#settings = $settings;
+    // Property: Validate
+    Object.defineProperties(this, {
+      'validate': {
+        configurable: false,
+        writable: false,
+        enumerable: true,
+        value: this.#settings.validate
+      }
+    });
   }
+  // Property: Type
   get type() { return this.#settings.type }
-  get validate() { return this.#settings.validate }
+  // Property: Messages
+  get messages() { return this.#settings.messages }
 }
 
 const Primitives = {
@@ -2672,14 +2765,19 @@ class TypeValidator extends Validator {
   #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
-      type: 'type',
-      validate: ($context, $contentKey, $contentVal) => {
+      'type': 'type',
+      'messages': {
+        'true': ($validation) => `${$validation.valid}`,
+        'false': ($validation) => `${$validation.valid}`,
+      },
+      'validate': ($context, $contentKey, $contentVal) => {
         let validation = new Validation({
           context: $context,
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
           valid: undefined,
+          messages: this.messages,
         });
         const typeOfContentVal = typeOf$1($contentVal);
         const typeOfContextVal = ($context.type === undefined)
@@ -2770,7 +2868,6 @@ class EnumValidator extends Validator {
           contentVal: $contentVal,
           type: this.type,
           valid: undefined,
-          enum: enumeration
         });
         validation.valid = enumeration.includes($contentVal);
         return validation

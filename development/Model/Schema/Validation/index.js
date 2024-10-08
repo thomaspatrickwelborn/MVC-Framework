@@ -1,35 +1,43 @@
 export default class Validation extends EventTarget {
   #settings
   #_type
-  #_valid = false
+  #_valid
   #_context
   #_contentKey
   #_contentVal
+  #_message
   constructor($settings = {}) {
     super()
-    this.#settings = $settings
-    const {
-      type, valid, context, contentKey, contentVal
-    } = this.#settings
-    this.type = type
-    this.valid = valid
-    this.context = context
-    this.contentKey = contentKey
-    this.contentVal = contentVal
+    this.#settings = Object.freeze($settings)
   }
-  // Type
-  get type() { return this.#_type }
-  set type($type) { this.#_type = $type }
-  // Valid
+  // Property: Type
+  get type() { return this.#settings.type }
+  // Property: Valid
   get valid() { return this.#_valid }
-  set valid($valid) { this.#_valid = $valid }
-  // Context Key
-  get context() { return this.#_context }
-  set context($context) { this.#_context = $context }
-  // Content Key
-  get contentKey() { return this.#_contentKey }
-  set contentKey($contentKey) { this.#_contentKey = $contentKey }
-  // Content Val
-  get contentVal() { return this.#_contentVal }
-  set contentVal($contentVal) { this.#_contentVal = $contentVal }
+  set valid($valid) {
+    if(this.#_valid === undefined) {
+      this.#_valid = $valid
+    }
+  }
+  // Property: Message
+  get message() {
+    if(this.#_message !== undefined) return this.#_message
+    if(
+      this.valid !== undefined &&
+      this.#_message === undefined
+    ) {
+      this.#_message = this.#settings.messages[this.#_valid](this)
+    }
+    return this.#_message
+  }
+  // Property: Context
+  get context() { return this.#settings.context }
+  // Property: Context Key
+  get contextKey() { return this.#settings.contentKey }
+  // Property: Context Val
+  get contextVal() { return this.#settings.context[this.contentKey] }
+  // Property: Content Key
+  get contentKey() { return this.#settings.contentKey }
+  // Property: Content Val
+  get contentVal() { return this.#settings.contentVal }
 }

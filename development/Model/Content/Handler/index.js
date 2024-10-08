@@ -24,68 +24,13 @@ export default class Handler {
       path,
     } = this.#settings
     return function get($target, $property, $receiver) {
-      // ------------
-      // Get Function
-      // ------------
-      if($property === 'get') { return function get($key) {
-        return root[$key]
-      } }
-      // ------------
-      // Set Function
-      // ------------
-      else if($property === 'set') { return function set($key, $val) {
-        if(enableValidation) {
-          const validValue = schema.validateProperty($property, $value)
-          if(validationEvents) {
-            eventTarget.dispatchEvent(
-              new ValidatorEvent('validateProperty', {
-                basename,
-                path,
-                detail: validValue,
-              }, eventTarget)
-            )
-          }
-          if(!validValue.valid) { return false }
-        }
-        // Dynamic Event Target Property
-        if(typeof $value === 'object') {
-          let subschema
-          switch(schema.contextType) {
-            case 'array': subschema = schema.context[0]; break
-            case 'object': subschema = schema.context[$property]; break
-          }
-          $value = new Content($value, {
-            basename,
-            parent: eventTarget,
-            path,
-          }, subschema)
-          root[$property] = $value
-        }
-        else {
-          root[$property] = $value
-        }
-        const _basename = $property
-        const _path = (path !== null)
-          ? path.concat('.', $property)
-          : $property
-        eventTarget.dispatchEvent(
-          new ContentEvent('set', {
-            basename: _basename,
-            path: _path,
-            detail: {
-              property: $property,
-              value: $value,
-            },
-          }, eventTarget)
-        )
-        return root[$key]
-      } }
-      // ---------------
-      // Delete Function
-      // ---------------
-      else if($property === 'delete') { return function deleteProperty($key) {
-        return delete root[$key]
-      } }
+      // --------------
+      // Accessor Traps
+      // --------------
+      if(['get', 'set', 'delete'].includes($property)) {
+        return $this.traps['Accessor'][$property]
+
+      }
       // ------------------------------------------
       // Event Target/Dynamic Event Target Property
       // ------------------------------------------

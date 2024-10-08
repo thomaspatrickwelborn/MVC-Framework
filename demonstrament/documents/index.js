@@ -13,12 +13,17 @@ const { schema, content } = new Model({
     }
   },
   events: {
-    'content set': ($event) => { console.log($event.type, $event) }
+    'content delete': ($event) => { console.log($event.type, $event) },
+    'content set': ($event) => { console.log($event.type, $event) },
+    'content validateProperty': ($event) => { console.log($event.type, $event.detail) },
   },
 })
-console.log(content)
-console.log(content.get('aaa'))
-console.log(content.get('aaa').get('bbb'))
+// console.log(content)
+console.log(content.get('aaa.bbb'))
+content.set('aaa.bbb', "222222")
+console.log(content.get('aaa.bbb'))
+content.delete('aaa.bbb')
+// console.log(content.get('aaa').get('bbb'))
 // content.aaa.bbb = "BBB"
 // content['addEventListener'] = "meh"
 // console.log(Object.getOwnPropertyDescriptors(content))

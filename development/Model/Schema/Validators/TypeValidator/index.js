@@ -8,14 +8,19 @@ export default class TypeValidator extends Validator {
   #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
-      type: 'type',
-      validate: ($context, $contentKey, $contentVal) => {
+      'type': 'type',
+      'messages': {
+        'true': ($validation) => `${$validation.valid}`,
+        'false': ($validation) => `${$validation.valid}`,
+      },
+      'validate': ($context, $contentKey, $contentVal) => {
         let validation = new Validation({
           context: $context,
           contentKey: $contentKey,
           contentVal: $contentVal,
           type: this.type,
           valid: undefined,
+          messages: this.messages,
         })
         const typeOfContentVal = typeOf($contentVal)
         const typeOfContextVal = ($context.type === undefined)

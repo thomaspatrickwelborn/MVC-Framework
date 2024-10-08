@@ -1,8 +1,11 @@
 export default {
   traps: {
-    properties: {
+    accessor: {
       set: {
         events: ['set'],
+      },
+      delete: {
+        events: ['delete'],
       },
     },
     object: {

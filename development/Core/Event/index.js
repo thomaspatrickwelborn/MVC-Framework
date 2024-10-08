@@ -1,4 +1,3 @@
-import { typeOf, propFromPropPath } from '../../Coutil/index.js'
 export default class CoreEvent {
   #settings
   #boundCallback
