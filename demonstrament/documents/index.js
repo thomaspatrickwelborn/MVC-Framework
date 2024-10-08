@@ -16,12 +16,15 @@ const { schema, content } = new Model({
     'content set': ($event) => { console.log($event.type, $event) }
   },
 })
-// console.log(content)
+console.log(content)
+console.log(content.get('aaa'))
+console.log(content.get('aaa').get('bbb'))
 // content.aaa.bbb = "BBB"
-content['addEventListener'] = "meh"
+// content['addEventListener'] = "meh"
 // console.log(Object.getOwnPropertyDescriptors(content))
-console.log(content.root)
-console.log(content.object)
+// console.log(content.root)
+// console.log(content.object)
+
 // console.log(content.parse())
 /*
 const model = new Model({
