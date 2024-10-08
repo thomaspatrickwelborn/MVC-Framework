@@ -5,7 +5,6 @@ export default function Clear(
   const {
     $eventTarget, 
     root, 
-    rootAlias, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {

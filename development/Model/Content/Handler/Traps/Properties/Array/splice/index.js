@@ -8,7 +8,6 @@ export default function Splice(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
     schema,
@@ -86,7 +85,6 @@ export default function Splice(
             addItem = new Content(addItem, {
               basename: _basename,
               path: _path,
-              rootAlias: rootAlias,
             }, subschema)
             Array.prototype.splice.call(
               root, startIndex, 0, addItem

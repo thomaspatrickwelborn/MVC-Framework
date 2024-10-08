@@ -9,7 +9,6 @@ export default function SetPrototypeOf(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
   } = $aliases

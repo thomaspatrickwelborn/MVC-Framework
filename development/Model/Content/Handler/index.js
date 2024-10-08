@@ -21,33 +21,28 @@ export default class Handler {
       eventTarget,
       path,
       root,
-      rootAlias,
       schema,
     } = this.#settings
     return function get($target, $property, $receiver) {
-      // Root Property
-      if(this.#isRootProperty($property)) {
-        return this.proxy
-      }
       // Event Target/Dynamic Event Target Property
-      else if(this.#isEventTargetOrContentProperty($property)) {
+      if(this.#isEventTargetOrContentProperty($property)) {
         if(typeof eventTarget[$property] === 'function') {
           return eventTarget[$property].bind(eventTarget)
         }
         return eventTarget[$property]
       }
-      // Object Property Traps
+      // Object Traps
       else if(this.#isObjectProperty($property)) {
         return $this.traps['Object'][$property] || root[$property]
       }
-      // Array Property Traps
+      // Array Traps
       else if(this.#isArrayProperty($property)) {
         return $this.traps['Array'][$property] || root[$property]
       }
-      // Root Property
-      else {
-        return root[$property]
-      }
+      // Root
+      // else {
+      //   return root[$property]
+      // }
     }
   }
   // Set Property
@@ -56,7 +51,6 @@ export default class Handler {
     const {
       eventTarget, 
       root, 
-      rootAlias, 
       schema,
       basename,
       path,
@@ -72,51 +66,50 @@ export default class Handler {
         $this.traps['Array'][$property] = $value
       }
       // Validation
-      if(enableValidation) {
-        const validValue = schema.validateProperty($property, $value)
-        if(validationEvents) {
-          eventTarget.dispatchEvent(
-            new ValidatorEvent('validateProperty', {
-              basename,
-              path,
-              detail: validValue,
-            }, eventTarget)
-          )
-        }
-        if(!validValue.valid) { return false }
-      }
+      // if(enableValidation) {
+      //   const validValue = schema.validateProperty($property, $value)
+      //   if(validationEvents) {
+      //     eventTarget.dispatchEvent(
+      //       new ValidatorEvent('validateProperty', {
+      //         basename,
+      //         path,
+      //         detail: validValue,
+      //       }, eventTarget)
+      //     )
+      //   }
+      //   if(!validValue.valid) { return false }
+      // }
       // Dynamic Event Target Property
-      if(typeof $value === 'object') {
-        let subschema
-        switch(schema.contextType) {
-          case 'array': subschema = schema.context[0]; break
-          case 'object': subschema = schema.context[$property]; break
-        }
-        $value = new Content($value, {
-          basename,
-          parent: eventTarget,
-          path,
-          rootAlias,
-        }, subschema)
-        root[$property] = $value
-      }
-      else {
-        root[$property] = $value
-      }
-      const _basename = $property
-      const _path = (path !== null)
-        ? path.concat('.', $property)
-        : $property
-      eventTarget.dispatchEvent(
-        new ContentEvent('set', {
-          basename: _basename,
-          path: _path,
-          detail: {
-            property: $property,
-            value: $value,
-          },
-        }, eventTarget)
-      )
+    //   if(typeof $value === 'object') {
+    //     let subschema
+    //     switch(schema.contextType) {
+    //       case 'array': subschema = schema.context[0]; break
+    //       case 'object': subschema = schema.context[$property]; break
+    //     }
+    //     $value = new Content($value, {
+    //       basename,
+    //       parent: eventTarget,
+    //       path,
+    //     }, subschema)
+    //     root[$property] = $value
+    //   }
+    //   else {
+    //     root[$property] = $value
+    //   }
+    //   const _basename = $property
+    //   const _path = (path !== null)
+    //     ? path.concat('.', $property)
+    //     : $property
+    //   eventTarget.dispatchEvent(
+    //     new ContentEvent('set', {
+    //       basename: _basename,
+    //       path: _path,
+    //       detail: {
+    //         property: $property,
+    //         value: $value,
+    //       },
+    //     }, eventTarget)
+    //   )
       return true
     }
   }
@@ -125,7 +118,6 @@ export default class Handler {
     const {
       eventTarget, 
       root, 
-      rootAlias, 
     } = this.#settings
     let {
       basename,
@@ -133,62 +125,48 @@ export default class Handler {
     } = this.#settings
     const { merge } = this.#options.traps.properties.set
     return function deleteProperty($target, $property) {
-      delete root[$property]
-      eventTarget.dispatchEvent(
-        new ContentEvent('delete', {
-          basename,
-          path,
-          detail: {
-            property: $property
-          },
-        }, eventTarget)
-      )
+      // delete root[$property]
+      // eventTarget.dispatchEvent(
+      //   new ContentEvent('delete', {
+      //     basename,
+      //     path,
+      //     detail: {
+      //       property: $property
+      //     },
+      //   }, eventTarget)
+      // )
       return true
     }
   }
-  #isRootProperty($property) {
-    return ($property === this.#settings.rootAlias)
-  }
   #isContentProperty($property) {
-    return ((
-      Object.getOwnPropertyNames(EventTarget.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(Content.prototype)
-      .includes($property)
-    ))
+    return Object.getOwnPropertyNames(Content.prototype)
+    .includes($property)
   }
   #isEventTarget($property) {
-    return ((
-      Object.getOwnPropertyNames(EventTarget.prototype)
-      .includes($property) ||
-      Object.getOwnPropertyNames(Content.prototype)
-      .includes($property)
-    ))
+    return Object.getOwnPropertyNames(EventTarget.prototype)
+    .includes($property)
+    
   }
   #isEventTargetOrContentProperty($property) {
-    return ((
+    return (
       this.#isEventTarget($property) ||
       this.#isContentProperty($property)
-    ))
+    )
   }
   #isObjectProperty($property) {
-    return ((
-      Object.getOwnPropertyNames(Object)
-      .includes($property)
-    ))
+    return Object.getOwnPropertyNames(Object)
+    .includes($property)
   }
   #isArrayProperty($property) {
-    return ((
+    return (
       Object.getOwnPropertyNames(Array.prototype)
       .includes($property) ||
       Object.getOwnPropertyNames(Array)
       .includes($property)
-    ))
+    )
   }
   #isFunctionProperty($property) {
-    return (
-      Object.getOwnPropertyNames(Function.prototype)
-      .includes($property)
-    )
+    return Object.getOwnPropertyNames(Function.prototype)
+    .includes($property)
   }
 }

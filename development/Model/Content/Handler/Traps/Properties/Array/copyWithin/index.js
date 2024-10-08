@@ -6,7 +6,6 @@ export default function CopyWithin(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
   } = $aliases

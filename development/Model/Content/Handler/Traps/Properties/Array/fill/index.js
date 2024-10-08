@@ -8,7 +8,6 @@ export default function Fill(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
     schema,
@@ -36,9 +35,7 @@ export default function Fill(
           value, [Object, Array/*, Map*/]
         )) {
           const subschema = schema.context[0]
-          value = new Content(value, {
-            rootAlias: rootAlias,
-          }, subschema)
+          value = new Content(value, {}, subschema)
         }
         let start
         if(typeof $arguments[1] === 'number') {

@@ -1,5 +1,4 @@
 export default {
-  rootAlias: 'root',
   traps: {
     properties: {
       set: {

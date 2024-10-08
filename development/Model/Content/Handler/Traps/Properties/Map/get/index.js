@@ -4,7 +4,6 @@ export default function Get(
   const {
     $eventTarget, 
     root, 
-    rootAlias, 
   } = $aliases
   return Object.defineProperty(
     $trap, $trapPropertyName, {

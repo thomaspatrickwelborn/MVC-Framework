@@ -6,7 +6,6 @@ export default class Content extends EventTarget {
   #options
   #schema
   #_type // 'object' // 'array' // 'map'
-  #_rootAlias
   #_root
   #_parent
   #_basename
@@ -53,18 +52,8 @@ export default class Content extends EventTarget {
       : null
     return this.#_path
   }
-  // Root Alias
-  get #rootAlias() {
-    if(this.#_rootAlias !== undefined) return this.#_rootAlias
-    this.#_rootAlias = (
-      typeof this.#options.rootAlias === 'string' &&
-      this.#options.rootAlias.length > 0
-    ) ? this.#options.rootAlias
-      : Options.rootAlias
-    return this.#_rootAlias
-  }
   // Root
-  get #root() {
+  get root() {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
       typeOf(this.#settings) === 'object'
@@ -78,7 +67,7 @@ export default class Content extends EventTarget {
   // Proxy
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
-    this.#_proxy = new Proxy(this.#root, this.#handler)
+    this.#_proxy = new Proxy(this.root, this.#handler)
     this.#handler.proxy = this.proxy
     if(this.type === 'object') {
       this.#_proxy.assign(this.#settings)
@@ -104,8 +93,7 @@ export default class Content extends EventTarget {
       basename: { value: this.basename },
       path: { value: this.path },
       parent: { value: this.parent },
-      rootAlias: { value: this.#rootAlias },
-      root: { value: this.#root },
+      root: { value: this.root },
       type: { value: this.type },
       schema: { value: this.#schema },
     })

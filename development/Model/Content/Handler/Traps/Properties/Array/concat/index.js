@@ -7,8 +7,6 @@ export default function Concat(
   const { events } = $options
   const {
     eventTarget, 
-    // root,
-    rootAlias, 
     basename,
     path, 
     schema,
@@ -55,7 +53,6 @@ export default function Concat(
                   basename: _basename,
                   parent: eventTarget,
                   path: _path,
-                  rootAlias,
                 }, subschema)
                 subvalues[subvaluesIndex] = subvalue
               }
@@ -90,7 +87,6 @@ export default function Concat(
                 basename: _basename,
                 parent: eventTarget,
                 path: _path,
-                rootAlias,
               }, subschema)
               values[valuesIndex] = value
             }

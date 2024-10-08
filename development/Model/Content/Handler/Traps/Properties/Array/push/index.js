@@ -8,7 +8,6 @@ export default function Push(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
     schema,
@@ -44,7 +43,6 @@ export default function Push(
             $element = new Content($element, {
               basename: _basename,
               path: _path,
-              rootAlias: rootAlias,
             }, subschema)
             elements.push($element)
             Array.prototype.push.call(root, $element)

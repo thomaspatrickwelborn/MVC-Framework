@@ -8,7 +8,6 @@ export default function Unshift(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
     schema,
@@ -50,7 +49,6 @@ export default function Unshift(
             element = new Content(element, {
               basename: _basename,
               path: _path,
-              rootAlias: rootAlias,
             }, subschema)
             elements.unshift(element)
             Array.prototype.unshift.call(root, element)

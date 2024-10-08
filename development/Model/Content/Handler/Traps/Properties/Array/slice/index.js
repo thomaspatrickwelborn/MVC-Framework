@@ -8,7 +8,6 @@ export default function Slice(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
     schema,

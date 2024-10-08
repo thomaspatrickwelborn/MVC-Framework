@@ -5,7 +5,6 @@ export default function Set(
   const {
     $eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
   } = $aliases

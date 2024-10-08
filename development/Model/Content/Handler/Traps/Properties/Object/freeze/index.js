@@ -11,7 +11,6 @@ export default function Freeze(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path,
   } = $aliases

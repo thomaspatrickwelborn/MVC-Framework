@@ -6,7 +6,6 @@ export default function Pop(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
   } = $aliases

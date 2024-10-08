@@ -11,7 +11,6 @@ export default function Seal(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path,
   } = $aliases

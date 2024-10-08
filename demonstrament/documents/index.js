@@ -20,6 +20,7 @@ const { schema, content } = new Model({
 // content.aaa.bbb = "BBB"
 content['addEventListener'] = "meh"
 // console.log(Object.getOwnPropertyDescriptors(content))
+console.log(content.root)
 console.log(content.object)
 // console.log(content.parse())
 /*

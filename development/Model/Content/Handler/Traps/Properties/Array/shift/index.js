@@ -6,7 +6,6 @@ export default function Shift(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
   } = $aliases

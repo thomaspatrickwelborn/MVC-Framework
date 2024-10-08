@@ -10,7 +10,6 @@ export default function Assign(
     eventTarget, 
     path, 
     root, 
-    rootAlias, 
     schema,
   } = $aliases
   const { enableValidation, validationEvents } = schema.options
@@ -62,7 +61,6 @@ export default function Assign(
                   basename: _basename,
                   parent: eventTarget,
                   path: _path,
-                  rootAlias,
                 }, subschema)
                 Object.assign(root, {
                   [$sourcePropKey]: contentObject

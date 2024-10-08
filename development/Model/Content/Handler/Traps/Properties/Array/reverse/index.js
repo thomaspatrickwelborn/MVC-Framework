@@ -6,7 +6,6 @@ export default function Reverse(
   const {
     eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
   } = $aliases

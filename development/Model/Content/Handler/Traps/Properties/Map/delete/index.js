@@ -5,7 +5,6 @@ export default function Delete(
   const {
     $eventTarget, 
     root, 
-    rootAlias, 
     basename,
     path, 
   } = $aliases
