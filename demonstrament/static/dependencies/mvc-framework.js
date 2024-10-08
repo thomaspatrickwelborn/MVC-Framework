@@ -2701,6 +2701,84 @@ class TypeValidator extends Validator {
   }
 }
 
+class RangeValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'range',
+      validate: ($context, $contentKey, $contentVal) => {
+        const { min, max } = $context;
+        const validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+        });
+        if(min !== undefined) {
+          validation.min = min;
+          (contentVal >= min);
+        }
+        if(max !== undefined) {
+          validation.max = max;
+          (contentVal <= max);
+        }
+        return validation
+      },
+    }));
+  }
+}
+
+class LengthValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'length',
+      validate: ($context, $contentKey, $contentVal) => {
+        const { minLength, maxLength } = $context;
+        const validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+        });
+        if(minLength !== undefined) {
+          validation.minLength = minLength;
+          (contentVal.length >= minLength);
+        }
+        if(maxLength !== undefined) {
+          validation.maxLength = maxLength;
+          (contentVal.length <= maxLength);
+        }
+        return validation
+      },
+    }));
+  }
+}
+
+class EnumValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'length',
+      validate: ($context, $contentKey, $contentVal) => {
+        const enumeration = $context.enum;
+        const validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+          enum: enumeration
+        });
+        validation.valid = enumeration.includes($contentVal);
+        return validation
+      },
+    }));
+  }
+}
+
 const Options$4 = {
   enableValidation: true,
   validationType: 'primitive', // 'object', 
@@ -2740,8 +2818,25 @@ class Schema extends EventTarget{
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
       // Context Validators: Transform
+      const addValidators = [];
+      // Context Validator: Add Range
+      if(
+        typeof settings[$contextKey].min === 'number' || 
+        typeof settings[$contextKey].max === 'number'
+      ) addValidators.push(new RangeValidator());
+      // Context Validator: Add Length
+      if(
+        typeof settings[$contextKey].minLength === 'number' ||
+        typeof settings[$contextKey].maxLength === 'number'
+      ) addValidators.push(new LengthValidator());
+      // Context Validator: Add Enum
+      if(
+        Array.isArray(settings[$contextKey].enum) &&
+        settings[$contextKey].enum.length > 0
+      ) addValidators.push(new EnumValidator());
+      // Context Validators: Concat
       settings[$contextKey].validators = Validators.concat(
-        settings[$contextKey].validators || []
+        addValidators, settings[$contextKey].validators || []
       );
       // Context Val Type: Schema Instance
       if(settings[$contextKey].type instanceof Schema) {

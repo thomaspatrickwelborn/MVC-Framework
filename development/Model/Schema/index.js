@@ -1,7 +1,9 @@
 import { typeOf } from '../../Coutil/index.js'
 import Content from '../Content/index.js'
 import Validation from './Validation/index.js'
-import { TypeValidator } from './Validators/index.js'
+import {
+  TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
+} from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
 const Options = {
   enableValidation: true,
@@ -9,6 +11,9 @@ const Options = {
   validationEvents: true,
 }
 const Validators = [new TypeValidator()]
+const ValidatorKeys = {
+  type: ['type'], range: ['min', 'max'], length: ['minLength', 'maxLength']
+}
 export default class Schema extends EventTarget{
   settings
   options
@@ -42,8 +47,25 @@ export default class Schema extends EventTarget{
       $contextKey, $contextVal
     ] of Object.entries(settings)) {
       // Context Validators: Transform
+      const addValidators = []
+      // Context Validator: Add Range
+      if(
+        typeof settings[$contextKey].min === 'number' || 
+        typeof settings[$contextKey].max === 'number'
+      ) addValidators.push(new RangeValidator())
+      // Context Validator: Add Length
+      if(
+        typeof settings[$contextKey].minLength === 'number' ||
+        typeof settings[$contextKey].maxLength === 'number'
+      ) addValidators.push(new LengthValidator())
+      // Context Validator: Add Enum
+      if(
+        Array.isArray(settings[$contextKey].enum) &&
+        settings[$contextKey].enum.length > 0
+      ) addValidators.push(new EnumValidator())
+      // Context Validators: Concat
       settings[$contextKey].validators = Validators.concat(
-        settings[$contextKey].validators || []
+        addValidators, settings[$contextKey].validators || []
       )
       // Context Val Type: Schema Instance
       if(settings[$contextKey].type instanceof Schema) {
