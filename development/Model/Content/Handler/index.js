@@ -27,9 +27,9 @@ export default class Handler {
       // --------------
       // Accessor Traps
       // --------------
-      if(['get', 'set', 'delete'].includes($property)) {
+      if($property === 'eventTarget') { return eventTarget }
+      else if(['get', 'set', 'delete'].includes($property)) {
         return $this.traps['Accessor'][$property]
-
       }
       // ------------------------------------------
       // Event Target/Dynamic Event Target Property

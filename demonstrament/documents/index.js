@@ -1,28 +1,45 @@
 import { Model, Schema } from '/dependencies/mvc-framework.js'
+const contentEventLog = ($event) => {
+  const { type, basename, path, detail } = $event
+  console.log('-----')
+  console.log('type', type)
+  console.log('basename', basename)
+  console.log('path', path)
+  console.log('detail', detail)
+}
 
 const { schema, content } = new Model({
   schema: {
     "aaa": { type: {
-      "bbb": { type: String }
+      "bbb": { type: String },
+      "ccc": { type: String },
     } },
     "addEventListener": { type: String },
   },
   content: {
     "aaa": {
-      "bbb": "222"
+      "bbb": "222",
+      "ccc": "333",
     }
   },
   events: {
-    'content delete': ($event) => { console.log($event.type, $event) },
-    'content set': ($event) => { console.log($event.type, $event) },
-    'content validateProperty': ($event) => { console.log($event.type, $event.detail) },
+    // 'content delete': contentEventLog,
+    'content set': contentEventLog,
+    // 'content validateProperty': contentEventLog,
   },
 })
 // console.log(content)
-console.log(content.get('aaa.bbb'))
-content.set('aaa.bbb', "222222")
-console.log(content.get('aaa.bbb'))
-content.delete('aaa.bbb')
+// content.set('aaa.bbb', "222222")
+// content.set('aaa.ccc', "333333")
+// console.log(content.parse({ type: 'json' }))
+content.set('aaa', {
+  "bbb": "222222222",
+  "ccc": "333333333",
+})
+// console.log(content.parse({ type: 'json' }))
+// content.delete('aaa.bbb')
+// console.log(content.get('aaa.bbb'))
+// console.log(content.get('aaa.bbb'))
 // console.log(content.get('aaa').get('bbb'))
 // content.aaa.bbb = "BBB"
 // content['addEventListener'] = "meh"

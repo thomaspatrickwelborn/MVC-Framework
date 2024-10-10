@@ -88,6 +88,7 @@ export default class Content extends EventTarget {
   // Aliases
   get #aliases() {
     if(this.#_aliases !== undefined) return this.#_aliases
+    // const $this = this
     this.#_aliases = Object.defineProperties({}, {
       eventTarget: { value: this },
       basename: { value: this.basename },
@@ -96,6 +97,7 @@ export default class Content extends EventTarget {
       root: { value: this.root },
       type: { value: this.type },
       schema: { value: this.#schema },
+      // proxy: { get() { return $this.proxy } }
     })
     return this.#_aliases
   }
@@ -110,8 +112,9 @@ export default class Content extends EventTarget {
     ).reduce(($parsement, [
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
+      console.log('$propertyDescriptor', $propertyDescriptor)
       if(typeof $propertyDescriptor.value === 'object') {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value.parse()
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse() || $propertyDescriptor.value
       } else {
         $parsement[$propertyDescriptorName] = $propertyDescriptor.value
       }
