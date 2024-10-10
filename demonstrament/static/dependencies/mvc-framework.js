@@ -2219,19 +2219,35 @@ function GetProperty(
   const { root, eventTarget } = $aliases;
   return Object.defineProperty(
     $trap, $trapPropertyName, {
-      value: function($path) {
-        const pathSegments = $path.split('.');
-        let value = root;
-        let pathSegmentsIndex = 0;
-        for(const $pathSegment of pathSegments) {
-          if(pathSegmentsIndex === 0) { value = value[$pathSegment]; }
-          else {
-            try { value = value.get($pathSegment); }
-            catch($err) { return }
-          }
-          pathSegmentsIndex++;
+      value: function() {
+        const { proxy } = eventTarget;
+        if(arguments.length === 0) { return proxy }
+        else if(arguments.length === 1) {
+          console.log(arguments[0]);
+          // return proxy.get(arguments[0])
+          // const pathSegments = arguments[0].split('.')
+          // console.log(pathSegments)
+          // let value = proxy
+          // let pathSegmentsIndex = 0
+
+          // iteratePathSegments: 
+          // for(const $pathSegment of pathSegments) {
+          //   console.log('$pathSegment', $pathSegment)
+          //   // if(value.eventTarget instanceof Content) {
+          //   //   // console.log(value.get('aaa'))
+          //   // }
+          //   // console.log('value', value.get($pathSegment))
+          //   // if(value[$pathSegment]?.eventTarget instanceof Content) {
+          //   //   value = value.get($pathSegment)
+          //   // }
+          //   // else {
+          //   //   value = value[$pathSegment]
+          //   // }
+          //   pathSegmentsIndex++
+          // }
+          // console.log(value)
+          // return value
         }
-        return value
       }
     }
   )
@@ -2331,23 +2347,35 @@ function DeleteProperty(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function($path) {
-        const pathSegments = $path.split('.');
-        const rootPathSegment = pathSegments.shift();
-        if(pathSegments.length) {
-          return root[rootPathSegment].delete(pathSegments.join('.'))
-        }
-        const value = delete root[rootPathSegment];
-        if(events.includes('delete')) {
-          eventTarget.dispatchEvent(
-            new ContentEvent('delete', {
-              basename, 
-              path, 
-              detail: {
-                property: $path,
-                value: value,
-              },
-            }, eventTarget)
-          );
+        const { proxy } = eventTarget;
+        const paths = (arguments.length === 0)
+          ? Object.keys(proxy)
+          : (arguments.length === 1)
+            ? [...arguments]
+            : [];
+        for(let $path of paths) {
+          const pathSegments = $path.split('.');
+          const pathRootSegment = pathSegments.shift();
+          console.log('pathRootSegment', pathRootSegment);
+          console.log('proxy', proxy);
+          console.log(`proxy["${pathRootSegment}"]`, proxy[pathRootSegment]);
+          if(pathSegments.length) {
+            return proxy[pathRootSegment].delete(pathSegments.join('.'))
+          }
+          delete root[pathRootSegment];
+          const value = delete proxy[pathRootSegment];
+          if(events.includes('delete')) {
+            eventTarget.dispatchEvent(
+              new ContentEvent('delete', {
+                basename, 
+                path, 
+                detail: {
+                  property: $path,
+                  value: value,
+                },
+              }, eventTarget)
+            );
+          }
         }
       }
     }
@@ -2689,9 +2717,8 @@ class Content extends EventTarget {
     ).reduce(($parsement, [
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
-      console.log('$propertyDescriptor', $propertyDescriptor);
       if(typeof $propertyDescriptor.value === 'object') {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse() || $propertyDescriptor.value;
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse(); // || $propertyDescriptor.value
       } else {
         $parsement[$propertyDescriptorName] = $propertyDescriptor.value;
       }

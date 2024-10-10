@@ -112,9 +112,8 @@ export default class Content extends EventTarget {
     ).reduce(($parsement, [
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
-      console.log('$propertyDescriptor', $propertyDescriptor)
       if(typeof $propertyDescriptor.value === 'object') {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse() || $propertyDescriptor.value
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse() // || $propertyDescriptor.value
       } else {
         $parsement[$propertyDescriptorName] = $propertyDescriptor.value
       }

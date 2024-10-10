@@ -23,19 +23,25 @@ const { schema, content } = new Model({
     }
   },
   events: {
-    // 'content delete': contentEventLog,
+    'content delete': contentEventLog,
     'content set': contentEventLog,
     // 'content validateProperty': contentEventLog,
   },
 })
+console.log(content.get('addEventListener'))
+// content.set('aaa', {
+//   "bbb": "222222222",
+//   "ccc": "333333333",
+// })
+// console.log('=====')
+// console.log(`content.get()`, content.get())
+// console.log('=====')
+// console.log(`content.get("aaa")`, content.get("aaa"))
+// content.delete('aaa.bbb')
 // console.log(content)
 // content.set('aaa.bbb', "222222")
 // content.set('aaa.ccc', "333333")
 // console.log(content.parse({ type: 'json' }))
-content.set('aaa', {
-  "bbb": "222222222",
-  "ccc": "333333333",
-})
 // console.log(content.parse({ type: 'json' }))
 // content.delete('aaa.bbb')
 // console.log(content.get('aaa.bbb'))

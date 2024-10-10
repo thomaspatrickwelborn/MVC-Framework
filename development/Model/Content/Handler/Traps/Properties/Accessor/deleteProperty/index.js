@@ -7,23 +7,36 @@ export default function DeleteProperty(
   return Object.defineProperty(
     $trap, $trapPropertyName, {
       value: function($path) {
-        const pathSegments = $path.split('.')
-        const rootPathSegment = pathSegments.shift()
-        if(pathSegments.length) {
-          return root[rootPathSegment].delete(pathSegments.join('.'))
-        }
-        const value = delete root[rootPathSegment]
-        if(events.includes('delete')) {
-          eventTarget.dispatchEvent(
-            new ContentEvent('delete', {
-              basename, 
-              path, 
-              detail: {
-                property: $path,
-                value: value,
-              },
-            }, eventTarget)
-          )
+        const { proxy } = eventTarget
+        const paths = (arguments.length === 0)
+          ? Object.keys(proxy)
+          : (arguments.length === 1)
+            ? [...arguments]
+            : []
+        iteratePaths: 
+        for(let $path of paths) {
+          const pathSegments = $path.split('.')
+          const pathRootSegment = pathSegments.shift()
+          console.log('pathRootSegment', pathRootSegment)
+          console.log('proxy', proxy)
+          console.log(`proxy["${pathRootSegment}"]`, proxy[pathRootSegment])
+          if(pathSegments.length) {
+            return proxy[pathRootSegment].delete(pathSegments.join('.'))
+          }
+          delete root[pathRootSegment]
+          const value = delete proxy[pathRootSegment]
+          if(events.includes('delete')) {
+            eventTarget.dispatchEvent(
+              new ContentEvent('delete', {
+                basename, 
+                path, 
+                detail: {
+                  property: $path,
+                  value: value,
+                },
+              }, eventTarget)
+            )
+          }
         }
       }
     }
