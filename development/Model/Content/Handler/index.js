@@ -4,32 +4,31 @@ import { ContentEvent, ValidatorEvent } from '../Events/index.js'
 import Traps from './Traps/index.js'
 
 export default class Handler {
-  #settings
-  #options
-  traps
-  constructor($settings, $options) {
-    this.#settings = $settings
-    this.#options = $options
-    this.traps = new Traps(this.#settings, $options.traps)
-    return this
+  #content
+  #traps
+  constructor($content) {
+    this.#content = $content
+    this.#traps = new Traps(this.#content)
   }
   // Get Property
   get get() {
     const $this = this
     const {
-      eventTarget, 
+      // eventTarget, 
       root, 
       schema,
       basename,
       path,
-    } = this.#settings
+    } = this.#content
+    const eventTarget = this.#content
     return function get($target, $property, $receiver) {
       // --------------
       // Accessor Traps
       // --------------
       if($property === 'eventTarget') { return eventTarget }
+      else if($property === 'root') { return root }
       else if(['get', 'set', 'delete'].includes($property)) {
-        return $this.traps['Accessor'][$property]
+        return $this.#traps['Accessor'][$property]
       }
       // ------------------------------------------
       // Event Target/Dynamic Event Target Property
@@ -44,13 +43,13 @@ export default class Handler {
       // Object Traps
       // ------------
       else if(this.#isObjectProperty($property)) {
-        return $this.traps['Object'][$property]
+        return $this.#traps['Object'][$property]
       }
       // -----------
       // Array Traps
       // -----------
       else if(this.#isArrayProperty($property)) {
-        return $this.traps['Array'][$property]
+        return $this.#traps['Array'][$property]
       }
       // ---------
       // Undefined
@@ -58,24 +57,28 @@ export default class Handler {
       else { return undefined }
     }
   }
+  /*
   // Set Property
   get set() {
+    throw "MVC Framework - Handler SET"
     const $this = this
     const { schema } = this.#settings
     const { enableValidation, validationEvents } = schema.options
     return function set($target, $property, $value, $receiver) {
       if(this.#isObjectProperty($property)) {
-        $this.traps['Object'][$property] = $value
+        $this.#traps['Object'][$property] = $value
       }
       else if(this.#isArrayProperty($property)) {
-        $this.traps['Array'][$property] = $value
+        $this.#traps['Array'][$property] = $value
       }
       return true
     }
   }
   get deleteProperty() {
+    throw "MVC Framework - Handler DELETE"
     return function deleteProperty($target, $property) { return true }
   }
+  */
   #isContentProperty($property) {
     return Object.getOwnPropertyNames(Content.prototype)
     .includes($property)

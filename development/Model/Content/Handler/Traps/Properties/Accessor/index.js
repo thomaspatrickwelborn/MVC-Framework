@@ -4,5 +4,5 @@ import deleteProperty from './deleteProperty/index.js'
 export default {
   get: getProperty,
   set: setProperty,
-  delete: deleteProperty,
+  // delete: deleteProperty,
 }

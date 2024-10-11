@@ -2,10 +2,11 @@ import { typeOf } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 import Options from './Options/index.js'
 export default class Content extends EventTarget {
-  #settings
-  #options
-  #schema
+  settings
+  options
+  schema
   #_type // 'object' // 'array' // 'map'
+  #_radicle
   #_root
   #_parent
   #_basename
@@ -15,9 +16,9 @@ export default class Content extends EventTarget {
   #_aliases
   constructor($settings = {}, $options = {}, $schema) {
     super()
-    this.#settings = $settings
-    this.#options = Object.assign({}, Options, $options)
-    this.#schema = $schema
+    this.settings = $settings
+    this.options = Object.assign({}, Options, $options)
+    this.schema = $schema
     return this.proxy
   }
   // Object
@@ -25,41 +26,44 @@ export default class Content extends EventTarget {
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.#settings)
+    this.#_type = typeOf(this.settings)
     return this.#_type
   }
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
     this.#_parent = (
-      this.#options.parent !== undefined
-    ) ? this.#options.parent
+      this.options.parent !== undefined
+    ) ? this.options.parent
       : null
     return this.#_parent
   }
   get basename() {
     if(this.#_basename !== undefined)  return this.#_basename
     this.#_basename = (
-      this.#options.basename !== undefined
-    ) ? this.#options.basename
+      this.options.basename !== undefined
+    ) ? this.options.basename
       : null
     return this.#_basename
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
     this.#_path = (
-      this.#options.path !== undefined
-    ) ? this.#options.path
+      this.options.path !== undefined
+    ) ? this.options.path
       : null
     return this.#_path
   }
+  // Radicle
+  get radicle() { return this.#_radicle }
+  set radicle($radicle) { this.#_radicle = radicle }
   // Root
   get root() {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = (
-      typeOf(this.#settings) === 'object'
+      typeOf(this.settings) === 'object'
     ) ? {}
       : (
-      typeOf(this.#settings) === 'array'
+      typeOf(this.settings) === 'array'
     ) ? []
       : {}
     return this.#_root
@@ -67,21 +71,16 @@ export default class Content extends EventTarget {
   // Proxy
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
+    // Root Handler
     this.#_proxy = new Proxy(this.root, this.#handler)
-    this.#handler.proxy = this.proxy
-    if(this.type === 'object') {
-      this.#_proxy.assign(this.#settings)
-    } else
-    if(this.type === 'array') {
-      this.#_proxy.assign(this.#settings)
-    }
     return this.#_proxy
   }
   // Handler
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    this.#_handler = new Handler(this.#aliases, {
-      traps: this.#options.traps,
+    // this.#_handler = new Handler(this.#aliases, {
+    this.#_handler = new Handler(this, {
+      traps: this.options.traps,
     })
     return this.#_handler
   }
@@ -96,7 +95,7 @@ export default class Content extends EventTarget {
       parent: { value: this.parent },
       root: { value: this.root },
       type: { value: this.type },
-      schema: { value: this.#schema },
+      schema: { value: this.schema },
       // proxy: { get() { return $this.proxy } }
     })
     return this.#_aliases

@@ -93,18 +93,7 @@ Content [{
   }
 }]
 
-Validate Objects [{
-  aaa: {
-    bbb: "222",
-    ccc: 333,
-    ddd: "false",
-    eee: {
-      fff: "true",
-      ggg: "777",
-      hhh: "888",
-    }
-  }
-}]
+Validate Objects []
 Validate Primitives: [{
   aaa: {
     eee: {

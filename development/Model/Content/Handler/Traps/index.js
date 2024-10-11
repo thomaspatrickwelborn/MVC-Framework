@@ -2,21 +2,26 @@ import Trap from './Trap/index.js'
 import PropertyClasses from './Properties/index.js'
 
 export default class Traps {
-  Object
-  Array
-  Accessor
-  // Map
-  constructor($settings, $options) {
+  #content
+  Object // Trap
+  Array // Trap
+  Accessor // Trap
+  constructor($content) {
+    this.#content = $content
     // Iterate Property Classes
     iteratePropertyClasses:
     for(let [
       PropertyClassName, PropertyClassMethods
     ] of Object.entries(PropertyClasses)) {
-      const trapOptions = $options[PropertyClassName.toLowerCase()]
-      const trap = new Trap(PropertyClassMethods, $settings, trapOptions)
+      const trapOptions = this.#content.options.traps[
+        PropertyClassName.toLowerCase()
+      ]
+      // Property Class Trap (Object, Array, Accessor)
       Object.defineProperty(
         this, PropertyClassName, {
-          value: trap
+          value: new Trap(
+            PropertyClassMethods, this.#content, trapOptions
+          )
         }
       )
     }

@@ -1,11 +1,23 @@
 export default {
   traps: {
     accessor: {
+      path: {
+        key: true,
+        sep: '.',
+        esc: '"',
+      },
       set: {
-        events: ['set'],
+        recursive: true,
+        events: [
+          'set',
+          'setProperty'
+        ],
       },
       delete: {
-        events: ['delete'],
+        events: [
+          'delete',
+          'deleteProperty'
+        ],
       },
     },
     object: {

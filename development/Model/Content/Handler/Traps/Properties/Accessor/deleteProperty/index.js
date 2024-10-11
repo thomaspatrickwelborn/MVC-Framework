@@ -1,44 +1,43 @@
+import { Content } from '../../../../../index.js'
 import { ContentEvent } from '../../../../../Events/index.js'
-export default function DeleteProperty(
-  $trap, $trapPropertyName, $aliases, $options
-) {
-  const { events } = $options
-  const { eventTarget, root, basename, path } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function($path) {
-        const { proxy } = eventTarget
-        const paths = (arguments.length === 0)
-          ? Object.keys(proxy)
-          : (arguments.length === 1)
-            ? [...arguments]
-            : []
-        iteratePaths: 
-        for(let $path of paths) {
-          const pathSegments = $path.split('.')
-          const pathRootSegment = pathSegments.shift()
-          console.log('pathRootSegment', pathRootSegment)
-          console.log('proxy', proxy)
-          console.log(`proxy["${pathRootSegment}"]`, proxy[pathRootSegment])
-          if(pathSegments.length) {
-            return proxy[pathRootSegment].delete(pathSegments.join('.'))
-          }
-          delete root[pathRootSegment]
-          const value = delete proxy[pathRootSegment]
-          if(events.includes('delete')) {
-            eventTarget.dispatchEvent(
-              new ContentEvent('delete', {
-                basename, 
-                path, 
-                detail: {
-                  property: $path,
-                  value: value,
-                },
-              }, eventTarget)
-            )
-          }
-        }
+export default function DeleteProperty($content, $options) {
+  const { eventTarget, root, basename, path } = $content
+  return function deleteProperty() {
+    const { proxy } = eventTarget
+    // Delete Content Invocation
+    if((
+      // Unulteroptions
+      arguments.length === 0
+    ) || (
+      // Ulteroptions
+      arguments.length === 1 &&
+      typeof arguments[0] === 'object'
+    )) {
+      // Arguments
+      const ulteroptions = Object.assign(
+        $options, arguments[1]?.traps?.accessor?.delete || {}
+      )
+      const { recursive, events, pathKey, pathSep, pathEsc } = ulteroptions
+      const rootEntries = Object.entries(root)
+      for(const [$key, $value] of rootEntries) {
+        // 
       }
     }
-  )
+    // Delete Content Property Invocation
+    else if((
+      // Unulteroptions
+      arguments.length === 1
+    ) || (
+      // Ulteroptions
+      arguments.length === 2 &&
+      typeof arguments[1] === 'object'
+    )) {
+      // Arguments
+      const $path = arguments = 0
+      const ulteroptions = Object.assign(
+        $options, arguments[1]?.traps?.accessor?.delete || {}
+      )
+      const { recursive, events, pathKey, pathSep, pathEsc } = ulteroptions
+    }
+  }
 }
