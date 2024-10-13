@@ -13,11 +13,37 @@ const { content } = new Model({
     "bbb": { type: Number },
     "ccc": { type: Boolean },
     "ddd": { type: {
-      "eee": { type: String }
+      "eee": { type: String },
+      "fff": { type: Number },
+      "ggg": { type: Boolean },
     } },
   },
   content: {},
 })
+content.set({
+  "aaa": "AAA",
+  "bbb": 222,
+  "ccc": false,
+  "ddd": {
+    "eee": "EEE",
+    "fff": 666,
+    "ggg": true
+  },
+})
+console.log(content.set("ddd", {
+  "eee": "EEEEEE",
+  "fff": 666666,
+  "ggg": false
+}))
+// console.log(content.string)
+// content.set("aaa", "AAAAAA")
+// content.set("bbb", 222222)
+// content.set("ccc", true)
+// console.log(content.string)
+// content.set("ddd.eee", "EEEEEE")
+// content.set("ddd.fff", 666666)
+// content.set("ddd.ggg", false)
+// console.log(content.string)
 /*
 import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
 import DefaultTemplate from './template.js'

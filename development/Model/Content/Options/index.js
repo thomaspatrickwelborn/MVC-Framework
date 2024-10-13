@@ -1,12 +1,10 @@
 export default {
   traps: {
     accessor: {
-      path: {
-        key: true,
-        sep: '.',
-        esc: '"',
-      },
       set: {
+        pathkey: true,
+        pathsep: '.',
+        pathesc: '"',
         recursive: true,
         events: [
           'set',
@@ -14,6 +12,9 @@ export default {
         ],
       },
       delete: {
+        pathkey: true,
+        pathsep: '.',
+        pathesc: '"',
         events: [
           'delete',
           'deleteProperty'
@@ -22,6 +23,9 @@ export default {
     },
     object: {
       assign: {
+        pathkey: true,
+        pathsep: '.',
+        pathesc: '"',
         events: [
           'assignSourceProperty',
           'assignSource',

@@ -1,9 +1,9 @@
-import { Content } from '../../../../../index.js'
+import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../Events/index.js'
 export default function GetProperty($content, $options) {
-  const { eventTarget, root, basename, path } = $content
+  const { radicle, root, basename, path } = $content
   return function getProperty() {
-    const { proxy } = eventTarget
+    const { proxy } = $content
     // Get Content Invocation
     if((
       // Unulteroptions
@@ -34,9 +34,7 @@ export default function GetProperty($content, $options) {
       )
       const pathEntries = Object.entries($path)
       let value = root
-      for(const [
-        $subpathIndex, $subpath
-      ] of pathEntries) {
+      for(const [$subpathIndex, $subpath] of pathEntries) {
         if($subpathIndex === 0) { value = root[$subpath] }
         else if(value instanceof Content) { value = value.get($subpath) }
       }

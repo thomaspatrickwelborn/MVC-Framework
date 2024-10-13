@@ -1,9 +1,9 @@
-import { Content } from '../../../../../index.js'
+import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../Events/index.js'
 export default function DeleteProperty($content, $options) {
-  const { eventTarget, root, basename, path } = $content
+  const { radicle, root, basename, path } = $content
   return function deleteProperty() {
-    const { proxy } = eventTarget
+    const { proxy } = $content
     // Delete Content Invocation
     if((
       // Unulteroptions
@@ -18,9 +18,11 @@ export default function DeleteProperty($content, $options) {
         $options, arguments[1]?.traps?.accessor?.delete || {}
       )
       const { recursive, events, pathKey, pathSep, pathEsc } = ulteroptions
-      const rootEntries = Object.entries(root)
-      for(const [$key, $value] of rootEntries) {
-        // 
+      const rootPropertyEntries = Object.entries(root)
+      for(const [$rootPropertyKey, $rootPropertyValue] of rootPropertyEntries) {
+        if($rootPropertyValue instanceof Content) { $rootPropertyValue.delete() }
+        delete radicle[$rootPropertyKey]
+        delete root[$rootPropertyKey]
       }
     }
     // Delete Content Property Invocation
@@ -33,7 +35,7 @@ export default function DeleteProperty($content, $options) {
       typeof arguments[1] === 'object'
     )) {
       // Arguments
-      const $path = arguments = 0
+      const $path = arguments[0]
       const ulteroptions = Object.assign(
         $options, arguments[1]?.traps?.accessor?.delete || {}
       )

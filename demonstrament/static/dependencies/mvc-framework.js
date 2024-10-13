@@ -173,8 +173,9 @@ class Trap {
 }
 
 function GetProperty($content, $options) {
-  const { eventTarget, root, basename, path } = $content;
+  const { radicle, root, basename, path } = $content;
   return function getProperty() {
+    const { proxy } = $content;
     // Get Content Invocation
     if((
       // Unulteroptions
@@ -184,30 +185,48 @@ function GetProperty($content, $options) {
       arguments.length === 1 &&
       typeof arguments[0] === 'object'
     )) {
-      Object.assign(
-        $options, arguments[1]?.traps?.accessor?.get || {}
-      );
-      const rootEntries = Object.entries(root);
-      for(const [$key, $value] of rootEntries) {
-        // 
-      }
+      ulteroptions.traps.accessor.get;
+      return proxy
     }
     // Get Content Property Invocation
-    else if(arguments.length === 1 || (
+    else if((
+      // Unulteroptions
+      arguments.length === 1 &&
+      typeof arguments[0] === 'string'
+    ) || (
+      // Ulteroptions
       arguments.length === 2 &&
+      typeof arguments[0] === 'string' &&
       typeof arguments[1] === 'object'
     )) {
+      // Arguments
+      const $path = arguments[0];
       Object.assign(
         $options, arguments[1]?.traps?.accessor?.get || {}
       );
+      const pathEntries = Object.entries($path);
+      let value = root;
+      for(const [$subpathIndex, $subpath] of pathEntries) {
+        if($subpathIndex === 0) { value = root[$subpath]; }
+        else if(value instanceof Content) { value = value.get($subpath); }
+      }
+      return value
     }
   }
 }
 
 function SetProperty($content, $options) {
-  const { eventTarget, root, basename, path } = $content;
+  console.log(
+    "\n", "------------",
+    "\n", "Set Property",
+    "\n", "------------",
+  );
+  const { radicle, root, basename, path } = $content;
   return function setProperty() {
-    // Set Content Invocation
+    const { proxy } = $content;
+    // -----------------------------
+    // Set Content Method Invocation
+    // -----------------------------
     if((
       // Unulteroptions
       arguments.length === 1 &&
@@ -218,15 +237,39 @@ function SetProperty($content, $options) {
       typeof arguments[0] === 'object' &&
       typeof arguments[1] === 'object'
     )) {
-      Object.assign(
-        $options, arguments[1]?.traps?.accessor?.set || {}
-      );
-      const rootEntries = Object.entries(root);
-      for(const [$key, $value] of rootEntries) {
-        // 
+      // Arguments
+      const $value = arguments[0];
+      const ulteroptions = Object.assign({}, $options, arguments[1] || {});
+      // Delete Preterproperties
+      proxy.delete();
+      // Set Anterproperties
+      const properties = Object.entries($value);
+      for(const [$propertyKey, $propertyValue] of properties) {
+        // Property Value
+        let propertyValue;
+        // Property Value: Content Instance
+        if($propertyValue instanceof Content) {
+          propertyValue = $propertyValue;
+        }
+        // Property Value: New Content Instance
+        else if(typeof $propertyValue === 'object') {
+          propertyValue = new Content(
+            $propertyValue, { traps: { accessor: { set: ulteroptions } }}
+          );
+        }
+        // Property Value: Primitive Literal
+        else { propertyValue = $propertyValue; }
+        // Radicle Property: Unmodified Value
+        radicle[$propertyKey] = $propertyValue;
+        // Root Property: Modified Value
+        root[$propertyKey] = propertyValue;
       }
+      // Return Proxy
+      return proxy
     }
-    // Set Content Property Invocation
+    // --------------------------------------
+    // Set Content Property Method Invocation
+    // --------------------------------------
     else if((
       // Unulteroptions
       arguments.length === 2 &&
@@ -237,8 +280,111 @@ function SetProperty($content, $options) {
       typeof arguments[0] === 'string' &&
       typeof arguments[2] === 'object'
     )) {
+      // Arguments
+      const $path = arguments[0];
+      const $value = arguments[1];
+      // Ulteroptions
+      const ulteroptions = Object.assign({}, $options, arguments[2] || {});
+      const { recursive, events, pathkey, pathsep, pathesc } = ulteroptions;
+      // Property Value
+      let propertyValue;
+      // Property Value: Content Instance
+      if($value instanceof Content) {
+        propertyValue = $value;
+      }
+      // Property Value: New Content Instance
+      else if(typeof $value === 'object') {
+        propertyValue = new Content(
+          $value, { traps: { accessor: { set: arguments[1] } }}
+        );
+      }
+      // Property Value: Primitive Literal
+      else { propertyValue = $value; }
+      // Path Key: true
+      if(pathkey === true) {
+        let path = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/));
+        const basename = path.pop();
+        // Get Target
+        let target = root;
+        let targetIsRoot = true;
+        let targetIsContent = false;
+        for(const $subpath of path) {
+          targetIsRoot = (target === root);
+          targetIsContent = (target.eventTarget instanceof Content);
+          // Target: Root
+          if(targetIsRoot) {
+            target = target[$subpath];
+          }
+          // Target: Content
+          else if(targetIsContent) {
+            target = target.get($subpath, ulteroptions);
+          }
+          // Recursive: true
+          // Target: Undefined
+          if(recursive && target === undefined) {
+            // Target: New Content Instance
+            const nextarget = new Content(propertyValue, $options);
+            // Target: Root
+            if(targetIsRoot) {
+              target = target[$subpath] = nextarget;
+            }
+            // Target: Content Instance
+            else if(targetIsContent) {
+              target = target.set($subpath, nextarget, ulteroptions);
+            }
+          }
+        }
+        // Target: Undefined Return
+        if(target === undefined) return
+        // Target: Root Set Property Value
+        if(targetIsRoot) { target[basename] = propertyValue; }
+        // Target: Content Set Property Value
+        else if(targetIsContent) { target.set(basename, propertyValue, ulteroptions); }
+      }
+      // Path Key: false
+      else if(pathkey === false) {
+        root[basename] = propertyValue;
+      }
+      // Return Property Value
+      return propertyValue
+    }
+  }
+}
+
+function DeleteProperty($content, $options) {
+  const { radicle, root, basename, path } = $content;
+  return function deleteProperty() {
+    // Delete Content Invocation
+    if((
+      // Unulteroptions
+      arguments.length === 0
+    ) || (
+      // Ulteroptions
+      arguments.length === 1 &&
+      typeof arguments[0] === 'object'
+    )) {
+      // Arguments
       Object.assign(
-        $options, arguments[2]?.traps?.accessor?.set || {}
+        $options, arguments[1]?.traps?.accessor?.delete || {}
+      );
+      const rootPropertyEntries = Object.entries(root);
+      for(const [$rootPropertyKey, $rootPropertyValue] of rootPropertyEntries) {
+        if($rootPropertyValue instanceof Content) { $rootPropertyValue.delete(); }
+        delete radicle[$rootPropertyKey];
+        delete root[$rootPropertyKey];
+      }
+    }
+    // Delete Content Property Invocation
+    else if((
+      // Unulteroptions
+      arguments.length === 1
+    ) || (
+      // Ulteroptions
+      arguments.length === 2 &&
+      typeof arguments[1] === 'object'
+    )) {
+      Object.assign(
+        $options, arguments[1]?.traps?.accessor?.delete || {}
       );
     }
   }
@@ -247,7 +393,7 @@ function SetProperty($content, $options) {
 var AccessorProperty = {
   get: GetProperty,
   set: SetProperty,
-  // delete: deleteProperty,
+  delete: DeleteProperty,
 };
 
 var PropertyClasses = {
@@ -394,12 +540,10 @@ class Handler {
 var Options$5 = {
   traps: {
     accessor: {
-      path: {
-        key: true,
-        sep: '.',
-        esc: '"',
-      },
       set: {
+        pathkey: true,
+        pathsep: '.',
+        pathesc: '"',
         recursive: true,
         events: [
           'set',
@@ -407,6 +551,9 @@ var Options$5 = {
         ],
       },
       delete: {
+        pathkey: true,
+        pathsep: '.',
+        pathesc: '"',
         events: [
           'delete',
           'deleteProperty'
@@ -415,6 +562,9 @@ var Options$5 = {
     },
     object: {
       assign: {
+        pathkey: true,
+        pathsep: '.',
+        pathesc: '"',
         events: [
           'assignSourceProperty',
           'assignSource',
@@ -492,7 +642,7 @@ class Content extends EventTarget {
   settings
   options
   schema
-  #_type // 'object' // 'array' // 'map'
+  #_type
   #_radicle
   #_root
   #_parent
@@ -500,7 +650,6 @@ class Content extends EventTarget {
   #_path
   #_proxy
   #_handler
-  #_aliases
   constructor($settings = {}, $options = {}, $schema) {
     super();
     this.settings = $settings;
@@ -508,13 +657,21 @@ class Content extends EventTarget {
     this.schema = $schema;
     return this.proxy
   }
+  get Class() { return Content }
   // Object
   get object() { return this.parse({ type: 'object' }) }
+  // String
+  get string() { return this.parse({ type: 'string' }) }
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
     this.#_type = typeOf(this.settings);
     return this.#_type
+  }
+  get #typedObjectLiteral() {
+    if(this.type === 'object') { return {} }
+    else if(this.type === 'array') { return [] }
+    else { return {} }
   }
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
@@ -541,18 +698,15 @@ class Content extends EventTarget {
     return this.#_path
   }
   // Radicle
-  get radicle() { return this.#_radicle }
-  set radicle($radicle) { this.#_radicle = radicle; }
+  get radicle() {
+    if(this.#_radicle !== undefined) return this.#_radicle
+    this.#_radicle = this.#typedObjectLiteral;
+    return this.#_radicle
+  }
   // Root
   get root() {
     if(this.#_root !== undefined) return this.#_root
-    this.#_root = (
-      typeOf(this.settings) === 'object'
-    ) ? {}
-      : (
-      typeOf(this.settings) === 'array'
-    ) ? []
-      : {};
+    this.#_root = this.#typedObjectLiteral;
     return this.#_root
   }
   // Proxy
@@ -560,35 +714,19 @@ class Content extends EventTarget {
     if(this.#_proxy !== undefined) return this.#_proxy
     // Root Handler
     this.#_proxy = new Proxy(this.root, this.#handler);
+    this.#_proxy.set(this.settings);
     return this.#_proxy
   }
   // Handler
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    // this.#_handler = new Handler(this.#aliases, {
     this.#_handler = new Handler(this, {
       traps: this.options.traps,
     });
     return this.#_handler
   }
-  // Aliases
-  get #aliases() {
-    if(this.#_aliases !== undefined) return this.#_aliases
-    // const $this = this
-    this.#_aliases = Object.defineProperties({}, {
-      eventTarget: { value: this },
-      basename: { value: this.basename },
-      path: { value: this.path },
-      parent: { value: this.parent },
-      root: { value: this.root },
-      type: { value: this.type },
-      schema: { value: this.schema },
-      // proxy: { get() { return $this.proxy } }
-    });
-    return this.#_aliases
-  }
   parse($settings = {
-    type: 'object', // 'json',
+    type: 'object',
   }) {
     let parsement;
     if(this.type === 'object') { parsement = {}; }
@@ -610,8 +748,8 @@ class Content extends EventTarget {
       $settings.type === 'Object'
     ) return parsement
     else if(
-      $settings.type === 'json' || 
-      $settings.type === 'JSON' 
+      $settings.type === 'string' || 
+      $settings.type === 'String'
     ) return JSON.stringify(parsement, null, 2)
     return undefined
   }
