@@ -88,6 +88,7 @@ export default class Content extends EventTarget {
     })
     return this.#_handler
   }
+  // Parse
   parse($settings = {
     type: 'object',
   }) {

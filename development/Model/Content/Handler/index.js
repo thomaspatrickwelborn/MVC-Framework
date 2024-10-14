@@ -10,34 +10,30 @@ export default class Handler {
     this.#content = $content
     this.#traps = new Traps(this.#content)
   }
-  // Get Property
   get get() {
     const $this = this
+    const content = this.#content
     const {
-      // eventTarget, 
       root, 
       schema,
       basename,
       path,
-    } = this.#content
-    const eventTarget = this.#content
+    } = content
     return function get($target, $property, $receiver) {
       // --------------
       // Accessor Traps
       // --------------
-      if($property === 'eventTarget') { return eventTarget }
-      else if($property === 'root') { return root }
-      else if(['get', 'set', 'delete'].includes($property)) {
+      if(this.#isAccessorProperty($property)) {
         return $this.#traps['Accessor'][$property]
       }
-      // ------------------------------------------
-      // Event Target/Dynamic Event Target Property
-      // ------------------------------------------
+      // ---------------------------
+      // Content Class Instance Trap
+      // ---------------------------
       else if(this.#isEventTargetOrContentProperty($property)) {
-        if(typeof eventTarget[$property] === 'function') {
-          return eventTarget[$property].bind(eventTarget)
+        if(typeof content[$property] === 'function') {
+          return content[$property].bind(content)
         }
-        return eventTarget[$property]
+        return content[$property]
       }
       // ------------
       // Object Traps
@@ -57,28 +53,12 @@ export default class Handler {
       else { return undefined }
     }
   }
-  /*
-  // Set Property
-  get set() {
-    throw "MVC Framework - Handler SET"
-    const $this = this
-    const { schema } = this.#settings
-    const { enableValidation, validationEvents } = schema.options
-    return function set($target, $property, $value, $receiver) {
-      if(this.#isObjectProperty($property)) {
-        $this.#traps['Object'][$property] = $value
-      }
-      else if(this.#isArrayProperty($property)) {
-        $this.#traps['Array'][$property] = $value
-      }
-      return true
-    }
+  get deleteProperty() {}
+  get defineProperty() {}
+  get set() {}
+  #isAccessorProperty($property) {
+    return ['get', 'set', 'delete'].includes($property)
   }
-  get deleteProperty() {
-    throw "MVC Framework - Handler DELETE"
-    return function deleteProperty($target, $property) { return true }
-  }
-  */
   #isContentProperty($property) {
     return Object.getOwnPropertyNames(Content.prototype)
     .includes($property)
