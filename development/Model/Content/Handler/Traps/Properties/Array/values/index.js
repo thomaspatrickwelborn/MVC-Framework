@@ -1,12 +1,6 @@
-export default function Values(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.values.call(root)
-      }
-    }
-  )
+export default function Values($content, $options) {
+  const { root } = $content
+  return function values() {
+    return Array.prototype.values.call(root)
+  }
 }

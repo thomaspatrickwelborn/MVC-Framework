@@ -6,7 +6,6 @@ export default class Content extends EventTarget {
   options
   schema
   #_type
-  #_radicle
   #_root
   #_parent
   #_basename
@@ -59,12 +58,6 @@ export default class Content extends EventTarget {
     ) ? this.options.path
       : null
     return this.#_path
-  }
-  // Radicle
-  get radicle() {
-    if(this.#_radicle !== undefined) return this.#_radicle
-    this.#_radicle = this.#typedObjectLiteral
-    return this.#_radicle
   }
   // Root
   get root() {

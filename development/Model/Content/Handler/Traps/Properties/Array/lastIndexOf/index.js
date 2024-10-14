@@ -1,12 +1,6 @@
-export default function LastIndexOf(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.lastIndexOf.call(root)
-      },
-    }
-  )
+export default function LastIndexOf($content, $options) {
+  const { root } = $content
+  return function lastIndexOf() {
+    return Array.prototype.lastIndexOf.call(root)
+  }
 }

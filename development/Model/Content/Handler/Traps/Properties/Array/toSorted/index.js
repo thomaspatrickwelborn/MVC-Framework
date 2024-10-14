@@ -1,12 +1,6 @@
-export default function ToSorted(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.toSorted.call(root, ...arguments)
-      }
-    }
-  )
+export default function ToSorted($content, $options) {
+  const { root } = $content
+  return function toSorted() {
+    return Array.prototype.toSorted.call(root, ...arguments)
+  }
 }

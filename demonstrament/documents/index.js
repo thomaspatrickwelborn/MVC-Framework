@@ -20,25 +20,27 @@ const { content } = new Model({
   },
   content: {},
 })
-console.log(content.set({
-  "aaa": "AAA",
-  "bbb": 222,
-  "ccc": false,
-  "ddd": {
-    "eee": "EEE",
-    "fff": 666,
-    "ggg": true
-  },
-}).string)
-console.log(content.set("ddd", {
-  "eee": "EEEEEE",
-  "fff": 666666,
-  "ggg": false
-}).string)
-content.set("ddd.eee", "EEEEEEEEE")
-content.set("ddd.fff", 666666666)
-content.set("ddd.ggg", true)
-console.log(content.string)
+console.log(content.assign({ aaa: "AAA" }))
+console.log(content)
+// console.log(content.set({
+//   "aaa": "AAA",
+//   "bbb": 222,
+//   "ccc": false,
+//   "ddd": {
+//     "eee": "EEE",
+//     "fff": 666,
+//     "ggg": true
+//   },
+// }).string)
+// console.log(content.set("ddd", {
+//   "eee": "EEEEEE",
+//   "fff": 666666,
+//   "ggg": false
+// }).string)
+// content.set("ddd.eee", "EEEEEEEEE")
+// content.set("ddd.fff", 666666666)
+// content.set("ddd.ggg", true)
+// console.log(content.string)
 // console.log(content.string)
 // content.set("aaa", "AAAAAA")
 // content.set("bbb", 222222)

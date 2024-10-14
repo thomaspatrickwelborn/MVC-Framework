@@ -1,12 +1,6 @@
-export default function Filter(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.filter.call(root, ...arguments)
-      }
-    }
-  )
+export default function Filter($content, $options) {
+  const { root } = $content
+  return function filter() {
+    return Array.prototype.filter.call(root, ...arguments)
+  }
 }

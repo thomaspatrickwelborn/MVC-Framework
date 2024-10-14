@@ -1,56 +1,42 @@
-import {
-  typeOf,
-  isDirectInstanceOf,
-} from '../../Coutil/index.js'
+import { typeOf, isDirectInstanceOf } from '../../Coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../Events/index.js'
-export default function Seal(
-  $trap, $trapPropertyName, $aliases, $options
-) {
+export default function Seal($content, $options) {
   const { recurse, events } = $options
-  const {
-    eventTarget, 
-    root, 
-    basename,
-    path,
-  } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function () {
-        if(recurse === true) {
-          iterateProperties: 
-          for(const [
-            $propertyKey, $propertyValue
-          ] of Object.entries(this)) {
-            if(
-              $propertyValue.constructor.name === 'bound Content'
-            ) {
-              $propertyValue.seal()
-            } else {
-              Object.seal($propertyValue)
-            }
-            const basename = $propertyKey
-            const path = (
-              path !== null
-            ) ? path.concat('.', $propertyKey)
-              : $propertyKey
-            if(events.includes('seal')) {
-              eventTarget.dispatchEvent(
-                new ContentEvent(
-                  'seal',
-                  {
-                    path,
-                    basename,
-                  },
-                  eventTarget
-                )
-              )
-            }
-          }
+  const { root,  basename, path } = $content
+  return function seal() {
+    if(recurse === true) {
+      iterateProperties: 
+      for(const [
+        $propertyKey, $propertyValue
+      ] of Object.entries(this)) {
+        if(
+          $propertyValue.constructor.name === 'bound Content'
+        ) {
+          $propertyValue.seal()
+        } else {
+          Object.seal($propertyValue)
         }
-        Object.seal(this)
-        return root
+        const basename = $propertyKey
+        const path = (
+          path !== null
+        ) ? path.concat('.', $propertyKey)
+          : $propertyKey
+        if(events.includes('seal')) {
+          $content.dispatchEvent(
+            new ContentEvent(
+              'seal',
+              {
+                path,
+                basename,
+              },
+              $content
+            )
+          )
+        }
       }
     }
-  )
+    Object.seal(this)
+    return root
+  }
 }

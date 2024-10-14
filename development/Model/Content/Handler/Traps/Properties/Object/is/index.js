@@ -1,12 +1,6 @@
-export default function Is(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { eventTarget, root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Object.is(root, ...arguments)
-      }
-    }
-  )
+export default function Is($content, $options) {
+  const { root } = $content
+  return function is() {
+    return Object.is(root, ...arguments)
+  }
 }

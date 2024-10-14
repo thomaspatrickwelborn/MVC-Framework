@@ -1,12 +1,6 @@
-export default function ToReversed(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.toReversed.call(root, ...arguments)
-      }
-    }
-  )
+export default function ToReversed($content, $options) {
+  const { root } = $content
+  return function toReversed() {
+    return Array.prototype.toReversed.call(root, ...arguments)
+  }
 }

@@ -1,15 +1,11 @@
-export default function ValueOf(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { eventTarget, root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      get() {
-        return root['valueOf'](...arguments)
-      },
-      set($method) {
-        root[$method] = $method
-      },
-    }
-  )
+export default function ValueOf($content, $options) {
+  const { root } = $content
+  return {
+    get valueOf() {
+      return root['valueOf'](...arguments)
+    },
+    set valueOf($method) {
+      root[$method] = $method
+    },
+  }
 }

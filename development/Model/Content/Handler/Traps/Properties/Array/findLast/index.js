@@ -1,12 +1,6 @@
-export default function FindLast(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.findLast.call(root, ...arguments)
-      }
-    }
-  )
+export default function FindLast($content, $option) {
+  const { root } = $content
+  return function findLast() {
+    return Array.prototype.findLast.call(root, ...arguments)
+  }
 }

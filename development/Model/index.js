@@ -25,8 +25,10 @@ export default class Model extends Core {
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
     let { schema, content } = this.settings
+    // Undefined Schema
+    if(schema === undefined) this.#_schema = undefined
     // Existing Schema
-    if(schema instanceof Schema) {
+    else if(schema instanceof Schema) {
       this.#_schema = schema
     }
     // New Schema

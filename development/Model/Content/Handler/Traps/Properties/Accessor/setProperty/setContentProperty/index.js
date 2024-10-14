@@ -1,8 +1,7 @@
 import Content from '../../../../../../index.js'
 import { ContentEvent } from '../../../../../../Events/index.js'
 export default function SetContentProperty($content, $options) {
-  const { radicle, root, basename, path, schema } = $content
-  console.log('schema', schema)
+  const { root, basename, path, schema } = $content
   return function setContentProperty() {
     // Arguments
     const $path = arguments[0]
@@ -15,43 +14,48 @@ export default function SetContentProperty($content, $options) {
     const { recursive, events, pathkey, pathsep, pathesc } = ulteroptions
     // Property Value
     let propertyValue
-    // Property Value: Content Instance
-    if($value instanceof Content) {
-      propertyValue = $value
-    }
-    // Property Value: New Content Instance
-    else if(typeof $value === 'object') {
-      propertyValue = new Content(
-        $value, contentOptions
-      )
-    }
-    // Property Value: Primitive Literal
-    else { propertyValue = $value }
     // Path Key: true
     if(pathkey === true) {
       let path = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/))
       const basename = path.pop()
+      const firstPath = (path.length) ? path[0] : basename 
+      // Property Value: Content Instance
+      if($value instanceof Content) {
+        propertyValue = $value
+      }
+      // Property Value: New Content Instance
+      else if(typeof $value === 'object') {
+        let subschema
+        if(schema.contextType === 'array') { subschema = schema.context[0] }
+        if(schema.contextType === 'object') { subschema = schema.context[firstPath] }
+        propertyValue = new Content($value, contentOptions, subschema)
+      }
+      // Property Value: Primitive Literal
+      else { propertyValue = $value }
       // Get Target
       let target = root
       let targetIsRoot = true
       let targetIsContent = false
+      let targetSchema = schema
+      // Iterate Subpaths
       iterateSubpaths: 
       for(const $subpath of path) {
+        let subschema
+        if(targetSchema.contextType === 'array') { subschema = targetSchema.context[0] }
+        if(targetSchema.contextType === 'object') { subschema = targetSchema.context[$subpath] }
         targetIsRoot = (target === root)
-        targetIsContent = (target.eventTarget instanceof Content)
+        targetIsContent = (target.Class === Content)
         // Target: Root
         if(targetIsRoot) {
           target = target[$subpath]
         }
         // Target: Content
-        else if(targetIsContent) {
-          target = target.get($subpath, ulteroptions)
-        }
+        else if(targetIsContent) { target = target.get($subpath, ulteroptions) }
         // Recursive: true
         // Target: Undefined
         if(recursive && target === undefined) {
           // Target: New Content Instance
-          const nextarget = new Content(propertyValue, contentOptions)
+          const nextarget = new Content(propertyValue, $content.options, subschema)
           // Target: Root
           if(targetIsRoot) {
             target = target[$subpath] = nextarget
@@ -71,7 +75,24 @@ export default function SetContentProperty($content, $options) {
     }
     // Path Key: false
     else if(pathkey === false) {
-      root[basename] = propertyValue
+      let path = $path
+      // Property Value: Content Instance
+      if($value instanceof Content) {
+        propertyValue = $value
+      }
+      // Property Value: New Content Instance
+      else if(typeof $value === 'object') {
+        let subschema
+        if(schema.contextType === 'array') { subschema = schema.context[0] }
+        if(schema.contextType === 'object') { subschema = schema.context[$propertyKey] }
+        propertyValue = new Content(
+          $value, contentOptions, subschema
+        )
+      }
+      // Property Value: Primitive Literal
+      else { propertyValue = $value }
+      // Root Assignment
+      root[path] = propertyValue
     }
     // Return Property Value
     return propertyValue

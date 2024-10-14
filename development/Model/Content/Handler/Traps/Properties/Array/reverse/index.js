@@ -1,35 +1,24 @@
 import { ContentEvent } from '../../../../../Events/index.js'
-export default function Reverse(
-  $trap, $trapPropertyName, $aliases, $options
-) {
+export default function Reverse($content, $options) {
   const { events } = $options
-  const {
-    eventTarget, 
-    root, 
-    basename,
-    path, 
-  } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        Array.prototype.reverse.call(root, ...arguments)
-        if(events.includes('reverse')) {
-          eventTarget.dispatchEvent(
-            new ContentEvent(
-              'reverse',
-              {
-                basename,
-                path,
-                detail: {
-                  reference: root
-                },
-              },
-              eventTarget
-            )
-          )
-        }
-        return root
-      }
+  const { root, basename, path } = $content
+  return function reverse() {
+    Array.prototype.reverse.call(root, ...arguments)
+    if(events.includes('reverse')) {
+      $content.dispatchEvent(
+        new ContentEvent(
+          'reverse',
+          {
+            basename,
+            path,
+            detail: {
+              reference: root
+            },
+          },
+          $content
+        )
+      )
     }
-  )
+    return root
+  }
 }

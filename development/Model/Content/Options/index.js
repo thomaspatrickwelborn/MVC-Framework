@@ -1,10 +1,17 @@
 export default {
+  enableValidation: true,
+  validationEvents: true,
   traps: {
     accessor: {
+      get: {
+        pathkey: true,
+        events: [
+          'get',
+          'getProperty'
+        ],
+      },
       set: {
         pathkey: true,
-        pathsep: '.',
-        pathesc: '"',
         recursive: true,
         events: [
           'set',
@@ -13,8 +20,6 @@ export default {
       },
       delete: {
         pathkey: true,
-        pathsep: '.',
-        pathesc: '"',
         events: [
           'delete',
           'deleteProperty'
@@ -23,9 +28,7 @@ export default {
     },
     object: {
       assign: {
-        pathkey: true,
-        pathsep: '.',
-        pathesc: '"',
+        recursive: true,
         events: [
           'assignSourceProperty',
           'assignSource',

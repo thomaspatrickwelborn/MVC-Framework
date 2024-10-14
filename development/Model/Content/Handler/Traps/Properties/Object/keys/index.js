@@ -1,12 +1,6 @@
-export default function Keys(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { eventTarget, root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Object.keys(root)
-      }
-    }
-  )
+export default function Keys($content, $options) {
+  const { root } = $content
+  return function keys() {
+    return Object.keys(root)
+  }
 }

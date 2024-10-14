@@ -1,12 +1,6 @@
-export default function Join(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.join.call(root)
-      },
-    }
-  )
+export default function Join($content, $options) {
+  const { root } = $content
+  return function join() {
+    return Array.prototype.join.call(root)
+  }
 }

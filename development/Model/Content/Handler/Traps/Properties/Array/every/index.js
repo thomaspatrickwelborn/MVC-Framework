@@ -1,12 +1,6 @@
-export default function Every(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.every.call(root, ...arguments)
-      }
-    }
-  )
+export default function Every($content) {
+  const { root } = $content
+  return function every() {
+    return Array.prototype.every.call(root, ...arguments)
+  }
 }

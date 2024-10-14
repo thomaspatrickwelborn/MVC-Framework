@@ -5,11 +5,7 @@ import {
   TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
 } from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
-const Options = {
-  enableValidation: true,
-  validationType: 'primitive', // 'object', 
-  validationEvents: true,
-}
+import Options from './Options/index.js' 
 const Validators = [new TypeValidator()]
 const ValidatorKeys = {
   type: ['type'], range: ['min', 'max'], length: ['minLength', 'maxLength']

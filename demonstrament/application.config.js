@@ -67,6 +67,7 @@ export default {
           input: 'index.js',
           output: 'index.js',
           watch: ['**/*.js', '!static-cms'],
+          external: ['/dependencies/mvc-framework.js']
         }],
         structs: [{
           type: 'struct',
@@ -111,6 +112,7 @@ export default {
           input: 'index.js',
           output: 'index.js',
           watch: ['**/*.js'],
+          external: ['/dependencies/mvc-framework.js']
         }],
         structs: [{
           type: 'struct',

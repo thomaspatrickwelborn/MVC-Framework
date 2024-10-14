@@ -1,14 +1,16 @@
 import Content from '../../../../../../index.js'
 import { ContentEvent } from '../../../../../../Events/index.js'
 export default function SetContent($content, $options) {
-  const { radicle, root, basename, path, schema } = $content
-  console.log('schema', schema)
+  const { root, basename, path, schema } = $content
   return function setContent() {
     const { proxy } = $content
     // Arguments
     const $value = arguments[0]
     // Ulteroptions
     const ulteroptions = Object.assign({}, $options, arguments[1] || {})
+    const contentOptions = Object.assign(
+      {}, $content.options, { traps: { accessor: { set: ulteroptions } }}
+    )
     // Delete Preterproperties
     proxy.delete()
     const { events } = ulteroptions
@@ -24,14 +26,13 @@ export default function SetContent($content, $options) {
       }
       // Property Value: New Content Instance
       else if(typeof $propertyValue === 'object') {
-        propertyValue = new Content(
-          $propertyValue, { traps: { accessor: { set: ulteroptions } }}
-        )
+        let subschema
+        if(schema.contextType === 'array') { subschema = schema.context[0] }
+        if(schema.contextType === 'object') { subschema = schema.context[$propertyKey] }
+        propertyValue = new Content($propertyValue, contentOptions, subschema)
       }
       // Property Value: Primitive Literal
       else { propertyValue = $propertyValue }
-      // Radicle Property: Unmodified Value
-      radicle[$propertyKey] = structuredClone($propertyValue)
       // Root Property: Modified Value
       root[$propertyKey] = propertyValue
     }

@@ -1,12 +1,6 @@
-export default function IndexOf(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.prototype.indexOf.call(root, ...arguments)
-      }
-    }
-  )
+export default function IndexOf($content, $options) {
+  const { root } = $content
+  return function indexOf() {
+    return Array.prototype.indexOf.call(root, ...arguments)
+  }
 }

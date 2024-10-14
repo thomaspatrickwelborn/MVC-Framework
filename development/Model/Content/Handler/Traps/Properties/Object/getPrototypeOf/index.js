@@ -1,12 +1,6 @@
-export default function GetPrototypeOf(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { eventTarget, root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Object.getPrototypeOf(root)
-      }
-    }
-  )
+export default function GetPrototypeOf($content, $options) {
+  const { root } = $content
+  return function getPrototypeOf() {
+    return Object.getPrototypeOf(root)
+  }
 }

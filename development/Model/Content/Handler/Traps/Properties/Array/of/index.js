@@ -1,14 +1,6 @@
-export default function Of(
-  $trap, $trapPropertyName, $aliases
-) {
-  const { root } = $aliases
-  return Object.defineProperty(
-    $trap, $trapPropertyName, {
-      value: function() {
-        return Array.of.call(
-          root, ...Object.values(root)
-        )
-      },
-    }
-  )
+export default function Of($content, $options) {
+  const { root } = $content
+  return function() {
+    return Array.prototype.of.call(root, ...Object.values(root))
+  }
 }
