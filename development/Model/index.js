@@ -40,7 +40,7 @@ export default class Model extends Core {
   get content() {
     if(this.#_content !== undefined) return this.#_content
     let { content } = this.settings
-    this.#_content = new Content(content, this.options.content, this.schema)
+    this.#_content = new Content(content, this.schema, this.options.content)
     return this.#_content
   }
   parse() { return this.content.parse() }

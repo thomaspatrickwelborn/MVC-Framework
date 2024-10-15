@@ -72,10 +72,11 @@ export default function Splice($content, $options) {
       let startIndex = start + addItemsIndex
       if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
         const subschema = schema.context[0] || null
-        addItem = new Content(addItem, {
+        addItem = new Content(addItem, subschema, {
           basename: _basename,
           path: _path,
-        }, subschema)
+          parent: proxy,
+        })
         Array.prototype.splice.call(
           root, startIndex, 0, addItem
         )

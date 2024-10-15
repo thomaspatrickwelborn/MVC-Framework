@@ -5,6 +5,7 @@ export default function SetPrototypeOf($content, $options) {
   const { root, basename, path } = $content
   const { contentEvents } = $content.options
   return function setPrototypeOf() {
+    const { proxy } = $content
     const prototype = arguments[0]
     Object.setPrototypeOf(root, prototype)
     if(contentEvents && events.includes('setPrototypeOf'))
@@ -21,6 +22,6 @@ export default function SetPrototypeOf($content, $options) {
         $content
       )
     )
-    return root
+    return proxy
   }
 }

@@ -65,12 +65,12 @@ export default function DefineProperty($content, $options) {
           //   ? new Map()
             : {}
           const contentObject = new Content(
-            _root, {
+            _root, subschema, {
               basename: _basename,
-              parent: proxy, // $content,
+              parent: proxy,
               path: _path,
               rootAlias,
-            }, subschema
+            }
           )
           // Root Define Properties, Descriptor Tree
           if(descriptorTree === true) {
@@ -101,6 +101,6 @@ export default function DefineProperty($content, $options) {
         }, $content
       ))
     }
-    return root
+    return proxy
   }
 }

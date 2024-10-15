@@ -5,6 +5,7 @@ export default function Seal($content, $options) {
   const { recurse, events } = $options
   const { root,  basename, path } = $content
   return function seal() {
+    const { proxy } = $content
     if(recurse === true) {
       iterateProperties: 
       for(const [
@@ -37,6 +38,6 @@ export default function Seal($content, $options) {
       }
     }
     Object.seal(this)
-    return root
+    return proxy
   }
 }

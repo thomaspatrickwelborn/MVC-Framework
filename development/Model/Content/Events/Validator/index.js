@@ -1,15 +1,15 @@
 export default class ValidatorEvent extends Event {
   #settings
-  #eventTarget
-  constructor($type, $settings, $eventTarget) {
+  #content
+  constructor($type, $settings, $content) {
     super($type)
     this.#settings = $settings
-    this.#eventTarget = $eventTarget
-    this.#eventTarget.addEventListener(
+    this.#content = $content
+    this.#content.addEventListener(
       $type, 
       ($event) => {
-        if(this.#eventTarget.parent !== null) {
-          this.#eventTarget.parent.dispatchEvent(
+        if(this.#content.parent !== null) {
+          this.#content.parent.dispatchEvent(
             new ValidatorEvent(
               this.type, 
               {
@@ -18,7 +18,7 @@ export default class ValidatorEvent extends Event {
                 detail: $event.detail,
                 results: $event.results,
               },
-              this.#eventTarget.parent
+              this.#content.parent
             )
           )
         }

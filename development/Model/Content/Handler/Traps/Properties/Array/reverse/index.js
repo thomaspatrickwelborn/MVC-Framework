@@ -3,6 +3,7 @@ export default function Reverse($content, $options) {
   const { events } = $options
   const { root, basename, path } = $content
   return function reverse() {
+    const { proxy } = $content
     Array.prototype.reverse.call(root, ...arguments)
     if(contentEvents && events.includes('reverse')) {
       $content.dispatchEvent(
@@ -19,6 +20,6 @@ export default function Reverse($content, $options) {
         )
       )
     }
-    return root
+    return proxy
   }
 }

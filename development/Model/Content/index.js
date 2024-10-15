@@ -12,11 +12,11 @@ export default class Content extends EventTarget {
   #_path
   #_proxy
   #_handler
-  constructor($settings = {}, $options = {}, $schema) {
+  constructor($settings = {}, $schema = null, $options = {}) {
     super()
     this.settings = $settings
     this.options = Object.assign({}, Options, $options)
-    this.schema = $schema || null
+    this.schema = $schema
     return this.proxy
   }
   get Class() { return Content }

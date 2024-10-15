@@ -40,11 +40,11 @@ export default function Concat($content, $options) {
           // Subvalue: Objects
           if(isDirectInstanceOf($subvalue, [Object, Array])) {
             let subschema = schema.context[0] || null
-            const subvalue = new Content($subvalue, {
+            const subvalue = new Content($subvalue, subschema, {
               basename: _basename,
               parent: proxy,
               path: _path,
-            }, subschema)
+            })
             subvalues[subvaluesIndex] = subvalue
           }
           // Subvalue: Primitives
@@ -74,11 +74,11 @@ export default function Concat($content, $options) {
         // Value: Objects
         if(isDirectInstanceOf($value, [Object])) {
           let subschema = schema.context[0] || null
-          const value = new Content($value, {
+          const value = new Content($value, subschema, {
             basename: _basename,
             parent: proxy,
             path: _path,
-          }, subschema)
+          })
           values[valuesIndex] = value
         }
         // Value: Primitives
@@ -114,6 +114,6 @@ export default function Concat($content, $options) {
         }, $content)
       )
     }
-    return root
+    return proxy
   }
 }

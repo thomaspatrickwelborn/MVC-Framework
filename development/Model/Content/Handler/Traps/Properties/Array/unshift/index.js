@@ -36,10 +36,11 @@ export default function Unshift($content, $options) {
 
       if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
         const subschema = schema?.context[0] || null
-        element = new Content(element, {
+        element = new Content(element, subschema, {
           basename: _basename,
           path: _path,
-        }, subschema)
+          parent: proxy,
+        })
         elements.unshift(element)
         Array.prototype.unshift.call(root, element)
       }

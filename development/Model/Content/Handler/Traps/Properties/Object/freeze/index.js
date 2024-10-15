@@ -5,6 +5,7 @@ export default function Freeze($content, $options) {
   const { recurse, events } = $options
   const { root, basename, path } = $content
   return function freeze() {
+    const { proxy } = $content
     if(recurse === true) {
       iterateProperties: 
       for(const [
@@ -37,6 +38,6 @@ export default function Freeze($content, $options) {
       }
     }
     Object.freeze(this)
-    return root
+    return proxy
   }
 }

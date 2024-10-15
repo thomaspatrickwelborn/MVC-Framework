@@ -4,17 +4,37 @@ export default function GetContentProperty($content, $options) {
   const { root, basename, path } = $content
   const { contentEvents } = $content.options
   return function getContentProperty() {
+    const { proxy } = $content
     // Arguments
     const $path = arguments[0]
-    const ulteroptions = Object.assign(
-      $options, arguments[1] || {}
-    )
-    const pathEntries = Object.entries($path)
-    let value = root
-    for(const [$subpathIndex, $subpath] of pathEntries) {
-      if($subpathIndex === 0) { value = root[$subpath] }
-      else if(value instanceof Content) { value = value.get($subpath) }
+    const ulteroptions = Object.assign({}, $options, arguments[1])
+    const { events, pathkey } = ulteroptions
+    // Path Key: true
+    if(pathkey === true) {
+      const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/))
+      const propertyKey = subpaths.shift()
+      let propertyValue = root[propertyKey]
+      if(subpaths.length) {
+        return propertyValue.get(subpaths.join('.'), ulteroptions)
+      }
+      const _basename = propertyKey
+      const _path = (path !== null)
+        ? path.concat('.', _basename)
+        : _basename
+      // Delete Property Event
+      if(contentEvents && events.includes('deleteProperty')) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            basename: _basename,
+            path: _path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      return propertyValue
     }
-    return value
   }
 }

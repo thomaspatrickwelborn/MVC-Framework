@@ -155,16 +155,16 @@ class Core extends EventTarget {
 
 class ContentEvent extends Event {
   #settings
-  #eventTarget
-  constructor($type, $settings, $eventTarget) {
+  #content
+  constructor($type, $settings, $content) {
     super($type);
     this.#settings = $settings;
-    this.#eventTarget = $eventTarget;
-    this.#eventTarget.addEventListener(
+    this.#content = $content;
+    this.#content.addEventListener(
       $type, 
       ($event) => {
-        if(this.#eventTarget.parent !== null) {
-          this.#eventTarget.parent.dispatchEvent(
+        if(this.#content.parent !== null) {
+          this.#content.parent.dispatchEvent(
             new ContentEvent(
               this.type, 
               {
@@ -172,7 +172,7 @@ class ContentEvent extends Event {
                 path: $event.path,
                 detail: $event.detail,
               },
-              this.#eventTarget.parent
+              this.#content.parent
             )
           );
         }
@@ -189,16 +189,16 @@ class ContentEvent extends Event {
 
 let ValidatorEvent$1 = class ValidatorEvent extends Event {
   #settings
-  #eventTarget
-  constructor($type, $settings, $eventTarget) {
+  #content
+  constructor($type, $settings, $content) {
     super($type);
     this.#settings = $settings;
-    this.#eventTarget = $eventTarget;
-    this.#eventTarget.addEventListener(
+    this.#content = $content;
+    this.#content.addEventListener(
       $type, 
       ($event) => {
-        if(this.#eventTarget.parent !== null) {
-          this.#eventTarget.parent.dispatchEvent(
+        if(this.#content.parent !== null) {
+          this.#content.parent.dispatchEvent(
             new ValidatorEvent(
               this.type, 
               {
@@ -207,7 +207,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
                 detail: $event.detail,
                 results: $event.results,
               },
-              this.#eventTarget.parent
+              this.#content.parent
             )
           );
         }
@@ -268,6 +268,7 @@ function Assign($content, $options) {
   const { basename, path, root, schema } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   return function assign() {
+    const { proxy } = $content;
     const sources = [...arguments];
     // Iterate Sources
     for(let $source of sources) {
@@ -309,11 +310,11 @@ function Assign($content, $options) {
           }
           // Assign Root Content Property: Non-Existent
           else {
-            const contentObject = new Content($sourcePropVal, {
+            const contentObject = new Content($sourcePropVal, subschema, {
               basename: _basename,
-              parent: $content,
+              parent: proxy,
               path: _path,
-            }, subschema);
+            });
             Object.assign(root, {
               [$sourcePropKey]: contentObject
             });
@@ -365,7 +366,7 @@ function Assign($content, $options) {
         }, $content)
       );
     }
-    return root
+    return proxy
   }
 }
 
@@ -472,12 +473,12 @@ function DefineProperty($content, $options) {
           //   ? new Map()
             : {};
           const contentObject = new Content(
-            _root, {
+            _root, subschema, {
               basename: _basename,
-              parent: proxy, // $content,
+              parent: proxy,
               path: _path,
               rootAlias,
-            }, subschema
+            }
           );
           // Root Define Properties, Descriptor Tree
           if(descriptorTree === true) {
@@ -508,7 +509,7 @@ function DefineProperty($content, $options) {
         }, $content
       ));
     }
-    return root
+    return proxy
   }
 }
 
@@ -523,6 +524,7 @@ function Freeze($content, $options) {
   const { recurse, events } = $options;
   const { root, basename, path } = $content;
   return function freeze() {
+    const { proxy } = $content;
     if(recurse === true) {
       for(const [
         $propertyKey, $propertyValue
@@ -554,7 +556,7 @@ function Freeze($content, $options) {
       }
     }
     Object.freeze(this);
-    return root
+    return proxy
   }
 }
 
@@ -684,8 +686,8 @@ function PropertyIsEnumerable($content, $options) {
 
 function Seal($content, $options) {
   const { recurse, events } = $options;
-  const { root,  basename, path } = $content;
   return function seal() {
+    const { proxy } = $content;
     if(recurse === true) {
       for(const [
         $propertyKey, $propertyValue
@@ -717,7 +719,7 @@ function Seal($content, $options) {
       }
     }
     Object.seal(this);
-    return root
+    return proxy
   }
 }
 
@@ -726,6 +728,7 @@ function SetPrototypeOf($content, $options) {
   const { root, basename, path } = $content;
   const { contentEvents } = $content.options;
   return function setPrototypeOf() {
+    const { proxy } = $content;
     const prototype = arguments[0];
     Object.setPrototypeOf(root, prototype);
     if(contentEvents && events.includes('setPrototypeOf'))
@@ -742,7 +745,7 @@ function SetPrototypeOf($content, $options) {
         $content
       )
     );
-    return root
+    return proxy
   }
 }
 
@@ -941,11 +944,11 @@ function Concat($content, $options) {
           // Subvalue: Objects
           if(isDirectInstanceOf($subvalue, [Object, Array])) {
             let subschema = schema.context[0] || null;
-            const subvalue = new Content($subvalue, {
+            const subvalue = new Content($subvalue, subschema, {
               basename: _basename,
               parent: proxy,
               path: _path,
-            }, subschema);
+            });
             subvalues[subvaluesIndex] = subvalue;
           }
           // Subvalue: Primitives
@@ -975,11 +978,11 @@ function Concat($content, $options) {
         // Value: Objects
         if(isDirectInstanceOf($value, [Object])) {
           let subschema = schema.context[0] || null;
-          const value = new Content($value, {
+          const value = new Content($value, subschema, {
             basename: _basename,
             parent: proxy,
             path: _path,
-          }, subschema);
+          });
           values[valuesIndex] = value;
         }
         // Value: Primitives
@@ -1015,7 +1018,7 @@ function Concat($content, $options) {
         }, $content)
       );
     }
-    return root
+    return proxy
   }
 }
 
@@ -1038,27 +1041,8 @@ function Fill($content, $options) {
   const { root, basename, path, schema } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   return function fill() {
+    const { proxy } = $content;
     const $arguments = [...arguments];
-    let value = $arguments[0];
-    if(schema && enableValidation) {
-      let validValue = schema.validate(validValue);
-      if(validationEvents) {
-        $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            basename: _basename,
-            path: _path,
-            detail: validValue,
-          }, $content)
-        );
-      }
-      if(!validValue.valid) { return root }
-    }
-    if(isDirectInstanceOf(
-      value, [Object, Array/*, Map*/]
-    )) {
-      const subschema = schema.context[0] || null;
-      value = new Content(value, {}, subschema);
-    }
     let start;
     if(typeof $arguments[1] === 'number') {
       start = (
@@ -1078,18 +1062,44 @@ function Fill($content, $options) {
       end = root.length;
     }
     let fillIndex = start;
+    iterateFillIndexes: 
     while(
       fillIndex < root.length &&
       fillIndex < end
     ) {
-      Array.prototype.fill.call(
-        root, value, fillIndex, fillIndex + 1
-      );
       const _basename = fillIndex;
       const _path = (
         path !== null
       ) ? path.concat('.', fillIndex)
         : fillIndex;
+      
+      if(schema && enableValidation) {
+        let validValue = schema.validate(validValue);
+        if(validationEvents) {
+          $content.dispatchEvent(
+            new ValidatorEvent('validateProperty', {
+              basename: _basename,
+              path: _path,
+              detail: validValue,
+            }, $content)
+          );
+        }
+        if(!validValue.valid) { continue iterateFillIndexes }
+      }
+      let value = $arguments[0];
+      if(isDirectInstanceOf(
+        value, [Object, Array]
+      )) {
+        const subschema = schema.context[0] || null;
+        value = new Content(value, subschema, {
+          basename: _basename,
+          path: _path,
+          parent: proxy,
+        });
+      }
+      Array.prototype.fill.call(
+        root, value, fillIndex, fillIndex + 1
+      );
       // Array Fill Index Event
       if(contentEvents && events.includes('fillIndex')) {
         $content.dispatchEvent(
@@ -1121,7 +1131,7 @@ function Fill($content, $options) {
         $content)
       );
     }
-    return root
+    return proxy
   }
 }
 
@@ -1274,6 +1284,7 @@ function Push($content, $options) {
   const { root, basename, path, schema } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   return function push() {
+    const { proxy } = $content;
     const elements = [];
     let elementsIndex = 0;
     for(let $element of arguments) {
@@ -1297,10 +1308,11 @@ function Push($content, $options) {
       }
       if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
       const subschema = schema.context[0] || null;
-        $element = new Content($element, {
+        $element = new Content($element, subschema, {
           basename: _basename,
           path: _path,
-        }, subschema);
+          parent: proxy,
+        });
         elements.push($element);
         Array.prototype.push.call(root, $element);
       } else {
@@ -1355,6 +1367,7 @@ function Reverse($content, $options) {
   const { events } = $options;
   const { root, basename, path } = $content;
   return function reverse() {
+    const { proxy } = $content;
     Array.prototype.reverse.call(root, ...arguments);
     if(contentEvents && events.includes('reverse')) {
       $content.dispatchEvent(
@@ -1371,7 +1384,7 @@ function Reverse($content, $options) {
         )
       );
     }
-    return root
+    return proxy
   }
 }
 
@@ -1498,10 +1511,11 @@ function Splice($content, $options) {
       let startIndex = start + addItemsIndex;
       if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
         const subschema = schema.context[0] || null;
-        addItem = new Content(addItem, {
+        addItem = new Content(addItem, subschema, {
           basename: _basename,
           path: _path,
-        }, subschema);
+          parent: proxy,
+        });
         Array.prototype.splice.call(
           root, startIndex, 0, addItem
         );
@@ -1619,10 +1633,11 @@ function Unshift($content, $options) {
 
       if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
         const subschema = schema?.context[0] || null;
-        element = new Content(element, {
+        element = new Content(element, subschema, {
           basename: _basename,
           path: _path,
-        }, subschema);
+          parent: proxy,
+        });
         elements.unshift(element);
         Array.prototype.unshift.call(root, element);
       }
@@ -1726,29 +1741,62 @@ var ArrayProperty = {
 };
 
 function GetContent($content, $options) {
-  $content.options;
+  const { root, basename, path } = $content;
+  const { contentEvents } = $content.options;
   return function getContent() {
-    Object.assign({}, $options, arguments[1] || {});
+    const ulteroptions = Object.assign({}, $options, arguments[0] || {});
+    const { events } = ulteroptions;
+    // Get Property Event
+    if(contentEvents && events.includes('get')) {
+      $content.dispatchEvent(
+        new ContentEvent('get', {
+          basename,
+          path,
+          detail: {
+            value: proxy
+          }
+        }, $content)
+      );
+    }
     return proxy
   }
 }
 
 function GetContentProperty($content, $options) {
   const { root, basename, path } = $content;
-  $content.options;
+  const { contentEvents } = $content.options;
   return function getContentProperty() {
     // Arguments
     const $path = arguments[0];
-    Object.assign(
-      $options, arguments[1] || {}
-    );
-    const pathEntries = Object.entries($path);
-    let value = root;
-    for(const [$subpathIndex, $subpath] of pathEntries) {
-      if($subpathIndex === 0) { value = root[$subpath]; }
-      else if(value instanceof Content) { value = value.get($subpath); }
+    const ulteroptions = Object.assign({}, $options, arguments[1]);
+    const { events, pathkey } = ulteroptions;
+    // Path Key: true
+    if(pathkey === true) {
+      const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/));
+      const propertyKey = subpaths.shift();
+      let propertyValue = root[propertyKey];
+      if(subpaths.length) {
+        return propertyValue.get(subpaths.join('.'), ulteroptions)
+      }
+      const _basename = propertyKey;
+      const _path = (path !== null)
+        ? path.concat('.', _basename)
+        : _basename;
+      // Delete Property Event
+      if(contentEvents && events.includes('deleteProperty')) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            basename: _basename,
+            path: _path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      return propertyValue
     }
-    return value
   }
 }
 
@@ -1824,6 +1872,7 @@ function SetContentProperty($content, $options) {
   const { root, basename, path, schema } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   return function setContentProperty() {
+    const { proxy } = $content;
     // Arguments
     const $path = arguments[0];
     const $value = arguments[1];
@@ -1860,11 +1909,11 @@ function SetContentProperty($content, $options) {
             if(Number(propertyKey)) { subcontent = []; }
             else { subcontent = {}; }
           }
-          propertyValue = new Content(subcontent, Object.assign({}, contentOptions, {
+          propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
             basename: _basename,
             path: _path,
-            parent: $content,
-          }), subschema);
+            parent: proxy,
+          }));
         }
         return propertyValue.set(subpaths.join('.'), $value, ulteroptions)
       }
@@ -1897,11 +1946,11 @@ function SetContentProperty($content, $options) {
         if(schema?.contextType === 'array') { subschema = schema.context[0]; }
         else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
         else { subschema = null; }
-        propertyValue = new Content($value, Object.assign({}, contentOptions, {
+        propertyValue = new Content($value, subschema, Object.assign({}, contentOptions, {
           basename: _basename,
           path: _path,
-          parent: $content,
-        }), subschema);
+          parent: proxy,
+        }));
       }
       // Value: Primitive Literal
       else {
@@ -1942,11 +1991,11 @@ function SetContentProperty($content, $options) {
         if(schema?.contextType === 'array') { subschema = schema.context[0]; }
         if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
         else { subschema = null; }
-        propertyValue = new Content($value, Object.assign({}, contentOptions, {
+        propertyValue = new Content($value, subschema, Object.assign({}, contentOptions, {
           basename: _basename,
           path: _path,
-          parent: $content,
-        }), subschema);
+          parent: proxy,
+        }));
       }
       // Property Value: Primitive Literal
       else { propertyValue = $value; }
@@ -2006,14 +2055,27 @@ function SetProperty($content, $options) {
 
 function DeleteContent($content, $options) {
   const { root, basename, path } = $content;
-  $content.options;
+  const { contentEvents } = $content.options;
   return function deleteContent() {
     const { proxy } = $content;
     // Arguments
     const ulteroptions = Object.assign({}, $options, arguments[0]);
+    const { events } = ulteroptions;
     const rootPropertyEntries = Object.entries(root);
     for(const [$rootPropertyKey, $rootPropertyValue] of rootPropertyEntries) {
       proxy.delete($rootPropertyKey, ulteroptions);
+    }
+    // Delete Property Event
+    if(contentEvents && events.includes('delete')) {
+      $content.dispatchEvent(
+        new ContentEvent('delete', {
+          basename,
+          path,
+          detail: {
+            value: $value
+          }
+        }, $content)
+      );
     }
     return proxy
   }
@@ -2357,11 +2419,11 @@ class Content extends EventTarget {
   #_path
   #_proxy
   #_handler
-  constructor($settings = {}, $options = {}, $schema) {
+  constructor($settings = {}, $schema = null, $options = {}) {
     super();
     this.settings = $settings;
     this.options = Object.assign({}, Options$5, $options);
-    this.schema = $schema || null;
+    this.schema = $schema;
     return this.proxy
   }
   get Class() { return Content }
@@ -2852,7 +2914,7 @@ class Model extends Core {
   get content() {
     if(this.#_content !== undefined) return this.#_content
     let { content } = this.settings;
-    this.#_content = new Content(content, this.options.content, this.schema);
+    this.#_content = new Content(content, this.schema, this.options.content);
     return this.#_content
   }
   parse() { return this.content.parse() }

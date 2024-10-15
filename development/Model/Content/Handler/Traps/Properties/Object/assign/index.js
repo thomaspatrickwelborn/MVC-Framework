@@ -6,6 +6,7 @@ export default function Assign($content, $options) {
   const { basename, path, root, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   return function assign() {
+    const { proxy } = $content
     const sources = [...arguments]
     // Iterate Sources
     iterateSources: 
@@ -48,11 +49,11 @@ export default function Assign($content, $options) {
           }
           // Assign Root Content Property: Non-Existent
           else {
-            const contentObject = new Content($sourcePropVal, {
+            const contentObject = new Content($sourcePropVal, subschema, {
               basename: _basename,
-              parent: $content,
+              parent: proxy,
               path: _path,
-            }, subschema)
+            })
             Object.assign(root, {
               [$sourcePropKey]: contentObject
             })
@@ -104,6 +105,6 @@ export default function Assign($content, $options) {
         }, $content)
       )
     }
-    return root
+    return proxy
   }
 }

@@ -4,6 +4,7 @@ export default function SetContentProperty($content, $options) {
   const { root, basename, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   return function setContentProperty() {
+    const { proxy } = $content
     // Arguments
     const $path = arguments[0]
     const $value = arguments[1]
@@ -40,11 +41,11 @@ export default function SetContentProperty($content, $options) {
             if(Number(propertyKey)) { subcontent = [] }
             else { subcontent = {} }
           }
-          propertyValue = new Content(subcontent, Object.assign({}, contentOptions, {
+          propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
             basename: _basename,
             path: _path,
-            parent: $content,
-          }), subschema)
+            parent: proxy,
+          }))
         }
         return propertyValue.set(subpaths.join('.'), $value, ulteroptions)
       }
@@ -77,11 +78,11 @@ export default function SetContentProperty($content, $options) {
         if(schema?.contextType === 'array') { subschema = schema.context[0] }
         else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey] }
         else { subschema = null }
-        propertyValue = new Content($value, Object.assign({}, contentOptions, {
+        propertyValue = new Content($value, subschema, Object.assign({}, contentOptions, {
           basename: _basename,
           path: _path,
-          parent: $content,
-        }), subschema)
+          parent: proxy,
+        }))
       }
       // Value: Primitive Literal
       else {
@@ -122,11 +123,11 @@ export default function SetContentProperty($content, $options) {
         if(schema?.contextType === 'array') { subschema = schema.context[0] }
         if(schema?.contextType === 'object') { subschema = schema.context[propertyKey] }
         else { subschema = null }
-        propertyValue = new Content($value, Object.assign({}, contentOptions, {
+        propertyValue = new Content($value, subschema, Object.assign({}, contentOptions, {
           basename: _basename,
           path: _path,
-          parent: $content,
-        }), subschema)
+          parent: proxy,
+        }))
       }
       // Property Value: Primitive Literal
       else { propertyValue = $value }

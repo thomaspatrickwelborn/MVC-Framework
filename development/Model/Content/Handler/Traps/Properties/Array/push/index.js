@@ -6,6 +6,7 @@ export default function Push($content, $options) {
   const { root, basename, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   return function push() {
+    const { proxy } = $content
     const elements = []
     let elementsIndex = 0
     iterateElements:
@@ -30,10 +31,11 @@ export default function Push($content, $options) {
       }
       if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
       const subschema = schema.context[0] || null
-        $element = new Content($element, {
+        $element = new Content($element, subschema, {
           basename: _basename,
           path: _path,
-        }, subschema)
+          parent: proxy,
+        })
         elements.push($element)
         Array.prototype.push.call(root, $element)
       } else {

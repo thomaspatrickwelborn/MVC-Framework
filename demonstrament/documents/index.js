@@ -1,4 +1,4 @@
-import { Model, Schema } from '/dependencies/mvc-framework.js'
+import { Model, Schema, Content } from '/dependencies/mvc-framework.js'
 const contentEventLog = ($event) => {
   const { type, basename, path, detail } = $event
   console.log('-----')
@@ -7,21 +7,21 @@ const contentEventLog = ($event) => {
   console.log('path', path)
   console.log('detail', detail)
 }
-let { content } = new Model({
-  content: {},
-  events: {
-    'content setProperty': contentEventLog,
-    'content deleteProperty': contentEventLog,
-  }
-})//.enableEvents()
-content.set({
-  aaa: {
-    bbb: {
-      ccc: true
-    }
-  }
-})
-content.delete()
+// let { content } = new Model({
+//   content: {},
+//   events: {
+//     'content setProperty': contentEventLog,
+//     'content deleteProperty': contentEventLog,
+//   }
+// })//.enableEvents()
+// content.set({
+//   aaa: {
+//     bbb: {
+//       ccc: true
+//     }
+//   }
+// })
+// content.delete()
   // console.log(content.string)
 // console.log(content.string)
 // content.delete()

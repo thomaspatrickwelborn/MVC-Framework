@@ -8,26 +8,6 @@ export default function Fill($content, $options) {
   return function fill() {
     const { proxy } = $content
     const $arguments = [...arguments]
-    let value = $arguments[0]
-    if(schema && enableValidation) {
-      let validValue = schema.validate(validValue)
-      if(validationEvents) {
-        $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            basename: _basename,
-            path: _path,
-            detail: validValue,
-          }, $content)
-        )
-      }
-      if(!validValue.valid) { return root }
-    }
-    if(isDirectInstanceOf(
-      value, [Object, Array/*, Map*/]
-    )) {
-      const subschema = schema.context[0] || null
-      value = new Content(value, {}, subschema)
-    }
     let start
     if(typeof $arguments[1] === 'number') {
       start = (
@@ -47,18 +27,44 @@ export default function Fill($content, $options) {
       end = root.length
     }
     let fillIndex = start
+    iterateFillIndexes: 
     while(
       fillIndex < root.length &&
       fillIndex < end
     ) {
-      Array.prototype.fill.call(
-        root, value, fillIndex, fillIndex + 1
-      )
       const _basename = fillIndex
       const _path = (
         path !== null
       ) ? path.concat('.', fillIndex)
         : fillIndex
+      
+      if(schema && enableValidation) {
+        let validValue = schema.validate(validValue)
+        if(validationEvents) {
+          $content.dispatchEvent(
+            new ValidatorEvent('validateProperty', {
+              basename: _basename,
+              path: _path,
+              detail: validValue,
+            }, $content)
+          )
+        }
+        if(!validValue.valid) { continue iterateFillIndexes }
+      }
+      let value = $arguments[0]
+      if(isDirectInstanceOf(
+        value, [Object, Array]
+      )) {
+        const subschema = schema.context[0] || null
+        value = new Content(value, subschema, {
+          basename: _basename,
+          path: _path,
+          parent: proxy,
+        })
+      }
+      Array.prototype.fill.call(
+        root, value, fillIndex, fillIndex + 1
+      )
       // Array Fill Index Event
       if(contentEvents && events.includes('fillIndex')) {
         $content.dispatchEvent(
@@ -90,6 +96,6 @@ export default function Fill($content, $options) {
         $content)
       )
     }
-    return root
+    return proxy
   }
 }

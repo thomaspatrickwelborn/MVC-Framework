@@ -1,15 +1,15 @@
 export default class ContentEvent extends Event {
   #settings
-  #eventTarget
-  constructor($type, $settings, $eventTarget) {
+  #content
+  constructor($type, $settings, $content) {
     super($type)
     this.#settings = $settings
-    this.#eventTarget = $eventTarget
-    this.#eventTarget.addEventListener(
+    this.#content = $content
+    this.#content.addEventListener(
       $type, 
       ($event) => {
-        if(this.#eventTarget.parent !== null) {
-          this.#eventTarget.parent.dispatchEvent(
+        if(this.#content.parent !== null) {
+          this.#content.parent.dispatchEvent(
             new ContentEvent(
               this.type, 
               {
@@ -17,7 +17,7 @@ export default class ContentEvent extends Event {
                 path: $event.path,
                 detail: $event.detail,
               },
-              this.#eventTarget.parent
+              this.#content.parent
             )
           )
         }
