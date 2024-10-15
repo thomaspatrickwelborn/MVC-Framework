@@ -1,18 +1,17 @@
 import Content from '../../../../../../index.js'
 import { ContentEvent } from '../../../../../../Events/index.js'
 export default function DeleteContent($content, $options) {
-  const { root, basename, path, schema } = $content
+  const { root, basename, path } = $content
+  const { contentEvents } = $content.options
   return function deleteContent() {
+    const { proxy } = $content
     // Arguments
-    const ulteroptions = Object.assign(
-      $options, arguments[1] || {}
-    )
-    const { recursive, events, pathKey, pathSep, pathEsc } = ulteroptions
+    const ulteroptions = Object.assign({}, $options, arguments[0])
+    const { events } = ulteroptions
     const rootPropertyEntries = Object.entries(root)
     for(const [$rootPropertyKey, $rootPropertyValue] of rootPropertyEntries) {
-      if($rootPropertyValue instanceof Content) { $rootPropertyValue.delete() }
-      delete root[$rootPropertyKey]
+      proxy.delete($rootPropertyKey, ulteroptions)
     }
-    return undefined
+    return proxy
   }
 }

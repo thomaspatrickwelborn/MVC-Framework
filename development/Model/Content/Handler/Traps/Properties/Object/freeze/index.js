@@ -22,7 +22,7 @@ export default function Freeze($content, $options) {
           path !== null
         ) ? path.concat('.', $propertyKey)
           : $propertyKey
-        if(events.includes('freeze')) {
+        if(contentEvents && events.includes('freeze')) {
           $content.dispatchEvent(
             new ContentEvent(
               'freeze',

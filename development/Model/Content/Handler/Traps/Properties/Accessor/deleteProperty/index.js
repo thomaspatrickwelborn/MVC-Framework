@@ -22,10 +22,12 @@ export default function DeleteProperty($content, $options) {
     // -----------------------------------------
     else if((
       // Unulteroptions
-      arguments.length === 1
+      arguments.length === 1 &&
+      typeof arguments[0] === 'string'
     ) || (
       // Ulteroptions
       arguments.length === 2 &&
+      typeof arguments[0] === 'string' &&
       typeof arguments[1] === 'object'
     )) { return deleteContentProperty(...arguments) }
   }

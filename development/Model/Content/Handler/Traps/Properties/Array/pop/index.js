@@ -11,7 +11,7 @@ export default function Pop($content, $options) {
     ) ? path.concat('.', popElementIndex)
       : popElementIndex
     // Array Pop Event
-    if(events.includes('pop')) {
+    if(contentEvents && events.includes('pop')) {
       $content.dispatchEvent(
         new ContentEvent(
           'pop',

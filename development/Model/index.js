@@ -4,11 +4,11 @@ import Core from '../Core/index.js'
 import Schema from './Schema/index.js'
 const Settings = {
   content: {},
-  schema: {},
+  // schema: {},
 }
 const Options = {
   content: {},
-  schema: {},
+  // schema: {},
 }
 export default class Model extends Core {
   #_schema
@@ -24,18 +24,13 @@ export default class Model extends Core {
 	}
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
-    let { schema, content } = this.settings
-    // Undefined Schema
-    if(schema === undefined) this.#_schema = undefined
+    const { schema, content } = this.settings
+    // No Schema
+    if(!schema) { this.#_schema = null }
     // Existing Schema
-    else if(schema instanceof Schema) {
-      this.#_schema = schema
-    }
+    else if(schema instanceof Schema) { this.#_schema = schema }
     // New Schema
-    else if(
-      (Array.isArray(schema) && Array.isArray(content)) ||
-      (typeOf(schema) === 'object' && typeOf(content) === 'object')
-    ) {
+    else {
       this.#_schema = new Schema(
         schema, this.options.schema
       )
@@ -44,17 +39,8 @@ export default class Model extends Core {
   }
   get content() {
     if(this.#_content !== undefined) return this.#_content
-    let { schema, content } = this.settings
-    if(((
-      schema instanceof Schema || Array.isArray(schema)
-    ) && Array.isArray(content)) ||
-    ((
-      schema instanceof Schema || typeOf(schema) === 'object'
-    ) && typeOf(content) === 'object')) {
-      this.#_content = new Content(
-        content, this.options.content, this.schema
-      ) 
-    }
+    let { content } = this.settings
+    this.#_content = new Content(content, this.options.content, this.schema)
     return this.#_content
   }
   parse() { return this.content.parse() }

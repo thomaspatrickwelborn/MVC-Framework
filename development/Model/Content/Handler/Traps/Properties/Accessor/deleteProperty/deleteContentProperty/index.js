@@ -2,45 +2,71 @@ import Content from '../../../../../../index.js'
 import { ContentEvent } from '../../../../../../Events/index.js'
 export default function DeleteContentProperty($content, $options) {
   const { root, basename, path } = $content
+  const { contentEvents } = $content.options
   return function deleteContentProperty() {
     const { proxy } = $content
     // Arguments
     const $path = arguments[0]
-    const ulteroptions = Object.assign(
-      $options, arguments[1] || {}
-    )
-    const { recursive, events, pathKey, pathSep, pathEsc } = ulteroptions
+    const ulteroptions = Object.assign({}, $options, arguments[1])
+    const { events, pathkey } = ulteroptions
     // Path Key: true
     if(pathkey === true) {
-      let path = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/))
-      const basename = path.pop()
-      let target = root
-      let targetIsRoot = true
-      let targetIsContent = false
-      // Iterate Subpaths
-      iterateSubpaths: 
-      for(const $subpath of path) {
-        targetIsRoot = (target === root)
-        targetIsContent = (target.Class === Content)
-        // Target: Root
-        if(targetIsRoot) {
-          target = target[$subpath]
-        }
-        // Target: Content
-        else if(targetIsContent) { target = target.get($subpath, ulteroptions) }
+      const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/))
+      const propertyKey = subpaths.shift()
+      let propertyValue = root[propertyKey]
+
+      if(subpaths.length) {
+        return propertyValue.delete(subpaths.join('.'), ulteroptions)
       }
-      // Target: Undefined Return
-      if(target === undefined) return
-      // Target: Root Set Property Value
-      if(targetIsRoot) { delete target[basename] }
-      // Target: Content Set Property Value
-      else if(targetIsContent) { target.delete(basename, ulteroptions) }
+      const _basename = propertyKey
+      const _path = (path !== null)
+        ? path.concat('.', _basename)
+        : _basename
+      if(typeof propertyValue === 'object') {
+        propertyValue.delete(ulteroptions)
+      }
+      delete root[propertyKey]
+      // Delete Property Event
+      if(contentEvents && events.includes('deleteProperty')) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            basename: _basename,
+            path: _path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      return undefined
     }
     // Path Key: false
     else if(pathkey === false) {
-      let path = $path
-      delete root[path]
+      const propertyKey = $path
+      const propertyValue = root[propertyKey]
+      const _basename = propertyKey
+      const _path = (path !== null)
+        ? path.concat('.', _basename)
+        : _basename
+      if(propertyValue instanceof Content) {
+        propertyValue.delete(ulteroptions)
+      }
+      delete root[propertyKey]
+      // Delete Property Event
+      if(contentEvents && events.includes('deleteProperty')) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            basename: _basename,
+            path: _path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      return undefined
     }
-    return undefined
   }
 }

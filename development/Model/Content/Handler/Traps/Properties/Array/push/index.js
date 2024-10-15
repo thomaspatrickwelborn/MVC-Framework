@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function Push($content, $options) {
   const { events } = $options
   const { root, basename, path, schema } = $content
-  const { enableValidation, validationEvents } = $content.options
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   return function push() {
     const elements = []
     let elementsIndex = 0
@@ -29,7 +29,7 @@ export default function Push($content, $options) {
         if(!validElement.valid) { return root.length }
       }
       if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
-      const subschema = schema.context[0]
+      const subschema = schema.context[0] || null
         $element = new Content($element, {
           basename: _basename,
           path: _path,
@@ -40,7 +40,7 @@ export default function Push($content, $options) {
         elements.push($element)
         Array.prototype.push.call(root, $element)
       }
-      if(events.includes('pushProp')) {
+      if(contentEvents && events.includes('pushProp')) {
         $content.dispatchEvent(
           new ContentEvent('pushProp', {
             basename: _basename,
@@ -55,7 +55,7 @@ export default function Push($content, $options) {
       elementsIndex++
     }
     // Push Event
-    if(events.includes('push')) {
+    if(contentEvents && events.includes('push')) {
       $content.dispatchEvent(
         new ContentEvent('push', {
           basename,

@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function Unshift($content, $options) {
   const { events } = $options
   const { root, basename, path, schema } = $content
-  const { enableValidation, validationEvents } = $content.options
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   return function unshift() {
     const $arguments = [...arguments]
     const elements = []
@@ -35,7 +35,7 @@ export default function Unshift($content, $options) {
       }
 
       if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
-        const subschema = schema.context[0]
+        const subschema = schema?.context[0] || null
         element = new Content(element, {
           basename: _basename,
           path: _path,
@@ -48,7 +48,7 @@ export default function Unshift($content, $options) {
         Array.prototype.unshift.call(root, element)
       }
       // Array Unshift Prop Event
-      if(events.includes('unshiftProp')) {
+      if(contentEvents && events.includes('unshiftProp')) {
         $content.dispatchEvent(
           new ContentEvent('unshiftProp', {
             basename: _basename,
@@ -68,7 +68,7 @@ export default function Unshift($content, $options) {
       path !== null
     ) ? path.concat('.', elementIndex)
       : elementIndex
-    if(events.includes('unshift') && elements.length) {
+    if(contentEvents && events.includes('unshift') && elements.length) {
       $content.dispatchEvent(
         new ContentEvent('unshift', {
           basename: _basename,

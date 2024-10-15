@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function Splice($content, $options) {
   const { events } = $options
   const { root, basename,path, schema } = $content
-  const { enableValidation, validationEvents } = $content.options
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   return function splice() {
     const $arguments = [...arguments]
     const start = ($arguments[0] >= 0)
@@ -30,7 +30,7 @@ export default function Splice($content, $options) {
       const _path = (path !== null)
         ? path.concat('.', deleteItemsIndex)
         : deleteItemsIndex
-      if(events.includes('spliceDelete')) {
+      if(contentEvents && events.includes('spliceDelete')) {
         $content.dispatchEvent(
           new ContentEvent('spliceDelete', {
             _basename,
@@ -71,7 +71,7 @@ export default function Splice($content, $options) {
         : addItemsIndex
       let startIndex = start + addItemsIndex
       if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
-        const subschema = schema.context[0]
+        const subschema = schema.context[0] || null
         addItem = new Content(addItem, {
           basename: _basename,
           path: _path,
@@ -89,7 +89,7 @@ export default function Splice($content, $options) {
         ? path.concat('.', addItemsIndex)
         : addItemsIndex
       // Array Splice Add Event
-      if(events.includes('spliceAdd')) {
+      if(contentEvents && events.includes('spliceAdd')) {
         $content.dispatchEvent(
           new ContentEvent('spliceAdd', {
             basename: _basename,
@@ -105,7 +105,7 @@ export default function Splice($content, $options) {
       addItemsIndex++
     }
     // Array Splice Event
-    if(events.includes('splice')) {
+    if(contentEvents && events.includes('splice')) {
       $content.dispatchEvent(
         new ContentEvent('splice', {
           basename,

@@ -33,7 +33,7 @@ export default function CopyWithin($content, $options) {
         copyIndex + 1
       )
       // Array Copy Within Index Event Data
-      if(events.includes('copyWithinIndex')) {
+      if(contentEvents && events.includes('copyWithinIndex')) {
         $content.dispatchEvent(
           new ContentEvent(
             'copyWithinIndex',
@@ -55,7 +55,7 @@ export default function CopyWithin($content, $options) {
       targetIndex++
     }
     // Array Copy Within Event
-    if(events.includes('copyWithin')) {
+    if(contentEvents && events.includes('copyWithin')) {
       $content.dispatchEvent(
         new ContentEvent(
           'copyWithin',

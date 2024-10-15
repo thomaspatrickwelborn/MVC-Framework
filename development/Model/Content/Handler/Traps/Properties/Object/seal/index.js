@@ -22,7 +22,7 @@ export default function Seal($content, $options) {
           path !== null
         ) ? path.concat('.', $propertyKey)
           : $propertyKey
-        if(events.includes('seal')) {
+        if(contentEvents && events.includes('seal')) {
           $content.dispatchEvent(
             new ContentEvent(
               'seal',

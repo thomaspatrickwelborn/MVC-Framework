@@ -11,7 +11,7 @@ export default function Shift($content, $options) {
     ) ? path.concat('.', shiftElementIndex)
       : shiftElementIndex
     // Array Shift Event
-    if(events.includes('shift')) {
+    if(contentEvents && events.includes('shift')) {
       $content.dispatchEvent(
         new ContentEvent(
           'shift',

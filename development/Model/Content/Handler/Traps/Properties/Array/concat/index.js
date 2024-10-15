@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function Concat($content, $options) {
   const { events } = $options
   const { root, basename, path, schema } = $content
-  const { enableValidation, validationEvents } = $content.options
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   return function concat() {
     const { proxy } = $content
     const $arguments = [...arguments]
@@ -39,7 +39,7 @@ export default function Concat($content, $options) {
           }
           // Subvalue: Objects
           if(isDirectInstanceOf($subvalue, [Object, Array])) {
-            let subschema = schema.context[0]
+            let subschema = schema.context[0] || null
             const subvalue = new Content($subvalue, {
               basename: _basename,
               parent: proxy,
@@ -73,7 +73,7 @@ export default function Concat($content, $options) {
         }
         // Value: Objects
         if(isDirectInstanceOf($value, [Object])) {
-          let subschema = schema.context[0]
+          let subschema = schema.context[0] || null
           const value = new Content($value, {
             basename: _basename,
             parent: proxy,
@@ -87,7 +87,7 @@ export default function Concat($content, $options) {
         }
       }
       root = Array.prototype.concat.call(root, values[valuesIndex])
-      if(events.includes('concatValue')) {
+      if(contentEvents && events.includes('concatValue')) {
         if(valid === true || valid === null) {
           $content.dispatchEvent(
             new ContentEvent('concatValue', {
@@ -103,7 +103,7 @@ export default function Concat($content, $options) {
       }
       valuesIndex++
     }
-    if(events.includes('concat')) {
+    if(contentEvents && events.includes('concat')) {
       $content.dispatchEvent(
         new ContentEvent('concat', {
           basename,

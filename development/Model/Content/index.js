@@ -16,7 +16,7 @@ export default class Content extends EventTarget {
     super()
     this.settings = $settings
     this.options = Object.assign({}, Options, $options)
-    this.schema = $schema
+    this.schema = $schema || null
     return this.proxy
   }
   get Class() { return Content }

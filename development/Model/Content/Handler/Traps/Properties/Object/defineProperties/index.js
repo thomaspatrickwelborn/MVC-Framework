@@ -23,7 +23,7 @@ export default function DefineProperties($content, $options) {
       $trap.defineProperty($propertyKey, $propertyDescriptor)
     }
     // Define Properties Event
-    if(events.includes('defineProperties')) {
+    if(contentEvents && events.includes('defineProperties')) {
       $content.dispatchEvent(
         new ContentEvent(
           'defineProperties',

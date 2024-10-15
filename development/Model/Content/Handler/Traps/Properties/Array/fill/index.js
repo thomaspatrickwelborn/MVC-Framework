@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function Fill($content, $options) {
   const { events } = $options
   const { root, basename, path, schema } = $content
-  const { enableValidation, validationEvents } = $content.options
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   return function fill() {
     const { proxy } = $content
     const $arguments = [...arguments]
@@ -25,7 +25,7 @@ export default function Fill($content, $options) {
     if(isDirectInstanceOf(
       value, [Object, Array/*, Map*/]
     )) {
-      const subschema = schema.context[0]
+      const subschema = schema.context[0] || null
       value = new Content(value, {}, subschema)
     }
     let start
@@ -60,7 +60,7 @@ export default function Fill($content, $options) {
       ) ? path.concat('.', fillIndex)
         : fillIndex
       // Array Fill Index Event
-      if(events.includes('fillIndex')) {
+      if(contentEvents && events.includes('fillIndex')) {
         $content.dispatchEvent(
           new ContentEvent('fillIndex', {
             basename: _basename,
@@ -76,7 +76,7 @@ export default function Fill($content, $options) {
       fillIndex++
     }
     // Array Fill Event
-    if(events.includes('fill')) {
+    if(contentEvents && events.includes('fill')) {
       $content.dispatchEvent(
         new ContentEvent('fill', {
           basename,

@@ -1,6 +1,7 @@
 export default {
   enableValidation: true,
   validationEvents: true,
+  contentEvents: true,
   traps: {
     accessor: {
       get: {

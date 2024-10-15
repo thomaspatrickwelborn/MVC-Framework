@@ -4,7 +4,7 @@ import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function DefineProperty($content, $options) {
   const { descriptorValueMerge, descriptorTree, events } = $options
   const { root, basename, path, schema } = $content
-  const { enableValidation, validationEvents } = $content.options
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   return function defineProperty() {
     const { proxy } = $content
     const propertyKey = arguments[0]
@@ -34,6 +34,7 @@ export default function DefineProperty($content, $options) {
       switch(schema.contextType) {
         case 'array': subschema = schema.context[0]; break
         case 'object': subschema = schema.context[propertyKey]; break
+        default: subschema = null; break
       }
         const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
           root, propertyKey
@@ -88,7 +89,7 @@ export default function DefineProperty($content, $options) {
       Object.defineProperty(root, propertyKey, propertyDescriptor)
     }
     // Define Property Event
-    if(events.includes('defineProperty')) {
+    if(contentEvents && events.includes('defineProperty')) {
       $content.dispatchEvent(
         new ContentEvent('defineProperty', {
           basename: _basename,

@@ -7,6 +7,26 @@ const contentEventLog = ($event) => {
   console.log('path', path)
   console.log('detail', detail)
 }
+let { content } = new Model({
+  content: {},
+  events: {
+    'content setProperty': contentEventLog,
+    'content deleteProperty': contentEventLog,
+  }
+})//.enableEvents()
+content.set({
+  aaa: {
+    bbb: {
+      ccc: true
+    }
+  }
+})
+content.delete()
+  // console.log(content.string)
+// console.log(content.string)
+// content.delete()
+// console.log(content.string)
+/*
 const { content } = new Model({
   schema: {
     "aaa": { type: String },
@@ -22,6 +42,7 @@ const { content } = new Model({
 })
 console.log(content.assign({ aaa: "AAA" }))
 console.log(content)
+*/
 // console.log(content.set({
 //   "aaa": "AAA",
 //   "bbb": 222,
