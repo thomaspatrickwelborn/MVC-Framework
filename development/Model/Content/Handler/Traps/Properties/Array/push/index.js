@@ -15,7 +15,7 @@ export default function Push($content, $options) {
         ? path.concat('.', elementsIndex)
         : elementsIndex
       // Validation
-      if(enableValidation) {
+      if(schema && enableValidation) {
         const validElement = schema.validateProperty(elementsIndex, $element)
         if(validationEvents) {
           $content.dispatchEvent(
@@ -46,7 +46,8 @@ export default function Push($content, $options) {
             basename: _basename,
             path: _path,
             detail: {
-              elementsIndex,               element: elements[elementsIndex],
+              elementsIndex,
+              element: elements[elementsIndex],
             },
           }, $content)
         )

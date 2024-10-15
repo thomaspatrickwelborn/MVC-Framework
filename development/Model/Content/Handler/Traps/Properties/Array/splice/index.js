@@ -52,7 +52,7 @@ export default function Splice($content, $options) {
       let addItem = addItems[addItemsIndex]
 
       // Validation
-      if(enableValidation) {
+      if(schema && enableValidation) {
         const validAddItem = schema.validateProperty(elementIndex, element)
         if(validationEvents) {
           $content.dispatchEvent(

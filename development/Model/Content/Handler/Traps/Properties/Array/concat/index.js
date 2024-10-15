@@ -24,7 +24,7 @@ export default function Concat($content, $options) {
         iterateSubvalues: 
         // Validation: Subvalue
         for(const $subvalue of $value) {
-          if(enableValidation) {
+          if(schema && enableValidation) {
             const validSubvalue = schema.validate($subvalue)
             if(validationEvents) {
               $content.dispatchEvent(
@@ -58,7 +58,7 @@ export default function Concat($content, $options) {
       // Value: Not Array
       else {
         // Validation: Value
-        if(enableValidation) {
+        if(schema && enableValidation) {
           const validValue = schema.validateProperty(valuesIndex, $subvalue)
           if(validationEvents) {
             $content.dispatchEvent(

@@ -15,7 +15,7 @@ export default function DefineProperty($content, $options) {
     ) ? path.concat('.', propertyKey)
       : propertyKey
     // Validation
-    if(enableValidation) {
+    if(schema && enableValidation) {
       const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value)
       if(validationEvents) {
         $content.dispatchEvent(

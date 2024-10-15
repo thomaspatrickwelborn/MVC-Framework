@@ -9,7 +9,7 @@ export default function Fill($content, $options) {
     const { proxy } = $content
     const $arguments = [...arguments]
     let value = $arguments[0]
-    if(enableValidation) {
+    if(schema && enableValidation) {
       let validValue = schema.validate(validValue)
       if(validationEvents) {
         $content.dispatchEvent(

@@ -20,7 +20,7 @@ export default function Unshift($content, $options) {
       ) ? path.concat('.', elementIndex)
         : elementIndex
       // Validation
-      if(enableValidation) {
+      if(schema && enableValidation) {
         const validElement = schema.validateProperty(elementIndex, element)
         if(validationEvents) {
           $content.dispatchEvent(

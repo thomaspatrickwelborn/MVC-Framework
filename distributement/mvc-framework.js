@@ -421,7 +421,7 @@ function DefineProperty($content, $options) {
     ) ? path.concat('.', propertyKey)
       : propertyKey;
     // Validation
-    if(enableValidation) {
+    if(schema && enableValidation) {
       const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value);
       if(validationEvents) {
         $content.dispatchEvent(
@@ -920,7 +920,7 @@ function Concat($content, $options) {
         iterateSubvalues: 
         // Validation: Subvalue
         for(const $subvalue of $value) {
-          if(enableValidation) {
+          if(schema && enableValidation) {
             const validSubvalue = schema.validate($subvalue);
             if(validationEvents) {
               $content.dispatchEvent(
@@ -954,7 +954,7 @@ function Concat($content, $options) {
       // Value: Not Array
       else {
         // Validation: Value
-        if(enableValidation) {
+        if(schema && enableValidation) {
           const validValue = schema.validateProperty(valuesIndex, $subvalue);
           if(validationEvents) {
             $content.dispatchEvent(
@@ -1035,7 +1035,7 @@ function Fill($content, $options) {
   return function fill() {
     const $arguments = [...arguments];
     let value = $arguments[0];
-    if(enableValidation) {
+    if(schema && enableValidation) {
       let validValue = schema.validate(validValue);
       if(validationEvents) {
         $content.dispatchEvent(
@@ -1277,7 +1277,7 @@ function Push($content, $options) {
         ? path.concat('.', elementsIndex)
         : elementsIndex;
       // Validation
-      if(enableValidation) {
+      if(schema && enableValidation) {
         const validElement = schema.validateProperty(elementsIndex, $element);
         if(validationEvents) {
           $content.dispatchEvent(
@@ -1308,7 +1308,8 @@ function Push($content, $options) {
             basename: _basename,
             path: _path,
             detail: {
-              elementsIndex,               element: elements[elementsIndex],
+              elementsIndex,
+              element: elements[elementsIndex],
             },
           }, $content)
         );
@@ -1472,7 +1473,7 @@ function Splice($content, $options) {
       let addItem = addItems[addItemsIndex];
 
       // Validation
-      if(enableValidation) {
+      if(schema && enableValidation) {
         const validAddItem = schema.validateProperty(elementIndex, element);
         if(validationEvents) {
           $content.dispatchEvent(
@@ -1597,7 +1598,7 @@ function Unshift($content, $options) {
       ) ? path.concat('.', elementIndex)
         : elementIndex;
       // Validation
-      if(enableValidation) {
+      if(schema && enableValidation) {
         const validElement = schema.validateProperty(elementIndex, element);
         if(validationEvents) {
           $content.dispatchEvent(
@@ -1829,61 +1830,30 @@ function SetContentProperty($content, $options) {
     let propertyValue;
     // Path Key: true
     if(pathkey === true) {
-      let path = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/));
-      const basename = path.pop();
-      const firstPath = (path.length) ? path[0] : basename; 
-      // Property Value: Content Instance
+      let subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/));
+      let propertyKey = subpaths.shift();
+      // Return: Subpath
+      if(subpaths.length) {
+        let subpropertyValue = root[propertyKey];
+        // Recursive: True
+        // SubpropertyValue: Undefined
+        if(recursive && !subpropertyValue) {
+          let subschema;
+          if(schema.contextType === 'array') { subschema = schema.context[0]; }
+          else if(schema.contextType === 'object') { subschema = schema.context[propertyKey]; }
+          let subcontent;
+          if(subschema.contextType === 'array') { subcontent = []; }
+          else if(subschema.contextType === 'object') { subcontent = {}; }
+          subpropertyValue = new Content(subcontent, ulteroptions, subschema);
+        }
+        return subproperty?.set(subpaths.join('.'), $value, ulteroptions)
+      }
+      // Return: Path
+      // Value: Content
       if($value instanceof Content) {
-        propertyValue = $value;
+        root[propertyKey];
       }
-      // Property Value: New Content Instance
-      else if(typeof $value === 'object') {
-        let subschema;
-        if(schema.contextType === 'array') { subschema = schema.context[0]; }
-        if(schema.contextType === 'object') { subschema = schema.context[firstPath]; }
-        propertyValue = new Content($value, contentOptions, subschema);
-      }
-      // Property Value: Primitive Literal
-      else { propertyValue = $value; }
-      // Get Target
-      let target = root;
-      let targetIsRoot = true;
-      let targetIsContent = false;
-      let targetSchema = schema;
-      // Iterate Subpaths
-      for(const $subpath of path) {
-        let subschema;
-        if(targetSchema.contextType === 'array') { subschema = targetSchema.context[0]; }
-        if(targetSchema.contextType === 'object') { subschema = targetSchema.context[$subpath]; }
-        targetIsRoot = (target === root);
-        targetIsContent = (target.Class === Content);
-        // Target: Root
-        if(targetIsRoot) {
-          target = target[$subpath];
-        }
-        // Target: Content
-        else if(targetIsContent) { target = target.get($subpath, ulteroptions); }
-        // Recursive: true
-        // Target: Undefined
-        if(recursive && target === undefined) {
-          // Target: New Content Instance
-          const nextarget = new Content(propertyValue, $content.options, subschema);
-          // Target: Root
-          if(targetIsRoot) {
-            target = target[$subpath] = nextarget;
-          }
-          // Target: Content Instance
-          else if(targetIsContent) {
-            target = target.set($subpath, nextarget, ulteroptions);
-          }
-        }
-      }
-      // Target: Undefined Return
-      if(target === undefined) return
-      // Target: Root Set Property Value
-      if(targetIsRoot) { target[basename] = propertyValue; }
-      // Target: Content Set Property Value
-      else if(targetIsContent) { target.set(basename, propertyValue, ulteroptions); }
+      // Value: Primitive Literal
     }
     // Path Key: false
     else if(pathkey === false) {
