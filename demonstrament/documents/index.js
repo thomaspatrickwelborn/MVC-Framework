@@ -7,70 +7,26 @@ const contentEventLog = ($event) => {
   console.log('path', path)
   console.log('detail', detail)
 }
-// let { content } = new Model({
-//   content: {},
-//   events: {
-//     'content setProperty': contentEventLog,
-//     'content deleteProperty': contentEventLog,
-//   }
-// })//.enableEvents()
-// content.set({
-//   aaa: {
-//     bbb: {
-//       ccc: true
-//     }
-//   }
-// })
-// content.delete()
-  // console.log(content.string)
+const content = new Content({
+  aaa: 111, bbb: "BBB", ccc: false
+}, new Schema({
+  aaa: { type: Number }, bbb: { type: String }, ccc: { type: Boolean }
+}))
+content.addEventListener('assignSource', contentEventLog)
 // console.log(content.string)
-// content.delete()
-// console.log(content.string)
-/*
-const { content } = new Model({
-  schema: {
-    "aaa": { type: String },
-    "bbb": { type: Number },
-    "ccc": { type: Boolean },
-    "ddd": { type: {
-      "eee": { type: String },
-      "fff": { type: Number },
-      "ggg": { type: Boolean },
-    } },
-  },
-  content: {},
+content.assign({
+  aaa: "111", bbb: 222, ccc: true
 })
-console.log(content.assign({ aaa: "AAA" }))
-console.log(content)
-*/
-// console.log(content.set({
-//   "aaa": "AAA",
-//   "bbb": 222,
-//   "ccc": false,
-//   "ddd": {
-//     "eee": "EEE",
-//     "fff": 666,
-//     "ggg": true
-//   },
-// }).string)
-// console.log(content.set("ddd", {
-//   "eee": "EEEEEE",
-//   "fff": 666666,
-//   "ggg": false
-// }).string)
-// content.set("ddd.eee", "EEEEEEEEE")
-// content.set("ddd.fff", 666666666)
-// content.set("ddd.ggg", true)
 // console.log(content.string)
+content.assign({
+  aaa: 111111, bbb: "BBBBBB", ccc: false
+})
 // console.log(content.string)
-// content.set("aaa", "AAAAAA")
-// content.set("bbb", 222222)
-// content.set("ccc", true)
-// console.log(content.string)
-// content.set("ddd.eee", "EEEEEE")
-// content.set("ddd.fff", 666666)
-// content.set("ddd.ggg", false)
-// console.log(content.string)
+// const content = new Content([])
+// content.addEventListener('concat', contentEventLog)
+// content.addEventListener('concatValue', contentEventLog)
+// const concatContent = content.concat([{ aaa: 111 }, { bbb: 222 }, { ccc: 333 }])
+// console.log('concatContent', concatContent)
 /*
 import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
 import DefaultTemplate from './template.js'

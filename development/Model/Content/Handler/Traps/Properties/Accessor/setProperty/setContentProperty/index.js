@@ -22,6 +22,10 @@ export default function SetContentProperty($content, $options) {
       const propertyKey = subpaths.shift()
       // Property Value
       let propertyValue
+      const _basename = propertyKey
+      const _path = (path !== null)
+        ? String(path).concat('.', _basename)
+        : _basename
       // Return: Subproperty
       if(subpaths.length) {
         propertyValue = root[propertyKey]
@@ -49,11 +53,6 @@ export default function SetContentProperty($content, $options) {
         }
         return propertyValue.set(subpaths.join('.'), $value, ulteroptions)
       }
-      // Return: Property
-      const _basename = propertyKey
-      const _path = (path !== null)
-        ? path.concat('.', _basename)
-        : _basename
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty(propertyKey, $value)
@@ -68,6 +67,7 @@ export default function SetContentProperty($content, $options) {
         }
         if(!validSourceProp.valid) { return }
       }
+      // Return: Property
       // Value: Content
       if($value instanceof Content) {
         propertyValue = $value

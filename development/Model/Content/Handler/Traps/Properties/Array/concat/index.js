@@ -11,6 +11,7 @@ export default function Concat($content, $options) {
     let valuesIndex = 0
     let subvaluesIndex = 0
     const values = []
+    let rootconcat = root
     iterateValues: 
     for(const $value of $arguments) {
       const _basename = valuesIndex
@@ -22,11 +23,11 @@ export default function Concat($content, $options) {
         subvaluesIndex = 0
         const subvalues = []
         iterateSubvalues: 
-        // Validation: Subvalue
         for(const $subvalue of $value) {
+          // Validation: Subvalue
           if(schema && enableValidation) {
             const validSubvalue = schema.validate($subvalue)
-            if(validationEvents) {
+            if(schema && validationEvents) {
               $content.dispatchEvent(
                 new ValidatorEvent('validateProperty', {
                   basename: _basename,
@@ -39,7 +40,7 @@ export default function Concat($content, $options) {
           }
           // Subvalue: Objects
           if(isDirectInstanceOf($subvalue, [Object, Array])) {
-            let subschema = schema.context[0] || null
+            let subschema = schema?.context[0] || null
             const subvalue = new Content($subvalue, subschema, {
               basename: _basename,
               parent: proxy,
@@ -60,7 +61,7 @@ export default function Concat($content, $options) {
         // Validation: Value
         if(schema && enableValidation) {
           const validValue = schema.validateProperty(valuesIndex, $subvalue)
-          if(validationEvents) {
+          if(schema &&validationEvents) {
             $content.dispatchEvent(
               new ValidatorEvent('validateProperty', {
                 basename: _basename,
@@ -73,7 +74,7 @@ export default function Concat($content, $options) {
         }
         // Value: Objects
         if(isDirectInstanceOf($value, [Object])) {
-          let subschema = schema.context[0] || null
+          let subschema = schema?.context[0] || null
           const value = new Content($value, subschema, {
             basename: _basename,
             parent: proxy,
@@ -86,9 +87,9 @@ export default function Concat($content, $options) {
           values[valuesIndex] = $value
         }
       }
-      root = Array.prototype.concat.call(root, values[valuesIndex])
+      rootconcat = Array.prototype.concat.call(root, values[valuesIndex])
       if(contentEvents && events.includes('concatValue')) {
-        if(valid === true || valid === null) {
+        if(validationEvents) {
           $content.dispatchEvent(
             new ContentEvent('concatValue', {
               basename: _basename,
@@ -114,6 +115,6 @@ export default function Concat($content, $options) {
         }, $content)
       )
     }
-    return proxy
+    return rootconcat
   }
 }

@@ -55,7 +55,7 @@ export default function Fill($content, $options) {
       if(isDirectInstanceOf(
         value, [Object, Array]
       )) {
-        const subschema = schema.context[0] || null
+        const subschema = schema?.context[0] || null
         value = new Content(value, subschema, {
           basename: _basename,
           path: _path,

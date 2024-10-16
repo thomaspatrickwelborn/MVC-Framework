@@ -30,7 +30,7 @@ export default function Push($content, $options) {
         if(!validElement.valid) { return root.length }
       }
       if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
-      const subschema = schema.context[0] || null
+      const subschema = schema?.context[0] || null
         $element = new Content($element, subschema, {
           basename: _basename,
           path: _path,

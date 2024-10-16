@@ -19,7 +19,7 @@ export default function DeleteContent($content, $options) {
           basename,
           path,
           detail: {
-            value: $value
+            value: proxy
           }
         }, $content)
       )

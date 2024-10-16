@@ -915,6 +915,7 @@ function Concat($content, $options) {
     let valuesIndex = 0;
     let subvaluesIndex = 0;
     const values = [];
+    let rootconcat = root;
     iterateValues: 
     for(const $value of $arguments) {
       const _basename = valuesIndex;
@@ -926,11 +927,11 @@ function Concat($content, $options) {
         subvaluesIndex = 0;
         const subvalues = [];
         iterateSubvalues: 
-        // Validation: Subvalue
         for(const $subvalue of $value) {
+          // Validation: Subvalue
           if(schema && enableValidation) {
             const validSubvalue = schema.validate($subvalue);
-            if(validationEvents) {
+            if(schema && validationEvents) {
               $content.dispatchEvent(
                 new ValidatorEvent('validateProperty', {
                   basename: _basename,
@@ -943,7 +944,7 @@ function Concat($content, $options) {
           }
           // Subvalue: Objects
           if(isDirectInstanceOf($subvalue, [Object, Array])) {
-            let subschema = schema.context[0] || null;
+            let subschema = schema?.context[0] || null;
             const subvalue = new Content($subvalue, subschema, {
               basename: _basename,
               parent: proxy,
@@ -964,7 +965,7 @@ function Concat($content, $options) {
         // Validation: Value
         if(schema && enableValidation) {
           const validValue = schema.validateProperty(valuesIndex, $subvalue);
-          if(validationEvents) {
+          if(schema &&validationEvents) {
             $content.dispatchEvent(
               new ValidatorEvent('validateProperty', {
                 basename: _basename,
@@ -977,7 +978,7 @@ function Concat($content, $options) {
         }
         // Value: Objects
         if(isDirectInstanceOf($value, [Object])) {
-          let subschema = schema.context[0] || null;
+          let subschema = schema?.context[0] || null;
           const value = new Content($value, subschema, {
             basename: _basename,
             parent: proxy,
@@ -990,9 +991,9 @@ function Concat($content, $options) {
           values[valuesIndex] = $value;
         }
       }
-      root = Array.prototype.concat.call(root, values[valuesIndex]);
+      rootconcat = Array.prototype.concat.call(root, values[valuesIndex]);
       if(contentEvents && events.includes('concatValue')) {
-        if(valid === true || valid === null) {
+        if(validationEvents) {
           $content.dispatchEvent(
             new ContentEvent('concatValue', {
               basename: _basename,
@@ -1018,7 +1019,7 @@ function Concat($content, $options) {
         }, $content)
       );
     }
-    return proxy
+    return rootconcat
   }
 }
 
@@ -1090,7 +1091,7 @@ function Fill($content, $options) {
       if(isDirectInstanceOf(
         value, [Object, Array]
       )) {
-        const subschema = schema.context[0] || null;
+        const subschema = schema?.context[0] || null;
         value = new Content(value, subschema, {
           basename: _basename,
           path: _path,
@@ -1307,7 +1308,7 @@ function Push($content, $options) {
         if(!validElement.valid) { return root.length }
       }
       if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
-      const subschema = schema.context[0] || null;
+      const subschema = schema?.context[0] || null;
         $element = new Content($element, subschema, {
           basename: _basename,
           path: _path,
@@ -1510,7 +1511,7 @@ function Splice($content, $options) {
         : addItemsIndex;
       let startIndex = start + addItemsIndex;
       if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
-        const subschema = schema.context[0] || null;
+        const subschema = schema?.context[0] || null;
         addItem = new Content(addItem, subschema, {
           basename: _basename,
           path: _path,
@@ -1890,6 +1891,10 @@ function SetContentProperty($content, $options) {
       const propertyKey = subpaths.shift();
       // Property Value
       let propertyValue;
+      const _basename = propertyKey;
+      const _path = (path !== null)
+        ? String(path).concat('.', _basename)
+        : _basename;
       // Return: Subproperty
       if(subpaths.length) {
         propertyValue = root[propertyKey];
@@ -1917,11 +1922,6 @@ function SetContentProperty($content, $options) {
         }
         return propertyValue.set(subpaths.join('.'), $value, ulteroptions)
       }
-      // Return: Property
-      const _basename = propertyKey;
-      const _path = (path !== null)
-        ? path.concat('.', _basename)
-        : _basename;
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty(propertyKey, $value);
@@ -1936,6 +1936,7 @@ function SetContentProperty($content, $options) {
         }
         if(!validSourceProp.valid) { return }
       }
+      // Return: Property
       // Value: Content
       if($value instanceof Content) {
         propertyValue = $value;
@@ -2072,7 +2073,7 @@ function DeleteContent($content, $options) {
           basename,
           path,
           detail: {
-            value: $value
+            value: proxy
           }
         }, $content)
       );
