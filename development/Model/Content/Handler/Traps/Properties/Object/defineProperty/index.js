@@ -34,7 +34,7 @@ export default function DefineProperty($content, $options) {
       switch(schema.contextType) {
         case 'array': subschema = schema.context[0]; break
         case 'object': subschema = schema.context[propertyKey]; break
-        default: subschema = null; break
+        default: subschema = undefined; break
       }
         const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
           root, propertyKey

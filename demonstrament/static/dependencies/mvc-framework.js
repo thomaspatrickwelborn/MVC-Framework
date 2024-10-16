@@ -270,13 +270,15 @@ function Assign($content, $options) {
   return function assign() {
     const { proxy } = $content;
     const sources = [...arguments];
+    const assignedSources = [];
     // Iterate Sources
     for(let $source of sources) {
+      let assignedSource;
+      if(Array.isArray($source)) { assignedSource = []; }
+      else if(typeof $source === 'object') { assignedSource = {}; }
       // Iterate Source Props
       iterateSourceProps:
-      for(let [
-        $sourcePropKey, $sourcePropVal
-      ] of Object.entries($source)) {
+      for(let [$sourcePropKey, $sourcePropVal] of Object.entries($source)) {
         const _basename = $sourcePropKey;
         const _path = (path !== null)
           ? path.concat('.', _basename)
@@ -302,27 +304,42 @@ function Assign($content, $options) {
           switch(schema.contextType) {
             case 'array': subschema = schema.context[0]; break
             case 'object': subschema = schema.context[$sourcePropKey]; break
-            default: subschema = null;
+            default: subschema = undefined;
           }
           // Assign Root Content Property: Existent
           if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
+            // Assign Root
             root[$sourcePropKey].assign($sourcePropVal);
+            // Assigned Source
+            Object.assign(assignedSource, {
+              [$sourcePropKey]: $sourcePropVal
+            });
           }
           // Assign Root Content Property: Non-Existent
           else {
-            const contentObject = new Content($sourcePropVal, subschema, {
+            const contentObject = new Content($sourcePropVal, subschema, Object.assign({
               basename: _basename,
               parent: proxy,
               path: _path,
-            });
+            }, $options));
+            // Assign Root
             Object.assign(root, {
+              [$sourcePropKey]: contentObject
+            });
+            // Assigned Source
+            Object.assign(assignedSource, {
               [$sourcePropKey]: contentObject
             });
           }
         }
         // Source Prop: Primitive Type
         else {
+          // Assign Root
           Object.assign(root, {
+            [$sourcePropKey]: $sourcePropVal
+          });
+          // Assigned Source
+          Object.assign(assignedSource, {
             [$sourcePropKey]: $sourcePropVal
           });
         }
@@ -341,6 +358,7 @@ function Assign($content, $options) {
           );
         }
       }
+      assignedSources.push(assignedSource);
       // Assign Source Event
       if(contentEvents && events.includes('assignSource')) {
         $content.dispatchEvent(
@@ -348,7 +366,7 @@ function Assign($content, $options) {
             basename,
             path,
             detail: {
-              source: $source,
+              source: assignedSource,
             },
           }, $content)
         );
@@ -361,7 +379,7 @@ function Assign($content, $options) {
           basename,
           path,
           detail: {
-            sources
+            assignedSources
           },
         }, $content)
       );
@@ -442,7 +460,7 @@ function DefineProperty($content, $options) {
       switch(schema.contextType) {
         case 'array': subschema = schema.context[0]; break
         case 'object': subschema = schema.context[propertyKey]; break
-        default: subschema = null; break
+        default: subschema = undefined; break
       }
         const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
           root, propertyKey
@@ -1843,9 +1861,8 @@ function SetContent($content, $options) {
     const $value = arguments[0];
     // Ulteroptions
     const ulteroptions = Object.assign({}, $options, arguments[1]);
-    Object.assign(
-      {}, $content.options, { traps: { accessor: { set: ulteroptions } }}
-    );
+    const contentOptions = $content.options;
+    contentOptions.traps.accessor.set = ulteroptions;
     const { events } = ulteroptions;
     // Set Anterproperties
     const properties = Object.entries($value);
@@ -1878,10 +1895,11 @@ function SetContentProperty($content, $options) {
     const $path = arguments[0];
     const $value = arguments[1];
     // Options
-    const ulteroptions = Object.assign({}, $options, arguments[2] || {});
-    const contentOptions = Object.assign(
-      {}, $content.options, { traps: { accessor: { set: ulteroptions } }}
+    const ulteroptions = Object.assign(
+      {}, $options, arguments[2]
     );
+    const contentOptions = $content.options;
+    contentOptions.traps.accessor.set = ulteroptions;
     const { recursive, events, pathkey } = ulteroptions;
     // Path Key: true
     if(pathkey === true) {
@@ -1905,7 +1923,7 @@ function SetContentProperty($content, $options) {
           let subschema;
           if(schema?.contextType === 'array') { subschema = schema.context[0]; }
           else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
-          else { subschema = null; }
+          else { subschema = undefined; }
           // Subcontent
           let subcontent;
           if(subschema?.contextType === 'array') { subcontent = []; }
@@ -1946,12 +1964,14 @@ function SetContentProperty($content, $options) {
         let subschema;
         if(schema?.contextType === 'array') { subschema = schema.context[0]; }
         else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
-        else { subschema = null; }
-        propertyValue = new Content($value, subschema, Object.assign({}, contentOptions, {
-          basename: _basename,
-          path: _path,
-          parent: proxy,
-        }));
+        else { subschema = undefined; }
+        propertyValue = new Content($value, subschema, Object.assign(
+          {}, contentOptions, {
+            basename: _basename,
+            path: _path,
+            parent: proxy,
+          }
+        ));
       }
       // Value: Primitive Literal
       else {
@@ -1991,12 +2011,14 @@ function SetContentProperty($content, $options) {
         let subschema;
         if(schema?.contextType === 'array') { subschema = schema.context[0]; }
         if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
-        else { subschema = null; }
-        propertyValue = new Content($value, subschema, Object.assign({}, contentOptions, {
-          basename: _basename,
-          path: _path,
-          parent: proxy,
-        }));
+        else { subschema = undefined; }
+        propertyValue = new Content($value, subschema, Object.assign(
+          {}, contentOptions, {
+            basename: _basename,
+            path: _path,
+            parent: proxy,
+          }
+        ));
       }
       // Property Value: Primitive Literal
       else { propertyValue = $value; }
@@ -2067,7 +2089,7 @@ function DeleteContent($content, $options) {
       proxy.delete($rootPropertyKey, ulteroptions);
     }
     // Delete Property Event
-    if(contentEvents && events.includes('delete')) {
+    if(contentEvents && events?.includes('delete')) {
       $content.dispatchEvent(
         new ContentEvent('delete', {
           basename,
@@ -2412,7 +2434,7 @@ var Options$5 = {
 class Content extends EventTarget {
   settings
   options
-  schema
+  #_schema
   #_type
   #_root
   #_parent
@@ -2427,6 +2449,12 @@ class Content extends EventTarget {
     this.schema = $schema;
     return this.proxy
   }
+  get schema() { return this.#_schema }
+  set schema($schema) {
+    if(this.#_schema !== undefined) return
+    if($schema === undefined) { this.#_schema = null; }
+    else { this.#_schema = $schema; }
+  }
   get Class() { return Content }
   // Object
   get object() { return this.parse({ type: 'object' }) }
@@ -2438,7 +2466,7 @@ class Content extends EventTarget {
     this.#_type = typeOf$1(this.settings);
     return this.#_type
   }
-  get #typedObjectLiteral() {
+  get typedObjectLiteral() {
     if(this.type === 'object') { return {} }
     else if(this.type === 'array') { return [] }
     else { return {} }
@@ -2470,7 +2498,7 @@ class Content extends EventTarget {
   // Root
   get root() {
     if(this.#_root !== undefined) return this.#_root
-    this.#_root = this.#typedObjectLiteral;
+    this.#_root = this.typedObjectLiteral;
     return this.#_root
   }
   // Proxy

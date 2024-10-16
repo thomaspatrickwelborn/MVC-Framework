@@ -4,7 +4,7 @@ import Options from './Options/index.js'
 export default class Content extends EventTarget {
   settings
   options
-  schema
+  #_schema
   #_type
   #_root
   #_parent
@@ -19,6 +19,12 @@ export default class Content extends EventTarget {
     this.schema = $schema
     return this.proxy
   }
+  get schema() { return this.#_schema }
+  set schema($schema) {
+    if(this.#_schema !== undefined) return
+    if($schema === undefined) { this.#_schema = null }
+    else { this.#_schema = $schema }
+  }
   get Class() { return Content }
   // Object
   get object() { return this.parse({ type: 'object' }) }
@@ -30,7 +36,7 @@ export default class Content extends EventTarget {
     this.#_type = typeOf(this.settings)
     return this.#_type
   }
-  get #typedObjectLiteral() {
+  get typedObjectLiteral() {
     if(this.type === 'object') { return {} }
     else if(this.type === 'array') { return [] }
     else { return {} }
@@ -62,7 +68,7 @@ export default class Content extends EventTarget {
   // Root
   get root() {
     if(this.#_root !== undefined) return this.#_root
-    this.#_root = this.#typedObjectLiteral
+    this.#_root = this.typedObjectLiteral
     return this.#_root
   }
   // Proxy

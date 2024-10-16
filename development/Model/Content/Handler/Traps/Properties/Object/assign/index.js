@@ -8,14 +8,16 @@ export default function Assign($content, $options) {
   return function assign() {
     const { proxy } = $content
     const sources = [...arguments]
+    const assignedSources = []
     // Iterate Sources
     iterateSources: 
     for(let $source of sources) {
+      let assignedSource
+      if(Array.isArray($source)) { assignedSource = [] }
+      else if(typeof $source === 'object') { assignedSource = {} }
       // Iterate Source Props
       iterateSourceProps:
-      for(let [
-        $sourcePropKey, $sourcePropVal
-      ] of Object.entries($source)) {
+      for(let [$sourcePropKey, $sourcePropVal] of Object.entries($source)) {
         const _basename = $sourcePropKey
         const _path = (path !== null)
           ? path.concat('.', _basename)
@@ -41,27 +43,42 @@ export default function Assign($content, $options) {
           switch(schema.contextType) {
             case 'array': subschema = schema.context[0]; break
             case 'object': subschema = schema.context[$sourcePropKey]; break
-            default: subschema = null
+            default: subschema = undefined
           }
           // Assign Root Content Property: Existent
           if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
+            // Assign Root
             root[$sourcePropKey].assign($sourcePropVal)
+            // Assigned Source
+            Object.assign(assignedSource, {
+              [$sourcePropKey]: $sourcePropVal
+            })
           }
           // Assign Root Content Property: Non-Existent
           else {
-            const contentObject = new Content($sourcePropVal, subschema, {
+            const contentObject = new Content($sourcePropVal, subschema, Object.assign({
               basename: _basename,
               parent: proxy,
               path: _path,
-            })
+            }, $options))
+            // Assign Root
             Object.assign(root, {
+              [$sourcePropKey]: contentObject
+            })
+            // Assigned Source
+            Object.assign(assignedSource, {
               [$sourcePropKey]: contentObject
             })
           }
         }
         // Source Prop: Primitive Type
         else {
+          // Assign Root
           Object.assign(root, {
+            [$sourcePropKey]: $sourcePropVal
+          })
+          // Assigned Source
+          Object.assign(assignedSource, {
             [$sourcePropKey]: $sourcePropVal
           })
         }
@@ -80,6 +97,7 @@ export default function Assign($content, $options) {
           )
         }
       }
+      assignedSources.push(assignedSource)
       // Assign Source Event
       if(contentEvents && events.includes('assignSource')) {
         $content.dispatchEvent(
@@ -87,7 +105,7 @@ export default function Assign($content, $options) {
             basename,
             path,
             detail: {
-              source: $source,
+              source: assignedSource,
             },
           }, $content)
         )
@@ -100,7 +118,7 @@ export default function Assign($content, $options) {
           basename,
           path,
           detail: {
-            sources
+            assignedSources
           },
         }, $content)
       )

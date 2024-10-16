@@ -1,4 +1,12 @@
 import { Model, Schema, Content } from '/dependencies/mvc-framework.js'
+const validatorEventLog = ($event) => {
+  const { type, basename, path, detail } = $event
+  console.log('-----')
+  console.log('type', type)
+  console.log('basename', basename)
+  console.log('path', path)
+  console.log('detail', detail)
+}
 const contentEventLog = ($event) => {
   const { type, basename, path, detail } = $event
   console.log('-----')
@@ -8,25 +16,23 @@ const contentEventLog = ($event) => {
   console.log('detail', detail)
 }
 const content = new Content({
-  aaa: 111, bbb: "BBB", ccc: false
+  aaa: 111, bbb: "BBB", ccc: false,
+  ddd: [{
+    eee: 444, fff: "EEE", ggg: true
+  }]
 }, new Schema({
-  aaa: { type: Number }, bbb: { type: String }, ccc: { type: Boolean }
+  aaa: { type: Number }, bbb: { type: String }, ccc: { type: Boolean },
+  ddd: { type: [{
+    type: { eee: { type: Number }, fff: { type: String }, ggg: { type: Boolean } }
+  }] }
 }))
-content.addEventListener('assignSource', contentEventLog)
-// console.log(content.string)
-content.assign({
-  aaa: "111", bbb: 222, ccc: true
-})
-// console.log(content.string)
-content.assign({
-  aaa: 111111, bbb: "BBBBBB", ccc: false
-})
-// console.log(content.string)
-// const content = new Content([])
-// content.addEventListener('concat', contentEventLog)
-// content.addEventListener('concatValue', contentEventLog)
-// const concatContent = content.concat([{ aaa: 111 }, { bbb: 222 }, { ccc: 333 }])
-// console.log('concatContent', concatContent)
+// content.addEventListener('validateProperty', validatorEventLog)
+// content.addEventListener('assignSourceProperty', contentEventLog)
+// content.addEventListener('assignSource', contentEventLog)
+// content.addEventListener('assign', contentEventLog)
+// content.set("ddd", [])
+// console.log(content.get("ddd.0"))
+content.get("ddd").assign({ 0: { eee: 111111, fff: "BBBBBB", ggg: false, } })
 /*
 import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
 import DefaultTemplate from './template.js'

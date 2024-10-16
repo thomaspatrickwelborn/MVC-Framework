@@ -11,9 +11,8 @@ export default function SetContent($content, $options) {
     const $value = arguments[0]
     // Ulteroptions
     const ulteroptions = Object.assign({}, $options, arguments[1])
-    const contentOptions = Object.assign(
-      {}, $content.options, { traps: { accessor: { set: ulteroptions } }}
-    )
+    const contentOptions = $content.options
+    contentOptions.traps.accessor.set = ulteroptions
     const { events } = ulteroptions
     // Set Anterproperties
     const properties = Object.entries($value)

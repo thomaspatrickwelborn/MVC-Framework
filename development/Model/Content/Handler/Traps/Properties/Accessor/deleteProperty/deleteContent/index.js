@@ -13,7 +13,7 @@ export default function DeleteContent($content, $options) {
       proxy.delete($rootPropertyKey, ulteroptions)
     }
     // Delete Property Event
-    if(contentEvents && events.includes('delete')) {
+    if(contentEvents && events?.includes('delete')) {
       $content.dispatchEvent(
         new ContentEvent('delete', {
           basename,
