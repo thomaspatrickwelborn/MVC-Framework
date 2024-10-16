@@ -15,24 +15,26 @@ const contentEventLog = ($event) => {
   console.log('path', path)
   console.log('detail', detail)
 }
-const content = new Content({
-  aaa: 111, bbb: "BBB", ccc: false,
-  ddd: [{
-    eee: 444, fff: "EEE", ggg: true
-  }]
-}, new Schema({
+const content = new Content({}, new Schema({
   aaa: { type: Number }, bbb: { type: String }, ccc: { type: Boolean },
   ddd: { type: [{
     type: { eee: { type: Number }, fff: { type: String }, ggg: { type: Boolean } }
   }] }
 }))
-// content.addEventListener('validateProperty', validatorEventLog)
-// content.addEventListener('assignSourceProperty', contentEventLog)
+content.addEventListener('validateProperty', validatorEventLog)
+content.addEventListener('assignSourceProperty', contentEventLog)
+content.assign({
+  aaa: 111, bbb: "BBB", ccc: false,
+  ddd: [{
+    eee: 444, fff: "EEE", ggg: true
+  }]
+})
+console.log(content.string)
 // content.addEventListener('assignSource', contentEventLog)
 // content.addEventListener('assign', contentEventLog)
 // content.set("ddd", [])
-// console.log(content.get("ddd.0"))
-content.get("ddd").assign({ 0: { eee: 111111, fff: "BBBBBB", ggg: false, } })
+// console.log(content)
+// content.get("ddd").assign({ 0: { eee: 111111, fff: "BBBBBB", ggg: false, } })
 /*
 import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
 import DefaultTemplate from './template.js'

@@ -4,6 +4,7 @@ import parseShortenedEvents from './parseShortenedEvents/index.js'
 import parsePropFrag from './parsePropFrag/index.js'
 import eventCallbackNameFromEventCallback from './eventCallbackNameFromEventCallback/index.js'
 import eventListenerArgumentsValid from './eventListenerArgumentsValid/index.js'
+import isDirectInstanceOf from './isDirectInstanceOf/index.js'
 
 export {
 	typeOf, 
@@ -12,4 +13,5 @@ export {
 	parsePropFrag, 
 	eventCallbackNameFromEventCallback,
 	eventListenerArgumentsValid,
+	isDirectInstanceOf,
 }
