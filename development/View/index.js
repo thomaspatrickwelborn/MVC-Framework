@@ -1,11 +1,7 @@
 import Core from '../Core/index.js'
 import QuerySelector from './QuerySelector/index.js'
-const Settings = {
-  templates: { default: () => `` },
-  querySelectors: {},
-  events: {},
-}
-const Options = { enableQuerySelectors: true }
+import Settings from './Settings/index.js'
+import Options from './Options/index.js'
 export default class View extends Core {
   #_parent
   #_template

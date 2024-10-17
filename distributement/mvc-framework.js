@@ -94,11 +94,13 @@ class CoreEvent {
   }
 }
 
-const Settings$4 = {};
-const Options$6 = {
+var Settings$4 = {};
+
+var Options$6 = {
   validSettings: [],
   enableEvents: true,
 };
+
 class Core extends EventTarget {
   constructor($settings = {}, $options = {}) {
     super();
@@ -2485,14 +2487,16 @@ class Schema extends EventTarget{
   }
 }
 
-const Settings$3 = {
+var Settings$3 = {
   content: {},
   // schema: {},
 };
-const Options$3 = {
+
+var Options$3 = {
   content: {},
   // schema: {},
 };
+
 class Model extends Core {
   #_schema
   #_content
@@ -2560,12 +2564,16 @@ class QuerySelector {
   }
 }
 
-const Settings$2 = {
+var Settings$2 = {
   templates: { default: () => `` },
   querySelectors: {},
   events: {},
 };
-const Options$2 = { enableQuerySelectors: true };
+
+var Options$2 = {
+  enableQuerySelectors: true
+};
+
 class View extends Core {
   #_parent
   #_template

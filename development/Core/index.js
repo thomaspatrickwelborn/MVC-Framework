@@ -1,10 +1,7 @@
 import { typeOf, parseShortenedEvents } from '../Coutil/index.js'
 import CoreEvent from './Event/index.js'
-const Settings = {}
-const Options = {
-  validSettings: [],
-  enableEvents: true,
-}
+import Settings from './Settings/index.js' 
+import Options from './Options/index.js' 
 export default class Core extends EventTarget {
   constructor($settings = {}, $options = {}) {
     super()

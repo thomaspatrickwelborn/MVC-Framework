@@ -2,14 +2,8 @@ import { typeOf } from '../Coutil/index.js'
 import Content from './Content/index.js'
 import Core from '../Core/index.js'
 import Schema from './Schema/index.js'
-const Settings = {
-  content: {},
-  // schema: {},
-}
-const Options = {
-  content: {},
-  // schema: {},
-}
+import Settings from './Settings/index.js'
+import Options from './Options/index.js'
 export default class Model extends Core {
   #_schema
   #_content
