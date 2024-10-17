@@ -47,66 +47,87 @@
 ## Instantiate View Class
 
 ## Extend View Class
-### Extended View Class
+### Extended View Class—"Model-View" Strategy
+**Imports**:  
 ```
 import { Model, View } from 'mvc-framework'
+```
+**Extended View Class**:  
+```
 class ColorControlView extends View {
-  constructor($settings = {}, $options = {}) {
-    super(Object.assign($settings, {
+  model = new Model({
+    schema: {
+      "brightnessLabel": { type: "String" },
+      "brightness": {
+        type: String,
+        enum: ["MIN", "MAX"]
+      }
+    },
+    content: {
+      "brightnessLabel": "Brightness",
+      "brightness": "MIN",
+    },
+  })
+  constructor() {
+    super({
+      parent: document.createElement('color-control'),
       templates: { default: ($content) => {
-        return `<nav
-          class="color-control"
-          data-brightness="${$content.brightness}"
-        >
-          <button class="brightness">Toggle Brightness</button>
-        </nav>`
+        return `
+          <buttons-label>Color-Control</buttons-label>
+          <buttons
+            data-brightness="${$content.brightness}"
+          >
+            <button
+              data-key="brightness"
+              data-value="${$content.brightness}"
+            >
+              <button-label>${$content.brightnessLabel}</button-label>
+              <button-value>${$content.brightness}</button-value>
+            </button>
+          </buttons>`
       } },
       querySelectors: {
         querySelector: {
-          colorControl: ':scope > .color-control',
-          brightness: ':scope > .color-control > .brightness',
+          buttons: ':scope > buttons',
+          brightnessButton: ':scope > buttons > button[data-key="brightness"]',
+          brightnessButtonValue: ':scope > buttons > button[data-key="brightness"] > button-value'
         }
       },
+
       events: {
-          'qs.brightness click': ($event) => {
-            const brightness = (content.get("brightness") === "MAX")
-              ? "MIN" : "MAX"
-            content.set("brightness", brightness)
-          }
+        'qs.brightnessButton click': ($event) => {
+          const { content } = this.model
+          const brightness = (content.get("brightness") === "MAX")
+            ? "MIN" : "MAX"
+          content.set("brightness", brightness)
         },
-    }), Object.assign($options, {}))
+        'model.content setProperty': ($event) => {
+          const { key, value } = $event.detail
+          if(key === 'brightness') {
+            const { brightnessButton, brightnessButtonValue } = this.qs
+            brightnessButton.setAttribute('data-value', value)
+            brightnessButtonValue.textContent = brightnessButtonValue
+          }
+        }
+      },
+    })
+    this.render(this.model.content.object, 'default')
+    this.setStyles()
   }
-  set brightness($brightness) {
-    this.qs.colorControl.setAttribute(
-      'data-brightness', $brighness
-    )
+  setStyles() {
+    this.parent.style.position = "absolute"
+    this.parent.style.display = "flex"
+    this.parent.style.flexDirection = "column"
+    this.parent.style.right = "0"
+    this.parent.style.margin = "0 0.5em"
+    this.parent.style.backgroundColor = "red"
+    return this
   }
 }
 ```
 ### Instantiate Extended View Class
 ```
-// Model
-const { content } = new Model({
-  schema: {
-    "brightness": {
-      type: String,
-      enum: ["MIN", "MAX"]
-    }
-  },
-  content: {
-    "brightness": "MIN"
-  },
-  events: {
-    'content setProperty': ($event) => {
-      const { key, value } = $event.detail
-      if(key === 'brightness') { view.brightness = $value }
-    }
-  },
-})
-// Color Control View
-const colorControlView = new ColorControlView({
-  parent: document.querySelector('body')
-})
-
-colorControlView.render('default', content.object)
+const colorControlView = new ColorControlView()
+document.querySelector('body')
+.insertAdjacentElement('afterbegin', view.parent)
 ```

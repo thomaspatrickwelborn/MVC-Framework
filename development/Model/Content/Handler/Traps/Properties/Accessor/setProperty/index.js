@@ -7,25 +7,25 @@ export default function setProperty() {
   // -----------------------------
   if((
     // Unulteroptions
-    arguments.length === 1 &&
-    typeof arguments[0] === 'object'
+    arguments.length === (1 + defaultArgumentsLength) &&
+    typeof arguments[(0 + defaultArgumentsLength)] === 'object'
   ) || (
     // Ulteroptions
-    arguments.length === 2 &&
-    typeof arguments[0] === 'object' &&
-    typeof arguments[1] === 'object'
+    arguments.length === (2 + defaultArgumentsLength) &&
+    typeof arguments[(0 + defaultArgumentsLength)] === 'object' &&
+    typeof arguments[(1 + defaultArgumentsLength)] === 'object'
   )) { return setContent(...arguments) }
   // --------------------------------------
   // Set Content Property Method Invocation
   // --------------------------------------
   else if((
     // Unulteroptions
-    arguments.length === 2 &&
-    typeof arguments[0] === 'string'
+    arguments.length === (2 + defaultArgumentsLength) &&
+    typeof arguments[(0 + defaultArgumentsLength)] === 'string'
   ) || (
     // Ulteroptions
-    arguments.length === 3 &&
-    typeof arguments[0] === 'string' &&
-    typeof arguments[2] === 'object'
+    arguments.length === (3 + defaultArgumentsLength) &&
+    typeof arguments[(0 + defaultArgumentsLength)] === 'string' &&
+    typeof arguments[(2 + defaultArgumentsLength)] === 'object'
   )) { return setContentProperty(...arguments) }
 }
