@@ -45,7 +45,7 @@ Validation type.
  4. `Validator.validate`
  5. `Schema.validateProperty`
 
-### `contextKey` Property [^4]
+### `contextKey` Property
 **Type**: `getter`  
 **Return**: `String`  
 **Descript**:  

@@ -100,7 +100,7 @@ export default function setContentProperty() {
           path: _path,
           detail: {
             key: propertyKey,
-            val: propertyValue,
+            value: propertyValue,
           }
         }, $content)
       )
@@ -147,7 +147,7 @@ export default function setContentProperty() {
           path: _path,
           detail: {
             key: propertyKey,
-            val: propertyValue,
+            value: propertyValue,
           }
         }, $content)
       )

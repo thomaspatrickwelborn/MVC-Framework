@@ -1487,7 +1487,7 @@ function setContentProperty() {
           path: _path,
           detail: {
             key: propertyKey,
-            val: propertyValue,
+            value: propertyValue,
           }
         }, $content)
       );
@@ -1534,7 +1534,7 @@ function setContentProperty() {
           path: _path,
           detail: {
             key: propertyKey,
-            val: propertyValue,
+            value: propertyValue,
           }
         }, $content)
       );
