@@ -2036,7 +2036,11 @@ class Content extends EventTarget {
   set schema($schema) {
     if(this.#_schema !== undefined) return
     if($schema === undefined) { this.#_schema = null; }
-    else { this.#_schema = $schema; }
+    else if($schema instanceof Schema) { this.#_schema = $schema; }
+    else if(typeof $schema === 'object') {
+      if(Array.isArray($schema)) { new Schema(...arguments); }
+      else { new Schema($schema); }
+    }
   }
   get Class() { return Content }
   // Object
@@ -2488,15 +2492,9 @@ class Schema extends EventTarget{
   }
 }
 
-var Settings$3 = {
-  content: {},
-  // schema: {},
-};
+var Settings$3 = {};
 
-var Options$3 = {
-  content: {},
-  // schema: {},
-};
+var Options$3 = {};
 
 class Model extends Core {
   #_schema
@@ -2507,8 +2505,6 @@ class Model extends Core {
       Object.assign({}, Options$3, $options),
     );
     if(this.options.enableEvents === true) this.enableEvents();
-    this.schema;
-    this.content;
 	}
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema

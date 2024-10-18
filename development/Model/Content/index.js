@@ -1,5 +1,6 @@
 import { typeOf } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
+import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
 export default class Content extends EventTarget {
   settings
@@ -23,7 +24,11 @@ export default class Content extends EventTarget {
   set schema($schema) {
     if(this.#_schema !== undefined) return
     if($schema === undefined) { this.#_schema = null }
-    else { this.#_schema = $schema }
+    else if($schema instanceof Schema) { this.#_schema = $schema }
+    else if(typeof $schema === 'object') {
+      if(Array.isArray($schema)) { new Schema(...arguments) }
+      else { new Schema($schema) }
+    }
   }
   get Class() { return Content }
   // Object

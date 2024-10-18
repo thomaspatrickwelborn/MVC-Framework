@@ -13,8 +13,6 @@ export default class Model extends Core {
       Object.assign({}, Options, $options),
     )
     if(this.options.enableEvents === true) this.enableEvents()
-    this.schema
-    this.content
 	}
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
