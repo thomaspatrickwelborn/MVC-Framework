@@ -2492,9 +2492,16 @@ class Schema extends EventTarget{
   }
 }
 
-var Settings$3 = {};
+var Settings$3 = {
+  schema: undefined,
+  content: undefined,
+};
 
-var Options$3 = {};
+var Options$3 = {
+  localStorage: undefined, // String
+  schema: undefined, // Schema
+  content: undefined, // Content
+};
 
 class Model extends Core {
   #_schema
@@ -2906,7 +2913,7 @@ const Settings$1 = {
 const Options$1 = {
 	enable: true,
 };
-class StaticRouter extends Core {
+class LocationRouter extends Core {
 	constructor($settings = Settings$1, $options = Options$1) {
 		super(...arguments);
 		this.routes = $settings.routes;
@@ -2954,7 +2961,7 @@ const Settings = Object.freeze({
 	controls: {},
 	routers: {
 		fetch: {},
-		static: {},
+		location: {},
 	},
 	events: {},
 });
@@ -3029,7 +3036,6 @@ class Control extends Core {
 			}
 		}
 	}
-	
 	#_routers = {}
 	get routers() { return this.#_routers }
 	set routers($routers = {}) {
@@ -3042,15 +3048,15 @@ class Control extends Core {
 				$routerName, $router
 			] of Object.entries($routerClassInstances)) {
 				if(
-					$router instanceof StaticRouter ||
+					$router instanceof LocationRouter ||
 					$router instanceof FetchRouter
 				) {
 					_routers[$routerClass][$routerName] = $router;
 				}
 				else if(typeOf($router) === 'object') {
 					const Router = (
-						$routerClass === 'static'
-					) ? StaticRouter
+						$routerClass === 'location'
+					) ? LocationRouter
 					  : (
 				  	$routerClass === 'fetch'
 			  	) ? FetchRouter
@@ -3061,8 +3067,8 @@ class Control extends Core {
 				}
 				else if(typeOf($router) === 'array') {
 					const Router = (
-						$routerClass === 'static'
-					) ? StaticRouter
+						$routerClass === 'location'
+					) ? LocationRouter
 					  : (
 				  	$routerClass === 'fetch'
 			  	) ? FetchRouter
@@ -3084,5 +3090,5 @@ class Control extends Core {
 	}
 }
 
-export { Content, Control, Core, FetchRouter, Model, Schema, StaticRouter, Validation, Validator, View };
+export { Content, Control, Core, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, View };
 //# sourceMappingURL=mvc-framework.js.map

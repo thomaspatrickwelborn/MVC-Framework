@@ -1,3 +1,3 @@
 import FetchRouter from './Fetch/index.js'
-import StaticRouter from './Static/index.js'
-export { StaticRouter, FetchRouter }
+import LocationRouter from './Location/index.js'
+export { LocationRouter, FetchRouter }

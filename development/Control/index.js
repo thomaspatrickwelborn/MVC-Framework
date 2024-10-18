@@ -4,7 +4,7 @@ import {
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import View from '../View/index.js'
-import { StaticRouter, FetchRouter } from '../Router/index.js'
+import { LocationRouter, FetchRouter } from '../Router/index.js'
 
 const Settings = Object.freeze({
 	models: {},
@@ -12,7 +12,7 @@ const Settings = Object.freeze({
 	controls: {},
 	routers: {
 		fetch: {},
-		static: {},
+		location: {},
 	},
 	events: {},
 })
@@ -87,7 +87,6 @@ export default class Control extends Core {
 			}
 		}
 	}
-	
 	#_routers = {}
 	get routers() { return this.#_routers }
 	set routers($routers = {}) {
@@ -102,15 +101,15 @@ export default class Control extends Core {
 				$routerName, $router
 			] of Object.entries($routerClassInstances)) {
 				if(
-					$router instanceof StaticRouter ||
+					$router instanceof LocationRouter ||
 					$router instanceof FetchRouter
 				) {
 					_routers[$routerClass][$routerName] = $router
 				}
 				else if(typeOf($router) === 'object') {
 					const Router = (
-						$routerClass === 'static'
-					) ? StaticRouter
+						$routerClass === 'location'
+					) ? LocationRouter
 					  : (
 				  	$routerClass === 'fetch'
 			  	) ? FetchRouter
@@ -121,8 +120,8 @@ export default class Control extends Core {
 				}
 				else if(typeOf($router) === 'array') {
 					const Router = (
-						$routerClass === 'static'
-					) ? StaticRouter
+						$routerClass === 'location'
+					) ? LocationRouter
 					  : (
 				  	$routerClass === 'fetch'
 			  	) ? FetchRouter

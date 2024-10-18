@@ -6,7 +6,7 @@ const Settings = {
 const Options = {
 	enable: true,
 }
-export default class StaticRouter extends Core {
+export default class LocationRouter extends Core {
 	constructor($settings = Settings, $options = Options) {
 		super(...arguments)
 		this.routes = $settings.routes

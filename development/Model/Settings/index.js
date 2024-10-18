@@ -1,1 +1,4 @@
-export default {}
+export default {
+  schema: undefined,
+  content: undefined,
+}
