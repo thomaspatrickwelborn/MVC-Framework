@@ -1,3 +1,3 @@
 export default {
-  events: []
+  events: undefined
 }

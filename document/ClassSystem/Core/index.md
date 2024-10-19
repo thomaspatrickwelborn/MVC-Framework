@@ -1,29 +1,49 @@
 # MVC Framework - Core Class
- - Defines `settings` and `options` properties.  
- - Ventilates pathed Event Target properties.  
+ - [Definitions]()
+   - [Settings Definition]()
+   - [Options Definition]()
+   - [Events Definition]()
+ - [Constructor Arguments]()
+   - [`$settings` Object]()
+   - [`$options` Object]()
+ - [Public Properties]()
+   - [`settings` Property]()
+   - [`options` Property]()
+   - [`events` Property]()
+ - [Public Methods]()
+   - [`addEvents` Method]()
+   - [`removeEvents` Method]()
+   - [`disableEvents` Method]()
+ - [Private Methods]()
+   - [`#assign` Method]()
+   - [`#defineProperties` Method]()
+   - [`#toggleEventAbility` Method]()
+ - [Private Properties]()
+   - [`#_settings` Property]()
+   - [`#_options` Property]()
+   - [`#_events` Property]()
+
+## Definitions
+### Settings Definition   
+### Options Definition
+### Events Definition
+
+## Constructor Arguments
+```
+constructor($settings, $options)
+```
+### `$settings` Argument
+### `$options` Argument
 
 ## Public Properties
 ### `settings` Property
 **Type**: `getter`, `setter`  
 **Inturn**:  
-```
-{
-  events: $events
-}
-```
 **Return**: `#_settings`  
 **Descript**:  
-
 ### `options` Property
 **Type**: `object`  
 **Inturn**:  
-```
-{
-  defineProperties: $defineProperties,
-  assignProperties: $assignProperties,
-  enableEvents: $enableEvents,
-}
-```
 ### `events` Property
 **Type**: `getter`  
 **Return**: `#_events` Property  
@@ -32,71 +52,42 @@
 ## Public Methods
 ### `addEvents` Method
 **Type**: `function`  
+**Descript**:  
 ### `removeEvents` Method
+**Type**: `function`  
+**Descript**:  
 ### `enableEvents` Method
+**Type**: `function`  
+**Descript**:  
 ### `disableEvents` Method
+**Type**: `function`  
+**Descript**:  
 
 
 ## Private Methods
-### `#assignProperties` Method
+### `#assign` Method
+**Type**: `function`  
+**Descript**:  
 ### `#defineProperties` Method
+**Type**: `function`  
+**Descript**:  
 ### `#toggleEventAbility` Method
+**Type**: `function`  
+**Descript**:  
+
 
 ## Private Properties
 ### `#_settings` Property
 **Type**: `object`  
+**Descript**:  
 ### `#_options` Property
 **Type**: `object`  
+**Descript**:  
 ### `#_events` Property
-**Type**: `object`   
+**Type**: `array`   
+**Descript**:  
 
 
-## Events
-```
-const $eventType = "click"
-const $eventTargetPath = "eventTargetProperty"
-const $eventCallback = ($event) => {
-  console.log($event.type, $event.currentTarget)
-}
-```
-### Impanded Event Format
-```
-const $events = {
-  [`${$eventTargetPath} ${$eventType}`]: $eventCallback
-}
-```
-### Expanded Event Format
-```
-const $events = [{
-  type: $eventType,
-  target: $eventTargetPath,
-  callback: $eventCallback,
-}]
-```
-### Core Instantiation
-```
-import { Core } from 'mvc-framework'
-const core = new Core({
-  eventTargetProperty: document.querySelector('body'),
-  events: $events,
-}, { defineProperties: {
-  "eventTargetProperty": { enumerable: true, writable: true, configurable: true }
-} })
-```
-### Ministration
-```
-// Enable All Events (from events property)
-core.enableEvents()
-// Disable All Events (from events property)
-core.disableEvents()
-// Add All Events (from settings property)
-core.addEvents()
-// Remove All Events (from events property)
-core.removeEvents()
-core.enableEvents({
-
-})
-```
 
 ## References
 **Class Extensions**:  

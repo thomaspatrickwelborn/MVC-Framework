@@ -1,25 +1,22 @@
 import { Core } from '/dependencies/mvc-framework.js'
+const $eventTargetProperty = document.querySelector('body')
 const $eventType = "click"
 const $eventTargetPath = "eventTargetProperty"
-const $eventCallback = ($event) => {
+const $eventListener = ($event) => {
   console.log($event.type, $event.currentTarget)
 }
 const $events = {
-  [`${$eventTargetPath} ${$eventType}`]: $eventCallback
+  [`${$eventTargetPath} ${$eventType}`]: $eventListener
 }
 const core = new Core({
-  eventTargetProperty: document.querySelector('body'),
+  eventTargetProperty: $eventTargetProperty,
   events: $events,
 }, { defineProperties: {
   "eventTargetProperty": { enumerable: true, writable: true, configurable: true }
 } })
-// console.log(core.events)
-const eventTargetPropertyEvents = core.getEvents([{ path: 'eventTargetProperty' }])
-core.enableEvents(eventTargetPropertyEvents)
-console.log()
-/*
+
 import './examples/color-control-view.js'
-*/
+
 /*
 import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
 import DefaultTemplate from './template.js'

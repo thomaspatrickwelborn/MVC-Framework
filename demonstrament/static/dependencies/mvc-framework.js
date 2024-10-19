@@ -4,13 +4,14 @@ const typeOf = ($data) => Object
 	.call($data).slice(8, -1).toLowerCase();
 
 function expandEvents($propEvents) {
-	if(Array.isArray($propEvents)) return $propEvents
 	const propEvents = [];
+	if(Array.isArray($propEvents)) { return $propEvents }
+	else if($propEvents === undefined) { return propEvents }
 	for(const [
-		$propEventSettings, $propEventCallback
+		$propEventSettings, $propEventListener
 	] of Object.entries($propEvents)) {
 		const propEventSettings = $propEventSettings.split(' ');
-		let type, path;
+		let path, type, listener;
 		if(propEventSettings.length === 1) {
 			path = ':scope';
 			type = propEventSettings[0];
@@ -18,15 +19,49 @@ function expandEvents($propEvents) {
 			path = propEventSettings[0];
 			type = propEventSettings[1];
 		}
+		if(Array.isArray($propEventListener)) {
+			listener = $propEventListener[0];
+			$propEventListener[1];
+		}
+		else {
+			listener = $propEventListener;
+		}
 		const propEvent = {
 			type,
 			path,
-			callback: $propEventCallback,
+			listener,
 			enable: false,
 		};
 		propEvents.push(propEvent);
 	}
 	return propEvents
+}
+
+function recursiveAssign() {
+  const $arguments = [...arguments];
+  const $target = $arguments.shift();
+  const $sources = $arguments;
+  for(const $source of $sources) {
+    for(const [
+      $sourcePropKey, $sourcePropValue
+    ] of Object.entries($source)) {
+      // Type: Object
+      if(typeof $sourcePropValue === 'object') {
+        if($target[$sourcePropKey] === undefined) {
+          $target[$sourcePropKey] = $sourcePropValue;
+        } else {
+          $target[$sourcePropKey] = recursiveAssign(
+            $target[$sourcePropKey], $sourcePropValue
+          );
+        }
+      }
+      // Type: Primitive
+      else {
+        $target[$sourcePropKey] = $sourcePropValue;
+      }
+    }
+  }
+  return $target
 }
 
 function isDirectInstanceOf($object, $constructor) {
@@ -45,7 +80,7 @@ function isDirectInstanceOf($object, $constructor) {
 
 class CoreEvent {
   #settings
-  #boundCallback
+  #_boundListener
   #_enable = false
   constructor($settings) { 
     this.#settings = $settings;
@@ -55,52 +90,54 @@ class CoreEvent {
   get path() { return this.#settings.path }
   get target() {
     let target = this.context;
+    iterateTargetPathKeys: 
     for(const $targetPathKey of this.path.split('.')) {
-      if($targetPathKey === ':scope') break
+      if($targetPathKey === ':scope') break iterateTargetPathKeys
       if(target[$targetPathKey] === undefined) return undefined
       target = target[$targetPathKey];
     }
     return target
   }
-  get callback() {
-    if(this.#boundCallback === undefined) {
-      this.#boundCallback = this.#settings.callback.bind(this.context);
-    }
-    return this.#boundCallback
+  get #boundListener() {
+    if(this.#_boundListener !== undefined) { return this.#_boundListener }
+    this.#_boundListener = this.#settings.listener.bind(this.context);
+    return this.#_boundListener
   }
+  get listener() { return this.#settings.listener }
+  get options() { return this.#settings.options }
   get enable() { return this.#_enable }
   set enable($enable) {
-    if($enable === this.#_enable) return
+    if($enable === this.#_enable) { return }
     const eventAbility = (
       $enable === true
     ) ? 'addEventListener'
       : 'removeEventListener';
     if(this.target instanceof NodeList) {
       for(const $target of this.target) {
-        $target[eventAbility](this.type, this.callback);
+        $target[eventAbility](this.type, this.#boundListener, this.options);
       }
       this.#_enable = $enable;
     }
     else if(this.target instanceof EventTarget) {
-      this.target[eventAbility](this.type, this.callback);
+      this.target[eventAbility](this.type, this.#boundListener, this.options);
       this.#_enable = $enable;
     }
     else {
       try {
-        this.target[eventAbility](this.type, this.callback);
+        this.target[eventAbility](this.type, this.#boundListener, this.options);
         this.#_enable = $enable;
-      } catch($err) { /* console.log(this.type, this.path, eventAbility) */ }
+      } catch($err) {}
     }
   }
 }
 
 var Settings$4 = {
-  events: []
+  events: undefined
 };
 
 var Options$6 = {
   defineProperties: {},
-  assignProperties: [],
+  assign: [],
 };
 
 class Core extends EventTarget {
@@ -111,19 +148,19 @@ class Core extends EventTarget {
     super();
     this.settings = $settings;
     this.options = $options;
-    this.#assignProperties();
-    this.#defineProperties();
     this.addEvents(this.settings.events);
+    this.#assign();
+    this.#defineProperties();
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
-    this.#_settings = Object.assign({}, Settings$4, $settings);
+    this.#_settings = recursiveAssign({}, Settings$4, $settings);
   }
   get options() { return this.#_options }
   set options($options) {
     if(this.#_options !== undefined) return
-    this.#_options = Object.assign({}, Options$6, $options);
+    this.#_options = recursiveAssign({}, Options$6, $options);
   }
   get events() {
     if(this.#_events !== undefined) return this.#_events
@@ -133,14 +170,13 @@ class Core extends EventTarget {
   getEvents() {
     const getEvents = [];
     const { events } = this;
-    if(arguments.length === 0) { return events }
-    let $events = arguments[0];
+    const $events = expandEvents(arguments[0]);
     for(const $event of $events) {
-      const { type, path, callback, enable } = $event;
+      const { type, path, listener, enable } = $event;
       const eventFilterProperties = [];
       if(type !== undefined) { eventFilterProperties.push(['type', type]); }
       if(path !== undefined) { eventFilterProperties.push(['path', path]); }
-      if(callback !== undefined) { eventFilterProperties.push(['callback', callback]); }
+      if(listener !== undefined) { eventFilterProperties.push(['listener', listener]); }
       if(enable !== undefined) { eventFilterProperties.push(['enable', enable]); }
       getEvents.push(
         ...events.filter(($existingEvent) => {
@@ -161,7 +197,7 @@ class Core extends EventTarget {
   addEvents() {
     const { events } = this;
     let $events;
-    if(arguments.length === 0) { $events = events; }
+    if(arguments.length === 0) { $events = expandEvents(this.settings.events); }
     else if(arguments.length === 1) { $events = expandEvents(arguments[0]); }
     for(const $event of $events) {
       Object.assign($event, { context: this });
@@ -173,17 +209,16 @@ class Core extends EventTarget {
     const { events } = this;
     let $events;
     if(arguments.length === 0) { $events = events; }
-    else if(arguments.length === 1) { $events = expandEvents(arguments[0]); }
+    else if(arguments.length === 1) {
+      $events = this.getEvents(expandEvents(arguments[0]));
+    }
     let eventsIndex = events.length - 1;
     while(eventsIndex > -1) {
       const event = events[eventsIndex];
       const removeEventIndex = $events.findIndex(
-        ($event) => (
-          $event.type === event.type &&
-          $event.path === event.path &&
-          $event.callback === event.callback
-        )
+        ($event) => $event === event
       );
+      event.enable = false;
       if(removeEventIndex !== -1) events.splice(eventsIndex, 1);
       eventsIndex--;
     }
@@ -192,17 +227,17 @@ class Core extends EventTarget {
   enableEvents() {
     let $events;
     if(arguments.length === 0) { $events = this.events; }
-    else { $events = arguments[0]; }
+    else { $events = this.getEvents(expandEvents(arguments[0])); }
     return this.#toggleEventAbility('addEventListener', $events)
   }
   disableEvents() {
     let $events;
     if(arguments.length === 0) { $events = this.events; }
-    else { $events = arguments[0]; }
+    else { $events = this.getEvents(expandEvents(arguments[0])); }
     return this.#toggleEventAbility('removeEventListener', $events)
   }
-  #assignProperties() {
-    for(const $propertyName of this.options.assignProperties) {
+  #assign() {
+    for(const $propertyName of this.options.assign) {
       const propertyValue = this.settings[$propertyName];
       Object.assign(this, { [$propertyName]: propertyValue });
     }

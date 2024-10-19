@@ -56,6 +56,7 @@ class ColorControlView extends View {
   }
 }
 const colorControlView = new ColorControlView()
+colorControlView.enableEvents()
 colorControlView.model.content.addEventListener('setProperty', ($event) => {
   const { key, value } = $event.detail
   if(key === "brightness") {

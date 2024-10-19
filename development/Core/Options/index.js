@@ -1,4 +1,4 @@
 export default {
   defineProperties: {},
-  assignProperties: [],
+  assign: [],
 }
