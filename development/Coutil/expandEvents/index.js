@@ -1,23 +1,21 @@
-import typeOf from '../typeOf/index.js'
-
-function parseShortenedEvents($propEvents) {
-	if(typeOf($propEvents) === 'array') return $propEvents
+function expandEvents($propEvents) {
+	if(Array.isArray($propEvents)) return $propEvents
 	const propEvents = []
 	iteratePropEvents: for(const [
 		$propEventSettings, $propEventCallback
 	] of Object.entries($propEvents)) {
 		const propEventSettings = $propEventSettings.split(' ')
-		let type, target, callback
+		let type, path, callback, enable
 		if(propEventSettings.length === 1) {
-			target = ':scope'
+			path = ':scope'
 			type = propEventSettings[0]
 		} else if(propEventSettings.length > 1) {
-			target = propEventSettings[0]
+			path = propEventSettings[0]
 			type = propEventSettings[1]
 		}
 		const propEvent = {
 			type,
-			target,
+			path,
 			callback: $propEventCallback,
 			enable: false,
 		}
@@ -26,4 +24,4 @@ function parseShortenedEvents($propEvents) {
 	return propEvents
 }
 
-export default parseShortenedEvents
+export default expandEvents

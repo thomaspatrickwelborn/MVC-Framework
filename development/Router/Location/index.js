@@ -1,4 +1,4 @@
-import { typeOf, parseShortenedEvents } from '../../Coutil/index.js'
+import { typeOf, expandEvents } from '../../Coutil/index.js'
 import Core from '../../Core/index.js'
 const Settings = {
 	routes: {},

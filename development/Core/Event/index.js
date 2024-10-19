@@ -7,7 +7,7 @@ export default class CoreEvent {
   }
   get context() { return this.#settings.context }
   get type() { return this.#settings.type }
-  get path() { return this.#settings.target }
+  get path() { return this.#settings.path }
   get target() {
     let target = this.context
     for(const $targetPathKey of this.path.split('.')) {

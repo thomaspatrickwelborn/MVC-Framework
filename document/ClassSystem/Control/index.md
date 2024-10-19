@@ -1,7 +1,30 @@
 # MVC Framework - Control Class
-## Constructor
-
-
+ - [Core Class Extension](../Core/index.md)
+## Constructor Arguments
+### `$settings` Argument
+**Type**: `Object` Literal  
+**Descript**: Control Class Instance Settings.  
+**Inturn**:  
+```
+{
+  models: { [$modelName]: $model },
+  views: { [$viewName]: $view },
+  controls: { [$controlName]: $control },
+  routers: {
+    fetch: { [$routerName]: $router },
+    location: { [$routerName]: $router },
+  },
+}
+```
+### `$options` Argument
+**Type**: `Object` Literal  
+**Descript**: Control Class Instance Options.  
+**Inturn**:  
+```
+{
+  
+}
+```
 ## Public Properties
 ### `set models` Property
 **Type**: `Object` literal  

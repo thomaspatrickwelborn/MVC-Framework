@@ -1,4 +1,4 @@
 export default {
-  validSettings: [],
-  enableEvents: true,
+  defineProperties: {},
+  assignProperties: [],
 }

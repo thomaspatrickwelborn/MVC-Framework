@@ -1,17 +1,13 @@
 import typeOf from './typeOf/index.js'
 import typedInstance from './typedInstance/index.js'
-import parseShortenedEvents from './parseShortenedEvents/index.js'
+import expandEvents from './expandEvents/index.js'
 import parsePropFrag from './parsePropFrag/index.js'
-import eventCallbackNameFromEventCallback from './eventCallbackNameFromEventCallback/index.js'
-import eventListenerArgumentsValid from './eventListenerArgumentsValid/index.js'
 import isDirectInstanceOf from './isDirectInstanceOf/index.js'
 
 export {
 	typeOf, 
 	typedInstance, 
-	parseShortenedEvents, 
+	expandEvents, 
 	parsePropFrag, 
-	eventCallbackNameFromEventCallback,
-	eventListenerArgumentsValid,
 	isDirectInstanceOf,
 }
