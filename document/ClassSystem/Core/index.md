@@ -1,8 +1,7 @@
 # MVC Framework - Core Class
- - [Definitions]()
-   - [Settings Definition]()
-   - [Options Definition]()
-   - [Events Definition]()
+[**Core Class Guide**](../../Guide/Core/index.md)  
+
+**Content**  
  - [Constructor Arguments]()
    - [`$settings` Object]()
    - [`$options` Object]()
@@ -23,71 +22,98 @@
    - [`#_options` Property]()
    - [`#_events` Property]()
 
-## Definitions
-### Settings Definition   
-### Options Definition
-### Events Definition
+## Module Properties
+### Settings Property
+```
+{ events: [] }
+```
+### Options Property
+```
+{
+  assign: [],
+  defineProperties: {},
+}
+```
 
 ## Constructor Arguments
-```
-constructor($settings, $options)
-```
+ - Sets `settings`, `options` properties. 
+ - Evokes `addEvents` method. 
+ - Evokes `assign`, `defineProperties` methods. 
 ### `$settings` Argument
+**Type**: `object`  
+**Descript**: `$settings` assigned to `settings`.  
 ### `$options` Argument
+**Type**: `object`  
+**Descript**: `$options` assigned to `options`.  
 
 ## Public Properties
 ### `settings` Property
-**Type**: `getter`, `setter`  
-**Inturn**:  
+**Type**: `get`, `set`  
+**Inturn**: `object` literal  
 **Return**: `#_settings`  
 **Descript**:  
+ - Properties referenced by or set to Core Class instance properties and methods. 
+ - Call `expandEvents` with `events` property.  
+ - Recursively assign default `Settings`, `$settings` properties to `#_settings`.  
 ### `options` Property
-**Type**: `object`  
-**Inturn**:  
+**Type**: `get`, `set`  
+**Inturn**: `object` literal  
+**Return**:  `#_options`  
+**Descript**:  
+ - Properties that modulate Core Class instance properties or methods. 
+ - Recursively assign default `Options`, `$options` properties to `#_options`.  
 ### `events` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `#_events` Property  
-
+**Descript**:  
+ - Stored Core Event Class instances.  
 
 ## Public Methods
 ### `addEvents` Method
 **Type**: `function`  
 **Descript**:  
+ - Create new Core Event Class instances. 
+ - Add Core Event Class instances to `events` property.  
 ### `removeEvents` Method
 **Type**: `function`  
 **Descript**:  
+ - Disable, remove Core Event Class instances from `events` property
 ### `enableEvents` Method
 **Type**: `function`  
 **Descript**:  
+ - Enable Core Event Class instances contained by `events` property. 
 ### `disableEvents` Method
 **Type**: `function`  
 **Descript**:  
-
+ - Disable Core Event Class instances contained by `events` property. 
 
 ## Private Methods
 ### `#assign` Method
 **Type**: `function`  
 **Descript**:  
+ - Assign properties from `settings` to Core Class instance when `options.assign` value matches `settings` property key.  
 ### `#defineProperties` Method
 **Type**: `function`  
 **Descript**:  
+ - Define properties from `settings` to Core Class instance when `options.defineProperties` property key matches `settings` property key.  
 ### `#toggleEventAbility` Method
 **Type**: `function`  
 **Descript**:  
-
+ - Add or remove event listeners from argued Core Event instances by toggling their `enabled` property.  
 
 ## Private Properties
 ### `#_settings` Property
 **Type**: `object`  
 **Descript**:  
+ - Stores `settings` Property value.  
 ### `#_options` Property
 **Type**: `object`  
 **Descript**:  
+ - Stores `options` Property value.  
 ### `#_events` Property
-**Type**: `array`   
+**Type**: `array`  
 **Descript**:  
-
-
+ - Stores `events` Property value.  
 
 ## References
 **Class Extensions**:  

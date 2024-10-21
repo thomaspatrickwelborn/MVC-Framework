@@ -3,25 +3,20 @@ export default class CoreEvent {
   #_boundListener
   #_enable = false
   constructor($settings) { 
-    this.#settings = $settings
+    this.#settings = Object.freeze($settings)
   }
-  get context() { return this.#settings.context }
   get type() { return this.#settings.type }
   get path() { return this.#settings.path }
   get target() {
-    let target = this.context
+    let target = this.#context
     iterateTargetPathKeys: 
     for(const $targetPathKey of this.path.split('.')) {
-      if($targetPathKey === ':scope') break iterateTargetPathKeys
-      if(target[$targetPathKey] === undefined) return undefined
+      if($targetPathKey === ':scope') { break iterateTargetPathKeys }
+      if(target[$targetPathKey] === undefined) { return undefined }
       target = target[$targetPathKey]
     }
+    if(target instanceof EventTarget) { return target }
     return target
-  }
-  get #boundListener() {
-    if(this.#_boundListener !== undefined) { return this.#_boundListener }
-    this.#_boundListener = this.#settings.listener.bind(this.context)
-    return this.#_boundListener
   }
   get listener() { return this.#settings.listener }
   get options() { return this.#settings.options }
@@ -48,5 +43,11 @@ export default class CoreEvent {
         this.#_enable = $enable
       } catch($err) {}
     }
+  }
+  get #context() { return this.#settings.context }
+  get #boundListener() {
+    if(this.#_boundListener !== undefined) { return this.#_boundListener }
+    this.#_boundListener = this.#settings.listener.bind(this.context)
+    return this.#_boundListener
   }
 }

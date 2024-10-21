@@ -2,19 +2,19 @@
 
 ## View Class Properties
 ### `parent` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `HTMLElement`  
 **Descript**:  
 ### `template` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `HTMLTemplateElement`  
 **Descript**:  
 ### `querySelectors` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `Object`  
 **Descript**:  
 ### `qs` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `Object`  
 **Descript**:  
 

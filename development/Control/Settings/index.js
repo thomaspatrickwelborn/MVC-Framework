@@ -6,5 +6,5 @@ export default {
     fetch: {},
     location: {},
   },
-  events: {},
+  events: [],
 }

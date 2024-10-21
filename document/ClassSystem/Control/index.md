@@ -105,7 +105,7 @@
 ```
 
 ### `routers` Property
-**Type**: `getter`, `setter`  
+**Type**: `get`, `set`  
 **Inturn**:  
  - `Object` literal propriates router classes with subpropriate key/value defining router name with router. 
    - Router configuration may be Router Class Settings Object, Default Instance, Settings/Options Array, or Custom Instance.  

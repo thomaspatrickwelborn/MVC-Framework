@@ -1,4 +1,3 @@
-
 import { impandEvents, expandEvents, recursiveAssign } from '../Coutil/index.js'
 import CoreEvent from './Event/index.js'
 import Settings from './Settings/index.js' 
@@ -11,13 +10,14 @@ export default class Core extends EventTarget {
     super()
     this.settings = $settings
     this.options = $options
-    this.addEvents(this.settings.events)
+    this.addEvents()
     this.#assign()
     this.#defineProperties()
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
+    $settings.events = expandEvents($settings.events)
     this.#_settings = recursiveAssign({}, Settings, $settings)
   }
   get options() { return this.#_options }
@@ -32,7 +32,7 @@ export default class Core extends EventTarget {
   }
   getEvents() {
     const getEvents = []
-    const { events } = this
+    const { events } = this0
     const $events = expandEvents(arguments[0])
     iterateEvents: 
     for(const $event of $events) {
@@ -61,7 +61,7 @@ export default class Core extends EventTarget {
   addEvents() {
     const { events } = this
     let $events
-    if(arguments.length === 0) { $events = expandEvents(this.settings.events) }
+    if(arguments.length === 0) { $events = this.settings.events }
     else if(arguments.length === 1) { $events = expandEvents(arguments[0]) }
     for(const $event of $events) {
       Object.assign($event, { context: this })

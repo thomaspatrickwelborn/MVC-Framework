@@ -83,25 +83,20 @@ class CoreEvent {
   #_boundListener
   #_enable = false
   constructor($settings) { 
-    this.#settings = $settings;
+    this.#settings = Object.freeze($settings);
   }
-  get context() { return this.#settings.context }
   get type() { return this.#settings.type }
   get path() { return this.#settings.path }
   get target() {
-    let target = this.context;
+    let target = this.#context;
     iterateTargetPathKeys: 
     for(const $targetPathKey of this.path.split('.')) {
-      if($targetPathKey === ':scope') break iterateTargetPathKeys
-      if(target[$targetPathKey] === undefined) return undefined
+      if($targetPathKey === ':scope') { break iterateTargetPathKeys }
+      if(target[$targetPathKey] === undefined) { return undefined }
       target = target[$targetPathKey];
     }
+    if(target instanceof EventTarget) { return target }
     return target
-  }
-  get #boundListener() {
-    if(this.#_boundListener !== undefined) { return this.#_boundListener }
-    this.#_boundListener = this.#settings.listener.bind(this.context);
-    return this.#_boundListener
   }
   get listener() { return this.#settings.listener }
   get options() { return this.#settings.options }
@@ -129,10 +124,16 @@ class CoreEvent {
       } catch($err) {}
     }
   }
+  get #context() { return this.#settings.context }
+  get #boundListener() {
+    if(this.#_boundListener !== undefined) { return this.#_boundListener }
+    this.#_boundListener = this.#settings.listener.bind(this.context);
+    return this.#_boundListener
+  }
 }
 
 var Settings$4 = {
-  events: undefined
+  events: []
 };
 
 var Options$6 = {
@@ -148,13 +149,14 @@ class Core extends EventTarget {
     super();
     this.settings = $settings;
     this.options = $options;
-    this.addEvents(this.settings.events);
+    this.addEvents();
     this.#assign();
     this.#defineProperties();
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
+    $settings.events = expandEvents($settings.events);
     this.#_settings = recursiveAssign({}, Settings$4, $settings);
   }
   get options() { return this.#_options }
@@ -169,7 +171,7 @@ class Core extends EventTarget {
   }
   getEvents() {
     const getEvents = [];
-    const { events } = this;
+    const { events } = this0;
     const $events = expandEvents(arguments[0]);
     for(const $event of $events) {
       const { type, path, listener, enable } = $event;
@@ -197,7 +199,7 @@ class Core extends EventTarget {
   addEvents() {
     const { events } = this;
     let $events;
-    if(arguments.length === 0) { $events = expandEvents(this.settings.events); }
+    if(arguments.length === 0) { $events = this.settings.events; }
     else if(arguments.length === 1) { $events = expandEvents(arguments[0]); }
     for(const $event of $events) {
       Object.assign($event, { context: this });
@@ -3056,7 +3058,7 @@ var Settings = {
     fetch: {},
     location: {},
   },
-  events: {},
+  events: [],
 };
 
 var Options = {

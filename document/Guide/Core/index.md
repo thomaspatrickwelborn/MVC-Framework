@@ -1,5 +1,8 @@
-# MVC Framework - Core Guide
+# MVC Framework - Core Class Guide
+**Content**  
+ - [Overview]()
  - [Event Formats]()
+   - [Event Properties]()
    - [Impanded Events Format]()
      - [Impanded Event Listener]()
      - [Impanded Event Listener With Options]()
@@ -13,21 +16,30 @@
      - [Get `listener` Events]()
      - [Get `enabled`, `type`, `path`, `listener` Events]()
    - [Add, Remove, Enable, Disable All Events]()
-     - [Add All Events]()
-     - [Remove All Events]()
-     - [Enable All Events]()
-     - [Disable All Events]()
-   - [Add, Remove, Enable, Disable Expanded Events]()
-     - [Add Expanded Events]()
-     - [Remove Expanded Events]()
-     - [Enable Expanded Events]()
-     - [Disable Expanded Events]()
-   - [Add, Remove, Enable, Disable Impanded Events]()
-     - [Add Impanded Events]()
-     - [Remove Impanded Events]()
-     - [Enable Impanded Events]()
-     - [Disable Impanded Events]()
+     - [Add All Events *(from `settings` property)*]()
+     - [Remove All Events *(from `events` property)*]()
+     - [Enable All Events *(from `events` property)*]()
+     - [Disable All Events *(from `events` property)*]()
+   - [Add, Remove, Enable, Disable Expanded Events ]()
+     - [Add Expanded Event]()
+     - [Remove Expanded Event]()
+     - [Enable Expanded Event ]()
+     - [Disable Expanded Event ]()
+   - [Add, Remove, Enable, Disable Impanded Events ]()
+     - [Add Impanded Event]()
+     - [Add Impanded Events With Options]()
+     - [Remove Impanded Event]()
+     - [Enable Impanded Event]()
+     - [Disable Impanded Event]()
  - [Core Extension]()
+   - [Core Extension Declaration]()
+   - [Core Extension Instantiation]()
+
+## Overview
+ - Stores Settings, Options, Events Properties.  
+ - Ventilates scoped Event Target instances.  
+ - Ministrates Core Event Class instances.  
+ - Assigns, defines Settings Properties to Core Class instances when Options Properties specify.  
 
 ## Event Formats
 ### Event Properties
@@ -208,5 +220,20 @@ core.disableEvents({
 ```
 
 ## Core Extension
-
-
+### Core Extension Declaration
+```
+class ExtendedCore extends Core {
+  constructor($settings, $options) {
+    super(...arguments)
+    if(this.options.enableEvents) { this.enableEvents() }
+  }
+  get eventTargetProperty() { return this.#settings.eventTargetProperty }
+}
+```
+### Core Extension Instantiation
+```
+const extendedCore = new ExtendedCore({
+  eventTargetProperty: document.querySelector('body'),
+  events: { [`${$path} ${$type}`]: $listener }
+}, { enableEvents: true })
+```

@@ -2,7 +2,7 @@
 
 ## Validation Class Properties
 ### `type` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `String`  
 **Descript**:  
 Validation type.  
@@ -14,7 +14,7 @@ Validation type.
  5. `Validator.type`
 
 ### `valid` Property
-**Type**: `getter`, `setter`  
+**Type**: `get`, `set`  
 **Return**: `Boolean`  
 **Descript**:  
 `contentVal` valuation against complementary `contextVal` qualities.  
@@ -24,7 +24,7 @@ Validation type.
 
 
 ### `message` Property
-**Type**: `getter`
+**Type**: `get`
 **Return**: `String`  
 **Retrofer**:  
 1. `Validation.message`
@@ -34,7 +34,7 @@ Validation type.
 5. `Validator.messages`
 
 ### `context` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `Object`—Validator Settings
 **Descript**:  
  - Validative Qualities.  
@@ -46,7 +46,7 @@ Validation type.
  5. `Schema.validateProperty`
 
 ### `contextKey` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `String`  
 **Descript**:  
  - Validative Quality Enominator.  
@@ -54,19 +54,19 @@ Validation type.
  1. 
  
 ### `contextVal` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `Mixed`  
 **Descript**:  
  - Validative Quality Evaluator.  
 
 ### `contentKey` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `String`  
 **Descript**  
  - Validatable Quality Enom.   
 
 ### `contentVal` Property
-**Type**: `getter`  
+**Type**: `get`  
 **Return**: `Mixed`  
 **Descript**  
  - Validatable Quality Evalue.  
