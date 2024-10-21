@@ -37,12 +37,14 @@ class ColorControlView extends View {
       },
       events: {
         'qs.brightnessButton click': ($event) => {
+          console.log($event)
           const { content } = this.model
           const brightness = (content.get("brightness") === "MAX")
             ? "MIN" : "MAX"
           content.set("brightness", brightness)
         },
         'model.content setProperty': ($event) => {
+          console.log($event)
           const { key, value } = $event.detail
           if(key === 'brightness') {
             const { brightnessButton, brightnessButtonValue } = this.qs

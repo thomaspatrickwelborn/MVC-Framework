@@ -63,8 +63,8 @@ export default class Core extends EventTarget {
     let $events
     if(arguments.length === 0) { $events = this.settings.events }
     else if(arguments.length === 1) { $events = expandEvents(arguments[0]) }
-    for(const $event of $events) {
-      Object.assign($event, { context: this })
+    for(let $event of $events) {
+      $event = Object.assign({}, $event, { context: this })
       events.push(new CoreEvent($event))
     }
     return this
@@ -92,13 +92,13 @@ export default class Core extends EventTarget {
   enableEvents() {
     let $events
     if(arguments.length === 0) { $events = this.events }
-    else { $events = this.getEvents(expandEvents(arguments[0])) }
+    else { $events = this.getEvents(arguments[0]) }
     return this.#toggleEventAbility('addEventListener', $events)
   }
   disableEvents() {
     let $events
     if(arguments.length === 0) { $events = this.events }
-    else { $events = this.getEvents(expandEvents(arguments[0])) }
+    else { $events = this.getEvents(arguments[0]) }
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #assign() {

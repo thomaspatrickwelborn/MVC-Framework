@@ -1,3 +1,5 @@
+import './examples/color-control-view.js'
+/*
 import { Core } from '/dependencies/mvc-framework.js'
 const $eventTargetProperty = document.querySelector('body')
 const $eventType = "click"
@@ -14,8 +16,8 @@ const core = new Core({
 }, { defineProperties: {
   "eventTargetProperty": { enumerable: true, writable: true, configurable: true }
 } })
-
-import './examples/color-control-view.js'
+core.enableEvents()
+*/
 
 /*
 import { Control, Model, Schema } from '/dependencies/mvc-framework.js'

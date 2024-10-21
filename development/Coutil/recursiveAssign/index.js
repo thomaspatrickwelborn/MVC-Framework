@@ -4,6 +4,7 @@ function recursiveAssign() {
   const $sources = $arguments
   iterateSources: 
   for(const $source of $sources) {
+    // if($source === null) { continue iterateSources }
     iterateSourceEntries: 
     for(const [
       $sourcePropKey, $sourcePropValue

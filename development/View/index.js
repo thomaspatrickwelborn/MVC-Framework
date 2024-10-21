@@ -82,8 +82,8 @@ export default class View extends Core {
       for(const $preelement of preelement) { $preelement.remove() }
     }
     this.parent.append(...this.element)
-    if(this.options.enableQuerySelectors === true) { this.enableQuerySelectors() }
-    if(this.options.enableEvents === true) { this.enableEvents() }
+    this.enableQuerySelectors()
+    this.enableEvents()
     return this
   }
 }

@@ -42,6 +42,7 @@ function recursiveAssign() {
   const $target = $arguments.shift();
   const $sources = $arguments;
   for(const $source of $sources) {
+    // if($source === null) { continue iterateSources }
     for(const [
       $sourcePropKey, $sourcePropValue
     ] of Object.entries($source)) {
@@ -83,7 +84,7 @@ class CoreEvent {
   #_boundListener
   #_enable = false
   constructor($settings) { 
-    this.#settings = Object.freeze($settings);
+    this.#settings = $settings;
   }
   get type() { return this.#settings.type }
   get path() { return this.#settings.path }
@@ -201,8 +202,8 @@ class Core extends EventTarget {
     let $events;
     if(arguments.length === 0) { $events = this.settings.events; }
     else if(arguments.length === 1) { $events = expandEvents(arguments[0]); }
-    for(const $event of $events) {
-      Object.assign($event, { context: this });
+    for(let $event of $events) {
+      $event = Object.assign({}, $event, { context: this });
       events.push(new CoreEvent($event));
     }
     return this
@@ -229,13 +230,13 @@ class Core extends EventTarget {
   enableEvents() {
     let $events;
     if(arguments.length === 0) { $events = this.events; }
-    else { $events = this.getEvents(expandEvents(arguments[0])); }
+    else { $events = this.getEvents(arguments[0]); }
     return this.#toggleEventAbility('addEventListener', $events)
   }
   disableEvents() {
     let $events;
     if(arguments.length === 0) { $events = this.events; }
-    else { $events = this.getEvents(expandEvents(arguments[0])); }
+    else { $events = this.getEvents(arguments[0]); }
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #assign() {
@@ -2587,30 +2588,44 @@ class Schema extends EventTarget{
   }
 }
 
+class LocalStorage extends EventTarget {
+  #settings
+  constructor($settings, $options) {
+    super();
+    this.#settings = $settings;
+  }
+  get() { localStorage.getItem(this.#settings); }
+  set($content) { localStorage.setItem(this.#settings, $content); }
+  remove() { localStorage.removeItem(this.#settings); }
+}
+
 var Settings$3 = {
   schema: undefined,
   content: undefined,
 };
 
 var Options$3 = {
-  localStorage: undefined, // String
   schema: undefined, // Schema
   content: undefined, // Content
+  enableEvents: true, // Boolean
+  localStorage: undefined, // String,
+  autoload: false, // Boolean
 };
 
 class Model extends Core {
   #_schema
   #_content
-	constructor($settings = {}, $options = {}) {
-		super(
-      Object.assign({}, Settings$3, $settings), 
-      Object.assign({}, Options$3, $options),
+  #_localStorage
+  constructor($settings = {}, $options = {}) {
+    super(
+      recursiveAssign({}, Settings$3, $settings), 
+      recursiveAssign({}, Options$3, $options),
     );
     if(this.options.enableEvents === true) this.enableEvents();
-	}
+  }
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
-    const { schema, content } = this.settings;
+    const { schema } = this.settings;
     // No Schema
     if(!schema) { this.#_schema = null; }
     // Existing Schema
@@ -2625,11 +2640,42 @@ class Model extends Core {
   }
   get content() {
     if(this.#_content !== undefined) return this.#_content
-    let { content } = this.settings;
-    this.#_content = new Content(content, this.schema, this.options.content);
+    const { content } = this.settings;
+    // Existing Content
+    if(content instanceof Content) { this.#_content = content; }
+    // New Content
+    else {
+      const { localStorage, autoLoad } = this.options;
+      // Local Storage, Auto Load
+      if(localStorage && autoLoad) {
+        const localStorageContent = this.localStorage.get();
+        this.#_content = new Content(
+          recursiveAssign({}, content, localStorageContent),
+          this.schema,
+          this.options.content
+        );
+      }
+      // No Local Storage, No Auto Load
+      else {
+        this.#_content = new Content(content, this.schema, this.options.content);
+      }
+    }
     return this.#_content
   }
-  parse() { return this.content.parse() }
+  get localStorage() {
+    if(this.#_localStorage !== undefined) { return this.#_localStorage }
+    this.#_localStorage = new LocalStorage(this.settings.localStorage);
+    return this.#_localStorage
+  }
+  save() {
+    if(this.localStorage) { this.localStorage.set(this.content.string); }
+    return this
+  }
+  load() {
+    if(this.localStorage) { this.content.set(JSON.parse(this.localStorage.get())); }
+    return this
+  }
+  parse() { return this.content.parse(...arguments) }
 }
 
 class QuerySelector {
@@ -2752,8 +2798,8 @@ class View extends Core {
       for(const $preelement of preelement) { $preelement.remove(); }
     }
     this.parent.append(...this.element);
-    if(this.options.enableQuerySelectors === true) { this.enableQuerySelectors(); }
-    if(this.options.enableEvents === true) { this.enableEvents(); }
+    this.enableQuerySelectors();
+    this.enableEvents();
     return this
   }
 }

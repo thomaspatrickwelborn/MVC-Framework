@@ -3,7 +3,7 @@ export default class CoreEvent {
   #_boundListener
   #_enable = false
   constructor($settings) { 
-    this.#settings = Object.freeze($settings)
+    this.#settings = $settings
   }
   get type() { return this.#settings.type }
   get path() { return this.#settings.path }
