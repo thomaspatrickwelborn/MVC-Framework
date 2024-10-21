@@ -1,10 +1,10 @@
-import { typeOf } from '../../Coutil/index.js'
+import { typeOf, recursiveAssign } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
 export default class Content extends EventTarget {
-  settings
-  options
+  #_settings
+  #_options
   #_schema
   #_type
   #_root
@@ -16,14 +16,26 @@ export default class Content extends EventTarget {
   constructor($settings = {}, $schema = null, $options = {}) {
     super()
     this.settings = $settings
-    this.options = Object.assign({}, Options, $options)
+    this.options = $options
     this.schema = $schema
     return this.proxy
   }
+  get settings() { return this.#_settings }
+  set settings($settings) {
+    if(this.#_settings !== undefined) return
+    this.#_settings = $settings
+    return this.#_settings
+  }
+  get options() { return this.#_options }
+  set options($options) {
+    if(this.#_options !== undefined) return
+    this.#_options = recursiveAssign({}, Options, $options)
+    return this.#_options
+  }
   get schema() { return this.#_schema }
   set schema($schema) {
-    if(this.#_schema !== undefined) return
-    if($schema === undefined) { this.#_schema = null }
+    if(this.#_schema !== undefined)  { return }
+    if(!$schema) { this.#_schema = null }
     else if($schema instanceof Schema) { this.#_schema = $schema }
     else if(typeof $schema === 'object') {
       if(Array.isArray($schema)) { new Schema(...arguments) }
@@ -48,25 +60,22 @@ export default class Content extends EventTarget {
   }
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
-    this.#_parent = (
-      this.options.parent !== undefined
-    ) ? this.options.parent
+    this.#_parent = (this.options.parent)
+      ? this.options.parent
       : null
     return this.#_parent
   }
   get basename() {
     if(this.#_basename !== undefined)  return this.#_basename
-    this.#_basename = (
-      this.options.basename !== undefined
-    ) ? this.options.basename
+    this.#_basename = (this.options.basename !== undefined)
+      ? this.options.basename
       : null
     return this.#_basename
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
-    this.#_path = (
-      this.options.path !== undefined
-    ) ? this.options.path
+    this.#_path = (this.options.path !== undefined)
+      ? this.options.path
       : null
     return this.#_path
   }

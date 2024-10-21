@@ -41,13 +41,17 @@ function recursiveAssign() {
   const $arguments = [...arguments];
   const $target = $arguments.shift();
   const $sources = $arguments;
+  iterateSources: 
   for(const $source of $sources) {
-    // if($source === null) { continue iterateSources }
-    for(const [
+    if($source === null) { continue iterateSources }
+    for(let [
       $sourcePropKey, $sourcePropValue
     ] of Object.entries($source)) {
-      // Type: Object
-      if(typeof $sourcePropValue === 'object') {
+      // Type: Non-Null Object
+      if(
+        $target[$sourcePropKey] !== null &&
+        typeof $sourcePropValue === 'object'
+      ) {
         if($target[$sourcePropKey] === undefined) {
           $target[$sourcePropKey] = $sourcePropValue;
         } else {
@@ -2006,9 +2010,13 @@ class Handler {
 }
 
 var Options$5 = {
-  enableValidation: true,
-  validationEvents: true,
-  contentEvents: true,
+  basename: null, 
+  path: null, 
+  parent: null, 
+  enableValidation: true, 
+  validationEvents: true, 
+  contentEvents: true, 
+  enableEvents: true, 
   traps: {
     accessor: {
       get: {
@@ -2111,8 +2119,8 @@ var Options$5 = {
 };
 
 class Content extends EventTarget {
-  settings
-  options
+  #_settings
+  #_options
   #_schema
   #_type
   #_root
@@ -2124,14 +2132,26 @@ class Content extends EventTarget {
   constructor($settings = {}, $schema = null, $options = {}) {
     super();
     this.settings = $settings;
-    this.options = Object.assign({}, Options$5, $options);
+    this.options = $options;
     this.schema = $schema;
     return this.proxy
   }
+  get settings() { return this.#_settings }
+  set settings($settings) {
+    if(this.#_settings !== undefined) return
+    this.#_settings = $settings;
+    return this.#_settings
+  }
+  get options() { return this.#_options }
+  set options($options) {
+    if(this.#_options !== undefined) return
+    this.#_options = recursiveAssign({}, Options$5, $options);
+    return this.#_options
+  }
   get schema() { return this.#_schema }
   set schema($schema) {
-    if(this.#_schema !== undefined) return
-    if($schema === undefined) { this.#_schema = null; }
+    if(this.#_schema !== undefined)  { return }
+    if(!$schema) { this.#_schema = null; }
     else if($schema instanceof Schema) { this.#_schema = $schema; }
     else if(typeof $schema === 'object') {
       if(Array.isArray($schema)) { new Schema(...arguments); }
@@ -2156,25 +2176,22 @@ class Content extends EventTarget {
   }
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
-    this.#_parent = (
-      this.options.parent !== undefined
-    ) ? this.options.parent
+    this.#_parent = (this.options.parent)
+      ? this.options.parent
       : null;
     return this.#_parent
   }
   get basename() {
     if(this.#_basename !== undefined)  return this.#_basename
-    this.#_basename = (
-      this.options.basename !== undefined
-    ) ? this.options.basename
+    this.#_basename = (this.options.basename !== undefined)
+      ? this.options.basename
       : null;
     return this.#_basename
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
-    this.#_path = (
-      this.options.path !== undefined
-    ) ? this.options.path
+    this.#_path = (this.options.path !== undefined)
+      ? this.options.path
       : null;
     return this.#_path
   }

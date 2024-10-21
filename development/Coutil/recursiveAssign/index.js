@@ -4,13 +4,16 @@ function recursiveAssign() {
   const $sources = $arguments
   iterateSources: 
   for(const $source of $sources) {
-    // if($source === null) { continue iterateSources }
+    if($source === null) { continue iterateSources }
     iterateSourceEntries: 
-    for(const [
+    for(let [
       $sourcePropKey, $sourcePropValue
     ] of Object.entries($source)) {
-      // Type: Object
-      if(typeof $sourcePropValue === 'object') {
+      // Type: Non-Null Object
+      if(
+        $target[$sourcePropKey] !== null &&
+        typeof $sourcePropValue === 'object'
+      ) {
         let targetPropValue
         if($target[$sourcePropKey] === undefined) {
           $target[$sourcePropKey] = $sourcePropValue

@@ -1,4 +1,25 @@
-import './examples/color-control-view.js'
+
+import { Content } from '/dependencies/mvc-framework.js'
+const $objectSchema = {
+  aaa: { type: { bbb: { type: { ccc: { type: Number } } } } }
+}
+const $objectContent = {
+  aaa: { bbb: { ccc: 333 } }
+}
+const $objectEventType = 'setProperty'
+const $arraySchema = [$objectSchema]
+const $arrayContent = [$objectContent]
+const $arrayEventType = 'pushProp'
+const $eventListener = ($event) => { console.log($event.type, $event) }
+const objectContent = new Content($objectContent, $objectSchema)
+objectContent.get("aaa.bbb").addEventListener($objectEventType, $eventListener)
+objectContent.set("aaa.bbb.ccc", 333333)
+const arrayContent = new Content($arrayContent, $arraySchema)
+arrayContent.addEventListener($arrayEventType, $eventListener)
+arrayContent.push(
+  { aaa: { bbb: { ccc: 666 } } },
+  { aaa: { bbb: { ccc: 999 } } },
+)
 /*
 import { Core } from '/dependencies/mvc-framework.js'
 const $eventTargetProperty = document.querySelector('body')
@@ -18,6 +39,7 @@ const core = new Core({
 } })
 core.enableEvents()
 */
+// import './examples/color-control-view.js'
 
 /*
 import { Control, Model, Schema } from '/dependencies/mvc-framework.js'

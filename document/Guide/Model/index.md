@@ -28,7 +28,23 @@ const model = new Model({
 ```
 import { Model, Schema, Content } from '/dependencies/mvc-framework.js'
 const model = new Model({
-  schema: $schema,
-  content: $content,
+  schema: $schema, content: $content
 }, { localStorage: $localStorageOption })
+```
+
+## Model Content Ventilation
+```
+const $listener = function listener($event) {
+  console.log($event.type, $event)
+}
+const $events = {
+  'content setProperty': $listener,
+  'content validateProperty': $listener,
+}
+```
+### Default Events
+```
+const model = new Model({
+  schema: $schema, content: $content, events: $events,
+})
 ```

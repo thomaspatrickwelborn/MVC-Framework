@@ -22,12 +22,11 @@
    - [`#_options` Property]()
    - [`#_events` Property]()
 
-## Module Properties
-### Settings Property
+## Settings Property
 ```
 { events: [] }
 ```
-### Options Property
+## Options Property
 ```
 {
   assign: [],
@@ -35,7 +34,7 @@
 }
 ```
 
-## Constructor Arguments
+## Constructor
  - Sets `settings`, `options` properties. 
  - Evokes `addEvents` method. 
  - Evokes `assign`, `defineProperties` methods. 
@@ -49,7 +48,7 @@
 ## Public Properties
 ### `settings` Property
 **Type**: `get`, `set`  
-**Inturn**: `object` literal  
+**Inturn**: `$settings` (from `constructor`)  
 **Return**: `#_settings`  
 **Descript**:  
  - Properties referenced by or set to Core Class instance properties and methods. 
@@ -57,7 +56,7 @@
  - Recursively assign default `Settings`, `$settings` properties to `#_settings`.  
 ### `options` Property
 **Type**: `get`, `set`  
-**Inturn**: `object` literal  
+**Inturn**: `$options` (from `constructor`)  
 **Return**:  `#_options`  
 **Descript**:  
  - Properties that modulate Core Class instance properties or methods. 

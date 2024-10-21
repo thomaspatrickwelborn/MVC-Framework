@@ -1,7 +1,11 @@
 export default {
-  enableValidation: true,
-  validationEvents: true,
-  contentEvents: true,
+  basename: null, 
+  path: null, 
+  parent: null, 
+  enableValidation: true, 
+  validationEvents: true, 
+  contentEvents: true, 
+  enableEvents: true, 
   traps: {
     accessor: {
       get: {
