@@ -1,6 +1,10 @@
-# MVC Framework - Model Content
-[**Model Content Guide**](../../../../../Guide/Model/Content/index.md)  
-**Content**:  
+# Content Class
+**MVC Framework \| Class System \| Model \| *Content***  
+See Also: [Content Guide](../../../Guide/Model/Content/index.md)  
+**Directory**  
+ - [Handler Class](./Handler/index.md)
+
+**Contents**:  
  - [`Settings` Property]()
  - [`Options` Property]()
    - [`basename` Option]()
@@ -45,6 +49,7 @@
 
 ## `Settings` Property
 No default Content Settings.  
+
 ## `Options` Property
 Default Content Options.  
 ```
@@ -62,44 +67,44 @@ Default Content Options.
 **Type**: `String`, `null`  
 **Default**: `null`  
 **Descript**:  
- - When `Content` Class Instance is subproperty of another `Content` Class Instance, `basename` is the property key paired with the subproperty.  
+ - When `Content` Class Instance is subproperty of other `Content` Class Instance, `basename` is the subproperty key from other `Content` Class Instance.  
  - When `Content` Class Instance is base property, `basename` is `null`.  
  - `basename` is the last subpath of `path`.  
 ### `path` Option
 **Type**: `String`, `null`  
 **Default**: `null`  
 **Descript**:  
- - When `Content` Class Instance is subproperty of another `content` Class Instance, `path` is the period-delimited property path key paired with the subproperty. 
+ - When `Content` Class Instance is subproperty of other `Content` Class Instance, `path` is the period-delimited subproperty key from other `Content` Class Instance. 
  - When `Content` Class Instance is base property, `path` is `null`.  
 ### `parent` Option
 **Type**: `Content` Class Instance `proxy` Property, `null`  
 **Default**: `null`  
 **Descript**:  
- - When `Content` Class Instance is subproperty of another `Content` Class Instance, `parent` is the containing `Content` Class Instance `proxy` property. 
+ - When `Content` Class Instance is subproperty of other `Content` Class Instance, `parent` is the containing `Content` Class Instance `proxy` property. 
  - When `Content` Class Instance is base property, `parent` is `null`.  
 ### `enableValidation` Option
 **Type**: `boolean`  
 **Default**: `true`  
 **Descript**:  
- - When `true`, when `schema` property value is not `null`, schema validates content properties. 
+ - When `true` and `schema` property value is not `null`, schema validates content properties. 
  - When `false`, no content validation. 
 ### `validationEvents` Option
 **Type**: `boolean`  
 **Default**: `true`  
 **Descript**:  
- - When `true`, when `schema` property value is not `null`, schema validation of content properties dispatches `ValidatorEvent` instances.  
+ - When `true` and `schema` property value is not `null`, schema validation of content properties dispatches `ValidatorEvent` instances.  
  - When `false`, no `ValidatorEvent` instances dispatched.  
 ### `contentEvents` Option
 **Type**: `boolean`  
 **Default**: `true`  
 **Descript**:  
- - When `true`, when `content` property values change, dispatch `ContentEvent` instances.  
+ - When `true` and  `content` property values change, dispatch `ContentEvent` instances.  
  - When `false`, no `ContentEvent` instances dispatched.  
 ### `enableEvents` Option
 **Type**: `boolean`  
 **Default**: `true`  
 **Descript**:  
- - When `true`, when `validationEvents` or `contentEvents` values are `true`, dispatch events.  
+ - When `true` and `validationEvents` or `contentEvents` values are `true`, dispatch events.  
  - When `false`, no `ContentEvent` or `ValidatorEvent` instances dispatched.  
 
 ## Constructor Method
@@ -109,14 +114,14 @@ Default Content Options.
 **Type**: `Array` Literal, `Object` Literal  
 **Descript**:  
  - `$settings` assigned to `settings`.  
-### `$schema` Argument
-**Type**: `Schema` Instance, `Object` Literal, `Array` Literal, `undefined`, `null`  
-**Descript**:  
- - `$schema` assigned to `schema`.  
 ### `$options` Argument
 **Type**: `Object` Literal  
 **Descript**:  
  - `$options` assigned to `options`.  
+### `$schema` Argument
+**Type**: `Schema` Instance, `Object` Literal, `Array` Literal, `undefined`, `null`  
+**Descript**:  
+ - `$schema` assigned to `schema`.  
 
 ## Public Properties
 ### `settings` Property
@@ -130,7 +135,7 @@ Default Content Options.
 **Inturn**: `$options` (from `constructor`)  
 **Return**: `#_options`  
 **Descript**:  
- - Recursively Assigns `$options`, `Options` to `#_options`.  
+ - Recursively Assigns `Options`, `$options` to `#_options`.  
 ### `schema` Property
 **Type**: `get`, `set`  
 **Inturn**: `$schema` (from `constructor`)  
@@ -145,10 +150,10 @@ Default Content Options.
 **Return**: `Content` Class
 ### `object` Property
 **Type**: `get`  
-**Return**: `parse` invocation with "object" type.    
+**Return**: `parse` invocation with "object" type.  
 ### `string` Property
 **Type**: `get`  
-**Return**: `parse` invocation with "string" type.    
+**Return**: `parse` invocation with "string" type.  
 ### `type` Property
 **Type**: `get`  
 **Return**: `#_type`  
@@ -161,7 +166,7 @@ Default Content Options.
  - Return an `Array` or `Object` dependent on `type`  property `array` or `object` value.  
 ### `parent` Property
 **Type**: `get`  
-**Return**: `Content` Class Instance `proxy` property.    
+**Return**: `Content` Class Instance `proxy` property.  
 **Descript**:  
  - Assigns `$parent` to `#_parent`.  
 ### `basename` Property
@@ -177,8 +182,15 @@ Default Content Options.
 ### `root` Property
 **Type**: `get`  
 **Return**: `#_root`  
+**Descript**:  
+ - Assigns `typedObjectLiteral` to `#_root`.  
 ### `proxy` Property
 **Type**: `get`  
+**Return**: `#_proxy`  
+**Descript**:  
+- Creates new `Proxy` Instance with `root` target and `Handler` Instance handler.  
+- Sets `settings` to `proxy`.  
+- Assigns new `Proxy` Instance to `#_proxy`.  
 
 ## Public Methods
 ### `parse` Method
@@ -190,7 +202,6 @@ Default Content Options.
 **Type**: `Array` Literal, `Object` Literal  
 ### `#_options` Property
 **Type**: `Object` Literal  
-
 ### `#_schema` Property
 **Type**: `Schema` Instance, `null`  
 ### `#_type` Property
@@ -204,6 +215,6 @@ Default Content Options.
 ### `#_path` Property
 **Type**: `String` Literal  
 ### `#_proxy` Property
-**Type**: `Content` Class Instance `proxy` property.    
+**Type**: `Proxy` Instance  
 ### `#_handler` Property
 **Type**: `Handler` Instance  

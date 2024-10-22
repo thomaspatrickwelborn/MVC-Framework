@@ -1,7 +1,8 @@
-# MVC Framework - Core Class
-[**Core Class Guide**](../../Guide/Core/index.md)  
+# Core Class
+**MVC Framework \| Class System \| *Core***  
+See Also: [**Core Guide**](../../Guide/Core/index.md)  
 
-**Content**  
+**Contents**  
  - [Constructor Arguments]()
    - [`$settings` Object]()
    - [`$options` Object]()

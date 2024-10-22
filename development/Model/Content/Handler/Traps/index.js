@@ -1,5 +1,12 @@
-import PropertyClasses from './Properties/index.js'
-import PropertyClassDefaultMethods from  './Properties/Default/index.js'
+import ObjectProperty from './Object/index.js'
+import ArrayProperty from './Array/index.js'
+import AccessorProperty from './Accessor/index.js'
+import PropertyClassDefaultMethods from  './Default/index.js'
+const PropertyClasses = {
+  Object: ObjectProperty,
+  Array: ArrayProperty,
+  Accessor: AccessorProperty,
+}
 
 export default class Traps {
   Object = {}

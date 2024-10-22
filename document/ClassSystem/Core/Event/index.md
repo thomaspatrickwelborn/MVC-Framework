@@ -1,7 +1,7 @@
 # MVC Framework - Core Event Class
 [**Core Event Class Guide**](../../../Guide/Core/Event/index.md)  
 
-**Content**  
+**Contents**  
  - [Public Properties]()
    - [`context` Property]()
    - [`type` Property]()

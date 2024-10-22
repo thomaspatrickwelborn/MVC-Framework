@@ -1,4 +1,5 @@
-# MVC Framework - Model Class Guide
+# Model Guide
+**MVC Framework \| Guide \| *Model***  
 
 ## Model Instantiation
 ```

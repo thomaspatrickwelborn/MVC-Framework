@@ -1,19 +1,29 @@
-# MVC Framework - Model Content Guide
-**Content**:  
+# Content Guide
+**MVC Framework \| Guide \| Model \| *Content***  
+*See also*: [Content Class](../../../ClassSystem/Model/Content/index.md)  
+**Directory**  
+ - [Handler Guide](./Handler/index.md)
+
+**Contents**:  
  - [Overview]()
  - [Property Location]()
+   - [Property Location Propriation]()
+     - [Property Keys/Values]()
+     - [Enumerable Proxy Properties]()
+     - [Proxy Properties]()
+  - [Proxy Property Accessors]()
  - [Content Instantiation]()
    - [Object Content]()
    - [Array Content]()
 ## Overview
- - Validates, Stores, and Ventilates modeled `object` literal, `array` literal content.  
+ - Validates, Stores, and Ventilates `object` literal, `array` literal content.  
  - Ministrates stored content through Handler Traps. 
  - Exposes Object, Array, EventTarget, Accessor methods and properties through Root Proxy
 
 ## Property Location
  - Property location established by property `path`, `basename`, and `parent`.  
-
-**Property Keys/Values**:  
+### Property Location Propriation
+#### Property Keys/Values
 ```
 const $propertyD = Number()
 const $propertyDKey = "propertyD"
@@ -23,11 +33,11 @@ const $propertyB = { [$propertyCKey]: $propertyC }
 const $propertyBKey = "propertyB"
 const $propertyA = { [$propertyBKey]: $propertyB }
 const $propertyAKey = "propertyA"
-const $property = { [$propertyAKey]: $propertyA }
+const $property = new Content({ [$propertyAKey]: $propertyA })
 ```
-**Enumerable Proxy Properties**:  
+#### Enumerable Proxy Properties
 ```
-{
+Content {
   propertyA: {
     propertyB: {
       propertyC: {
@@ -37,9 +47,9 @@ const $property = { [$propertyAKey]: $propertyA }
   }
 }
 ```
-**Proxy Properties**:  
+#### Proxy Properties
 ```
-{
+Content {
   parent: null,
   basename: null,
   path: null,
@@ -61,6 +71,18 @@ const $property = { [$propertyAKey]: $propertyA }
   }
 }
 ```
+### Proxy Property Accessors
+#### Get Property
+```
+const propertyC = $property.get(`${propertyAKey}.${propertyBKey}.${propertyCKey}`)
+console.log(propertyC.parent.parent.parent === $property)
+// true
+console.log(propertyC.basename)
+// "propertyC"
+console.log(propertyC.path)
+// "propertyA.propertyB.propertyC"
+```
+
 ## Content Instantiation
 ```
 import { Content } from '/dependencies/mvc-framework.js'

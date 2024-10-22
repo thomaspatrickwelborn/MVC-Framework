@@ -41,18 +41,21 @@ export default {
         ],
       },
       defineProperties: {
+        recursive: true, 
+        descriptorTree: true,
         events: ['defineProperties'],
       },
       defineProperty: {
+        recursive: true, 
         descriptorTree: true,
         events: ['defineProperty'],
       },
       freeze: {
-        recurse: true,
+        recursive: true,
         events: ['freeze']
       },
       seal: {
-        recurse: true,
+        recursive: true,
         events: ['seal']
       },
     },

@@ -1,5 +1,8 @@
-# MVC Framework - Core Class Guide
-**Content**  
+# Core Guide
+**MVC Framework \| Guide \| *Core***  
+See Also: [**Core Class**](../../ClassSystem/Core/index.md)  
+
+**Contents**  
  - [Overview]()
  - [Event Formats]()
    - [Event Properties]()

@@ -1806,12 +1806,6 @@ var AccessorProperty = {
   delete: deleteProperty,
 };
 
-var PropertyClasses = {
-  Object: ObjectProperty,
-  Array: ArrayProperty,
-  Accessor: AccessorProperty,
-};
-
 var PropertyClassDefaultMethods = {
   Object: {
     Call: {
@@ -1879,6 +1873,12 @@ var PropertyClassDefaultMethods = {
       }
     }
   }
+};
+
+const PropertyClasses = {
+  Object: ObjectProperty,
+  Array: ArrayProperty,
+  Accessor: AccessorProperty,
 };
 
 class Traps {

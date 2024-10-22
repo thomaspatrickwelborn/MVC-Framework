@@ -1,6 +1,7 @@
-# MVC Framework—View—Query Selector Class
+# Query Selector Class
+**MVC Framework \| Class System \| View \| *Query Selector***  
 
-## Query Selector Class Properties
+## Properties
 ### `context` Property
 ### `method` Property
 ### `name` Property

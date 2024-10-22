@@ -1,5 +1,5 @@
 # MVC Framework - Core Event Class Guide
-**Content**  
+**Contents**  
  - [Overview]()
  
 ## Overview

@@ -1,1 +1,2 @@
-# MVC Framework - Model Schema Guide
+# Schema Guide
+**MVC Framework \| Guide \| Model \| *Schema***  

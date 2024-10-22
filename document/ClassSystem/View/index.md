@@ -1,6 +1,8 @@
-# MVC Framework—View Class
+# View Class
+**MVC Framework \| Class System \| *View***  
+ - [Query Selector Class](./QuerySelector/index.md)
 
-## View Class Properties
+## Properties
 ### `parent` Property
 **Type**: `get`  
 **Return**: `HTMLElement`  
@@ -18,7 +20,7 @@
 **Return**: `Object`  
 **Descript**:  
 
-## View Class Methods
+## Methods
 ### addQuerySelectors
 **Type**: `function`  
 **Return**: `View`  

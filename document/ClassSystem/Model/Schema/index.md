@@ -1,1 +1,2 @@
-# MVC Framework - Model Schema
+# Schema Class
+**MVC Framework \| Class System \| Model \| *Schema***  

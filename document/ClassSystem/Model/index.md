@@ -1,4 +1,5 @@
-# MVC Framework - Model Class
+# Model Class
+**MVC Framework \| Class System \| *Model***  
 
 ## `Settings` Property
 ```
