@@ -1,11 +1,11 @@
-
 import { Content } from '/dependencies/mvc-framework.js'
-const arrayEventListener = ($event) => { console.log(
+const eventLog = ($event) => { console.log(
   "\n", "$event.type", $event.type,
   "\n", "$event.basename", $event.basename,
   "\n", "$event.path", $event.path,
   "\n", "$event.detail", $event.detail,
 ) }
+/*
 const array = new Content([{
   id: 0, propertyA: true, propertyB: true
 }, {
@@ -15,10 +15,28 @@ const array = new Content([{
 }, {
   id: 3, propertyA: false, propertyB: true
 }])
-console.log("array", array.string)
-array.addEventListener("concatValue", arrayEventListener)
-array.addEventListener("concat", arrayEventListener)
-const concatArray = array.concat({
+array.addEventListener("copyWithinIndex", eventLog)
+array.addEventListener("copyWithin", eventLog)
+array.length = 8
+array.copyWithin(4, 0, 4)
+*/
+
+const array = new Content([])
+array.addEventListener("concatValue", eventLog)
+array.addEventListener("concat", eventLog)
+let concatArray = array.concat({
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}, {
+  id: 2, propertyA: false, propertyB: false
+}, {
+  id: 3, propertyA: false, propertyB: true
+})
+console.log("concatArray.string", concatArray.string)
+concatArray.addEventListener("concatValue", eventLog)
+concatArray.addEventListener("concat", eventLog)
+concatArray = concatArray.concat([{
   id: 4, propertyA: true, propertyB: true
 }, {
   id: 5, propertyA: true, propertyB: false
@@ -26,8 +44,9 @@ const concatArray = array.concat({
   id: 6, propertyA: false, propertyB: false
 }, {
   id: 7, propertyA: false, propertyB: true
-})
-console.log("concatArray", concatArray)
+}])
+console.log("concatArray.string", concatArray.string)
+
 /*
 import { Core } from '/dependencies/mvc-framework.js'
 const $eventTargetProperty = document.querySelector('body')

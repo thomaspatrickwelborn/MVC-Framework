@@ -111,7 +111,7 @@ Default Content Options.
  - Sets `settings`, `options`, `schema` properties.  
  - Explicitly returns `proxy` property.  
 ### `$settings` Argument
-**Type**: `Array` Literal, `Object` Literal  
+**Type**: `Array` Literal, `Object` Literal, `Content` Class Instance  
 **Descript**:  
  - `$settings` assigned to `settings`.  
 ### `$options` Argument
@@ -129,7 +129,8 @@ Default Content Options.
 **Inturn**: `$settings` (from `constructor`)  
 **Return**: `#_settings`  
 **Descript**:  
- - Sets `$settings` to `#_settings`  
+ - When `$settings` is `Content` Class instance, sets `$settings.object` to `#_settings`
+ - When `$settings` is not `Content` Class instance, sets `$settings` to `#_settings`  
 ### `options` Property
 **Type**: `get`, `set`    
 **Inturn**: `$options` (from `constructor`)  

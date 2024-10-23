@@ -18,12 +18,44 @@
 Array Trap Methods are Array Modifier Methods with Ventability and Validatability.   
 ## Array Trap Methods
 ```
-const arrayEventListener = ($event) => { console.log(
+const eventLog = ($event) => { console.log(
   "\n", "$event.type", $event.type,
   "\n", "$event.basename", $event.basename,
   "\n", "$event.path", $event.path,
   "\n", "$event.detail", $event.detail,
 ) }
+```
+### `concat` Trap Method
+```
+const array = new Content([])
+array.addEventListener("concatValue", eventLog)
+array.addEventListener("concat", eventLog)
+let concatArray = array.concat({
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}, {
+  id: 2, propertyA: false, propertyB: false
+}, {
+  id: 3, propertyA: false, propertyB: true
+})
+console.log("concatArray.string", concatArray.string)
+concatArray.addEventListener("concatValue", eventLog)
+concatArray.addEventListener("concat", eventLog)
+concatArray = concatArray.concat([{
+  id: 4, propertyA: true, propertyB: true
+}, {
+  id: 5, propertyA: true, propertyB: false
+}, {
+  id: 6, propertyA: false, propertyB: false
+}, {
+  id: 7, propertyA: false, propertyB: true
+}])
+console.log("concatArray.string", concatArray.string)
+```
+
+### `copyWithin` Trap Method,
+```
 const array = new Content([{
   id: 0, propertyA: true, propertyB: true
 }, {
@@ -33,34 +65,17 @@ const array = new Content([{
 }, {
   id: 3, propertyA: false, propertyB: true
 }])
-console.log("array", array.string)
-```
-### `concat` Trap Method
-```
-array.addEventListener("concatValue", arrayEventListener, { once: true })
-array.addEventListener("concat", arrayEventListener, { once: true })
-const concatArray = array.concat({
-  id: 4, propertyA: true, propertyB: true
-}, {
-  id: 5, propertyA: true, propertyB: false
-}, {
-  id: 6, propertyA: false, propertyB: false
-}, {
-  id: 7, propertyA: false, propertyB: true
-})
-console.log("concatArray", concatArray.string)
-```
-### `copyWithin` Trap Method,
-```
-array.length = 12
-array.copyWithin(8, 4, 8)
+array.addEventListener("copyWithinIndex", eventLog)
+array.addEventListener("copyWithin", eventLog)
+array.length = 8
+array.copyWithin(4, 0, 4)
 ```
 ### `fill` Trap Method,
 ```
-array.length = 16
+array.length = 12
 array.fill({
   id: -1, propertyA: undefined, propertyB: undefined
-}, 12, array.length)
+}, 8, array.length)
 ```
 ### `pop` Trap Method,
 ```

@@ -4,6 +4,7 @@ export default function copyWithin() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { root, basename, path } = $content
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   const $arguments = [...arguments]
   const target = (
     arguments[0] >= 0

@@ -2,9 +2,6 @@ import { typeOf, recursiveAssign } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
-function instanceOfContent($instance) {
-  return (Content.toString() === $instance.classToString)
-}
 export default class Content extends EventTarget {
   #_settings
   #_options
@@ -18,15 +15,30 @@ export default class Content extends EventTarget {
   #_handler
   constructor($settings = {}, $schema = null, $options = {}) {
     super()
+    if($settings.classToString === Content.toString()) {
+      return this.#reconstructor(...arguments)
+    }
     this.settings = $settings
     this.options = $options
+    this.schema = $schema
+    return this.proxy
+  }
+  #reconstructor($content = {}) {
+    const {
+      settings, options, schema, type, root, handler, proxy
+    } = $content
+    this.#_settings = settings
+    this.#_options = options
+    this.#_schema = schema
+    this.#_type = type
+    this.#_root = root
+    this.#_handler = handler
     return this.proxy
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
-    if(instanceOfContent($settings)) { this.#_settings = $settings.object }
-    else { this.#_settings = $settings }
+    this.#_settings = $settings
     return this.#_settings
   }
   get options() { return this.#_options }
@@ -69,16 +81,15 @@ export default class Content extends EventTarget {
     return this.#_parent
   }
   get basename() {
-    if(this.#_basename !== undefined)  return this.#_basename
-    this.#_basename = (this.options.basename !== undefined)
-      ? this.options.basename
-      : null
+    if(this.#_basename !== undefined) { return this.#_basename }
+    if(this.path) { this.#_basename = this.path.split('.').pop() }
+    else { this.#_basename = null }
     return this.#_basename
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
-    this.#_path = (this.options.path !== undefined)
-      ? this.options.path
+    this.#_path = (this.options.path)
+      ? String(this.options.path)
       : null
     return this.#_path
   }
@@ -91,7 +102,6 @@ export default class Content extends EventTarget {
   // Proxy
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
-    // Root Handler
     this.#_proxy = new Proxy(this.root, this.#handler)
     this.#_proxy.set(this.settings)
     return this.#_proxy

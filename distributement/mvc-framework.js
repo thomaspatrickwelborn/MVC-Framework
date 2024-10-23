@@ -701,91 +701,47 @@ function concat() {
   const { root, basename, path, schema } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const { proxy } = $content;
-  const $arguments = [...arguments];
+  const $arguments = [...arguments].reduce(($arguments, $argument) => {
+    if(Array.isArray($argument)) { $arguments.push(...$argument); }
+    else { $arguments.push($argument); }
+    return $arguments
+  }, []);
   let valueIndex = root.length;
   const values = [];
   let rootConcat = [...Array.from(root)];
   let proxyConcat;
   iterateValues: 
   for(const $value of $arguments) {
-    let _basename;
-    let _path;
-    // Value: Array
-    if(Array.isArray($value)) {
-      let subvalueIndex = 0;
-      const subvalues = [];
-      iterateSubvalues: 
-      for(const $subvalue of $value) {
-        _basename = valueIndex + subvalueIndex;
-        _path = (path !== null)
-        ? path.concat('.', valueIndex + subvalueIndex)
-        : valueIndex;
-        // Validation: Subvalue
-        if(schema && enableValidation) {
-          const validSubvalue = schema.validate($subvalue);
-          if(schema && validationEvents) {
-            $content.dispatchEvent(
-              new ValidatorEvent('validateProperty', {
-                basename: _basename,
-                path: _path,
-                detail: validSubvalue,
-              }, $content)
-            );
-          }
-          if(!validSubvalue.valid) { subvalueIndex++; continue iterateSubvalues }
-        }
-        // Subvalue: Objects
-        if(isDirectInstanceOf($subvalue, [Object, Array])) {
-          let subschema = schema?.context[0] || null;
-          const subvalue = new Content($subvalue, subschema, {
+    const _basename = String(valueIndex);
+    const _path = (path !== null)
+      ? path.concat('.', _basename)
+      : _basename;
+    // Validation: Value
+    if(schema && enableValidation) {
+      const validValue = schema.validateProperty(valueIndex, $subvalue);
+      if(schema &&validationEvents) {
+        $content.dispatchEvent(
+          new ValidatorEvent('validateProperty', {
             basename: _basename,
-            parent: proxy,
             path: _path,
-          });
-          subvalues[subvalueIndex] = subvalue;
-        }
-        // Subvalue: Primitives
-        else {
-          subvalues[subvalueIndex] = $subvalue;
-        }
-        subvalueIndex++;
+            detail: validValue,
+          }, $content)
+        );
       }
-      values[valueIndex] = subvalues;
+      if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
-    // Value: Not Array
+    // Value: Objects
+    if(typeof $value === 'object') {
+      let subschema = schema?.context[0] || null;
+      const value = new Content($value, subschema, {
+        parent: proxy,
+        path: _path,
+      });
+      values[valueIndex] = value;
+    }
+    // Value: Primitives
     else {
-      _basename = valueIndex;
-      _path = (path !== null)
-        ? path.concat('.', valueIndex)
-        : valueIndex;
-      // Validation: Value
-      if(schema && enableValidation) {
-        const validValue = schema.validateProperty(valueIndex, $subvalue);
-        if(schema &&validationEvents) {
-          $content.dispatchEvent(
-            new ValidatorEvent('validateProperty', {
-              basename: _basename,
-              path: _path,
-              detail: validValue,
-            }, $content)
-          );
-        }
-        if(!validValue.valid) { valueIndex++; continue iterateValues }
-      }
-      // Value: Objects
-      if(isDirectInstanceOf($value, [Object])) {
-        let subschema = schema?.context[0] || null;
-        const value = new Content($value, subschema, {
-          basename: _basename,
-          parent: proxy,
-          path: _path,
-        });
-        values[valueIndex] = value;
-      }
-      // Value: Primitives
-      else {
-        values[valueIndex] = $value;
-      }
+      values[valueIndex] = $value;
     }
     rootConcat = Array.prototype.concat.call(rootConcat, values[valueIndex]);
     if(contentEvents && events.includes('concatValue')) {
@@ -806,7 +762,7 @@ function concat() {
   if(contentEvents && events.includes('concat')) {
     $content.dispatchEvent(
       new ContentEvent('concat', {
-        basename,
+        basename, 
         path,
         detail: {
           values: proxyConcat,
@@ -822,6 +778,7 @@ function copyWithin() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { root, basename, path } = $content;
+  const { enableValidation, validationEvents, contentEvents } = $content.options;
   const target = (
     arguments[0] >= 0
   ) ? arguments[0]
@@ -2126,9 +2083,6 @@ var Options$5 = {
   }
 };
 
-function instanceOfContent($instance) {
-  return (Content.toString() === $instance.classToString)
-}
 class Content extends EventTarget {
   #_settings
   #_options
@@ -2142,15 +2096,30 @@ class Content extends EventTarget {
   #_handler
   constructor($settings = {}, $schema = null, $options = {}) {
     super();
+    if($settings.classToString === Content.toString()) {
+      return this.#reconstructor(...arguments)
+    }
     this.settings = $settings;
     this.options = $options;
+    this.schema = $schema;
+    return this.proxy
+  }
+  #reconstructor($content = {}) {
+    const {
+      settings, options, schema, type, root, handler, proxy
+    } = $content;
+    this.#_settings = settings;
+    this.#_options = options;
+    this.#_schema = schema;
+    this.#_type = type;
+    this.#_root = root;
+    this.#_handler = handler;
     return this.proxy
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
-    if(instanceOfContent($settings)) { this.#_settings = $settings.object; }
-    else { this.#_settings = $settings; }
+    this.#_settings = $settings;
     return this.#_settings
   }
   get options() { return this.#_options }
@@ -2193,16 +2162,15 @@ class Content extends EventTarget {
     return this.#_parent
   }
   get basename() {
-    if(this.#_basename !== undefined)  return this.#_basename
-    this.#_basename = (this.options.basename !== undefined)
-      ? this.options.basename
-      : null;
+    if(this.#_basename !== undefined) { return this.#_basename }
+    if(this.path) { this.#_basename = this.path.split('.').pop(); }
+    else { this.#_basename = null; }
     return this.#_basename
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
-    this.#_path = (this.options.path !== undefined)
-      ? this.options.path
+    this.#_path = (this.options.path)
+      ? String(this.options.path)
       : null;
     return this.#_path
   }
@@ -2215,7 +2183,6 @@ class Content extends EventTarget {
   // Proxy
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
-    // Root Handler
     this.#_proxy = new Proxy(this.root, this.#handler);
     this.#_proxy.set(this.settings);
     return this.#_proxy
