@@ -610,10 +610,10 @@ function defineProperty() {
 function freeze() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { recurse, events } = $options;
+  const { recursive, events } = $options;
   const { root, basename, path } = $content;
   const { proxy } = $content;
-  if(recurse === true) {
+  if(recursive === true) {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(this)) {
@@ -650,9 +650,9 @@ function freeze() {
 function seal() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { recurse, events } = $options;
+  const { recursive, events } = $options;
   const { proxy } = $content;
-  if(recurse === true) {
+  if(recursive === true) {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(this)) {
@@ -693,6 +693,129 @@ var ObjectProperty = {
   freeze,
   seal,
 };
+
+function concat() {
+  const $content = Array.prototype.shift.call(arguments);
+  const $options = Array.prototype.shift.call(arguments);
+  const { events } = $options;
+  const { root, basename, path, schema } = $content;
+  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  const { proxy } = $content;
+  const $arguments = [...arguments];
+  let valueIndex = root.length;
+  const values = [];
+  let rootConcat = [...Array.from(root)];
+  let proxyConcat;
+  iterateValues: 
+  for(const $value of $arguments) {
+    let _basename;
+    let _path;
+    // Value: Array
+    if(Array.isArray($value)) {
+      let subvalueIndex = 0;
+      const subvalues = [];
+      iterateSubvalues: 
+      for(const $subvalue of $value) {
+        _basename = valueIndex + subvalueIndex;
+        _path = (path !== null)
+        ? path.concat('.', valueIndex + subvalueIndex)
+        : valueIndex;
+        // Validation: Subvalue
+        if(schema && enableValidation) {
+          const validSubvalue = schema.validate($subvalue);
+          if(schema && validationEvents) {
+            $content.dispatchEvent(
+              new ValidatorEvent('validateProperty', {
+                basename: _basename,
+                path: _path,
+                detail: validSubvalue,
+              }, $content)
+            );
+          }
+          if(!validSubvalue.valid) { subvalueIndex++; continue iterateSubvalues }
+        }
+        // Subvalue: Objects
+        if(isDirectInstanceOf($subvalue, [Object, Array])) {
+          let subschema = schema?.context[0] || null;
+          const subvalue = new Content($subvalue, subschema, {
+            basename: _basename,
+            parent: proxy,
+            path: _path,
+          });
+          subvalues[subvalueIndex] = subvalue;
+        }
+        // Subvalue: Primitives
+        else {
+          subvalues[subvalueIndex] = $subvalue;
+        }
+        subvalueIndex++;
+      }
+      values[valueIndex] = subvalues;
+    }
+    // Value: Not Array
+    else {
+      _basename = valueIndex;
+      _path = (path !== null)
+        ? path.concat('.', valueIndex)
+        : valueIndex;
+      // Validation: Value
+      if(schema && enableValidation) {
+        const validValue = schema.validateProperty(valueIndex, $subvalue);
+        if(schema &&validationEvents) {
+          $content.dispatchEvent(
+            new ValidatorEvent('validateProperty', {
+              basename: _basename,
+              path: _path,
+              detail: validValue,
+            }, $content)
+          );
+        }
+        if(!validValue.valid) { valueIndex++; continue iterateValues }
+      }
+      // Value: Objects
+      if(isDirectInstanceOf($value, [Object])) {
+        let subschema = schema?.context[0] || null;
+        const value = new Content($value, subschema, {
+          basename: _basename,
+          parent: proxy,
+          path: _path,
+        });
+        values[valueIndex] = value;
+      }
+      // Value: Primitives
+      else {
+        values[valueIndex] = $value;
+      }
+    }
+    rootConcat = Array.prototype.concat.call(rootConcat, values[valueIndex]);
+    if(contentEvents && events.includes('concatValue')) {
+      $content.dispatchEvent(
+        new ContentEvent('concatValue', {
+          basename: _basename,
+          path: _path,
+          detail: {
+            valueIndex,
+            value: values[valueIndex],
+          },
+        }, $content)
+      );
+    }
+    valueIndex++;
+  }
+  proxyConcat = new Content(rootConcat, schema, $content.options);
+  if(contentEvents && events.includes('concat')) {
+    $content.dispatchEvent(
+      new ContentEvent('concat', {
+        basename,
+        path,
+        detail: {
+          values: proxyConcat,
+        },
+      }, $content)
+    );
+  }
+  return proxyConcat
+}
 
 function copyWithin() {
   const $content = Array.prototype.shift.call(arguments);
@@ -767,124 +890,6 @@ function copyWithin() {
       )
     );
   }
-}
-
-function concat() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  const { events } = $options;
-  const { root, basename, path, schema } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
-  const { proxy } = $content;
-  const $arguments = [...arguments];
-  let valuesIndex = 0;
-  let subvaluesIndex = 0;
-  const values = [];
-  let rootconcat = root;
-  iterateValues: 
-  for(const $value of $arguments) {
-    const _basename = valuesIndex;
-    const _path = (path !== null)
-      ? path.concat('.', valuesIndex)
-      : valuesIndex;
-    // Value: Array
-    if(Array.isArray($value)) {
-      subvaluesIndex = 0;
-      const subvalues = [];
-      iterateSubvalues: 
-      for(const $subvalue of $value) {
-        // Validation: Subvalue
-        if(schema && enableValidation) {
-          const validSubvalue = schema.validate($subvalue);
-          if(schema && validationEvents) {
-            $content.dispatchEvent(
-              new ValidatorEvent('validateProperty', {
-                basename: _basename,
-                path: _path,
-                detail: validSubvalue,
-              }, $content)
-            );
-          }
-          if(!validSubvalue.valid) { subvaluesIndex++; continue iterateSubvalues }
-        }
-        // Subvalue: Objects
-        if(isDirectInstanceOf($subvalue, [Object, Array])) {
-          let subschema = schema?.context[0] || null;
-          const subvalue = new Content($subvalue, subschema, {
-            basename: _basename,
-            parent: proxy,
-            path: _path,
-          });
-          subvalues[subvaluesIndex] = subvalue;
-        }
-        // Subvalue: Primitives
-        else {
-          subvalues[subvaluesIndex] = $subvalue;
-        }
-        subvaluesIndex++;
-      }
-      values[valuesIndex] = subvalues;
-    }
-    // Value: Not Array
-    else {
-      // Validation: Value
-      if(schema && enableValidation) {
-        const validValue = schema.validateProperty(valuesIndex, $subvalue);
-        if(schema &&validationEvents) {
-          $content.dispatchEvent(
-            new ValidatorEvent('validateProperty', {
-              basename: _basename,
-              path: _path,
-              detail: validValue,
-            }, $content)
-          );
-        }
-        if(!validValue.valid) { valuesIndex++; continue iterateValues }
-      }
-      // Value: Objects
-      if(isDirectInstanceOf($value, [Object])) {
-        let subschema = schema?.context[0] || null;
-        const value = new Content($value, subschema, {
-          basename: _basename,
-          parent: proxy,
-          path: _path,
-        });
-        values[valuesIndex] = value;
-      }
-      // Value: Primitives
-      else {
-        values[valuesIndex] = $value;
-      }
-    }
-    rootconcat = Array.prototype.concat.call(root, values[valuesIndex]);
-    if(contentEvents && events.includes('concatValue')) {
-      if(validationEvents) {
-        $content.dispatchEvent(
-          new ContentEvent('concatValue', {
-            basename: _basename,
-            path: _path,
-            detail: {
-              valuesIndex,
-              value: values[valuesIndex],
-            },
-          }, $content)
-        );
-      }
-    }
-    valuesIndex++;
-  }
-  if(contentEvents && events.includes('concat')) {
-    $content.dispatchEvent(
-      new ContentEvent('concat', {
-        basename,
-        path,
-        detail: {
-          values
-        },
-      }, $content)
-    );
-  }
-  return rootconcat
 }
 
 function fill() {
@@ -1352,8 +1357,8 @@ function unshift() {
 }
 
 var ArrayProperty = {
-  copyWithin: copyWithin,
   concat: concat,
+  copyWithin: copyWithin,
   fill: fill,
   pop: pop,
   push: push,
@@ -2052,33 +2057,57 @@ var Options$5 = {
         ],
       },
       defineProperties: {
+        recursive: true, 
+        descriptorTree: true,
         events: ['defineProperties'],
       },
       defineProperty: {
+        recursive: true, 
         descriptorTree: true,
         events: ['defineProperty'],
       },
       freeze: {
-        recurse: true,
+        recursive: true,
         events: ['freeze']
       },
       seal: {
-        recurse: true,
+        recursive: true,
         events: ['seal']
       },
     },
     array: {
+      concat: {
+        events: [
+          'concatValue',
+          'concat'
+        ]
+      },
       copyWithin: {
         events: [
           'copyWithinIndex',
           'copyWithin'
         ]
       },
-      unshift: {
+      fill: {
         events: [
-          'unshiftProp',
-          'unshift'
+          'fillIndex',
+          'fill'
         ]
+      },
+      pop: {
+        events: ['pop']
+      },
+      push: {
+        events: [
+          'pushProp',
+          'push'
+        ]
+      },
+      reverse: {
+        events: ['reverse']
+      },
+      shift: {
+        events: ['shift']
       },
       splice: {
         events: [
@@ -2087,37 +2116,19 @@ var Options$5 = {
           'splice'
         ]
       },
-      shift: {
-        events: ['shift']
-      },
-      reverse: {
-        events: ['reverse']
-      },
-      concat: {
+      unshift: {
         events: [
-          'concatValue',
-          'concat'
-        ]
-      },
-      push: {
-        events: [
-          'pushProp',
-          'push'
-        ]
-      },
-      pop: {
-        events: ['pop']
-      },
-      fill: {
-        events: [
-          'fillIndex',
-          'fill'
+          'unshiftProp',
+          'unshift'
         ]
       },
     }
   }
 };
 
+function instanceOfContent($instance) {
+  return (Content.toString() === $instance.classToString)
+}
 class Content extends EventTarget {
   #_settings
   #_options
@@ -2133,13 +2144,13 @@ class Content extends EventTarget {
     super();
     this.settings = $settings;
     this.options = $options;
-    this.schema = $schema;
     return this.proxy
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
-    this.#_settings = $settings;
+    if(instanceOfContent($settings)) { this.#_settings = $settings.object; }
+    else { this.#_settings = $settings; }
     return this.#_settings
   }
   get options() { return this.#_options }
@@ -2158,7 +2169,7 @@ class Content extends EventTarget {
       else { new Schema($schema); }
     }
   }
-  get Class() { return Content }
+  get classToString() { return Content.toString() }
   // Object
   get object() { return this.parse({ type: 'object' }) }
   // String

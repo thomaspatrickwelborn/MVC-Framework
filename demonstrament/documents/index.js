@@ -1,25 +1,33 @@
 
 import { Content } from '/dependencies/mvc-framework.js'
-const $objectSchema = {
-  aaa: { type: { bbb: { type: { ccc: { type: Number } } } } }
-}
-const $objectContent = {
-  aaa: { bbb: { ccc: 333 } }
-}
-const $objectEventType = 'setProperty'
-const $arraySchema = [$objectSchema]
-const $arrayContent = [$objectContent]
-const $arrayEventType = 'pushProp'
-const $eventListener = ($event) => { console.log($event.type, $event) }
-const objectContent = new Content($objectContent, $objectSchema)
-objectContent.get("aaa.bbb").addEventListener($objectEventType, $eventListener)
-objectContent.set("aaa.bbb.ccc", 333333)
-const arrayContent = new Content($arrayContent, $arraySchema)
-arrayContent.addEventListener($arrayEventType, $eventListener)
-arrayContent.push(
-  { aaa: { bbb: { ccc: 666 } } },
-  { aaa: { bbb: { ccc: 999 } } },
-)
+const arrayEventListener = ($event) => { console.log(
+  "\n", "$event.type", $event.type,
+  "\n", "$event.basename", $event.basename,
+  "\n", "$event.path", $event.path,
+  "\n", "$event.detail", $event.detail,
+) }
+const array = new Content([{
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}, {
+  id: 2, propertyA: false, propertyB: false
+}, {
+  id: 3, propertyA: false, propertyB: true
+}])
+console.log("array", array.string)
+array.addEventListener("concatValue", arrayEventListener)
+array.addEventListener("concat", arrayEventListener)
+const concatArray = array.concat({
+  id: 4, propertyA: true, propertyB: true
+}, {
+  id: 5, propertyA: true, propertyB: false
+}, {
+  id: 6, propertyA: false, propertyB: false
+}, {
+  id: 7, propertyA: false, propertyB: true
+})
+console.log("concatArray", concatArray)
 /*
 import { Core } from '/dependencies/mvc-framework.js'
 const $eventTargetProperty = document.querySelector('body')

@@ -1,6 +1,6 @@
 # Array Trap Guide
 **MVC Framework | Guide | Model \| Content \| Handler \| *Array***  
-**Directory**  
+**Content**  
  - [Overview]()
  -  [Array Trap Methods]()
     - [`concat` Trap Method]()
@@ -18,6 +18,12 @@
 Array Trap Methods are Array Modifier Methods with Ventability and Validatability.   
 ## Array Trap Methods
 ```
+const arrayEventListener = ($event) => { console.log(
+  "\n", "$event.type", $event.type,
+  "\n", "$event.basename", $event.basename,
+  "\n", "$event.path", $event.path,
+  "\n", "$event.detail", $event.detail,
+) }
 const array = new Content([{
   id: 0, propertyA: true, propertyB: true
 }, {
@@ -27,10 +33,13 @@ const array = new Content([{
 }, {
   id: 3, propertyA: false, propertyB: true
 }])
+console.log("array", array.string)
 ```
 ### `concat` Trap Method
 ```
-const concatArray = content.concat({
+array.addEventListener("concatValue", arrayEventListener, { once: true })
+array.addEventListener("concat", arrayEventListener, { once: true })
+const concatArray = array.concat({
   id: 4, propertyA: true, propertyB: true
 }, {
   id: 5, propertyA: true, propertyB: false
@@ -39,6 +48,7 @@ const concatArray = content.concat({
 }, {
   id: 7, propertyA: false, propertyB: true
 })
+console.log("concatArray", concatArray.string)
 ```
 ### `copyWithin` Trap Method,
 ```
@@ -80,5 +90,6 @@ array.splice(0, 10)
 ```
 ### `unshift` Trap Method,
 ```
+array.addEventListener("unshiftProp", )
 array.unshift()
 ```

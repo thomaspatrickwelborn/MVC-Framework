@@ -2,6 +2,9 @@ import { typeOf, recursiveAssign } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
+function instanceOfContent($instance) {
+  return (Content.toString() === $instance.classToString)
+}
 export default class Content extends EventTarget {
   #_settings
   #_options
@@ -17,13 +20,13 @@ export default class Content extends EventTarget {
     super()
     this.settings = $settings
     this.options = $options
-    this.schema = $schema
     return this.proxy
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
-    this.#_settings = $settings
+    if(instanceOfContent($settings)) { this.#_settings = $settings.object }
+    else { this.#_settings = $settings }
     return this.#_settings
   }
   get options() { return this.#_options }
@@ -42,7 +45,7 @@ export default class Content extends EventTarget {
       else { new Schema($schema) }
     }
   }
-  get Class() { return Content }
+  get classToString() { return Content.toString() }
   // Object
   get object() { return this.parse({ type: 'object' }) }
   // String

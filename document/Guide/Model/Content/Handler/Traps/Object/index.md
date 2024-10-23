@@ -1,6 +1,6 @@
 # Object Trap Guide
 **MVC Framework | Guide | Model \| Content \| Handler \| *Object***  
-**Directory**  
+**Content**  
  - [Overview]()
    - [`assign` Trap Method]()
    - [`defineProperties` Trap Method]()
@@ -59,6 +59,9 @@ object.defineProperties({
 ```
 ### `defineProperty` Trap Method
 ```
+object.defineProperty({
+  
+})
 ```
 ### `freeze` Trap Method
 ### `seal` Trap Method

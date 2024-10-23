@@ -9,23 +9,24 @@ export default function concat() {
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments]
-  let valuesIndex = 0
-  let subvaluesIndex = 0
+  let valueIndex = root.length
   const values = []
-  let rootConcat = root
+  let rootConcat = [...Array.from(root)]
   let proxyConcat
   iterateValues: 
   for(const $value of $arguments) {
-    const _basename = valuesIndex
-    const _path = (path !== null)
-      ? path.concat('.', valuesIndex)
-      : valuesIndex
+    let _basename
+    let _path
     // Value: Array
     if(Array.isArray($value)) {
-      subvaluesIndex = 0
+      let subvalueIndex = 0
       const subvalues = []
       iterateSubvalues: 
       for(const $subvalue of $value) {
+        _basename = valueIndex + subvalueIndex
+        _path = (path !== null)
+        ? path.concat('.', valueIndex + subvalueIndex)
+        : valueIndex
         // Validation: Subvalue
         if(schema && enableValidation) {
           const validSubvalue = schema.validate($subvalue)
@@ -38,7 +39,7 @@ export default function concat() {
               }, $content)
             )
           }
-          if(!validSubvalue.valid) { subvaluesIndex++; continue iterateSubvalues }
+          if(!validSubvalue.valid) { subvalueIndex++; continue iterateSubvalues }
         }
         // Subvalue: Objects
         if(isDirectInstanceOf($subvalue, [Object, Array])) {
@@ -48,21 +49,25 @@ export default function concat() {
             parent: proxy,
             path: _path,
           })
-          subvalues[subvaluesIndex] = subvalue
+          subvalues[subvalueIndex] = subvalue
         }
         // Subvalue: Primitives
         else {
-          subvalues[subvaluesIndex] = $subvalue
+          subvalues[subvalueIndex] = $subvalue
         }
-        subvaluesIndex++
+        subvalueIndex++
       }
-      values[valuesIndex] = subvalues
+      values[valueIndex] = subvalues
     }
     // Value: Not Array
     else {
+      _basename = valueIndex
+      _path = (path !== null)
+        ? path.concat('.', valueIndex)
+        : valueIndex
       // Validation: Value
       if(schema && enableValidation) {
-        const validValue = schema.validateProperty(valuesIndex, $subvalue)
+        const validValue = schema.validateProperty(valueIndex, $subvalue)
         if(schema &&validationEvents) {
           $content.dispatchEvent(
             new ValidatorEvent('validateProperty', {
@@ -72,7 +77,7 @@ export default function concat() {
             }, $content)
           )
         }
-        if(!validValue.valid) { valuesIndex++; continue iterateValues }
+        if(!validValue.valid) { valueIndex++; continue iterateValues }
       }
       // Value: Objects
       if(isDirectInstanceOf($value, [Object])) {
@@ -82,38 +87,36 @@ export default function concat() {
           parent: proxy,
           path: _path,
         })
-        values[valuesIndex] = value
+        values[valueIndex] = value
       }
       // Value: Primitives
       else {
-        values[valuesIndex] = $value
+        values[valueIndex] = $value
       }
     }
-    rootConcat = Array.prototype.concat.call(root, values[valuesIndex])
-    proxyConcat = new Content(rootConcat, schema, content.options)
+    rootConcat = Array.prototype.concat.call(rootConcat, values[valueIndex])
     if(contentEvents && events.includes('concatValue')) {
-      if(validationEvents) {
-        $content.dispatchEvent(
-          new ContentEvent('concatValue', {
-            basename: _basename,
-            path: _path,
-            detail: {
-              valuesIndex,
-              value: values[valuesIndex],
-            },
-          }, $content)
-        )
-      }
+      $content.dispatchEvent(
+        new ContentEvent('concatValue', {
+          basename: _basename,
+          path: _path,
+          detail: {
+            valueIndex,
+            value: values[valueIndex],
+          },
+        }, $content)
+      )
     }
-    valuesIndex++
+    valueIndex++
   }
+  proxyConcat = new Content(rootConcat, schema, $content.options)
   if(contentEvents && events.includes('concat')) {
     $content.dispatchEvent(
       new ContentEvent('concat', {
         basename,
         path,
         detail: {
-          values
+          values: proxyConcat,
         },
       }, $content)
     )

@@ -60,17 +60,38 @@ export default {
       },
     },
     array: {
+      concat: {
+        events: [
+          'concatValue',
+          'concat'
+        ]
+      },
       copyWithin: {
         events: [
           'copyWithinIndex',
           'copyWithin'
         ]
       },
-      unshift: {
+      fill: {
         events: [
-          'unshiftProp',
-          'unshift'
+          'fillIndex',
+          'fill'
         ]
+      },
+      pop: {
+        events: ['pop']
+      },
+      push: {
+        events: [
+          'pushProp',
+          'push'
+        ]
+      },
+      reverse: {
+        events: ['reverse']
+      },
+      shift: {
+        events: ['shift']
       },
       splice: {
         events: [
@@ -79,31 +100,10 @@ export default {
           'splice'
         ]
       },
-      shift: {
-        events: ['shift']
-      },
-      reverse: {
-        events: ['reverse']
-      },
-      concat: {
+      unshift: {
         events: [
-          'concatValue',
-          'concat'
-        ]
-      },
-      push: {
-        events: [
-          'pushProp',
-          'push'
-        ]
-      },
-      pop: {
-        events: ['pop']
-      },
-      fill: {
-        events: [
-          'fillIndex',
-          'fill'
+          'unshiftProp',
+          'unshift'
         ]
       },
     }
