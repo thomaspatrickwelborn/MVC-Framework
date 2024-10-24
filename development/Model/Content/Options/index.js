@@ -1,5 +1,4 @@
 export default {
-  basename: null, 
   path: null, 
   parent: null, 
   enableValidation: true, 

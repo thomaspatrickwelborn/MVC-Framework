@@ -112,7 +112,7 @@ export default class Content extends EventTarget {
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
       if(typeof $propertyDescriptor.value === 'object') {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse() // || $propertyDescriptor.value
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse($settings)
       } else {
         $parsement[$propertyDescriptorName] = $propertyDescriptor.value
       }

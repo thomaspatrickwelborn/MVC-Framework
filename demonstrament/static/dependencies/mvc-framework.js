@@ -276,6 +276,7 @@ class Core extends EventTarget {
 class ContentEvent extends Event {
   #settings
   #content
+  #_basename
   constructor($type, $settings, $content) {
     super($type);
     this.#settings = $settings;
@@ -303,9 +304,10 @@ class ContentEvent extends Event {
     );
   }
   get basename() {
-    const { path } = this.#settings;
-    if(!path) { return null }
-    return path.split('.').pop()
+    if(this.#_basename !== undefined) { return this.#_basename }
+    if(this.path) { this.#_basename = this.path.split('.').pop(); }
+    else { this.#_basename = null; }
+    return this.#_basename
   }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
@@ -314,6 +316,7 @@ class ContentEvent extends Event {
 let ValidatorEvent$1 = class ValidatorEvent extends Event {
   #settings
   #content
+  #_basename
   constructor($type, $settings, $content) {
     super($type);
     this.#settings = $settings;
@@ -342,9 +345,10 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
     );
   }
   get basename() {
-    const { path } = this.#settings;
-    if(!path) { return null }
-    return path.split('.').pop()
+    if(this.#_basename !== undefined) { return this.#_basename }
+    if(this.path) { this.#_basename = this.path.split('.').pop(); }
+    else { this.#_basename = null; }
+    return this.#_basename
   }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
@@ -1813,68 +1817,68 @@ class Traps {
 
 class Handler {
   #content
-  #traps
+  #_traps
   constructor($content) {
     this.#content = $content;
-    this.#traps = new Traps(this.#content);
+    this.#traps;
+  }
+  get #traps() {
+    if(this.#_traps !== undefined) return this.#_traps
+    this.#_traps = new Traps(this.#content);
+    return this.#_traps
   }
   get get() {
-    const $this = this;
     const content = this.#content;
+    const traps = this.#traps;
     return function get($target, $property, $receiver) {
-      // --------------
       // Accessor Traps
-      // --------------
       if(this.#isAccessorProperty($property)) {
-        return $this.#traps['Accessor'][$property]
+        return traps['Accessor'][$property]
       }
-      // ---------------------------
       // Content Class Instance Trap
-      // ---------------------------
-      else if(this.#isEventTargetOrContentProperty($property)) {
+      else if(
+        this.#isEventTargetProperty($property) ||
+        this.#isContentProperty($property)
+      ) {
         if(typeof content[$property] === 'function') {
           return content[$property].bind(content)
         }
         return content[$property]
       }
-      // ------------
       // Object Traps
-      // ------------
       else if(this.#isObjectProperty($property)) {
-        return $this.#traps['Object'][$property]
+        return traps['Object'][$property]
       }
-      // -----------
       // Array Traps
-      // -----------
       else if(this.#isArrayProperty($property)) {
-        return $this.#traps['Array'][$property]
+        return traps['Array'][$property]
       }
-      // ---------
       // Undefined
-      // ---------
       else { return undefined }
     }
   }
+  // Disabled Traps
+  get construct() {}
   get deleteProperty() {}
   get defineProperty() {}
+  get getOwnPropertyDescriptor() {}
+  get getPrototypeOf() {}
+  get has() {}
+  get isExtensible() {}
+  get ownKeys() {}
+  get preventExtensions() {}
   get set() {}
-  #isAccessorProperty($property) {
-    return ['get', 'set', 'delete'].includes($property)
-  }
+  get setPrototypeOf() {}
   #isContentProperty($property) {
     return Object.getOwnPropertyNames(Content.prototype)
     .includes($property)
   }
-  #isEventTarget($property) {
+  #isEventTargetProperty($property) {
     return Object.getOwnPropertyNames(EventTarget.prototype)
     .includes($property)
-    
   }
-  #isEventTargetOrContentProperty($property) {
-    return (
-      this.#isEventTarget($property) ||
-      this.#isContentProperty($property)
-    )
+  #isAccessorProperty($property) {
+    return ['get', 'set', 'delete'].includes($property)
   }
   #isObjectProperty($property) {
     return Object.getOwnPropertyNames(Object)
@@ -1888,14 +1892,9 @@ class Handler {
       .includes($property)
     )
   }
-  #isFunctionProperty($property) {
-    return Object.getOwnPropertyNames(Function.prototype)
-    .includes($property)
-  }
 }
 
 var Options$5 = {
-  basename: null, 
   path: null, 
   parent: null, 
   enableValidation: true, 
@@ -2116,7 +2115,7 @@ class Content extends EventTarget {
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
       if(typeof $propertyDescriptor.value === 'object') {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse(); // || $propertyDescriptor.value
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse($settings);
       } else {
         $parsement[$propertyDescriptorName] = $propertyDescriptor.value;
       }
