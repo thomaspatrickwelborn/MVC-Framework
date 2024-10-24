@@ -1,4 +1,3 @@
-import { isDirectInstanceOf } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../Events/index.js'
 export default function fill() {
@@ -9,29 +8,25 @@ export default function fill() {
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments]
-  let start
+  let $start
   if(typeof $arguments[1] === 'number') {
-    start = ($arguments[1] >= 0)
+    $start = ($arguments[1] >= 0)
       ? $arguments[1]
       : root.length + $arguments[1]
   }
-  else { start = 0 }
-  let end
+  else { $start = 0 }
+  let $end
   if(typeof $arguments[2] === 'number') {
-    end = ($arguments[2] >= 0)
+    $end = ($arguments[2] >= 0)
       ? $arguments[2]
       : root.length + $arguments[2]
-  } else { end = root.length }
-  let fillIndex = start
+  } else { $end = root.length }
+  let fillIndex = $start
   iterateFillIndexes: 
   while(
     fillIndex < root.length &&
-    fillIndex < end
+    fillIndex < $end
   ) {
-    const _path = (path !== null)
-      ? path.concat('.', fillIndex)
-      : fillIndex
-    
     if(schema && enableValidation) {
       let validValue = schema.validate(validValue)
       if(validationEvents) {
@@ -45,14 +40,17 @@ export default function fill() {
       if(!validValue.valid) { continue iterateFillIndexes }
     }
     let value = $arguments[0]
-    if(isDirectInstanceOf(
-      value, [Object, Array]
-    )) {
-      const subschema = schema?.context[0] || null
-      value = new Content(value, subschema, {
-        path: _path,
-        parent: proxy,
-      })
+    if(typeof value === 'object') {
+      if(value.classToString !== Content.toString()) {
+        const subschema = schema?.context[0] || null
+        const _path = (path !== null)
+          ? path.concat('.', fillIndex)
+          : fillIndex
+        value = new Content(value, subschema, {
+          path: _path,
+          parent: proxy,
+        })
+      }
     }
     Array.prototype.fill.call(
       root, value, fillIndex, fillIndex + 1
@@ -78,8 +76,8 @@ export default function fill() {
       new ContentEvent('fill', {
         path,
         detail: {
-          start,
-          end,
+          start: $start,
+          end: $end,
           value,
         },
       },

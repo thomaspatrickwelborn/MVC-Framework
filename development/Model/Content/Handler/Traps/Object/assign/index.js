@@ -1,4 +1,4 @@
-import { typeOf, isDirectInstanceOf, recursiveAssign } from '../../../../../../Coutil/index.js'
+import { recursiveAssign } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function assign() {
@@ -18,9 +18,6 @@ export default function assign() {
     // Iterate Source Props
     iterateSourceProps:
     for(let [$sourcePropKey, $sourcePropVal] of Object.entries($source)) {
-      const _path = (path !== null)
-        ? path.concat('.', $sourcePropKey)
-        : $sourcePropKey
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal)
@@ -43,6 +40,9 @@ export default function assign() {
         else if(schema?.contextType === 'object') { subschema = schema.context[$sourcePropKey] }
         else { subschema = null }
         // Content
+        const _path = (path !== null)
+          ? path.concat('.', $sourcePropKey)
+          : $sourcePropKey
         const content = new Content($sourcePropVal, subschema, recursiveAssign({}, $content.options, {
           path: _path,
           parent: proxy,

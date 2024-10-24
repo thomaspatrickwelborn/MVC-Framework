@@ -1,4 +1,3 @@
-import { isDirectInstanceOf } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../Events/index.js'
 export default function concat() {
@@ -19,9 +18,6 @@ export default function concat() {
   let proxyConcat
   iterateValues: 
   for(const $value of $arguments) {
-    const _path = (path !== null)
-      ? path.concat('.', valueIndex)
-      : valueIndex
     // Validation: Value
     if(schema && enableValidation) {
       const validValue = schema.validateProperty(valueIndex, $subvalue)
@@ -36,11 +32,14 @@ export default function concat() {
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
     // Value: Content
-    if($value.classToString === Content.toString) {
+    if($value.classToString === Content.toString()) {
       values[valueIndex] = value
     }
     // Value: Object Type
     else if(typeof $value === 'object') {
+      const _path = (path !== null)
+        ? path.concat('.', valueIndex)
+        : valueIndex
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
         path: _path,

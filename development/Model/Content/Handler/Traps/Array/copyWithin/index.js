@@ -73,4 +73,5 @@ export default function copyWithin() {
       )
     )
   }
+  return proxy
 }

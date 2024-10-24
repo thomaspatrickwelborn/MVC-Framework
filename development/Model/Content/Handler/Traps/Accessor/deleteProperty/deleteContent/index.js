@@ -3,7 +3,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function deleteContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { root, basename, path } = $content
+  const { root, path } = $content
   const { contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
@@ -17,7 +17,6 @@ export default function deleteContent() {
   if(contentEvents && events?.includes('delete')) {
     $content.dispatchEvent(
       new ContentEvent('delete', {
-        basename,
         path,
         detail: {
           value: proxy

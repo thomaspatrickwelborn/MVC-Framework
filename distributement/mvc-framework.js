@@ -73,20 +73,6 @@ var regularExpressions = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
-function isDirectInstanceOf($object, $constructor) {
-  if($object === null || $object === undefined) return false
-  if(Array.isArray($constructor)) {
-    for(const $constructorClass of $constructor) {
-      if(Object.getPrototypeOf($object) === $constructorClass.prototype) {
-        return true
-      }
-    }
-    return false
-  } else {
-    return Object.getPrototypeOf($object) === $constructor.prototype
-  }
-}
-
 class CoreEvent {
   #settings
   #_boundListener
@@ -371,9 +357,6 @@ function assign() {
     // Iterate Source Props
     iterateSourceProps:
     for(let [$sourcePropKey, $sourcePropVal] of Object.entries($source)) {
-      const _path = (path !== null)
-        ? path.concat('.', $sourcePropKey)
-        : $sourcePropKey;
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal);
@@ -396,6 +379,9 @@ function assign() {
         else if(schema?.contextType === 'object') { subschema = schema.context[$sourcePropKey]; }
         else { subschema = null; }
         // Content
+        const _path = (path !== null)
+          ? path.concat('.', $sourcePropKey)
+          : $sourcePropKey;
         const content = new Content($sourcePropVal, subschema, recursiveAssign({}, $content.options, {
           path: _path,
           parent: proxy,
@@ -522,17 +508,13 @@ function defineProperty() {
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const propertyKey = arguments[0];
   const propertyDescriptor = arguments[1];
-  const _path = (
-    path !== null
-  ) ? path.concat('.', propertyKey)
-    : propertyKey;
   // Validation
   if(schema && enableValidation) {
     const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value);
     if(validationEvents) {
       $content.dispatchEvent(
         new ValidatorEvent$1('validateProperty', {
-          path: _path,
+          path,
           detail: validSourceProp,
         }, $content)
       );
@@ -564,10 +546,14 @@ function defineProperty() {
       if(typeOf(propertyDescriptor.value) === 'object') { _root = {}; }
       else if (typeOf(propertyDescriptor.value) === 'array') { _root = []; }
       else { _root = {}; }
+      const _path = (
+        path !== null
+      ) ? path.concat('.', propertyKey)
+        : propertyKey;
       const contentObject = new Content(
         _root, subschema, {
-          parent: proxy,
           path: _path,
+          parent: proxy,
         }
       );
       // Root Define Properties, Descriptor Tree
@@ -589,7 +575,7 @@ function defineProperty() {
   if(contentEvents && events.includes('defineProperty')) {
     $content.dispatchEvent(
       new ContentEvent('defineProperty', {
-        path: _path,
+        path,
         detail: {
           prop: propertyKey,
           descriptor: propertyDescriptor,
@@ -684,9 +670,6 @@ function concat() {
   let proxyConcat;
   iterateValues: 
   for(const $value of $arguments) {
-    const _path = (path !== null)
-      ? path.concat('.', valueIndex)
-      : valueIndex;
     // Validation: Value
     if(schema && enableValidation) {
       const validValue = schema.validateProperty(valueIndex, $subvalue);
@@ -701,11 +684,14 @@ function concat() {
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
     // Value: Content
-    if($value.classToString === Content.toString) {
+    if($value.classToString === Content.toString()) {
       values[valueIndex] = value;
     }
     // Value: Object Type
     else if(typeof $value === 'object') {
+      const _path = (path !== null)
+        ? path.concat('.', valueIndex)
+        : valueIndex;
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
         path: _path,
@@ -817,6 +803,7 @@ function copyWithin() {
       )
     );
   }
+  return proxy
 }
 
 function fill() {
@@ -827,29 +814,25 @@ function fill() {
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const { proxy } = $content;
   const $arguments = [...arguments];
-  let start;
+  let $start;
   if(typeof $arguments[1] === 'number') {
-    start = ($arguments[1] >= 0)
+    $start = ($arguments[1] >= 0)
       ? $arguments[1]
       : root.length + $arguments[1];
   }
-  else { start = 0; }
-  let end;
+  else { $start = 0; }
+  let $end;
   if(typeof $arguments[2] === 'number') {
-    end = ($arguments[2] >= 0)
+    $end = ($arguments[2] >= 0)
       ? $arguments[2]
       : root.length + $arguments[2];
-  } else { end = root.length; }
-  let fillIndex = start;
+  } else { $end = root.length; }
+  let fillIndex = $start;
   iterateFillIndexes: 
   while(
     fillIndex < root.length &&
-    fillIndex < end
+    fillIndex < $end
   ) {
-    const _path = (path !== null)
-      ? path.concat('.', fillIndex)
-      : fillIndex;
-    
     if(schema && enableValidation) {
       let validValue = schema.validate(validValue);
       if(validationEvents) {
@@ -863,14 +846,17 @@ function fill() {
       if(!validValue.valid) { continue iterateFillIndexes }
     }
     let value = $arguments[0];
-    if(isDirectInstanceOf(
-      value, [Object, Array]
-    )) {
-      const subschema = schema?.context[0] || null;
-      value = new Content(value, subschema, {
-        path: _path,
-        parent: proxy,
-      });
+    if(typeof value === 'object') {
+      if(value.classToString !== Content.toString()) {
+        const subschema = schema?.context[0] || null;
+        const _path = (path !== null)
+          ? path.concat('.', fillIndex)
+          : fillIndex;
+        value = new Content(value, subschema, {
+          path: _path,
+          parent: proxy,
+        });
+      }
     }
     Array.prototype.fill.call(
       root, value, fillIndex, fillIndex + 1
@@ -896,8 +882,8 @@ function fill() {
       new ContentEvent('fill', {
         path,
         detail: {
-          start,
-          end,
+          start: $start,
+          end: $end,
           value,
         },
       },
@@ -911,20 +897,16 @@ function pop() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
-  const { root, basename, path } = $content;
+  const { root, path } = $content;
   const popElement = Array.prototype.pop.call(root);
   const popElementIndex = root.length - 1;
-  const _path = (
-    path !== null
-  ) ? path.concat('.', popElementIndex)
-    : popElementIndex;
   // Array Pop Event
   if(contentEvents && events.includes('pop')) {
     $content.dispatchEvent(
       new ContentEvent(
         'pop',
         {
-          _path,
+          path, 
           detail: {
             element: popElement,
             elementIndex: popElementIndex,
@@ -947,28 +929,30 @@ function push() {
   const elements = [];
   let elementsIndex = 0;
   for(let $element of arguments) {
-    const _path = (path !== null)
-      ? path.concat('.', elementsIndex)
-      : elementsIndex;
     // Validation
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element);
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            path: _path,
+            path,
             detail: validElement,
           }, $content)
         );
       }
       if(!validElement.valid) { return root.length }
     }
-    if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
-    const subschema = schema?.context[0] || null;
-      $element = new Content($element, subschema, {
-        path: _path,
-        parent: proxy,
-      });
+    if(typeof $element === 'object') {
+      if($element.classToString !== Content.toString()) {
+        const _path = (path !== null)
+          ? path.concat('.', elementsIndex)
+          : elementsIndex;
+        const subschema = schema?.context[0] || null;
+        $element = new Content($element, subschema, {
+          path: _path,
+          parent: proxy,
+        });
+      }
       elements.push($element);
       Array.prototype.push.call(root, $element);
     } else {
@@ -978,7 +962,7 @@ function push() {
     if(contentEvents && events.includes('pushProp')) {
       $content.dispatchEvent(
         new ContentEvent('pushProp', {
-          path: _path,
+          path,
           detail: {
             elementsIndex,
             element: elements[elementsIndex],
@@ -1033,16 +1017,13 @@ function shift() {
   const { root, path } = $content;
   const shiftElement = Array.prototype.shift.call(root);
   const shiftElementIndex = 0;
-  const _path = (path !== null)
-    ? path.concat('.', shiftElementIndex)
-    : shiftElementIndex;
   // Array Shift Event
   if(contentEvents && events.includes('shift')) {
     $content.dispatchEvent(
       new ContentEvent(
         'shift',
         {
-          path: _path,
+          path,
           detail: {
             element: shiftElement,
             elementIndex: shiftElementIndex,
@@ -1080,13 +1061,10 @@ function splice() {
     const deleteItem = Array.prototype.splice.call(root, $start, 1)[0];
     deleteItems.push(deleteItem);
     // Array Splice Delete Event
-    const _path = (path !== null)
-      ? path.concat('.', deleteItemsIndex)
-      : deleteItemsIndex;
     if(contentEvents && events.includes('spliceDelete')) {
       $content.dispatchEvent(
         new ContentEvent('spliceDelete', {
-          path: _path,
+          path,
           detail: {
             index: $start + deleteItemsIndex,
             deleteIndex: deleteItemsIndex,
@@ -1100,48 +1078,48 @@ function splice() {
   let addItemsIndex = 0;
   spliceAdd: 
   while(addItemsIndex < addCount) {
-    let _path;
     let addItem = $addItems[addItemsIndex];
-
     // Validation
     if(schema && enableValidation) {
       const validAddItem = schema.validateProperty(elementIndex, element);
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            path: _path,
+            path,
             detail: validAddItem,
           }, $content)
         );
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
     }
-    _path = (path !== null)
-      ? path.concat('.', addItemsIndex)
-      : addItemsIndex;
     let startIndex = $start + addItemsIndex;
-    if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
-      const subschema = schema?.context[0] || null;
-      addItem = new Content(addItem, subschema, {
-        path: _path,
-        parent: proxy,
-      });
-      Array.prototype.splice.call(
-        root, startIndex, 0, addItem
-      );
-    } else {
+    // Add Item: Object Type
+    if(typeof addItem === 'object') {
+      if(addItem.classToString !== Content.toString()) {
+        const subschema = schema?.context[0] || null;
+        const _path = (path !== null)
+          ? path.concat('.', addItemsIndex)
+          : addItemsIndex;
+        addItem = new Content(addItem, subschema, {
+          path: _path,
+          parent: proxy,
+        });
+      }
       Array.prototype.splice.call(
         root, startIndex, 0, addItem
       );
     }
-    _path = (path !== null)
-      ? path.concat('.', addItemsIndex)
-      : addItemsIndex;
+    // Add Item: Primitive Type
+    else {
+      Array.prototype.splice.call(
+        root, startIndex, 0, addItem
+      );
+    }
     // Array Splice Add Event
     if(contentEvents && events.includes('spliceAdd')) {
       $content.dispatchEvent(
         new ContentEvent('spliceAdd', {
-          path: _path,
+          path,
           detail: {
             index: $start + addItemsIndex,
             addIndex: addItemsIndex,
@@ -1156,7 +1134,7 @@ function splice() {
   if(contentEvents && events.includes('splice')) {
     $content.dispatchEvent(
       new ContentEvent('splice', {
-        path: path,
+        path,
         detail: {
           $start,
           deleted: deleteItems,
@@ -1258,7 +1236,7 @@ var ArrayProperty = {
 function getContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { root, basename, path } = $content;
+  const { root, path } = $content;
   const { contentEvents } = $content.options;
   const ulteroptions = Object.assign({}, $options, arguments[0] || {});
   const { events } = ulteroptions;
@@ -1266,7 +1244,6 @@ function getContent() {
   if(contentEvents && events.includes('get')) {
     $content.dispatchEvent(
       new ContentEvent('get', {
-        basename,
         path,
         detail: {
           value: proxy
@@ -1280,7 +1257,7 @@ function getContent() {
 function getContentProperty() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { root, basename, path } = $content;
+  const { root, path } = $content;
   const { contentEvents } = $content.options;
   // Arguments
   const $path = arguments[0];
@@ -1294,14 +1271,11 @@ function getContentProperty() {
     if(subpaths.length) {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey;
     // Delete Property Event
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          path: _path,
+          path,
           detail: {
             key: propertyKey,
             val: propertyValue,
@@ -1344,7 +1318,7 @@ function getProperty() {
 function setContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { basename, path } = $content;
+  const { path } = $content;
   const { contentEvents } = $content.options;
   const { proxy } = $content;
   // Delete Preterproperties
@@ -1365,7 +1339,6 @@ function setContent() {
   if(contentEvents && events.includes('set')) {
     $content.dispatchEvent(
       new ContentEvent('set', {
-        basename,
         path,
         detail: {
           value: $value
@@ -1485,9 +1458,6 @@ function setContentProperty() {
   // Path Key: false
   else if(pathkey === false) {
     let propertyKey = $path;
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey;
     // Property Value: Content Instance
     if($value.classToString === Content.toString()) {
       propertyValue = $value;
@@ -1498,6 +1468,9 @@ function setContentProperty() {
       if(schema?.contextType === 'array') { subschema = schema.context[0]; }
       if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
       else { subschema = undefined; }
+      const _path = (path !== null)
+        ? path.concat('.', propertyKey)
+        : propertyKey;
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
           path: _path,
@@ -1559,7 +1532,7 @@ function setProperty() {
 function deleteContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { root, basename, path } = $content;
+  const { root, path } = $content;
   const { contentEvents } = $content.options;
   const { proxy } = $content;
   // Arguments
@@ -1573,7 +1546,6 @@ function deleteContent() {
   if(contentEvents && events?.includes('delete')) {
     $content.dispatchEvent(
       new ContentEvent('delete', {
-        basename,
         path,
         detail: {
           value: proxy
@@ -1602,9 +1574,6 @@ function deleteContentProperty() {
     if(subpaths.length) {
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey;
     if(typeof propertyValue === 'object') {
       propertyValue.delete(ulteroptions);
     }
@@ -1613,7 +1582,7 @@ function deleteContentProperty() {
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          path: _path,
+          path,
           detail: {
             key: propertyKey,
             val: propertyValue,
@@ -1627,9 +1596,6 @@ function deleteContentProperty() {
   else if(pathkey === false) {
     const propertyKey = $path;
     const propertyValue = root[propertyKey];
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey;
     if(propertyValue instanceof Content) {
       propertyValue.delete(ulteroptions);
     }
@@ -1638,7 +1604,7 @@ function deleteContentProperty() {
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          path: _path,
+          path,
           detail: {
             key: propertyKey,
             val: propertyValue,

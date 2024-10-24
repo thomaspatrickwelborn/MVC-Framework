@@ -3,7 +3,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function setContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { basename, path } = $content
+  const { path } = $content
   const { contentEvents } = $content.options
   const { proxy } = $content
   // Delete Preterproperties
@@ -25,7 +25,6 @@ export default function setContent() {
   if(contentEvents && events.includes('set')) {
     $content.dispatchEvent(
       new ContentEvent('set', {
-        basename,
         path,
         detail: {
           value: $value

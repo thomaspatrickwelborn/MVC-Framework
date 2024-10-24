@@ -109,9 +109,6 @@ export default function setContentProperty() {
   // Path Key: false
   else if(pathkey === false) {
     let propertyKey = $path
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey
     // Property Value: Content Instance
     if($value.classToString === Content.toString()) {
       propertyValue = $value
@@ -122,6 +119,9 @@ export default function setContentProperty() {
       if(schema?.contextType === 'array') { subschema = schema.context[0] }
       if(schema?.contextType === 'object') { subschema = schema.context[propertyKey] }
       else { subschema = undefined }
+      const _path = (path !== null)
+        ? path.concat('.', propertyKey)
+        : propertyKey
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
           path: _path,

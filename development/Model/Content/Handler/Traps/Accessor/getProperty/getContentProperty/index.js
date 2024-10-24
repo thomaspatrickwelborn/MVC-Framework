@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function getContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { root, basename, path } = $content
+  const { root, path } = $content
   const { contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
@@ -19,14 +19,11 @@ export default function getContentProperty() {
     if(subpaths.length) {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey
     // Delete Property Event
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          path: _path,
+          path,
           detail: {
             key: propertyKey,
             val: propertyValue,

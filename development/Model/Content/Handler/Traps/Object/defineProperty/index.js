@@ -1,4 +1,4 @@
-import { typeOf, isDirectInstanceOf } from '../../../../../../Coutil/index.js'
+import { typeOf } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function defineProperty() {
@@ -9,17 +9,13 @@ export default function defineProperty() {
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const propertyKey = arguments[0]
   const propertyDescriptor = arguments[1]
-  const _path = (
-    path !== null
-  ) ? path.concat('.', propertyKey)
-    : propertyKey
   // Validation
   if(schema && enableValidation) {
     const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value)
     if(validationEvents) {
       $content.dispatchEvent(
         new ValidatorEvent('validateProperty', {
-          path: _path,
+          path,
           detail: validSourceProp,
         }, $content)
       )
@@ -51,10 +47,14 @@ export default function defineProperty() {
       if(typeOf(propertyDescriptor.value) === 'object') { _root = {} }
       else if (typeOf(propertyDescriptor.value) === 'array') { _root = [] }
       else { _root = {} }
+      const _path = (
+        path !== null
+      ) ? path.concat('.', propertyKey)
+        : propertyKey
       const contentObject = new Content(
         _root, subschema, {
-          parent: proxy,
           path: _path,
+          parent: proxy,
         }
       )
       // Root Define Properties, Descriptor Tree
@@ -76,7 +76,7 @@ export default function defineProperty() {
   if(contentEvents && events.includes('defineProperty')) {
     $content.dispatchEvent(
       new ContentEvent('defineProperty', {
-        path: _path,
+        path,
         detail: {
           prop: propertyKey,
           descriptor: propertyDescriptor,

@@ -20,9 +20,6 @@ export default function deleteContentProperty() {
     if(subpaths.length) {
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey
     if(typeof propertyValue === 'object') {
       propertyValue.delete(ulteroptions)
     }
@@ -31,7 +28,7 @@ export default function deleteContentProperty() {
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          path: _path,
+          path,
           detail: {
             key: propertyKey,
             val: propertyValue,
@@ -45,9 +42,6 @@ export default function deleteContentProperty() {
   else if(pathkey === false) {
     const propertyKey = $path
     const propertyValue = root[propertyKey]
-    const _path = (path !== null)
-      ? path.concat('.', propertyKey)
-      : propertyKey
     if(propertyValue instanceof Content) {
       propertyValue.delete(ulteroptions)
     }
@@ -56,7 +50,7 @@ export default function deleteContentProperty() {
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          path: _path,
+          path,
           detail: {
             key: propertyKey,
             val: propertyValue,

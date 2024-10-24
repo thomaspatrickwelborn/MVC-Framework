@@ -1,4 +1,3 @@
-import { isDirectInstanceOf } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../Events/index.js'
 export default function unshift() {
