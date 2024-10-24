@@ -9,6 +9,12 @@
    - [`seal` Trap Method]()
 ## Object Trap Methods
 ```
+const eventLog = ($event) => { console.log(
+  "\n", "$event.type", $event.type,
+  "\n", "$event.basename", $event.basename,
+  "\n", "$event.path", $event.path,
+  "\n", "$event.detail", $event.detail,
+) }
 const object = new Content({
   propertyA: {
     propertyB: {
@@ -28,6 +34,9 @@ const object = new Content({
 ```
 ### `assign` Trap Method
 ```
+object.addEventListener("assign", eventLog)
+object.addEventListener("assignSource", eventLog)
+object.addEventListener("assignSourceProperty", eventLog)
 object.assign({
   propertyA: {
     propertyB: {
@@ -44,13 +53,13 @@ object.assign({
 ```
 ### `defineProperties` Trap Method
 ```
+object.addEventListener("defineProperties", eventLog)
 object.defineProperties({
   propertyJ: {
     value: {
       propertyK: {
         value: {
-          propertyL: { value: 121212 },
-          propertyM: { value: "MMM" }
+          propertyL: { value: 121212 }
         }
       }
     }
@@ -59,8 +68,17 @@ object.defineProperties({
 ```
 ### `defineProperty` Trap Method
 ```
+object.addEventListener("defineProperty", eventLog)
 object.defineProperty({
-  
+  propertyJ: {
+    value: {
+      propertyK: {
+        value: {
+          propertyM: { value: "MMM" }
+        }
+      }
+    }
+  }
 })
 ```
 ### `freeze` Trap Method

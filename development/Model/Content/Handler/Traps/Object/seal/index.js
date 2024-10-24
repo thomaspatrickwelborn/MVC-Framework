@@ -12,13 +12,10 @@ export default function seal() {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(this)) {
-      if(
-        $propertyValue.constructor.name === 'bound Content'
-      ) {
+      if($propertyValue.classToString === Content.toString()) {
         $propertyValue.seal()
-      } else {
-        Object.seal($propertyValue)
       }
+      else { Object.seal($propertyValue) }
       const path = (
         path !== null
       ) ? path.concat('.', $propertyKey)

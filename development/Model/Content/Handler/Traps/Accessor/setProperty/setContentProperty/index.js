@@ -1,3 +1,4 @@
+import { regularExpressions } from '../../../../../../../Coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function setContentProperty() {
@@ -19,7 +20,7 @@ export default function setContentProperty() {
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
-    const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/))
+    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     // Property Key
     const propertyKey = subpaths.shift()
     // Property Value

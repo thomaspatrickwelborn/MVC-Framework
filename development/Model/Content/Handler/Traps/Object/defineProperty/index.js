@@ -5,9 +5,8 @@ export default function defineProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { descriptorValueMerge, descriptorTree, events } = $options
-  const { root, path, schema } = $content
+  const { root, path, schema, proxy } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
-  const { proxy } = $content
   const propertyKey = arguments[0]
   const propertyDescriptor = arguments[1]
   const _path = (
@@ -25,29 +24,22 @@ export default function defineProperty() {
         }, $content)
       )
     }
-    if(!validSourceProp.valid) { return root }
+    if(!validSourceProp.valid) { return proxy }
   }
-  // Property Descriptor Value: Direct Instance Array/Object/Map
-  if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array/*, Map*/])) {
+  // Property Descriptor Value: Direct Instance Array/Object
+  if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array])) {
     let subschema
     switch(schema.contextType) {
       case 'array': subschema = schema.context[0]; break
       case 'object': subschema = schema.context[propertyKey]; break
       default: subschema = undefined; break
     }
-      const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
-        root, propertyKey
-      ) || {}
-      // Root Property Descriptor Value: Existent DET Instance
-      if(
-        rootPropertyDescriptor.value // instanceof Content
-        ?.constructor.name === 'bound Content'
-      ) {
+      const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(root, propertyKey) || {}
+      // Root Property Descriptor Value: Existent Content Instance
+      if(rootPropertyDescriptor.value.classToString === Content.toString()) {
         // Root Define Properties, Descriptor Tree
         if(descriptorTree === true) {
-          rootPropertyDescriptor.value.defineProperties(
-            propertyDescriptor.value
-          )
+          rootPropertyDescriptor.value.defineProperties(propertyDescriptor.value)
         }
         // Root Define Properties, No Descriptor Tree
         else {
@@ -56,18 +48,14 @@ export default function defineProperty() {
       }
       // Root Property Descriptor Value: Non-Existent DET Instance
       else {
-        const _root = (typeOf(propertyDescriptor.value) === 'object')
-          ? {}
-          : (typeOf(propertyDescriptor.value) === 'array')
-          ? []
-        //   : (typeOf(propertyDescriptor.value) === 'map')
-        //   ? new Map()
-          : {}
+        let _root
+        if(typeOf(propertyDescriptor.value) === 'object') { _root = {} }
+        else if (typeOf(propertyDescriptor.value) === 'array') { _root = [] }
+        else { _root = {} }
         const contentObject = new Content(
           _root, subschema, {
             parent: proxy,
             path: _path,
-            rootAlias,
           }
         )
         // Root Define Properties, Descriptor Tree

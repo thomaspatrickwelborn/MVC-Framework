@@ -1,3 +1,4 @@
+import { regularExpressions } from '../../../../../../../Coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../Events/index.js'
 export default function getContentProperty() {
@@ -12,7 +13,7 @@ export default function getContentProperty() {
   const { events, pathkey } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/))
+    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
     let propertyValue = root[propertyKey]
     if(subpaths.length) {

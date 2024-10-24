@@ -69,6 +69,10 @@ function recursiveAssign() {
   return $target
 }
 
+var regularExpressions = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
 function isDirectInstanceOf($object, $constructor) {
   if($object === null || $object === undefined) return false
   if(Array.isArray($constructor)) {
@@ -351,9 +355,8 @@ function assign() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { recursive, events } = $options;
-  const { path, root, schema } = $content;
+  const { path, root, schema, proxy } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
-  const { proxy } = $content;
   const sources = [...arguments];
   const assignedSources = [];
   // Iterate Sources
@@ -390,7 +393,7 @@ function assign() {
           default: subschema = undefined;
         }
         // Assign Root Content Property: Existent
-        if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
+        if(root[$sourcePropKey].classToString === Content.toString()) {
           // Assign Root
           root[$sourcePropKey].assign($sourcePropVal);
           // Assigned Source
@@ -470,7 +473,7 @@ function defineProperties() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
-  const { root, rootAlias, path, schema } = $content;
+  const { root, path, schema, proxy } = $content;
   const $propertyDescriptors = arguments[0];
   Object.entries($propertyDescriptors)
   .reduce(($properties, [
@@ -501,16 +504,15 @@ function defineProperties() {
       )
     );
   }
-  return root
+  return proxy
 }
 
 function defineProperty() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { descriptorValueMerge, descriptorTree, events } = $options;
-  const { root, path, schema } = $content;
+  const { root, path, schema, proxy } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
-  const { proxy } = $content;
   const propertyKey = arguments[0];
   const propertyDescriptor = arguments[1];
   const _path = (
@@ -528,29 +530,22 @@ function defineProperty() {
         }, $content)
       );
     }
-    if(!validSourceProp.valid) { return root }
+    if(!validSourceProp.valid) { return proxy }
   }
-  // Property Descriptor Value: Direct Instance Array/Object/Map
-  if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array/*, Map*/])) {
+  // Property Descriptor Value: Direct Instance Array/Object
+  if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array])) {
     let subschema;
     switch(schema.contextType) {
       case 'array': subschema = schema.context[0]; break
       case 'object': subschema = schema.context[propertyKey]; break
       default: subschema = undefined; break
     }
-      const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(
-        root, propertyKey
-      ) || {};
-      // Root Property Descriptor Value: Existent DET Instance
-      if(
-        rootPropertyDescriptor.value // instanceof Content
-        ?.constructor.name === 'bound Content'
-      ) {
+      const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(root, propertyKey) || {};
+      // Root Property Descriptor Value: Existent Content Instance
+      if(rootPropertyDescriptor.value.classToString === Content.toString()) {
         // Root Define Properties, Descriptor Tree
         if(descriptorTree === true) {
-          rootPropertyDescriptor.value.defineProperties(
-            propertyDescriptor.value
-          );
+          rootPropertyDescriptor.value.defineProperties(propertyDescriptor.value);
         }
         // Root Define Properties, No Descriptor Tree
         else {
@@ -559,18 +554,14 @@ function defineProperty() {
       }
       // Root Property Descriptor Value: Non-Existent DET Instance
       else {
-        const _root = (typeOf(propertyDescriptor.value) === 'object')
-          ? {}
-          : (typeOf(propertyDescriptor.value) === 'array')
-          ? []
-        //   : (typeOf(propertyDescriptor.value) === 'map')
-        //   ? new Map()
-          : {};
+        let _root;
+        if(typeOf(propertyDescriptor.value) === 'object') { _root = {}; }
+        else if (typeOf(propertyDescriptor.value) === 'array') { _root = []; }
+        else { _root = {}; }
         const contentObject = new Content(
           _root, subschema, {
             parent: proxy,
             path: _path,
-            rootAlias,
           }
         );
         // Root Define Properties, Descriptor Tree
@@ -614,13 +605,9 @@ function freeze() {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(this)) {
-      if(
-        $propertyValue.constructor.name === 'bound Content'
-      ) {
+      if($propertyValue.classToString === Content.toString()) {
         $propertyValue.freeze();
-      } else {
-        Object.freeze($propertyValue);
-      }
+      } else { Object.freeze($propertyValue); }
       const _path = (
         path !== null
       ) ? path.concat('.', $propertyKey)
@@ -649,13 +636,10 @@ function seal() {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(this)) {
-      if(
-        $propertyValue.constructor.name === 'bound Content'
-      ) {
+      if($propertyValue.classToString === Content.toString()) {
         $propertyValue.seal();
-      } else {
-        Object.seal($propertyValue);
       }
+      else { Object.seal($propertyValue); }
       const path = (
         path !== null
       ) ? path.concat('.', $propertyKey)
@@ -1311,7 +1295,7 @@ function getContentProperty() {
   const { events, pathkey } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/));
+    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = root[propertyKey];
     if(subpaths.length) {
@@ -1419,7 +1403,7 @@ function setContentProperty() {
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
-    const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/));
+    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
     // Property Key
     const propertyKey = subpaths.shift();
     // Property Value
@@ -1618,7 +1602,7 @@ function deleteContentProperty() {
   const { events, pathkey } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(/\.(?=(?:[^"]*"[^"]*")*[^"]*$)/));
+    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = root[propertyKey];
 

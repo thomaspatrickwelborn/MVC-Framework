@@ -4,15 +4,15 @@
  - [Overview]()
  -  [Array Trap Methods]()
     - [`concat` Trap Method]()
-    - [`fill` Trap Method,]()
-    - [`concat` Trap Method,]()
-    - [`copyWithin` Trap Method,]()
-    - [`pop` Trap Method,]()
-    - [`push` Trap Method,]()
-    - [`reverse` Trap Method,]()
-    - [`shift` Trap Method,]()
-    - [`splice` Trap Method,]()
-    - [`unshift` Trap Method,]()
+    - [`fill` Trap Method]()
+    - [`concat` Trap Method]()
+    - [`copyWithin` Trap Method]()
+    - [`pop` Trap Method]()
+    - [`push` Trap Method]()
+    - [`reverse` Trap Method]()
+    - [`shift` Trap Method]()
+    - [`splice` Trap Method]()
+    - [`unshift` Trap Method]()
 
 ## Overview
 Array Trap Methods are Array Modifier Methods with Ventability and Validatability.   
@@ -34,77 +34,110 @@ let concatArray = array.concat({
   id: 0, propertyA: true, propertyB: true
 }, {
   id: 1, propertyA: true, propertyB: false
-}, {
-  id: 2, propertyA: false, propertyB: false
-}, {
-  id: 3, propertyA: false, propertyB: true
 })
-console.log("concatArray.string", concatArray.string)
 concatArray.addEventListener("concatValue", eventLog)
 concatArray.addEventListener("concat", eventLog)
 concatArray = concatArray.concat([{
-  id: 4, propertyA: true, propertyB: true
+  id: 2, propertyA: false, propertyB: false
 }, {
-  id: 5, propertyA: true, propertyB: false
-}, {
-  id: 6, propertyA: false, propertyB: false
-}, {
-  id: 7, propertyA: false, propertyB: true
+  id: 3, propertyA: false, propertyB: true
 }])
-console.log("concatArray.string", concatArray.string)
 ```
 
-### `copyWithin` Trap Method,
+### `copyWithin` Trap Method
 ```
 const array = new Content([{
   id: 0, propertyA: true, propertyB: true
 }, {
   id: 1, propertyA: true, propertyB: false
-}, {
-  id: 2, propertyA: false, propertyB: false
-}, {
-  id: 3, propertyA: false, propertyB: true
 }])
 array.addEventListener("copyWithinIndex", eventLog)
 array.addEventListener("copyWithin", eventLog)
 array.length = 8
 array.copyWithin(4, 0, 4)
 ```
-### `fill` Trap Method,
+### `fill` Trap Method
 ```
-array.length = 12
+const array = new Content([])
+array.addEventListener("fillIndex", eventLog)
+array.addEventListener("fill", eventLog)
+array.length = 4
 array.fill({
   id: -1, propertyA: undefined, propertyB: undefined
-}, 8, array.length)
+}, 0, array.length)
 ```
-### `pop` Trap Method,
+### `pop` Trap Method
 ```
+const array = new Content([{
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}])
+array.addEventListener("pop", eventLog)
+array.pop()
 array.pop()
 ```
-### `push` Trap Method,
+### `push` Trap Method
 ```
+const array = new Content([])
+array.addEventListener("pushProp", eventLog)
+array.addEventListener("push", eventLog)
 array.push({
-  id: -1, propertyA: undefined, propertyB: undefined
+  id: 0, propertyA: true, propertyB: true
 }, {
-  id: -1, propertyA: undefined, propertyB: undefined
-}, {
-  id: -1, propertyA: undefined, propertyB: undefined
+  id: 1, propertyA: true, propertyB: false
 })
 ```
-### `reverse` Trap Method,
+### `reverse` Trap Method
 ```
+const array = new Content([{
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}])
+array.addEventListener("reverse", eventLog)
 array.reverse()
 ```
-### `shift` Trap Method,
+### `shift` Trap Method
 ```
-array.pop()
+array.shift()
 ```
-### `splice` Trap Method,
+### `splice` Trap Method
 ```
-array.splice(0, 10)
+const array = new content([{
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}, {
+  id: 2, propertyA: true, propertyB: true
+}, {
+  id: 3, propertyA: true, propertyB: false
+}])
+array.addEventListener("spliceDelete", eventLog)
+array.addEventListener("spliceAdd", eventLog)
+array.addEventListener("splice", eventLog)
+array.splice(0, 4, {
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}, {
+  id: 2, propertyA: true, propertyB: true
+}, {
+  id: 3, propertyA: true, propertyB: false
+})
 ```
-### `unshift` Trap Method,
+### `unshift` Trap Method
 ```
-array.addEventListener("unshiftProp", )
-array.unshift()
+const array = new content([{
+  id: 0, propertyA: true, propertyB: true
+}, {
+  id: 1, propertyA: true, propertyB: false
+}])
+array.addEventListener("unshiftProp", eventLog)
+array.addEventListener("unshift", eventLog)
+array.unshift({
+  id: 2, propertyA: true, propertyB: true
+}, {
+  id: 3, propertyA: true, propertyB: false
+})
 ```

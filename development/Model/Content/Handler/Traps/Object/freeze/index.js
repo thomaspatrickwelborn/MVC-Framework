@@ -12,13 +12,9 @@ export default function freeze() {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(this)) {
-      if(
-        $propertyValue.constructor.name === 'bound Content'
-      ) {
+      if($propertyValue.classToString === Content.toString()) {
         $propertyValue.freeze()
-      } else {
-        Object.freeze($propertyValue)
-      }
+      } else { Object.freeze($propertyValue) }
       const _path = (
         path !== null
       ) ? path.concat('.', $propertyKey)

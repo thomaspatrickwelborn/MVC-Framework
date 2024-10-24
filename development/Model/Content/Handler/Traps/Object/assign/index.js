@@ -5,9 +5,8 @@ export default function assign() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { recursive, events } = $options
-  const { path, root, schema } = $content
+  const { path, root, schema, proxy } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
-  const { proxy } = $content
   const sources = [...arguments]
   const assignedSources = []
   // Iterate Sources
@@ -45,7 +44,7 @@ export default function assign() {
           default: subschema = undefined
         }
         // Assign Root Content Property: Existent
-        if(root[$sourcePropKey]?.constructor.name === 'bound Content') {
+        if(root[$sourcePropKey].classToString === Content.toString()) {
           // Assign Root
           root[$sourcePropKey].assign($sourcePropVal)
           // Assigned Source
