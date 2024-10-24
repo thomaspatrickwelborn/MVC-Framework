@@ -48,7 +48,7 @@ export default function setContentProperty() {
           else { subcontent = {} }
         }
         propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
-          basename: _basename,
+          // basename: _basename,
           path: _path,
           parent: proxy,
         }))
@@ -71,7 +71,7 @@ export default function setContentProperty() {
     }
     // Return: Property
     // Value: Content
-    if($value instanceof Content) {
+    if($value.classToString === Content.toString()) {
       propertyValue = $value
     }
     // Value: Object Literal
@@ -82,7 +82,7 @@ export default function setContentProperty() {
       else { subschema = undefined }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          basename: _basename,
+          // basename: _basename,
           path: _path,
           parent: proxy,
         }
@@ -118,7 +118,7 @@ export default function setContentProperty() {
       ? path.concat('.', _basename)
       : _basename
     // Property Value: Content Instance
-    if($value instanceof Content) {
+    if($value.classToString === Content.toString()) {
       propertyValue = $value
     }
     // Property Value: New Content Instance
@@ -129,7 +129,7 @@ export default function setContentProperty() {
       else { subschema = undefined }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          basename: _basename,
+          // basename: _basename,
           path: _path,
           parent: proxy,
         }

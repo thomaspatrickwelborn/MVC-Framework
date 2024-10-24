@@ -730,8 +730,12 @@ function concat() {
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
+    // Value: Content
+    if($value.classToString === Content.toString) {
+      values[valueIndex] = value;
+    }
     // Value: Objects
-    if(typeof $value === 'object') {
+    else if(typeof $value === 'object') {
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
         parent: proxy,
@@ -1497,7 +1501,7 @@ function setContentProperty() {
           else { subcontent = {}; }
         }
         propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
-          basename: _basename,
+          // basename: _basename,
           path: _path,
           parent: proxy,
         }));
@@ -1520,7 +1524,7 @@ function setContentProperty() {
     }
     // Return: Property
     // Value: Content
-    if($value instanceof Content) {
+    if($value.classToString === Content.toString()) {
       propertyValue = $value;
     }
     // Value: Object Literal
@@ -1531,7 +1535,7 @@ function setContentProperty() {
       else { subschema = undefined; }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          basename: _basename,
+          // basename: _basename,
           path: _path,
           parent: proxy,
         }
@@ -1567,7 +1571,7 @@ function setContentProperty() {
       ? path.concat('.', _basename)
       : _basename;
     // Property Value: Content Instance
-    if($value instanceof Content) {
+    if($value.classToString === Content.toString()) {
       propertyValue = $value;
     }
     // Property Value: New Content Instance
@@ -1578,7 +1582,7 @@ function setContentProperty() {
       else { subschema = undefined; }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          basename: _basename,
+          // basename: _basename,
           path: _path,
           parent: proxy,
         }
@@ -2096,24 +2100,9 @@ class Content extends EventTarget {
   #_handler
   constructor($settings = {}, $schema = null, $options = {}) {
     super();
-    if($settings.classToString === Content.toString()) {
-      return this.#reconstructor(...arguments)
-    }
     this.settings = $settings;
     this.options = $options;
     this.schema = $schema;
-    return this.proxy
-  }
-  #reconstructor($content = {}) {
-    const {
-      settings, options, schema, type, root, handler, proxy
-    } = $content;
-    this.#_settings = settings;
-    this.#_options = options;
-    this.#_schema = schema;
-    this.#_type = type;
-    this.#_root = root;
-    this.#_handler = handler;
     return this.proxy
   }
   get settings() { return this.#_settings }

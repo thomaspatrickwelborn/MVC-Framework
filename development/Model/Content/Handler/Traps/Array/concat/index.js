@@ -37,8 +37,12 @@ export default function concat() {
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
+    // Value: Content
+    if($value.classToString === Content.toString) {
+      values[valueIndex] = value
+    }
     // Value: Objects
-    if(typeof $value === 'object') {
+    else if(typeof $value === 'object') {
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
         parent: proxy,
