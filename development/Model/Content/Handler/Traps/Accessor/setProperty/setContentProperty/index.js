@@ -48,7 +48,6 @@ export default function setContentProperty() {
           else { subcontent = {} }
         }
         propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
-          // basename: _basename,
           path: _path,
           parent: proxy,
         }))
@@ -61,8 +60,8 @@ export default function setContentProperty() {
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            basename: _basename,
-            path: _path,
+            basename, 
+            path, 
             detail: validSourceProp,
           }, $content)
         )
@@ -82,7 +81,6 @@ export default function setContentProperty() {
       else { subschema = undefined }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          // basename: _basename,
           path: _path,
           parent: proxy,
         }
@@ -96,8 +94,8 @@ export default function setContentProperty() {
     if(contentEvents && events.includes('setProperty')) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
-          basename: _basename,
-          path: _path,
+          basename, 
+          path, 
           detail: {
             key: propertyKey,
             value: propertyValue,
@@ -129,7 +127,6 @@ export default function setContentProperty() {
       else { subschema = undefined }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          // basename: _basename,
           path: _path,
           parent: proxy,
         }
@@ -143,8 +140,8 @@ export default function setContentProperty() {
     if(contentEvents && events.includes('setProperty')) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
-          basename: _basename,
-          path: _path,
+          basename, 
+          path, 
           detail: {
             key: propertyKey,
             value: propertyValue,

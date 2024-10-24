@@ -29,8 +29,8 @@ export default function concat() {
       if(schema &&validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            basename: _basename,
-            path: _path,
+            basename,
+            path,
             detail: validValue,
           }, $content)
         )
@@ -45,8 +45,8 @@ export default function concat() {
     else if(typeof $value === 'object') {
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
-        parent: proxy,
         path: _path,
+        parent: proxy,
       })
       values[valueIndex] = value
     }
@@ -58,8 +58,8 @@ export default function concat() {
     if(contentEvents && events.includes('concatValue')) {
       $content.dispatchEvent(
         new ContentEvent('concatValue', {
-          basename: _basename,
-          path: _path,
+          basename,
+          path,
           detail: {
             valueIndex,
             value: values[valueIndex],

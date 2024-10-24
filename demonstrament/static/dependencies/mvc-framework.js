@@ -722,8 +722,8 @@ function concat() {
       if(schema &&validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            basename: _basename,
-            path: _path,
+            basename,
+            path,
             detail: validValue,
           }, $content)
         );
@@ -738,8 +738,8 @@ function concat() {
     else if(typeof $value === 'object') {
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
-        parent: proxy,
         path: _path,
+        parent: proxy,
       });
       values[valueIndex] = value;
     }
@@ -751,8 +751,8 @@ function concat() {
     if(contentEvents && events.includes('concatValue')) {
       $content.dispatchEvent(
         new ContentEvent('concatValue', {
-          basename: _basename,
-          path: _path,
+          basename,
+          path,
           detail: {
             valueIndex,
             value: values[valueIndex],
@@ -816,8 +816,8 @@ function copyWithin() {
         new ContentEvent(
           'copyWithinIndex',
           {
-            basename: $content.basename,
-            path: $content.path,
+            basename,
+            path,
             detail: {
               target: targetIndex,
               start: copyIndex,
@@ -838,8 +838,8 @@ function copyWithin() {
       new ContentEvent(
         'copyWithin',
         {
-          basename: $content.basename,
-          path: $content.path,
+          basename,
+          path,
           detail: {
             target: target,
             start: start,
@@ -1501,7 +1501,6 @@ function setContentProperty() {
           else { subcontent = {}; }
         }
         propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
-          // basename: _basename,
           path: _path,
           parent: proxy,
         }));
@@ -1514,8 +1513,8 @@ function setContentProperty() {
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent$1('validateProperty', {
-            basename: _basename,
-            path: _path,
+            basename, 
+            path, 
             detail: validSourceProp,
           }, $content)
         );
@@ -1535,7 +1534,6 @@ function setContentProperty() {
       else { subschema = undefined; }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          // basename: _basename,
           path: _path,
           parent: proxy,
         }
@@ -1549,8 +1547,8 @@ function setContentProperty() {
     if(contentEvents && events.includes('setProperty')) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
-          basename: _basename,
-          path: _path,
+          basename, 
+          path, 
           detail: {
             key: propertyKey,
             value: propertyValue,
@@ -1582,7 +1580,6 @@ function setContentProperty() {
       else { subschema = undefined; }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          // basename: _basename,
           path: _path,
           parent: proxy,
         }
@@ -1596,8 +1593,8 @@ function setContentProperty() {
     if(contentEvents && events.includes('setProperty')) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
-          basename: _basename,
-          path: _path,
+          basename, 
+          path, 
           detail: {
             key: propertyKey,
             value: propertyValue,

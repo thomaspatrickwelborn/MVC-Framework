@@ -1,11 +1,11 @@
-import { Content } from '/dependencies/mvc-framework.js'
+import { Content, Schema } from '/dependencies/mvc-framework.js'
 const eventLog = ($event) => { console.log(
   "\n", "$event.type", $event.type,
   "\n", "$event.basename", $event.basename,
   "\n", "$event.path", $event.path,
   "\n", "$event.detail", $event.detail,
 ) }
-/*
+
 const array = new Content([{
   id: 0, propertyA: true, propertyB: true
 }, {
@@ -19,8 +19,16 @@ array.addEventListener("copyWithinIndex", eventLog)
 array.addEventListener("copyWithin", eventLog)
 array.length = 8
 array.copyWithin(4, 0, 4)
-*/
 
+/*
+const array = new Content([], new Schema([{ type: Number }]), {})
+array.addEventListener('setProperty', eventLog)
+array.addEventListener('set', eventLog)
+array.addEventListener('validateProperty', eventLog)
+array.set("0", 0)
+array.set("0", "0")
+*/
+/*
 const array = new Content([])
 array.addEventListener("concatValue", eventLog)
 array.addEventListener("concat", eventLog)
@@ -46,7 +54,7 @@ concatArray = concatArray.concat([{
   id: 7, propertyA: false, propertyB: true
 }])
 console.log("concatArray.string", concatArray.string)
-
+*/
 /*
 import { Core } from '/dependencies/mvc-framework.js'
 const $eventTargetProperty = document.querySelector('body')

@@ -40,8 +40,8 @@ export default function copyWithin() {
         new ContentEvent(
           'copyWithinIndex',
           {
-            basename: $content.basename,
-            path: $content.path,
+            basename,
+            path,
             detail: {
               target: targetIndex,
               start: copyIndex,
@@ -62,8 +62,8 @@ export default function copyWithin() {
       new ContentEvent(
         'copyWithin',
         {
-          basename: $content.basename,
-          path: $content.path,
+          basename,
+          path,
           detail: {
             target: target,
             start: start,
