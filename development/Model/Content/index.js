@@ -3,7 +3,7 @@ import Handler from './Handler/index.js'
 import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
 export default class Content extends EventTarget {
-  #_settings
+  #_properties
   #_options
   #_schema
   #_type
@@ -13,18 +13,18 @@ export default class Content extends EventTarget {
   #_path
   #_proxy
   #_handler
-  constructor($settings = {}, $schema = null, $options = {}) {
+  constructor($properties = {}, $schema = null, $options = {}) {
     super()
-    this.settings = $settings
+    this.#properties = $properties
     this.options = $options
     this.schema = $schema
     return this.proxy
   }
-  get settings() { return this.#_settings }
-  set settings($settings) {
-    if(this.#_settings !== undefined) return
-    this.#_settings = $settings
-    return this.#_settings
+  get #properties() { return this.#_properties }
+  set #properties($properties) {
+    if(this.#_properties !== undefined) return
+    this.#_properties = $properties
+    return this.#_properties
   }
   get options() { return this.#_options }
   set options($options) {
@@ -50,7 +50,7 @@ export default class Content extends EventTarget {
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.settings)
+    this.#_type = typeOf(this.#properties)
     return this.#_type
   }
   get typedObjectLiteral() {
@@ -88,7 +88,7 @@ export default class Content extends EventTarget {
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     this.#_proxy = new Proxy(this.root, this.#handler)
-    this.#_proxy.set(this.settings)
+    this.#_proxy.set(this.#properties)
     return this.#_proxy
   }
   // Handler

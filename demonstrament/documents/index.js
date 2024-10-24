@@ -1,4 +1,4 @@
-import { Content, Schema } from '/dependencies/mvc-framework.js'
+import { Content } from '/dependencies/mvc-framework.js'
 const eventLog = ($event) => { console.log(
   "\n", "$event.type", $event.type,
   "\n", "$event.basename", $event.basename,

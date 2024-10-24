@@ -1961,7 +1961,7 @@ var Options$5 = {
 };
 
 class Content extends EventTarget {
-  #_settings
+  #_properties
   #_options
   #_schema
   #_type
@@ -1971,18 +1971,18 @@ class Content extends EventTarget {
   #_path
   #_proxy
   #_handler
-  constructor($settings = {}, $schema = null, $options = {}) {
+  constructor($properties = {}, $schema = null, $options = {}) {
     super();
-    this.settings = $settings;
+    this.#properties = $properties;
     this.options = $options;
     this.schema = $schema;
     return this.proxy
   }
-  get settings() { return this.#_settings }
-  set settings($settings) {
-    if(this.#_settings !== undefined) return
-    this.#_settings = $settings;
-    return this.#_settings
+  get #properties() { return this.#_properties }
+  set #properties($properties) {
+    if(this.#_properties !== undefined) return
+    this.#_properties = $properties;
+    return this.#_properties
   }
   get options() { return this.#_options }
   set options($options) {
@@ -2008,7 +2008,7 @@ class Content extends EventTarget {
   // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.settings);
+    this.#_type = typeOf(this.#properties);
     return this.#_type
   }
   get typedObjectLiteral() {
@@ -2046,7 +2046,7 @@ class Content extends EventTarget {
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     this.#_proxy = new Proxy(this.root, this.#handler);
-    this.#_proxy.set(this.settings);
+    this.#_proxy.set(this.#properties);
     return this.#_proxy
   }
   // Handler
@@ -2287,81 +2287,81 @@ var Options$4 = {
 
 const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
-  settings
+  properties
   options
   #_contextType
   #_context
-  constructor($settings = {}, $options = {}) {
+  constructor($properties = {}, $options = {}) {
     super();
-    this.settings = $settings;
+    this.properties = $properties;
     this.options = Object.assign({}, Options$4, $options);
     this.context;
   }
   get validationType() { return this.options.validationType }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
-    if(Array.isArray(this.settings)) { this.#_contextType = 'array'; }
-    else if(typeOf(this.settings) === 'object') { this.#_contextType = 'object'; }
+    if(Array.isArray(this.properties)) { this.#_contextType = 'array'; }
+    else if(typeOf(this.properties) === 'object') { this.#_contextType = 'object'; }
     return this.#_contextType
   }
   get context() {
     if(this.#_context !== undefined) return this.#_context
-    let settings;
+    let properties;
     if(this.contextType === 'array') {
-      settings = this.settings.slice(0, 1);
+      properties = this.properties.slice(0, 1);
       this.#_context = [];
     }
     else if(this.contextType === 'object') {
-      settings = this.settings; 
+      properties = this.properties; 
       this.#_context = {};
     }
     for(const [
       $contextKey, $contextVal
-    ] of Object.entries(settings)) {
+    ] of Object.entries(properties)) {
       // Context Validators: Transform
       const addValidators = [];
       // Context Validator: Add Range
       if(
-        typeof settings[$contextKey].min === 'number' || 
-        typeof settings[$contextKey].max === 'number'
+        typeof properties[$contextKey].min === 'number' || 
+        typeof properties[$contextKey].max === 'number'
       ) addValidators.push(new RangeValidator());
       // Context Validator: Add Length
       if(
-        typeof settings[$contextKey].minLength === 'number' ||
-        typeof settings[$contextKey].maxLength === 'number'
+        typeof properties[$contextKey].minLength === 'number' ||
+        typeof properties[$contextKey].maxLength === 'number'
       ) addValidators.push(new LengthValidator());
       // Context Validator: Add Enum
       if(
-        Array.isArray(settings[$contextKey].enum) &&
-        settings[$contextKey].enum.length > 0
+        Array.isArray(properties[$contextKey].enum) &&
+        properties[$contextKey].enum.length > 0
       ) addValidators.push(new EnumValidator());
       // Context Validators: Concat
-      settings[$contextKey].validators = Validators.concat(
-        addValidators, settings[$contextKey].validators || []
+      properties[$contextKey].validators = Validators.concat(
+        addValidators, properties[$contextKey].validators || []
       );
       // Context Val Type: Schema Instance
-      if(settings[$contextKey].type instanceof Schema) {
-        this.#_context[$contextKey] = settings[$contextKey];
+      if(properties[$contextKey].type instanceof Schema) {
+        this.#_context[$contextKey] = properties[$contextKey];
       }
       // Context Val Type: Primitive Prototype
-      else if(Object.values(Primitives).includes(settings[$contextKey].type)) {
-        this.#_context[$contextKey] = settings[$contextKey];
+      else if(Object.values(Primitives).includes(properties[$contextKey].type)) {
+        this.#_context[$contextKey] = properties[$contextKey];
       }
       // Context Val Type: Object Prototype
-      else if(Object.values(Objects).includes(settings[$contextKey].type)) {
+      else if(Object.values(Objects).includes(properties[$contextKey].type)) {
         this.#_context[$contentKey] = new Schema(
-          new settings[$contentKey].type(), this.options
+          new properties[$contentKey].type(), this.options
         );
       }
       // Context Val Type: Object Literal
-      else if(Object.keys(Objects).includes(typeOf(settings[$contextKey].type))) {
+      else if(Object.keys(Objects).includes(typeOf(properties[$contextKey].type))) {
         this.#_context[$contextKey] = new Schema(
-          settings[$contextKey].type, this.options
+          properties[$contextKey].type, this.options
         );
       }
       // Context Val Type: Primitive Literal
       else {
-        this.#_context[$contextKey] = settings[$contextKey];
+        this.#_context[$contextKey] = properties[$contextKey];
       }
     }
     return this.#_context

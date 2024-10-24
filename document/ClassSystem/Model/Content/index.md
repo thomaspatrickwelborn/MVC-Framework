@@ -144,9 +144,9 @@ Default Content Options.
  - When `$schema` is instance of `Schema`, `#_schema` assigned `$schema` value.  
  - When `$schema` is an `Array` literal, create a new `Schema` Class Instance with options. 
  - When `$schema` is an `Object` literal, create a new `Schema` without options.  
-### `Class` Property
+### `classToString` Property
 **Type**: `get`  
-**Return**: `Content` Class
+**Return**: `Content.toString` Invocation
 ### `object` Property
 **Type**: `get`  
 **Return**: `parse` invocation with "object" type.  
