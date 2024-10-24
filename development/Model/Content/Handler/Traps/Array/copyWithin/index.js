@@ -3,7 +3,7 @@ export default function copyWithin() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, basename, path } = $content
+  const { root, path } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const $arguments = [...arguments]
   const target = (
@@ -40,7 +40,6 @@ export default function copyWithin() {
         new ContentEvent(
           'copyWithinIndex',
           {
-            basename,
             path,
             detail: {
               target: targetIndex,
@@ -62,7 +61,6 @@ export default function copyWithin() {
       new ContentEvent(
         'copyWithin',
         {
-          basename,
           path,
           detail: {
             target: target,

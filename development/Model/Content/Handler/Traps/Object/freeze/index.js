@@ -5,7 +5,7 @@ export default function freeze() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { recursive, events } = $options
-  const { root, basename, path } = $content
+  const { root, path } = $content
   const { proxy } = $content
   if(recursive === true) {
     iterateProperties: 
@@ -19,7 +19,6 @@ export default function freeze() {
       } else {
         Object.freeze($propertyValue)
       }
-      const _basename = $propertyKey
       const _path = (
         path !== null
       ) ? path.concat('.', $propertyKey)
@@ -28,10 +27,7 @@ export default function freeze() {
         $content.dispatchEvent(
           new ContentEvent(
             'freeze',
-            {
-              path: _path,
-              basename: _basename,
-            },
+            { path: _path },
             $content
           )
         )

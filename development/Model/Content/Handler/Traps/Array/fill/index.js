@@ -5,38 +5,31 @@ export default function fill() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, basename, path, schema } = $content
+  const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments]
   let start
   if(typeof $arguments[1] === 'number') {
-    start = (
-      $arguments[1] >= 0
-    ) ? $arguments[1]
+    start = ($arguments[1] >= 0)
+      ? $arguments[1]
       : root.length + $arguments[1]
-  } else {
-    start = 0
   }
+  else { start = 0 }
   let end
   if(typeof $arguments[2] === 'number') {
-    end = (
-      $arguments[2] >= 0
-    ) ? $arguments[2]
+    end = ($arguments[2] >= 0)
+      ? $arguments[2]
       : root.length + $arguments[2]
-  } else {
-    end = root.length
-  }
+  } else { end = root.length }
   let fillIndex = start
   iterateFillIndexes: 
   while(
     fillIndex < root.length &&
     fillIndex < end
   ) {
-    const _basename = fillIndex
-    const _path = (
-      path !== null
-    ) ? path.concat('.', fillIndex)
+    const _path = (path !== null)
+      ? path.concat('.', fillIndex)
       : fillIndex
     
     if(schema && enableValidation) {
@@ -44,8 +37,7 @@ export default function fill() {
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            basename: _basename,
-            path: _path,
+            path, 
             detail: validValue,
           }, $content)
         )
@@ -58,7 +50,6 @@ export default function fill() {
     )) {
       const subschema = schema?.context[0] || null
       value = new Content(value, subschema, {
-        basename: _basename,
         path: _path,
         parent: proxy,
       })
@@ -70,8 +61,7 @@ export default function fill() {
     if(contentEvents && events.includes('fillIndex')) {
       $content.dispatchEvent(
         new ContentEvent('fillIndex', {
-          basename: _basename,
-          path: _path,
+          path, 
           detail: {
             start: fillIndex,
             end: fillIndex + 1,
@@ -86,7 +76,6 @@ export default function fill() {
   if(contentEvents && events.includes('fill')) {
     $content.dispatchEvent(
       new ContentEvent('fill', {
-        basename,
         path,
         detail: {
           start,

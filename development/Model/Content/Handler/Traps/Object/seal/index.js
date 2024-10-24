@@ -5,7 +5,7 @@ export default function seal() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { recursive, events } = $options
-  const { root,  basename, path } = $content
+  const { root,  path } = $content
   const { proxy } = $content
   if(recursive === true) {
     iterateProperties: 
@@ -19,7 +19,6 @@ export default function seal() {
       } else {
         Object.seal($propertyValue)
       }
-      const basename = $propertyKey
       const path = (
         path !== null
       ) ? path.concat('.', $propertyKey)
@@ -30,7 +29,6 @@ export default function seal() {
             'seal',
             {
               path,
-              basename,
             },
             $content
           )

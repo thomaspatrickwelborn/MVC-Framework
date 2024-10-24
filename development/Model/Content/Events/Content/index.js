@@ -27,7 +27,11 @@ export default class ContentEvent extends Event {
       }
     )
   }
-  get basename() { return this.#settings.basename }
+  get basename() {
+    const { path } = this.#settings
+    if(!path) { return null }
+    return path.split('.').pop()
+  }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
 }

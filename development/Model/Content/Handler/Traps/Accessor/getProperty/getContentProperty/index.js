@@ -18,15 +18,13 @@ export default function getContentProperty() {
     if(subpaths.length) {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
-    const _basename = propertyKey
     const _path = (path !== null)
-      ? path.concat('.', _basename)
-      : _basename
+      ? path.concat('.', propertyKey)
+      : propertyKey
     // Delete Property Event
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          basename: _basename,
           path: _path,
           detail: {
             key: propertyKey,

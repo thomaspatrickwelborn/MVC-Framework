@@ -3,7 +3,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function deleteContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { root, basename, path } = $content
+  const { root, path } = $content
   const { contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
@@ -19,10 +19,9 @@ export default function deleteContentProperty() {
     if(subpaths.length) {
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
-    const _basename = propertyKey
     const _path = (path !== null)
-      ? path.concat('.', _basename)
-      : _basename
+      ? path.concat('.', propertyKey)
+      : propertyKey
     if(typeof propertyValue === 'object') {
       propertyValue.delete(ulteroptions)
     }
@@ -31,7 +30,6 @@ export default function deleteContentProperty() {
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          basename: _basename,
           path: _path,
           detail: {
             key: propertyKey,
@@ -46,10 +44,9 @@ export default function deleteContentProperty() {
   else if(pathkey === false) {
     const propertyKey = $path
     const propertyValue = root[propertyKey]
-    const _basename = propertyKey
     const _path = (path !== null)
-      ? path.concat('.', _basename)
-      : _basename
+      ? path.concat('.', propertyKey)
+      : propertyKey
     if(propertyValue instanceof Content) {
       propertyValue.delete(ulteroptions)
     }
@@ -58,7 +55,6 @@ export default function deleteContentProperty() {
     if(contentEvents && events.includes('deleteProperty')) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
-          basename: _basename,
           path: _path,
           detail: {
             key: propertyKey,

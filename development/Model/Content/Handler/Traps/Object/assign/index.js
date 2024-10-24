@@ -5,7 +5,7 @@ export default function assign() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { recursive, events } = $options
-  const { basename, path, root, schema } = $content
+  const { path, root, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const sources = [...arguments]
@@ -19,17 +19,15 @@ export default function assign() {
     // Iterate Source Props
     iterateSourceProps:
     for(let [$sourcePropKey, $sourcePropVal] of Object.entries($source)) {
-      const _basename = $sourcePropKey
       const _path = (path !== null)
-        ? path.concat('.', _basename)
-        : _basename
+        ? path.concat('.', $sourcePropKey)
+        : $sourcePropKey
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal)
         if(validationEvents) {
           $content.dispatchEvent(
             new ValidatorEvent('validateProperty', {
-              basename: _basename,
               path: _path,
               detail: validSourceProp,
             }, $content)
@@ -58,7 +56,6 @@ export default function assign() {
         // Assign Root Content Property: Non-Existent
         else {
           const contentObject = new Content($sourcePropVal, subschema, Object.assign({
-            basename: _basename,
             parent: proxy,
             path: _path,
           }, $options))
@@ -87,7 +84,6 @@ export default function assign() {
       if(contentEvents && events.includes('assignSourceProperty')) {
         $content.dispatchEvent(
           new ContentEvent('assignSourceProperty', {
-            basename: _basename,
             path: _path,
             detail: {
               key: $sourcePropKey,
@@ -103,7 +99,6 @@ export default function assign() {
     if(contentEvents && events.includes('assignSource')) {
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
-          basename,
           path,
           detail: {
             source: assignedSource,
@@ -116,7 +111,6 @@ export default function assign() {
   if(contentEvents && events.includes('assign')) {
     $content.dispatchEvent(
       new ContentEvent('assign', { 
-        basename,
         path,
         detail: {
           assignedSources

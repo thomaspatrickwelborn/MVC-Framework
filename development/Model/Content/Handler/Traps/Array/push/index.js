@@ -5,14 +5,13 @@ export default function push() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, basename, path, schema } = $content
+  const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const elements = []
   let elementsIndex = 0
   iterateElements:
   for(let $element of arguments) {
-    const _basename = elementsIndex
     const _path = (path !== null)
       ? path.concat('.', elementsIndex)
       : elementsIndex
@@ -22,7 +21,6 @@ export default function push() {
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            basename: _basename,
             path: _path,
             detail: validElement,
           }, $content)
@@ -33,7 +31,6 @@ export default function push() {
     if(isDirectInstanceOf($element, [Object, Array/*, Map*/])) {
     const subschema = schema?.context[0] || null
       $element = new Content($element, subschema, {
-        basename: _basename,
         path: _path,
         parent: proxy,
       })
@@ -46,7 +43,6 @@ export default function push() {
     if(contentEvents && events.includes('pushProp')) {
       $content.dispatchEvent(
         new ContentEvent('pushProp', {
-          basename: _basename,
           path: _path,
           detail: {
             elementsIndex,
@@ -61,7 +57,6 @@ export default function push() {
   if(contentEvents && events.includes('push')) {
     $content.dispatchEvent(
       new ContentEvent('push', {
-        basename,
         path,
         detail: {
           elements,

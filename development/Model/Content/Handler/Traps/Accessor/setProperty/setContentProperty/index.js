@@ -3,7 +3,7 @@ import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function setContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { root, basename, path, schema } = $content
+  const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
@@ -24,10 +24,9 @@ export default function setContentProperty() {
     const propertyKey = subpaths.shift()
     // Property Value
     let propertyValue
-    const _basename = propertyKey
     const _path = (path !== null)
-      ? String(path).concat('.', _basename)
-      : _basename
+      ? String(path).concat('.', propertyKey)
+      : propertyKey
     // Return: Subproperty
     if(subpaths.length) {
       propertyValue = root[propertyKey]
@@ -60,7 +59,6 @@ export default function setContentProperty() {
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            basename, 
             path, 
             detail: validSourceProp,
           }, $content)
@@ -94,7 +92,6 @@ export default function setContentProperty() {
     if(contentEvents && events.includes('setProperty')) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
-          basename, 
           path, 
           detail: {
             key: propertyKey,
@@ -111,10 +108,9 @@ export default function setContentProperty() {
   // Path Key: false
   else if(pathkey === false) {
     let propertyKey = $path
-    const _basename = propertyKey
     const _path = (path !== null)
-      ? path.concat('.', _basename)
-      : _basename
+      ? path.concat('.', propertyKey)
+      : propertyKey
     // Property Value: Content Instance
     if($value.classToString === Content.toString()) {
       propertyValue = $value
@@ -140,7 +136,6 @@ export default function setContentProperty() {
     if(contentEvents && events.includes('setProperty')) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
-          basename, 
           path, 
           detail: {
             key: propertyKey,

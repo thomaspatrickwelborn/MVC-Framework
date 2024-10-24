@@ -6,7 +6,6 @@ export default function pop() {
   const { root, basename, path } = $content
   const popElement = Array.prototype.pop.call(root)
   const popElementIndex = root.length - 1
-  const _basename = popElementIndex
   const _path = (
     path !== null
   ) ? path.concat('.', popElementIndex)
@@ -17,7 +16,6 @@ export default function pop() {
       new ContentEvent(
         'pop',
         {
-          _basename,
           _path,
           detail: {
             element: popElement,

@@ -5,12 +5,11 @@ export default function defineProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { descriptorValueMerge, descriptorTree, events } = $options
-  const { root, basename, path, schema } = $content
+  const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const propertyKey = arguments[0]
   const propertyDescriptor = arguments[1]
-  const _basename = propertyKey
   const _path = (
     path !== null
   ) ? path.concat('.', propertyKey)
@@ -21,7 +20,6 @@ export default function defineProperty() {
     if(validationEvents) {
       $content.dispatchEvent(
         new ValidatorEvent('validateProperty', {
-          basename: _basename,
           path: _path,
           detail: validSourceProp,
         }, $content)
@@ -67,7 +65,6 @@ export default function defineProperty() {
           : {}
         const contentObject = new Content(
           _root, subschema, {
-            basename: _basename,
             parent: proxy,
             path: _path,
             rootAlias,
@@ -93,7 +90,6 @@ export default function defineProperty() {
   if(contentEvents && events.includes('defineProperty')) {
     $content.dispatchEvent(
       new ContentEvent('defineProperty', {
-        basename: _basename,
         path: _path,
         detail: {
           prop: propertyKey,

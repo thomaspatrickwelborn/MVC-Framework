@@ -5,7 +5,7 @@ export default function defineProperties() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, rootAlias, basename, path, schema } = $content
+  const { root, rootAlias, path, schema } = $content
   const  { proxy } = $content
   const $propertyDescriptors = arguments[0]
   const properties = Object.entries($propertyDescriptors)
@@ -29,7 +29,6 @@ export default function defineProperties() {
       new ContentEvent(
         'defineProperties',
         {
-          basename,
           path,
           detail: {
             descriptors: $propertyDescriptors,

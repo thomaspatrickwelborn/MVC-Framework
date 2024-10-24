@@ -6,7 +6,7 @@ export default function unshift() {
   const $options = Array.prototype.shift.call(arguments)
   const $arguments = [...arguments]
   const { events } = $options
-  const { root, basename, path, schema } = $content
+  const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const elements = []
   const elementsLength = $arguments.length
@@ -15,7 +15,6 @@ export default function unshift() {
   while(elementIndex > -1) {
     const elementsLength = $arguments.length
     let element = $arguments[elementIndex]
-    const _basename = elementIndex
     const _path = (
       path !== null
     ) ? path.concat('.', elementIndex)
@@ -26,7 +25,6 @@ export default function unshift() {
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            basename: _basename,
             path: _path,
             detail: validElement,
           }, $content)
@@ -38,7 +36,6 @@ export default function unshift() {
     if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
       const subschema = schema?.context[0] || null
       element = new Content(element, subschema, {
-        basename: _basename,
         path: _path,
         parent: proxy,
       })
@@ -53,7 +50,6 @@ export default function unshift() {
     if(contentEvents && events.includes('unshiftProp')) {
       $content.dispatchEvent(
         new ContentEvent('unshiftProp', {
-          basename: _basename,
           path: _path,
           detail: {
             elementIndex, 
@@ -65,7 +61,6 @@ export default function unshift() {
     elementIndex--
   }
   // Array Unshift Event
-  const _basename = elementIndex
   const _path = (
     path !== null
   ) ? path.concat('.', elementIndex)
@@ -73,7 +68,6 @@ export default function unshift() {
   if(contentEvents && events.includes('unshift') && elements.length) {
     $content.dispatchEvent(
       new ContentEvent('unshift', {
-        basename: _basename,
         path: _path,
         detail: {
           elements,
