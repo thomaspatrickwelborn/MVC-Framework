@@ -39,7 +39,7 @@ export default function concat() {
     if($value.classToString === Content.toString) {
       values[valueIndex] = value
     }
-    // Value: Objects
+    // Value: Object Type
     else if(typeof $value === 'object') {
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
@@ -48,7 +48,7 @@ export default function concat() {
       })
       values[valueIndex] = value
     }
-    // Value: Primitives
+    // Value: Primitive Type
     else {
       values[valueIndex] = $value
     }

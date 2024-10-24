@@ -358,7 +358,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
 function assign() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { recursive, events } = $options;
+  const { sourceTree, events } = $options;
   const { path, root, schema, proxy } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const sources = [...arguments];
@@ -378,65 +378,68 @@ function assign() {
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal);
         if(validationEvents) {
+          // Validator Event: Validate Property
           $content.dispatchEvent(
             new ValidatorEvent$1('validateProperty', {
-              path: _path,
+              path,
               detail: validSourceProp,
             }, $content)
           );
         }
         if(!validSourceProp.valid) { continue iterateSourceProps }
       }
-      // Assign Root Content Property
       // Source Prop: Object Type
-      if(isDirectInstanceOf($sourcePropVal, [Object, Array/*, Map*/])) {
+      if(typeof $sourcePropVal === 'object') {
+        // Subschema
         let subschema;
-        switch(schema.contextType) {
-          case 'array': subschema = schema.context[0]; break
-          case 'object': subschema = schema.context[$sourcePropKey]; break
-          default: subschema = undefined;
+        if(schema?.contextType === 'array') { subschema = schema.context[0]; }
+        else if(schema?.contextType === 'object') { subschema = schema.context[$sourcePropKey]; }
+        else { subschema = null; }
+        // Content
+        const content = new Content($sourcePropVal, subschema, recursiveAssign({}, $content.options, {
+          path: _path,
+          parent: proxy,
+        }));
+        // Assignment
+        let assignment;
+        // Source Tree: False
+        if(sourceTree === false) {
+          assignment = { [$sourcePropKey]: content };
         }
-        // Assign Root Content Property: Existent
-        if(root[$sourcePropKey].classToString === Content.toString()) {
-          // Assign Root
-          root[$sourcePropKey].assign($sourcePropVal);
-          // Assigned Source
-          Object.assign(assignedSource, {
-            [$sourcePropKey]: $sourcePropVal
-          });
-        }
-        // Assign Root Content Property: Non-Existent
+        // Source Tree: true
         else {
-          const contentObject = new Content($sourcePropVal, subschema, Object.assign({
-            parent: proxy,
-            path: _path,
-          }, $options));
-          // Assign Root
-          Object.assign(root, {
-            [$sourcePropKey]: contentObject
-          });
-          // Assigned Source
-          Object.assign(assignedSource, {
-            [$sourcePropKey]: contentObject
-          });
+          const sourcePropVal = root[$sourcePropKey];
+          // Assignment: Existing Content Instance
+          if(sourcePropVal?.classToString === Content.toString()) {
+            sourcePropVal.assign($sourcePropVal);
+            assignment = {
+              [$sourcePropKey]: sourcePropVal
+            };
+          }
+          // Assignment: New Content Instance
+          else {
+            assignment = { [$sourcePropKey]: content };
+          }
         }
+        // Assignment
+        Object.assign(root, assignment);
+        Object.assign(assignedSource, assignment);
       }
       // Source Prop: Primitive Type
       else {
+        const assignment = {
+          [$sourcePropKey]: $sourcePropVal
+        };
         // Assign Root
-        Object.assign(root, {
-          [$sourcePropKey]: $sourcePropVal
-        });
+        Object.assign(root, assignment);
         // Assigned Source
-        Object.assign(assignedSource, {
-          [$sourcePropKey]: $sourcePropVal
-        });
+        Object.assign(assignedSource, assignment);
       }
-      // Assign Source Property Event
+      // Content Event: Assign Source Property
       if(contentEvents && events.includes('assignSourceProperty')) {
         $content.dispatchEvent(
           new ContentEvent('assignSourceProperty', {
-            path: _path,
+            path,
             detail: {
               key: $sourcePropKey,
               val: $sourcePropVal,
@@ -447,7 +450,7 @@ function assign() {
       }
     }
     assignedSources.push(assignedSource);
-    // Assign Source Event
+    // Content Event: Assign Source
     if(contentEvents && events.includes('assignSource')) {
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
@@ -459,7 +462,7 @@ function assign() {
       );
     }
   }
-  // Assign Event
+  // Content Event: Assign
   if(contentEvents && events.includes('assign')) {
     $content.dispatchEvent(
       new ContentEvent('assign', { 
@@ -514,7 +517,7 @@ function defineProperties() {
 function defineProperty() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { descriptorValueMerge, descriptorTree, events } = $options;
+  const { descriptorTree, events } = $options;
   const { root, path, schema, proxy } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const propertyKey = arguments[0];
@@ -536,51 +539,49 @@ function defineProperty() {
     }
     if(!validSourceProp.valid) { return proxy }
   }
-  // Property Descriptor Value: Direct Instance Array/Object
-  if(isDirectInstanceOf(propertyDescriptor.value, [Object, Array])) {
+  // Property Descriptor Value: Object Type
+  if(typeof propertyDescriptor.value === 'object') {
+    // Subschema
     let subschema;
-    switch(schema.contextType) {
-      case 'array': subschema = schema.context[0]; break
-      case 'object': subschema = schema.context[propertyKey]; break
-      default: subschema = undefined; break
-    }
-      const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(root, propertyKey) || {};
-      // Root Property Descriptor Value: Existent Content Instance
-      if(rootPropertyDescriptor.value.classToString === Content.toString()) {
-        // Root Define Properties, Descriptor Tree
-        if(descriptorTree === true) {
-          rootPropertyDescriptor.value.defineProperties(propertyDescriptor.value);
-        }
-        // Root Define Properties, No Descriptor Tree
-        else {
-          Object.defineProperty(root, propertyKey, propertyDescriptor);
-        }
+    if(schema.contextType === 'array') { subschema = schema.context[0]; }
+    else if(schema.contextType === 'object') { subschema = schema.context[propertyKey]; }
+    else { subschema = undefined;}
+    const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(root, propertyKey) || {};
+    // Root Property Descriptor Value: Existent Content Instance
+    if(rootPropertyDescriptor.value.classToString === Content.toString()) {
+      // Descriptor Tree: true
+      if(descriptorTree === true) {
+        rootPropertyDescriptor.value.defineProperties(propertyDescriptor.value);
       }
-      // Root Property Descriptor Value: Non-Existent DET Instance
+      // Descriptor Tree: false
       else {
-        let _root;
-        if(typeOf(propertyDescriptor.value) === 'object') { _root = {}; }
-        else if (typeOf(propertyDescriptor.value) === 'array') { _root = []; }
-        else { _root = {}; }
-        const contentObject = new Content(
-          _root, subschema, {
-            parent: proxy,
-            path: _path,
-          }
-        );
-        // Root Define Properties, Descriptor Tree
-        if(descriptorTree === true) {
-          contentObject.defineProperties(propertyDescriptor.value);
-          root[propertyKey] = contentObject;
-        } else 
-        // Root Define Properties, No Descriptor Tree
-        if(descriptorTree === false) {
-          Object.defineProperty(root, propertyKey, propertyDescriptor);
-        }
+        Object.defineProperty(root, propertyKey, propertyDescriptor);
       }
-    // }
+    }
+    // Root Property Descriptor Value: New Content Instance
+    else {
+      let _root;
+      if(typeOf(propertyDescriptor.value) === 'object') { _root = {}; }
+      else if (typeOf(propertyDescriptor.value) === 'array') { _root = []; }
+      else { _root = {}; }
+      const contentObject = new Content(
+        _root, subschema, {
+          parent: proxy,
+          path: _path,
+        }
+      );
+      // Root Define Properties, Descriptor Tree
+      if(descriptorTree === true) {
+        contentObject.defineProperties(propertyDescriptor.value);
+        root[propertyKey] = contentObject;
+      } else 
+      // Root Define Properties, No Descriptor Tree
+      if(descriptorTree === false) {
+        Object.defineProperty(root, propertyKey, propertyDescriptor);
+      }
+    }
   }
-  // Property Descriptor Value Not Array/Object/Map
+  // Property Descriptor Value: Primitive Type
   else {
     Object.defineProperty(root, propertyKey, propertyDescriptor);
   }
@@ -608,26 +609,23 @@ function freeze() {
   if(recursive === true) {
     for(const [
       $propertyKey, $propertyValue
-    ] of Object.entries(this)) {
+    ] of Object.entries(root)) {
       if($propertyValue.classToString === Content.toString()) {
         $propertyValue.freeze();
-      } else { Object.freeze($propertyValue); }
-      const _path = (
-        path !== null
-      ) ? path.concat('.', $propertyKey)
-        : $propertyKey;
+      }
+      else { Object.freeze($propertyValue); }
       if(contentEvents && events.includes('freeze')) {
         $content.dispatchEvent(
           new ContentEvent(
             'freeze',
-            { path: _path },
+            { path },
             $content
           )
         );
       }
     }
   }
-  Object.freeze(this);
+  Object.freeze(root);
   return proxy
 }
 
@@ -635,33 +633,28 @@ function seal() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { recursive, events } = $options;
+  const { root, path } = $content;
   const { proxy } = $content;
   if(recursive === true) {
     for(const [
       $propertyKey, $propertyValue
-    ] of Object.entries(this)) {
+    ] of Object.entries(root)) {
       if($propertyValue.classToString === Content.toString()) {
         $propertyValue.seal();
       }
       else { Object.seal($propertyValue); }
-      const path = (
-        path !== null
-      ) ? path.concat('.', $propertyKey)
-        : $propertyKey;
       if(contentEvents && events.includes('seal')) {
         $content.dispatchEvent(
           new ContentEvent(
             'seal',
-            {
-              path,
-            },
+            { path },
             $content
           )
         );
       }
     }
   }
-  Object.seal(this);
+  Object.seal(root);
   return proxy
 }
 
@@ -711,7 +704,7 @@ function concat() {
     if($value.classToString === Content.toString) {
       values[valueIndex] = value;
     }
-    // Value: Objects
+    // Value: Object Type
     else if(typeof $value === 'object') {
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
@@ -720,7 +713,7 @@ function concat() {
       });
       values[valueIndex] = value;
     }
-    // Value: Primitives
+    // Value: Primitive Type
     else {
       values[valueIndex] = $value;
     }
@@ -1205,7 +1198,7 @@ function unshift() {
           }, $content)
         );
       }
-      if(!validElement.valid) { return root.length }
+      if(!validElement.valid) { return proxy.length }
     }
 
     if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
@@ -1251,7 +1244,7 @@ function unshift() {
       $content)
     );
   }
-  return root.length
+  return proxy.length
 }
 
 var ArrayProperty = {
@@ -1403,7 +1396,7 @@ function setContentProperty() {
   );
   const contentOptions = $content.options;
   contentOptions.traps.accessor.set = ulteroptions;
-  const { recursive, events, pathkey } = ulteroptions;
+  const { events, pathkey } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -1827,6 +1820,7 @@ class Handler {
     this.#_traps = new Traps(this.#content);
     return this.#_traps
   }
+  // Enabled Trap
   get get() {
     const content = this.#content;
     const traps = this.#traps;
@@ -1858,6 +1852,7 @@ class Handler {
     }
   }
   // Disabled Traps
+  get apply() {}
   get construct() {}
   get deleteProperty() {}
   get defineProperty() {}
@@ -1911,8 +1906,8 @@ var Options$5 = {
         ],
       },
       set: {
-        pathkey: true,
         recursive: true,
+        pathkey: true,
         events: [
           'set',
           'setProperty'
@@ -1928,7 +1923,7 @@ var Options$5 = {
     },
     object: {
       assign: {
-        recursive: true,
+        sourceTree: true,
         events: [
           'assignSourceProperty',
           'assignSource',
@@ -1936,12 +1931,10 @@ var Options$5 = {
         ],
       },
       defineProperties: {
-        recursive: true, 
         descriptorTree: true,
         events: ['defineProperties'],
       },
       defineProperty: {
-        recursive: true, 
         descriptorTree: true,
         events: ['defineProperty'],
       },

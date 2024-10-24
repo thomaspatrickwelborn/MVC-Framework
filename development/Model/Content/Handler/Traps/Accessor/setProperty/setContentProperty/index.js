@@ -16,7 +16,7 @@ export default function setContentProperty() {
   )
   const contentOptions = $content.options
   contentOptions.traps.accessor.set = ulteroptions
-  const { recursive, events, pathkey } = ulteroptions
+  const { events, pathkey } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
     // Subpaths

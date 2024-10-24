@@ -7,7 +7,6 @@ See Also: [Content Guide](../../../Guide/Model/Content/index.md)
 **Contents**:  
  - [`Settings` Property]()
  - [`Options` Property]()
-   - [`basename` Option]()
    - [`path` Option]()
    - [`parent` Option]()
    - [`enableValidation` Option]()
@@ -54,7 +53,6 @@ No default Content Settings.
 Default Content Options.  
 ```
 {
-  basename: null,
   path: null,
   parent: null,
   enableValidation: true,

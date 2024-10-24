@@ -5,7 +5,40 @@ const eventLog = ($event) => { console.log(
   "\n", "$event.path", $event.path,
   "\n", "$event.detail", $event.detail,
 ) }
-
+const object = new Content({
+  propertyA: {
+    propertyB: {
+      propertyC: 333,
+      propertyD: "DDD",
+      propertyE: false
+    }
+  },
+  propertyF: {
+    propertyG: {
+      propertyH: 888,
+      propertyI: "III",
+      propertyJ: true
+    }
+  }
+})
+object.addEventListener("assign", eventLog)
+object.addEventListener("assignSource", eventLog)
+object.addEventListener("assignSourceProperty", eventLog)
+object.assign({
+  propertyA: {
+    propertyB: {
+      propertyC: 333333
+    }
+  }
+})
+// , {
+//   propertyF: {
+//     propertyG: {
+//       propertyI: "IIIIII"
+//     }
+//   }
+// })
+/*
 const array = new Content([{
   id: 0, propertyA: true, propertyB: true
 }, {
@@ -19,7 +52,7 @@ array.addEventListener("copyWithinIndex", eventLog)
 array.addEventListener("copyWithin", eventLog)
 array.length = 8
 array.copyWithin(4, 0, 4)
-
+*/
 /*
 const array = new Content([], new Schema([{ type: Number }]), {})
 array.addEventListener('setProperty', eventLog)

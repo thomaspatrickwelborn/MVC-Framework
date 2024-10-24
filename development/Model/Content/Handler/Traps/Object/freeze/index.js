@@ -11,25 +11,22 @@ export default function freeze() {
     iterateProperties: 
     for(const [
       $propertyKey, $propertyValue
-    ] of Object.entries(this)) {
+    ] of Object.entries(root)) {
       if($propertyValue.classToString === Content.toString()) {
         $propertyValue.freeze()
-      } else { Object.freeze($propertyValue) }
-      const _path = (
-        path !== null
-      ) ? path.concat('.', $propertyKey)
-        : $propertyKey
+      }
+      else { Object.freeze($propertyValue) }
       if(contentEvents && events.includes('freeze')) {
         $content.dispatchEvent(
           new ContentEvent(
             'freeze',
-            { path: _path },
+            { path },
             $content
           )
         )
       }
     }
   }
-  Object.freeze(this)
+  Object.freeze(root)
   return proxy
 }

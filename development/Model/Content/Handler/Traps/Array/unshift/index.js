@@ -30,7 +30,7 @@ export default function unshift() {
           }, $content)
         )
       }
-      if(!validElement.valid) { return root.length }
+      if(!validElement.valid) { return proxy.length }
     }
 
     if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
@@ -76,5 +76,5 @@ export default function unshift() {
       $content)
     )
   }
-  return root.length
+  return proxy.length
 }

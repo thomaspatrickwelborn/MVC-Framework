@@ -15,6 +15,7 @@ export default class Handler {
     this.#_traps = new Traps(this.#content)
     return this.#_traps
   }
+  // Enabled Trap
   get get() {
     const content = this.#content
     const traps = this.#traps
@@ -47,6 +48,7 @@ export default class Handler {
     }
   }
   // Disabled Traps
+  get apply() {}
   get construct() {}
   get deleteProperty() {}
   get defineProperty() {}

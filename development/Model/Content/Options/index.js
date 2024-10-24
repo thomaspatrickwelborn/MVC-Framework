@@ -15,8 +15,8 @@ export default {
         ],
       },
       set: {
-        pathkey: true,
         recursive: true,
+        pathkey: true,
         events: [
           'set',
           'setProperty'
@@ -32,7 +32,7 @@ export default {
     },
     object: {
       assign: {
-        recursive: true,
+        sourceTree: true,
         events: [
           'assignSourceProperty',
           'assignSource',
@@ -40,12 +40,10 @@ export default {
         ],
       },
       defineProperties: {
-        recursive: true, 
         descriptorTree: true,
         events: ['defineProperties'],
       },
       defineProperty: {
-        recursive: true, 
         descriptorTree: true,
         events: ['defineProperty'],
       },
