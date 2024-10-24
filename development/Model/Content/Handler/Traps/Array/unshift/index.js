@@ -14,43 +14,43 @@ export default function unshift() {
   iterateElements:
   while(elementIndex > -1) {
     const elementsLength = $arguments.length
-    let element = $arguments[elementIndex]
-    const _path = (
-      path !== null
-    ) ? path.concat('.', elementIndex)
-      : elementIndex
+    let $element = $arguments[elementIndex]
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementIndex, element)
+      const validElement = schema.validateProperty(elementIndex, $element)
       if(validationEvents) {
         $content.dispatchEvent(
           new ValidatorEvent('validateProperty', {
-            path: _path,
+            path,
             detail: validElement,
           }, $content)
         )
       }
       if(!validElement.valid) { return proxy.length }
     }
-
-    if(isDirectInstanceOf(element, [Object, Array/*, Map*/])) {
+    // Element: Object Type
+    if(typeof $element === 'object') {
       const subschema = schema?.context[0] || null
-      element = new Content(element, subschema, {
+      const _path = (path !== null)
+        ? path.concat('.', elementIndex)
+        : elementIndex
+      const element = new Content($element, subschema, {
         path: _path,
         parent: proxy,
       })
       elements.unshift(element)
       Array.prototype.unshift.call(root, element)
     }
+    // Element: Primitive Type
     else {
-      elements.unshift(element)
-      Array.prototype.unshift.call(root, element)
+      elements.unshift($element)
+      Array.prototype.unshift.call(root, $element)
     }
     // Array Unshift Prop Event
     if(contentEvents && events.includes('unshiftProp')) {
       $content.dispatchEvent(
         new ContentEvent('unshiftProp', {
-          path: _path,
+          path,
           detail: {
             elementIndex, 
             element: element,
@@ -61,14 +61,10 @@ export default function unshift() {
     elementIndex--
   }
   // Array Unshift Event
-  const _path = (
-    path !== null
-  ) ? path.concat('.', elementIndex)
-    : elementIndex
   if(contentEvents && events.includes('unshift') && elements.length) {
     $content.dispatchEvent(
       new ContentEvent('unshift', {
-        path: _path,
+        path,
         detail: {
           elements,
         },

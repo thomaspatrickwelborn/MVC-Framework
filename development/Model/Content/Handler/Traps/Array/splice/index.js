@@ -8,23 +8,23 @@ export default function splice() {
   const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const $arguments = [...arguments]
-  const start = ($arguments[0] >= 0)
+  const $start = ($arguments[0] >= 0)
     ? $arguments[0]
     : root.length + $arguments[0]
-  const deleteCount = ($arguments[1] <= 0)
+  const $deleteCount = ($arguments[1] <= 0)
     ? 0
     : (
       $arguments[1] === undefined ||
-      start + $arguments[1] >= root.length
-    ) ? root.length - start
+      $start + $arguments[1] >= root.length
+    ) ? root.length - $start
       : $arguments[1]
-  const addItems = $arguments.slice(2)
-  const addCount = addItems.length
+  const $addItems = $arguments.slice(2)
+  const addCount = $addItems.length
   const deleteItems = []
   let deleteItemsIndex = 0
   spliceDelete:
-  while(deleteItemsIndex < deleteCount) {
-    const deleteItem = Array.prototype.splice.call(root, start, 1)[0]
+  while(deleteItemsIndex < $deleteCount) {
+    const deleteItem = Array.prototype.splice.call(root, $start, 1)[0]
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
     const _path = (path !== null)
@@ -35,7 +35,7 @@ export default function splice() {
         new ContentEvent('spliceDelete', {
           path: _path,
           detail: {
-            index: start + deleteItemsIndex,
+            index: $start + deleteItemsIndex,
             deleteIndex: deleteItemsIndex,
             deleteItem: deleteItem,
           },
@@ -48,7 +48,7 @@ export default function splice() {
   spliceAdd: 
   while(addItemsIndex < addCount) {
     let _path
-    let addItem = addItems[addItemsIndex]
+    let addItem = $addItems[addItemsIndex]
 
     // Validation
     if(schema && enableValidation) {
@@ -66,7 +66,7 @@ export default function splice() {
     _path = (path !== null)
       ? path.concat('.', addItemsIndex)
       : addItemsIndex
-    let startIndex = start + addItemsIndex
+    let startIndex = $start + addItemsIndex
     if(isDirectInstanceOf(addItem, [Object, Array/*, Map*/])) {
       const subschema = schema?.context[0] || null
       addItem = new Content(addItem, subschema, {
@@ -90,7 +90,7 @@ export default function splice() {
         new ContentEvent('spliceAdd', {
           path: _path,
           detail: {
-            index: start + addItemsIndex,
+            index: $start + addItemsIndex,
             addIndex: addItemsIndex,
             addItem: addItem,
           },
@@ -105,9 +105,9 @@ export default function splice() {
       new ContentEvent('splice', {
         path: path,
         detail: {
-          start,
+          $start,
           deleted: deleteItems,
-          added: addItems,
+          added: $addItems,
           length: root.length,
         },
       },
