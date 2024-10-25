@@ -1,7 +1,7 @@
 # Object Traps
 **MVC Framework \| Class System \| Model \| Content \| Handler \| Traps \| *Object***  
 **Content**  
- - Object Handler Trap Options
+ - [Object Handler Trap Options]()
    - [`assign` Options]()
      - [`assign.sourceTree` Option]()
      - [`assign.events` Option]()
@@ -25,7 +25,7 @@
    - [`seal` Trap Method]()
 
 ## Object Handler Trap Options
-Object Handler Trap Options are defined with new `Content` Class Instance creation.  
+Object Handler Trap Options are defined with new `Content` Instance creation.  
 **Defaults**:  
 ```
 import { Content } from 'mvc-framework'
@@ -82,8 +82,13 @@ const content = new Content({}, null, $contentOptions)
 #### `seal.events` Option
 
 ## Object Handler Trap Methods
-### `assign` Trap Method
-### `defineProperties` Trap Method
-### `defineProperty` Trap Method
-### `freeze` Trap Method
-### `seal` Trap Method
+### `assign` Method
+#### `assign` Arguments
+### `defineProperties` Method
+#### `defineProperties` Arguments
+### `defineProperty` Method
+#### `defineProperty` Arguments
+### `freeze` Method
+#### `freeze` Arguments
+### `seal` Method
+#### `seal` Arguments
