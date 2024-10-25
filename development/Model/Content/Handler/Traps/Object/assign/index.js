@@ -59,6 +59,7 @@ export default function assign() {
           // Assignment: Existing Content Instance
           if(sourcePropVal?.classToString === Content.toString()) {
             sourcePropVal.assign($sourcePropVal)
+            sourcePropVal = Object.assign(sourcePropVal, { path, parent })
             assignment = {
               [$sourcePropKey]: sourcePropVal
             }

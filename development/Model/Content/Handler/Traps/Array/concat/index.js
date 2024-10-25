@@ -33,7 +33,7 @@ export default function concat() {
     }
     // Value: Content
     if($value.classToString === Content.toString()) {
-      values[valueIndex] = value
+      values[valueIndex] = Object.assign(value, { path, parent })
     }
     // Value: Object Type
     else if(typeof $value === 'object') {

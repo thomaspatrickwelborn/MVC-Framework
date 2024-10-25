@@ -34,6 +34,7 @@ export default function defineProperty() {
     if(rootPropertyDescriptor.value.classToString === Content.toString()) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
+        propertyDescriptor.value = Object.assign(propertyDescriptor.value, { path, parent })
         rootPropertyDescriptor.value.defineProperties(propertyDescriptor.value)
       }
       // Descriptor Tree: false

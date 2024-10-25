@@ -7,6 +7,7 @@ export default function setContentProperty() {
   const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
+  const { recursive } = $options
   // Arguments
   const $path = arguments[0]
   const $value = arguments[1]
@@ -33,7 +34,7 @@ export default function setContentProperty() {
       propertyValue = root[propertyKey]
       // Recursive: True
       // Property Value: Undefined
-      if(recursive && !propertyValue) {
+      if(recursive && propertyValue === undefined) {
         // Subschema
         let subschema
         if(schema?.contextType === 'array') { subschema = schema.context[0] }
@@ -69,8 +70,8 @@ export default function setContentProperty() {
     }
     // Return: Property
     // Value: Content
-    if($value.classToString === Content.toString()) {
-      propertyValue = $value
+    if(propertyValue?.classToString === Content.toString()) {
+      propertyValue = Object.assign($value, { path, parent })
     }
     // Value: Object Literal
     else if(typeof $value === 'object') {
@@ -89,6 +90,10 @@ export default function setContentProperty() {
     else {
       propertyValue = $value
     }
+    console.log('-----')
+    console.log('propertyKey', propertyKey)
+    console.log('propertyValue', propertyValue)
+    console.log('recursive', recursive)
     // Set Property Event
     if(contentEvents && events.includes('setProperty')) {
       $content.dispatchEvent(
@@ -111,7 +116,7 @@ export default function setContentProperty() {
     let propertyKey = $path
     // Property Value: Content Instance
     if($value.classToString === Content.toString()) {
-      propertyValue = $value
+      propertyValue = Object.assign($value, { path, parent })
     }
     // Property Value: New Content Instance
     else if(typeof $value === 'object') {
