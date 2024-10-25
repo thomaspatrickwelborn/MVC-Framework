@@ -1261,10 +1261,11 @@ function getContentProperty() {
   const $options = Array.prototype.shift.call(arguments);
   const { root, path } = $content;
   const { contentEvents } = $content.options;
+  $conten;
   // Arguments
   const $path = arguments[0];
   const ulteroptions = Object.assign({}, $options, arguments[1]);
-  const { events, pathkey } = ulteroptions;
+  const { events, pathkey, keychaining } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
@@ -1363,7 +1364,6 @@ function setContentProperty() {
   const { root, path, schema } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const { proxy } = $content;
-  const { recursive } = $options;
   // Arguments
   const $path = arguments[0];
   const $value = arguments[1];
@@ -1373,7 +1373,7 @@ function setContentProperty() {
   );
   const contentOptions = $content.options;
   contentOptions.traps.accessor.set = ulteroptions;
-  const { events, pathkey } = ulteroptions;
+  const { events, pathkey, keychaining, recursive } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -1572,7 +1572,7 @@ function deleteContentProperty() {
   // Arguments
   const $path = arguments[0];
   const ulteroptions = Object.assign({}, $options, arguments[1]);
-  const { events, pathkey } = ulteroptions;
+  const { events, pathkey, keychaining } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));

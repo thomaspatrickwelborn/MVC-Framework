@@ -10,7 +10,7 @@ export default function deleteContentProperty() {
   // Arguments
   const $path = arguments[0]
   const ulteroptions = Object.assign({}, $options, arguments[1])
-  const { events, pathkey } = ulteroptions
+  const { events, pathkey, keychaining } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))

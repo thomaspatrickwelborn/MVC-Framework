@@ -7,7 +7,6 @@ export default function setContentProperty() {
   const { root, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
-  const { recursive } = $options
   // Arguments
   const $path = arguments[0]
   const $value = arguments[1]
@@ -17,7 +16,7 @@ export default function setContentProperty() {
   )
   const contentOptions = $content.options
   contentOptions.traps.accessor.set = ulteroptions
-  const { events, pathkey } = ulteroptions
+  const { events, pathkey, keychaining, recursive } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
