@@ -20,9 +20,9 @@ export default function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Delete Property Event
-    if(contentEvents && events.includes('deleteProperty')) {
+    if(contentEvents && events.includes('getProperty')) {
       $content.dispatchEvent(
-        new ContentEvent('deleteProperty', {
+        new ContentEvent('getProperty', {
           path,
           detail: {
             key: propertyKey,
@@ -31,6 +31,11 @@ export default function getContentProperty() {
         }, $content)
       )
     }
+    return propertyValue
+  }
+  // Path Key: false
+  else if(pathkey === false) {
+    const propertyValue = root[propertyKey]
     return propertyValue
   }
 }

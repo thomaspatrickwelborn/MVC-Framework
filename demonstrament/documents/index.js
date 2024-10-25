@@ -34,6 +34,7 @@ array.get("0")
   { propertyA: { propertyB: "BBBBBB" } }
 ])
 console.log(array.string)
+console.log(array.get("1"))
 /*
 const object = new Content()
 object.addEventListener('setProperty', eventLog)

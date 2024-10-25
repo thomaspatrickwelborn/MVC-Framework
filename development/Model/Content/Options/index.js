@@ -9,14 +9,16 @@ export default {
     accessor: {
       get: {
         pathkey: true,
+        keychaining: true,
         events: [
           'get',
           'getProperty'
         ],
       },
       set: {
-        recursive: true,
         pathkey: true,
+        keychaining: true,
+        recursive: true,
         events: [
           'set',
           'setProperty'
@@ -24,6 +26,7 @@ export default {
       },
       delete: {
         pathkey: true,
+        keychaining: true,
         events: [
           'delete',
           'deleteProperty'

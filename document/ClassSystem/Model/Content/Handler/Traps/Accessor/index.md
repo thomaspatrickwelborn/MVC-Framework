@@ -9,6 +9,7 @@
    - [`set` Method]()
    - [`get` Method]()
    - [`delete` Method]()
+ - [Accessor Handler Trap Events]()
 
 ## Accessor Handler Trap Options
 Accessor Handler Trap Options are defined with new `Content` Instance creation. 
@@ -44,11 +45,74 @@ const $contentOptions = {
 }
 const content = new Content({}, null, $contentOptions)
 ```
+### `get`, `set`, `delete` Shared Options
+#### `pathkey` Option
+**Type**: `Boolean`  
+**Default**: `true`  
+**Descript**:  
+ - When `true`, properties accessed through dot-notation path.  
+ - When `false`, properties accessed through key. 
+##### `pathKey`: `true`
+```
+const content = new Content({
+  propertyA: {
+    propertyB: {
+      propertyC: "CCC"
+    }
+  }
+}, null, { pathkey: true })
+console.log(
+  content.get("propertyA.propertyB.propertyC")
+)
+// LOG: "CCC"
+```
+##### `pathKey`: `false`
+Path accessor notation disabled, returns `undefined`.  
+```
+const content = new Content({
+  propertyA: {
+    propertyB: {
+      propertyC: "CCC"
+    }
+  }
+}, null, { pathkey: false })
+console.log(
+  content.get("propertyA.propertyB.propertyC")
+)
+// LOG: undefined
+```
+##### `pathKey` Escape
+Quotation enclosures escape path accessor notation.  
+```
+const content = new Content({
+  "propertyA.propertyB.propertyC": 333,
+  propertyA: {
+    propertyB: {
+      propertyC: "CCC"
+    }
+  }
+}, null, { pathkey: true })
+console.log(
+  content.get("\"propertyA.propertyB.propertyC\"")
+)
+// LOG: 333
+console.log(
+  content.get("propertyA.propertyB.propertyC")
+)
+// LOG: "CCC"
+```
+#### `keychaining` Option
+**Type**: `Boolean`  
+**Default**: `true`  
+**Descript**:  
+ - When `true` and `pathkey` is also `true`, 
+
 ### `get` Options
-#### `get.pathkey` Option
 #### `get.events` Option
-##### `get` Event Type
-##### `getProperty` Event Type
+**Type**: `Array`  
+**Descript**:  
+ - There are two types of events:  `get` and `getProperty`.  
+ - Empty array indicates no events.  
 
 
 ### `set` Options
@@ -79,7 +143,7 @@ content.get($propertyPath)
 ##### `$propertyPath` Argument
 **Type**: `String` Literal
 **Descript**:  
-Dot-notation path to property, or property key.  
+ - Dot-notation path to property, or property key.  
 
 
 ### `set` Method

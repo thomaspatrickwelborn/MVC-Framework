@@ -1274,9 +1274,9 @@ function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Delete Property Event
-    if(contentEvents && events.includes('deleteProperty')) {
+    if(contentEvents && events.includes('getProperty')) {
       $content.dispatchEvent(
-        new ContentEvent('deleteProperty', {
+        new ContentEvent('getProperty', {
           path,
           detail: {
             key: propertyKey,
@@ -1285,6 +1285,11 @@ function getContentProperty() {
         }, $content)
       );
     }
+    return propertyValue
+  }
+  // Path Key: false
+  else if(pathkey === false) {
+    const propertyValue = root[propertyKey];
     return propertyValue
   }
 }
@@ -1873,14 +1878,16 @@ var Options$5 = {
     accessor: {
       get: {
         pathkey: true,
+        keychaining: true,
         events: [
           'get',
           'getProperty'
         ],
       },
       set: {
-        recursive: true,
         pathkey: true,
+        keychaining: true,
+        recursive: true,
         events: [
           'set',
           'setProperty'
@@ -1888,6 +1895,7 @@ var Options$5 = {
       },
       delete: {
         pathkey: true,
+        keychaining: true,
         events: [
           'delete',
           'deleteProperty'
