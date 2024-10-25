@@ -14,11 +14,11 @@ See Also: [Content Guide](../../../Guide/Model/Content/index.md)
    - [`contentEvents` Option]()
    - [`enableEvents` Option]()
  - [Constructor Method]()
-   - [`$settings` Argument]()
+   - [`$properties` Argument]()
    - [`$schema` Argument]()
    - [`$options` Argument]()
  - [Public Properties]()
-   - [`settings` Property]()
+   - [`properties` Property]()
    - [`options` Property]()
    - [`schema` Property]()
    - [`Class` Property]()
@@ -35,7 +35,7 @@ See Also: [Content Guide](../../../Guide/Model/Content/index.md)
    - [`parse` Method]()
  - [Private Properties]()
    - [`#handler` Property]()
-   - [`#_settings` Property]()
+   - [`#_properties` Property]()
    - [`#_options` Property]()
    - [`#_schema` Property]()
    - [`#_type` Property]()
@@ -45,9 +45,6 @@ See Also: [Content Guide](../../../Guide/Model/Content/index.md)
    - [`#_path` Property]()
    - [`#_proxy` Property]()
    - [`#_handler` Property]()
-
-## `Settings` Property
-No default Content Settings.  
 
 ## `Options` Property
 Default Content Options.  
@@ -106,12 +103,12 @@ Default Content Options.
  - When `false`, no `ContentEvent` or `ValidatorEvent` instances dispatched.  
 
 ## Constructor Method
- - Sets `settings`, `options`, `schema` properties.  
+ - Sets `properties`, `options`, `schema` properties.  
  - Explicitly returns `proxy` property.  
-### `$settings` Argument
+### `$properties` Argument
 **Type**: `Array` Literal, `Object` Literal, `Content` Class Instance  
 **Descript**:  
- - `$settings` assigned to `settings`.  
+ - `$properties` assigned to `properties`.  
 ### `$options` Argument
 **Type**: `Object` Literal  
 **Descript**:  
@@ -122,13 +119,13 @@ Default Content Options.
  - `$schema` assigned to `schema`.  
 
 ## Public Properties
-### `settings` Property
+### `properties` Property
 **Type**: `get`, `set`  
-**Inturn**: `$settings` (from `constructor`)  
-**Return**: `#_settings`  
+**Inturn**: `$properties` (from `constructor`)  
+**Return**: `#_properties`  
 **Descript**:  
- - When `$settings` is `Content` Class instance, sets `$settings.object` to `#_settings`
- - When `$settings` is not `Content` Class instance, sets `$settings` to `#_settings`  
+ - When `$properties` is `Content` Class instance, sets `$properties.object` to `#_properties`
+ - When `$properties` is not `Content` Class instance, sets `$properties` to `#_properties`  
 ### `options` Property
 **Type**: `get`, `set`    
 **Inturn**: `$options` (from `constructor`)  
@@ -157,15 +154,16 @@ Default Content Options.
 **Type**: `get`  
 **Return**: `#_type`  
 **Descript**:  
- - Assigns type of `settings` to `#_type` (either `object` or `array`.  
+ - Assigns type of `properties` to `#_type` (either `object` or `array`.  
 ### `typedObjectLiteral` Property
 **Type**: `get`  
 **Return**: `Array` Literal, `Object` Literal  
 **Descript**:  
  - Return an `Array` or `Object` dependent on `type`  property `array` or `object` value.  
 ### `parent` Property
-**Type**: `get`  
-**Return**: `Content` Class Instance `proxy` property.  
+**Type**: `get`, `set`
+**Inturn**: `Content` Class Instance `proxy` property.  
+**Return**: `#_parent`  
 **Descript**:  
  - Assigns `$parent` to `#_parent`.  
 ### `basename` Property
@@ -174,7 +172,8 @@ Default Content Options.
 **Descript**:  
  - Assigns `$basename` to `#_basename`.  
 ### `path` Property
-**Type**: `get`  
+**Type**: `get`, `set`    
+**Inturn**: `String` Literal  
 **Return**: `#_path`  
 **Descript**:  
  - Assigns `$path` to `#_path`.  
@@ -188,7 +187,7 @@ Default Content Options.
 **Return**: `#_proxy`  
 **Descript**:  
 - Creates new `Proxy` Instance with `root` target and `Handler` Instance handler.  
-- Sets `settings` to `proxy`.  
+- Sets `properties` to `proxy`.  
 - Assigns new `Proxy` Instance to `#_proxy`.  
 
 ## Public Methods
@@ -197,7 +196,7 @@ Default Content Options.
 ## Private Properties
 ### `#handler` Property
 **Type**: `Handler` Instance  
-### `#_settings` Property
+### `#_properties` Property
 **Type**: `Array` Literal, `Object` Literal  
 ### `#_options` Property
 **Type**: `Object` Literal  

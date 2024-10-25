@@ -58,7 +58,15 @@ export default class Handler {
   get isExtensible() {}
   get ownKeys() {}
   get preventExtensions() {}
-  get set() {}
+  get set() {
+    const content = this.#content
+    return function set($target, $property, $value, $receiver) {
+      if(this.#isContentProperty($property)) {
+        content[$property] = $value
+      }
+      return true
+    }
+  }
   get setPrototypeOf() {}
   #isContentProperty($property) {
     return Object.getOwnPropertyNames(Content.prototype)

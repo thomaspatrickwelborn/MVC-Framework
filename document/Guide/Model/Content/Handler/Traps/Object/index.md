@@ -1,5 +1,5 @@
-# Object Trap Guide
-**MVC Framework | Guide | Model \| Content \| Handler \| *Object***  
+# Object Traps Guide
+**MVC Framework | Guide | Model \| Content \| Handler \| Traps \| *Object***  
 **Content**  
  - [Overview]()
    - [`assign` Trap Method]()

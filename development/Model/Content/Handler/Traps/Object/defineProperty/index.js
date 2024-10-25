@@ -31,9 +31,14 @@ export default function defineProperty() {
     else { subschema = undefined}
     const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(root, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
+    const _path = (
+      path !== null
+    ) ? path.concat('.', propertyKey)
+      : propertyKey
     if(rootPropertyDescriptor.value.classToString === Content.toString()) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
+        propertyDescriptor.value = Object.assign(propertyDescriptor.value, { path: _path, parent: proxy })
         rootPropertyDescriptor.value.defineProperties(propertyDescriptor.value)
       }
       // Descriptor Tree: false
@@ -47,10 +52,6 @@ export default function defineProperty() {
       if(typeOf(propertyDescriptor.value) === 'object') { _root = {} }
       else if (typeOf(propertyDescriptor.value) === 'array') { _root = [] }
       else { _root = {} }
-      const _path = (
-        path !== null
-      ) ? path.concat('.', propertyKey)
-        : propertyKey
       const contentObject = new Content(
         _root, subschema, {
           path: _path,

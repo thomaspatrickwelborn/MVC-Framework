@@ -275,7 +275,6 @@ class ContentEvent extends Event {
             new ContentEvent(
               this.type, 
               {
-                basename: $event.basename,
                 path: $event.path,
                 detail: $event.detail,
               },
@@ -398,9 +397,8 @@ function assign() {
           // Assignment: Existing Content Instance
           if(sourcePropVal?.classToString === Content.toString()) {
             sourcePropVal.assign($sourcePropVal);
-            assignment = {
-              [$sourcePropKey]: sourcePropVal
-            };
+            Object.assign(sourcePropVal, { path: _path, parent: proxy });
+            assignment = { [$sourcePropKey]: sourcePropVal };
           }
           // Assignment: New Content Instance
           else {
@@ -413,7 +411,7 @@ function assign() {
       }
       // Source Prop: Primitive Type
       else {
-        const assignment = {
+        let assignment = {
           [$sourcePropKey]: $sourcePropVal
         };
         // Assign Root
@@ -530,9 +528,14 @@ function defineProperty() {
     else { subschema = undefined;}
     const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(root, propertyKey) || {};
     // Root Property Descriptor Value: Existent Content Instance
+    const _path = (
+      path !== null
+    ) ? path.concat('.', propertyKey)
+      : propertyKey;
     if(rootPropertyDescriptor.value.classToString === Content.toString()) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
+        propertyDescriptor.value = Object.assign(propertyDescriptor.value, { path: _path, parent: proxy });
         rootPropertyDescriptor.value.defineProperties(propertyDescriptor.value);
       }
       // Descriptor Tree: false
@@ -546,10 +549,6 @@ function defineProperty() {
       if(typeOf(propertyDescriptor.value) === 'object') { _root = {}; }
       else if (typeOf(propertyDescriptor.value) === 'array') { _root = []; }
       else { _root = {}; }
-      const _path = (
-        path !== null
-      ) ? path.concat('.', propertyKey)
-        : propertyKey;
       const contentObject = new Content(
         _root, subschema, {
           path: _path,
@@ -683,15 +682,15 @@ function concat() {
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
+    const _path = (path !== null)
+      ? path.concat('.', valueIndex)
+      : valueIndex;
     // Value: Content
     if($value.classToString === Content.toString()) {
-      values[valueIndex] = value;
+      values[valueIndex] = Object.assign(value, { path: _path, parent: proxy });
     }
     // Value: Object Type
     else if(typeof $value === 'object') {
-      const _path = (path !== null)
-        ? path.concat('.', valueIndex)
-        : valueIndex;
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
         path: _path,
@@ -845,18 +844,19 @@ function fill() {
       }
       if(!validValue.valid) { continue iterateFillIndexes }
     }
+    const _path = (path !== null)
+      ? path.concat('.', fillIndex)
+      : fillIndex;
     let value = $arguments[0];
-    if(typeof value === 'object') {
-      if(value.classToString !== Content.toString()) {
-        const subschema = schema?.context[0] || null;
-        const _path = (path !== null)
-          ? path.concat('.', fillIndex)
-          : fillIndex;
-        value = new Content(value, subschema, {
-          path: _path,
-          parent: proxy,
-        });
-      }
+    if(value.classToString === Content.toString()) {
+      value = Object.assign(value, { path: _path, parent: proxy });
+    }
+    else if(typeof value === 'object') {
+      const subschema = schema?.context[0] || null;
+      value = new Content(value, subschema, {
+        path: _path,
+        parent: proxy,
+      });
     }
     Array.prototype.fill.call(
       root, value, fillIndex, fillIndex + 1
@@ -942,17 +942,18 @@ function push() {
       }
       if(!validElement.valid) { return root.length }
     }
-    if(typeof $element === 'object') {
-      if($element.classToString !== Content.toString()) {
-        const _path = (path !== null)
-          ? path.concat('.', elementsIndex)
-          : elementsIndex;
-        const subschema = schema?.context[0] || null;
-        $element = new Content($element, subschema, {
-          path: _path,
-          parent: proxy,
-        });
-      }
+    const _path = (path !== null)
+      ? path.concat('.', elementsIndex)
+      : elementsIndex;
+    if($element.classToString !== Content.toString()) {
+      $element = Object.assign($element, { path: _path, parent: proxy });
+    }
+    else if(typeof $element === 'object') {
+      const subschema = schema?.context[0] || null;
+      $element = new Content($element, subschema, {
+        path: _path,
+        parent: proxy,
+      });
       elements.push($element);
       Array.prototype.push.call(root, $element);
     } else {
@@ -1092,19 +1093,20 @@ function splice() {
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
     }
+    const _path = (path !== null)
+      ? path.concat('.', addItemsIndex)
+      : addItemsIndex;
     let startIndex = $start + addItemsIndex;
     // Add Item: Object Type
+    if(addItem.classToString !== Content.toString()) {
+      addItem = Object.assign(addItem, { path: _path, parent: proxy });
+    }
     if(typeof addItem === 'object') {
-      if(addItem.classToString !== Content.toString()) {
-        const subschema = schema?.context[0] || null;
-        const _path = (path !== null)
-          ? path.concat('.', addItemsIndex)
-          : addItemsIndex;
-        addItem = new Content(addItem, subschema, {
-          path: _path,
-          parent: proxy,
-        });
-      }
+      const subschema = schema?.context[0] || null;
+      addItem = new Content(addItem, subschema, {
+        path: _path,
+        parent: proxy,
+      });
       Array.prototype.splice.call(
         root, startIndex, 0, addItem
       );
@@ -1356,6 +1358,7 @@ function setContentProperty() {
   const { root, path, schema } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const { proxy } = $content;
+  const { recursive } = $options;
   // Arguments
   const $path = arguments[0];
   const $value = arguments[1];
@@ -1382,7 +1385,7 @@ function setContentProperty() {
       propertyValue = root[propertyKey];
       // Recursive: True
       // Property Value: Undefined
-      if(recursive && !propertyValue) {
+      if(recursive && propertyValue === undefined) {
         // Subschema
         let subschema;
         if(schema?.contextType === 'array') { subschema = schema.context[0]; }
@@ -1418,8 +1421,8 @@ function setContentProperty() {
     }
     // Return: Property
     // Value: Content
-    if($value.classToString === Content.toString()) {
-      propertyValue = $value;
+    if(propertyValue?.classToString === Content.toString()) {
+      propertyValue = Object.assign($value, { path: _path, parent: proxy });
     }
     // Value: Object Literal
     else if(typeof $value === 'object') {
@@ -1460,7 +1463,7 @@ function setContentProperty() {
     let propertyKey = $path;
     // Property Value: Content Instance
     if($value.classToString === Content.toString()) {
-      propertyValue = $value;
+      propertyValue = Object.assign($value, { path: _path, parent: proxy });
     }
     // Property Value: New Content Instance
     else if(typeof $value === 'object') {
@@ -1824,7 +1827,15 @@ class Handler {
   get isExtensible() {}
   get ownKeys() {}
   get preventExtensions() {}
-  get set() {}
+  get set() {
+    const content = this.#content;
+    return function set($target, $property, $value, $receiver) {
+      if(this.#isContentProperty($property)) {
+        content[$property] = $value;
+      }
+      return true
+    }
+  }
   get setPrototypeOf() {}
   #isContentProperty($property) {
     return Object.getOwnPropertyNames(Content.prototype)
@@ -2023,6 +2034,7 @@ class Content extends EventTarget {
       : null;
     return this.#_parent
   }
+  set parent($parent) { this.#_parent = $parent; }
   get basename() {
     if(this.#_basename !== undefined) { return this.#_basename }
     if(this.path) { this.#_basename = this.path.split('.').pop(); }
@@ -2035,6 +2047,10 @@ class Content extends EventTarget {
       ? String(this.options.path)
       : null;
     return this.#_path
+  }
+  set path($path) {
+    this.#_basename = undefined;
+    this.#_path = $path;
   }
   // Root
   get root() {
@@ -2070,7 +2086,7 @@ class Content extends EventTarget {
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
       if(typeof $propertyDescriptor.value === 'object') {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse($settings);
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse();
       } else {
         $parsement[$propertyDescriptorName] = $propertyDescriptor.value;
       }

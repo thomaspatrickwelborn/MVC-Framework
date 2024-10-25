@@ -24,17 +24,18 @@ export default function push() {
       }
       if(!validElement.valid) { return root.length }
     }
-    if(typeof $element === 'object') {
-      if($element.classToString !== Content.toString()) {
-        const _path = (path !== null)
-          ? path.concat('.', elementsIndex)
-          : elementsIndex
-        const subschema = schema?.context[0] || null
-        $element = new Content($element, subschema, {
-          path: _path,
-          parent: proxy,
-        })
-      }
+    const _path = (path !== null)
+      ? path.concat('.', elementsIndex)
+      : elementsIndex
+    if($element.classToString !== Content.toString()) {
+      $element = Object.assign($element, { path: _path, parent: proxy })
+    }
+    else if(typeof $element === 'object') {
+      const subschema = schema?.context[0] || null
+      $element = new Content($element, subschema, {
+        path: _path,
+        parent: proxy,
+      })
       elements.push($element)
       Array.prototype.push.call(root, $element)
     } else {

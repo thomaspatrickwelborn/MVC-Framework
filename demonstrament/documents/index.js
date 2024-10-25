@@ -5,6 +5,57 @@ const eventLog = ($event) => { console.log(
   "\n", "$event.path", $event.path,
   "\n", "$event.detail", $event.detail,
 ) }
+// const object = new Content({propertyA: { propertyB: "BBB" }})
+const array = new Content(
+  [
+    []
+  ]
+)
+// console.log(object.classToString)
+// console.log(array.get('0').push(object))
+// array.get('0').push(object)
+// array.set('0', {propertyA: { propertyB: "BBB" }})
+array.get("0")
+.set("0", { propertyA: { propertyB: "BBB" } } )
+console.log(array.string)
+array.get("0.0")
+.assign({ propertyA: { propertyB: "BBBBBB" } } )
+array.get("0")
+.assign({
+  "1": { propertyA: { propertyB: "BBB" } }
+})
+console.log(array.string)
+array.get("0.1.propertyA")
+.set("propertyB", "BBBBBB")
+console.log(array.string)
+array.get("0")
+.assign([
+  { propertyA: { propertyB: "BBB" } },
+  { propertyA: { propertyB: "BBBBBB" } }
+])
+console.log(array.string)
+/*
+const object = new Content()
+object.addEventListener('setProperty', eventLog)
+object.addEventListener('set', eventLog)
+object.set({
+  propertyA: {
+    propertyB: {
+      propertyC: 333,
+      propertyD: "DDD",
+      propertyE: false
+    
+}  },
+  propertyF: {
+    propertyG: {
+      propertyH: 888,
+      propertyI: "III",
+      propertyJ: true
+    }
+  }
+})
+*/
+/*
 const object = new Content({
   propertyA: {
     propertyB: {
@@ -31,6 +82,7 @@ object.assign({
     }
   }
 })
+*/
 // , {
 //   propertyF: {
 //     propertyG: {

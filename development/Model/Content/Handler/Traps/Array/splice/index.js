@@ -57,19 +57,20 @@ export default function splice() {
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
     }
+    const _path = (path !== null)
+      ? path.concat('.', addItemsIndex)
+      : addItemsIndex
     let startIndex = $start + addItemsIndex
     // Add Item: Object Type
+    if(addItem.classToString !== Content.toString()) {
+      addItem = Object.assign(addItem, { path: _path, parent: proxy })
+    }
     if(typeof addItem === 'object') {
-      if(addItem.classToString !== Content.toString()) {
-        const subschema = schema?.context[0] || null
-        const _path = (path !== null)
-          ? path.concat('.', addItemsIndex)
-          : addItemsIndex
-        addItem = new Content(addItem, subschema, {
-          path: _path,
-          parent: proxy,
-        })
-      }
+      const subschema = schema?.context[0] || null
+      addItem = new Content(addItem, subschema, {
+        path: _path,
+        parent: proxy,
+      })
       Array.prototype.splice.call(
         root, startIndex, 0, addItem
       )

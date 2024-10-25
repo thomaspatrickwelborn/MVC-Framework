@@ -59,9 +59,8 @@ export default function assign() {
           // Assignment: Existing Content Instance
           if(sourcePropVal?.classToString === Content.toString()) {
             sourcePropVal.assign($sourcePropVal)
-            assignment = {
-              [$sourcePropKey]: sourcePropVal
-            }
+            Object.assign(sourcePropVal, { path: _path, parent: proxy })
+            assignment = { [$sourcePropKey]: sourcePropVal }
           }
           // Assignment: New Content Instance
           else {
@@ -74,7 +73,7 @@ export default function assign() {
       }
       // Source Prop: Primitive Type
       else {
-        const assignment = {
+        let assignment = {
           [$sourcePropKey]: $sourcePropVal
         }
         // Assign Root

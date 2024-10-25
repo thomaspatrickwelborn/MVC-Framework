@@ -39,18 +39,19 @@ export default function fill() {
       }
       if(!validValue.valid) { continue iterateFillIndexes }
     }
+    const _path = (path !== null)
+      ? path.concat('.', fillIndex)
+      : fillIndex
     let value = $arguments[0]
-    if(typeof value === 'object') {
-      if(value.classToString !== Content.toString()) {
-        const subschema = schema?.context[0] || null
-        const _path = (path !== null)
-          ? path.concat('.', fillIndex)
-          : fillIndex
-        value = new Content(value, subschema, {
-          path: _path,
-          parent: proxy,
-        })
-      }
+    if(value.classToString === Content.toString()) {
+      value = Object.assign(value, { path: _path, parent: proxy })
+    }
+    else if(typeof value === 'object') {
+      const subschema = schema?.context[0] || null
+      value = new Content(value, subschema, {
+        path: _path,
+        parent: proxy,
+      })
     }
     Array.prototype.fill.call(
       root, value, fillIndex, fillIndex + 1

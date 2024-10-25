@@ -31,15 +31,15 @@ export default function concat() {
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
+    const _path = (path !== null)
+      ? path.concat('.', valueIndex)
+      : valueIndex
     // Value: Content
     if($value.classToString === Content.toString()) {
-      values[valueIndex] = value
+      values[valueIndex] = Object.assign(value, { path: _path, parent: proxy })
     }
     // Value: Object Type
     else if(typeof $value === 'object') {
-      const _path = (path !== null)
-        ? path.concat('.', valueIndex)
-        : valueIndex
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
         path: _path,

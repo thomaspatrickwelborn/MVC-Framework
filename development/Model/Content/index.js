@@ -65,6 +65,7 @@ export default class Content extends EventTarget {
       : null
     return this.#_parent
   }
+  set parent($parent) { this.#_parent = $parent }
   get basename() {
     if(this.#_basename !== undefined) { return this.#_basename }
     if(this.path) { this.#_basename = this.path.split('.').pop() }
@@ -77,6 +78,10 @@ export default class Content extends EventTarget {
       ? String(this.options.path)
       : null
     return this.#_path
+  }
+  set path($path) {
+    this.#_basename = undefined
+    this.#_path = $path
   }
   // Root
   get root() {
@@ -112,7 +117,7 @@ export default class Content extends EventTarget {
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
       if(typeof $propertyDescriptor.value === 'object') {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse($settings)
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse()
       } else {
         $parsement[$propertyDescriptorName] = $propertyDescriptor.value
       }
