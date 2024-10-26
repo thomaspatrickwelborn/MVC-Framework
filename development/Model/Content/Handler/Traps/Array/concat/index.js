@@ -50,7 +50,7 @@ export default function concat() {
       values[valueIndex] = $value
     }
     rootConcat = Array.prototype.concat.call(rootConcat, values[valueIndex])
-    if(contentEvents && events.includes('concatValue')) {
+    if(contentEvents && events['concatValue']) {
       $content.dispatchEvent(
         new ContentEvent('concatValue', {
           path,
@@ -64,7 +64,7 @@ export default function concat() {
     valueIndex++
   }
   proxyConcat = new Content(rootConcat, schema, $content.options)
-  if(contentEvents && events.includes('concat')) {
+  if(contentEvents && events['concat']) {
     $content.dispatchEvent(
       new ContentEvent('concat', {
         path,

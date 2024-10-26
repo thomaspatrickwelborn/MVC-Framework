@@ -8,7 +8,7 @@ export default function getContent() {
   const ulteroptions = Object.assign({}, $options, arguments[0] || {})
   const { events } = ulteroptions
   // Get Property Event
-  if(contentEvents && events.includes('get')) {
+  if(contentEvents && events['get']) {
     $content.dispatchEvent(
       new ContentEvent('get', {
         path,

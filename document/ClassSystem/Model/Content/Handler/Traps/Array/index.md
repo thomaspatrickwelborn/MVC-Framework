@@ -48,25 +48,27 @@ const $contentOptions = {
   traps: {
     array: {
       concat: {
-        events: [
-          'concatValue',
-          'concat'
+        events: {
+          'concatValue': true,
+          'concat': true
         ]
       },
       copyWithin: {
-        events: [
-          'copyWithinIndex',
-          'copyWithin'
+        events: {
+          'copyWithinIndex': true,
+          'copyWithin': true
         ]
       },
       fill: {
-        events: [
-          'fillIndex',
-          'fill'
+        events: {
+          'fillIndex': true,
+          'fill': true
         ]
       },
       pop: {
-        events: ['pop']
+        events: {
+          'pop': true
+        }
       },
       push: {
         events: [
@@ -75,23 +77,27 @@ const $contentOptions = {
         ]
       },
       reverse: {
-        events: ['reverse']
+        events: {
+          'reverse': true
+        }
       },
       shift: {
-        events: ['shift']
+        events: {
+          'shift': true
+        }
       },
       splice: {
-        events: [
-          'spliceDelete',
-          'spliceAdd',
-          'splice'
-        ]
+        events: {
+          'spliceDelete': true,
+          'spliceAdd': true,
+          'splice': true
+        }
       },
       unshift: {
-        events: [
-          'unshiftProp',
-          'unshift'
-        ]
+        events: {
+          'unshiftProp': true,
+          'unshift': true
+        }
       },
     }
   }

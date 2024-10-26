@@ -14,7 +14,7 @@ export default function deleteContent() {
     proxy.delete($rootPropertyKey, ulteroptions)
   }
   // Delete Property Event
-  if(contentEvents && events?.includes('delete')) {
+  if(contentEvents && events['delete']) {
     $content.dispatchEvent(
       new ContentEvent('delete', {
         path,

@@ -91,7 +91,7 @@ export default function setContentProperty() {
       propertyValue = $value
     }
     // Set Property Event
-    if(contentEvents && events.includes('setProperty')) {
+    if(contentEvents && events['setProperty']) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
           path, 
@@ -135,7 +135,7 @@ export default function setContentProperty() {
     // Root Assignment
     root[propertyKey] = propertyValue
     // Set Property Event
-    if(contentEvents && events.includes('setProperty')) {
+    if(contentEvents && events['setProperty']) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
           path, 

@@ -15,7 +15,7 @@ export default function freeze() {
         $propertyValue.freeze()
       }
       else { Object.freeze($propertyValue) }
-      if(contentEvents && events.includes('freeze')) {
+      if(contentEvents && events['freeze']) {
         $content.dispatchEvent(
           new ContentEvent(
             'freeze',

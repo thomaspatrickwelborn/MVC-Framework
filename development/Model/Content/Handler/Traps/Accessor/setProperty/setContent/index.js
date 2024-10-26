@@ -22,7 +22,7 @@ export default function setContent() {
     proxy.set($propertyKey, $propertyValue, ulteroptions)
   }
   // Set Property Event
-  if(contentEvents && events.includes('set')) {
+  if(contentEvents && events['set']) {
     $content.dispatchEvent(
       new ContentEvent('set', {
         path,

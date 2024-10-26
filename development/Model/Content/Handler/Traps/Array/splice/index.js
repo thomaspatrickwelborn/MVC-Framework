@@ -26,7 +26,7 @@ export default function splice() {
     const deleteItem = Array.prototype.splice.call(root, $start, 1)[0]
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
-    if(contentEvents && events.includes('spliceDelete')) {
+    if(contentEvents && events['spliceDelete']) {
       $content.dispatchEvent(
         new ContentEvent('spliceDelete', {
           path,
@@ -80,7 +80,7 @@ export default function splice() {
       )
     }
     // Array Splice Add Event
-    if(contentEvents && events.includes('spliceAdd')) {
+    if(contentEvents && events['spliceAdd']) {
       $content.dispatchEvent(
         new ContentEvent('spliceAdd', {
           path,
@@ -95,7 +95,7 @@ export default function splice() {
     addItemsIndex++
   }
   // Array Splice Event
-  if(contentEvents && events.includes('splice')) {
+  if(contentEvents && events['splice']) {
     $content.dispatchEvent(
       new ContentEvent('splice', {
         path,

@@ -55,7 +55,7 @@ export default function fill() {
       root, value, fillIndex, fillIndex + 1
     )
     // Array Fill Index Event
-    if(contentEvents && events.includes('fillIndex')) {
+    if(contentEvents && events['fillIndex']) {
       $content.dispatchEvent(
         new ContentEvent('fillIndex', {
           path, 
@@ -70,7 +70,7 @@ export default function fill() {
     fillIndex++
   }
   // Array Fill Event
-  if(contentEvents && events.includes('fill')) {
+  if(contentEvents && events['fill']) {
     $content.dispatchEvent(
       new ContentEvent('fill', {
         path,

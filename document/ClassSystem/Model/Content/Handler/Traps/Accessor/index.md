@@ -23,27 +23,27 @@ const $contentOptions = {
       get: {
         pathkey: true,
         subpathError: true,
-        events: [
-          'get',
-          'getProperty'
-        ],
+        events: {
+          'get': true,
+          'getProperty': true,
+        },
       },
       set: {
         pathkey: true,
         subpathError: true,
         recursive: true,
-        events: [
-          'set',
-          'setProperty'
-        ],
+        events: {
+          'set': true,
+          'setProperty': true,
+        },
       },
       delete: {
         pathkey: true,
         subpathError: true,
-        events: [
-          'delete',
-          'deleteProperty'
-        ],
+        events: {
+          'delete': true,
+          'deleteProperty': true,
+        },
       },
     }
   }

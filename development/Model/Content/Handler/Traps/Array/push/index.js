@@ -40,7 +40,7 @@ export default function push() {
       elements.push($element)
       Array.prototype.push.call(root, $element)
     }
-    if(contentEvents && events.includes('pushProp')) {
+    if(contentEvents && events['pushProp']) {
       $content.dispatchEvent(
         new ContentEvent('pushProp', {
           path,
@@ -54,7 +54,7 @@ export default function push() {
     elementsIndex++
   }
   // Push Event
-  if(contentEvents && events.includes('push')) {
+  if(contentEvents && events['push']) {
     $content.dispatchEvent(
       new ContentEvent('push', {
         path,
