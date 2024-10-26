@@ -43,11 +43,8 @@ export default class Content extends EventTarget {
     }
   }
   get classToString() { return Content.toString() }
-  // Object
   get object() { return this.parse({ type: 'object' }) }
-  // String
   get string() { return this.parse({ type: 'string' }) }
-  // Type
   get type() {
     if(this.#_type !== undefined) return this.#_type
     this.#_type = typeOf(this.#properties)
@@ -65,7 +62,6 @@ export default class Content extends EventTarget {
       : null
     return this.#_parent
   }
-  set parent($parent) { this.#_parent = $parent }
   get basename() {
     if(this.#_basename !== undefined) { return this.#_basename }
     if(this.path) { this.#_basename = this.path.split('.').pop() }
@@ -79,24 +75,17 @@ export default class Content extends EventTarget {
       : null
     return this.#_path
   }
-  set path($path) {
-    this.#_basename = undefined
-    this.#_path = $path
-  }
-  // Root
   get root() {
     if(this.#_root !== undefined) return this.#_root
     this.#_root = this.typedObjectLiteral
     return this.#_root
   }
-  // Proxy
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     this.#_proxy = new Proxy(this.root, this.#handler)
     this.#_proxy.set(this.#properties)
     return this.#_proxy
   }
-  // Handler
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
     this.#_handler = new Handler(this, {
@@ -104,7 +93,6 @@ export default class Content extends EventTarget {
     })
     return this.#_handler
   }
-  // Parse
   parse($settings = {
     type: 'object',
   }) {

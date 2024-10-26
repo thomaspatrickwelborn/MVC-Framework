@@ -52,10 +52,14 @@ export default function setContentProperty() {
           path: _path,
           parent: proxy,
         }))
+        root[propertyKey] = propertyValue
       }
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      return propertyValue.set(subpaths.join('.'), $value, ulteroptions)
+      propertyValue.set(subpaths.join('.'), $value, ulteroptions)
+      console.log(ulteroptions)
+      console.log('propertyValue', propertyValue)
+      return propertyValue
     }
     // Validation
     if(schema && enableValidation) {

@@ -161,7 +161,7 @@ Default Content Options.
 **Descript**:  
  - Return an `Array` or `Object` dependent on `type`  property `array` or `object` value.  
 ### `parent` Property
-**Type**: `get`, `set`
+**Type**: `get`  
 **Inturn**: `Content` Class Instance `proxy` property.  
 **Return**: `#_parent`  
 **Descript**:  
@@ -172,7 +172,7 @@ Default Content Options.
 **Descript**:  
  - Assigns `$basename` to `#_basename`.  
 ### `path` Property
-**Type**: `get`, `set`    
+**Type**: `get`    
 **Inturn**: `String` Literal  
 **Return**: `#_path`  
 **Descript**:  

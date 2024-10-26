@@ -5,12 +5,22 @@ const eventLog = ($event) => { console.log(
   "\n", "$event.path", $event.path,
   "\n", "$event.detail", $event.detail,
 ) }
-const object = new Content({ propertyA: { propertyB: "BBB" }})
+// const object = new Content({ propertyA: { propertyB: "BBB" }}, null, {
+//   subpathError: true,
+//   recursive: true,
+// })
+const object = new Content({}, null, {
+  pathkey: true,
+  subpathError: false,
+  traps: { accessor: { set: { recursive: false } } },
+})
+object.set("propertyZ.propertyY", "YYY")
 console.log(object.string)
-const array = new Content([
-  []
-])
-console.log(array.string)
+
+// const array = new Content([
+//   []
+// ])
+// console.log(array.string)
 // array.get('0').push(object)
 // array.get("0").set("0", { propertyA: { propertyB: "BBB" } } )
 // array.get("0.0").assign({ propertyA: { propertyB: "BBBBBB" } } )
