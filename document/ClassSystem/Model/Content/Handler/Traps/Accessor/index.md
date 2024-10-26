@@ -17,12 +17,12 @@ Accessor Handler Trap Options are defined with new `Content` Instance creation.
 import { Content } from 'mvc-framework'
 const $contentOptions = {
   pathkey: true,
-  keychaining: true,
+  subpathError: true,
   traps: {
     accessor: {
       get: {
         pathkey: true,
-        keychaining: true,
+        subpathError: true,
         events: [
           'get',
           'getProperty'
@@ -30,7 +30,7 @@ const $contentOptions = {
       },
       set: {
         pathkey: true,
-        keychaining: true,
+        subpathError: true,
         recursive: true,
         events: [
           'set',
@@ -39,7 +39,7 @@ const $contentOptions = {
       },
       delete: {
         pathkey: true,
-        keychaining: true,
+        subpathError: true,
         events: [
           'delete',
           'deleteProperty'
@@ -56,16 +56,16 @@ const content = new Content({}, null, $contentOptions)
 ```
 const content = new Content({}, null, {
   pathkey: false,
-  keychaining: false,
+  subpathError: false,
 })
 ```
 **Individual Accessor Methods**:  
 ```
 const content = new Content({}, null, {
   traps: { accessor: {
-    get: { pathkey: false, keychaining: false },
-    set: { pathkey: false, keychaining: false },
-    delete: { pathkey: false, keychaining: false },
+    get: { pathkey: false, subpathError: false },
+    set: { pathkey: false, subpathError: false },
+    delete: { pathkey: false, subpathError: false },
   } }
 })
 ```
@@ -124,20 +124,31 @@ console.log(
 )
 // LOG: "CCC"
 ```
-#### `keychaining` Option
+#### `subpathError` Option
 **Type**: `Boolean`  
-**Default**: `true`  
+**Default**: `false`  
 **Descript**:  
- - When `true` and `pathkey` is `true`, returns `undefined` when no subpath exists.  
- - When `false` and `pathkey` is `true`, throws error.  
-##### `keychaining`: `true`  
+ - When `true` and `pathkey` is `true`, throws error when no subpath exists.  
+ - When `false` and `pathkey` is `true`, returns `undefined` when no subpath exists.  
+##### `subpathError`: `true`  
 ```
 const content = new Content({
-
+  propertyA: {}
 })
+console.log(
+  content.get("propertyA.propertyB.propertyC")
+)
+// LOG: Uncaught TypeError: Cannot read properties of undefined
 ```
-##### `keychaining`: `false`  
+##### `subpathError`: `false`  
 ```
+const content = new Content({
+  propertyA: {}
+})
+console.log(
+  content.get("propertyA.propertyB.propertyC")
+)
+// LOG: undefined
 ```
 
 ### `get` Options
@@ -165,13 +176,13 @@ const content = new Content({
 
 ## Accessor Handler Trap Methods
 ### `get` Method
-Accepts zero or one arguments:  
+Accepts zero, one, or two arguments:  
 ```
 content.get()
+content.get($contentOptions)
 content.get($propertyPath)
+content.get($propertyPath, $contentOptions)
 ```
- - **Zero Arguments**: Gets all properties (gets `content`, or self)  
- - **One Argument**: Gets property value at `$propertyPath`.  
 #### `get` Arguments
 ##### `$propertyPath` Argument
 **Type**: `String` Literal
@@ -180,13 +191,13 @@ content.get($propertyPath)
 
 
 ### `set` Method
-Accepts one or two arguments:  
+Accepts one, two, or three arguments:  
 ```
 content.set($propertyTree)
+content.set($propertyTree, $contentOptions)
 content.set($propertyPath, $propertyValue)
+content.set($propertyPath, $propertyValue, $contentOptions)
 ```
- - **One Argument**: Sets all properties from `$propertyTree` to `content`.  
- - **Two Arguments**: Sets `$propertyValue` at `$propertyPath`  
 #### `set` Arguments
 ##### `$propertyTree` Argument
 **Type**: `Object` Literal, `Array` Literal, `Content` Instance
@@ -202,10 +213,12 @@ Property value assigned to `$propertyPath`.
 
 
 ### `delete` Method
-Accepts zero or one arguments:  
+Accepts zero, one, or two arguments:  
 ```
 content.delete()
+content.delete($contentOptions)
 content.delete($propertyPath)
+content.delete($propertyPath, $contentOptions)
 ```
  - **Zero Arguments**: Deletes all properties from `content`.  
  - **One Argument**: Deletes property value at `$propertyPath`.  

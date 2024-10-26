@@ -13,11 +13,11 @@ export default function setContentProperty() {
   // Options
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
-    keychaining: $content.options.keychaining,
+    subpathError: $content.options.subpathError,
   }, $options, arguments[2])
   const contentOptions = $content.options
   contentOptions.traps.accessor.set = ulteroptions
-  const { events, pathkey, keychaining, recursive } = ulteroptions
+  const { events, pathkey, subpathError, recursive } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -30,7 +30,7 @@ export default function setContentProperty() {
       ? String(path).concat('.', propertyKey)
       : propertyKey
     // Keychaining
-    if(keychaining === true && propertyValue === undefined) { return undefined }
+    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
       propertyValue = root[propertyKey]

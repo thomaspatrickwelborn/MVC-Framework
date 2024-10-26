@@ -43,7 +43,10 @@ function recursiveAssign() {
   const $sources = $arguments;
   iterateSources: 
   for(const $source of $sources) {
-    if($source === null) { continue iterateSources }
+    if(
+      $source === null ||
+      $source === undefined
+    ) { continue iterateSources }
     for(let [
       $sourcePropKey, $sourcePropValue
     ] of Object.entries($source)) {
@@ -1256,17 +1259,23 @@ function getContentProperty() {
   const { contentEvents } = $content.options;
   // Arguments
   const $path = arguments[0];
-  const ulteroptions = Object.assign({}, $options, arguments[1]);
-  const { events, pathkey, keychaining } = ulteroptions;
+  const ulteroptions = recursiveAssign({
+    pathkey: $content.options.pathkey,
+    subpathError: $content.options.subpathError,
+  }, $options, arguments[1]);
+  const { events, pathkey, subpathError } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = root[propertyKey];
+    // Keychaining
+    if(subpathError === false && propertyValue === undefined) { return undefined }
+    // Return: Subproperty
     if(subpaths.length) {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
-    // Delete Property Event
+    // Get Property Event
     if(contentEvents && events.includes('getProperty')) {
       $content.dispatchEvent(
         new ContentEvent('getProperty', {
@@ -1360,12 +1369,13 @@ function setContentProperty() {
   const $path = arguments[0];
   const $value = arguments[1];
   // Options
-  const ulteroptions = Object.assign(
-    {}, $options, arguments[2]
-  );
+  const ulteroptions = recursiveAssign({
+    pathkey: $content.options.pathkey,
+    subpathError: $content.options.subpathError,
+  }, $options, arguments[2]);
   const contentOptions = $content.options;
   contentOptions.traps.accessor.set = ulteroptions;
-  const { events, pathkey, keychaining, recursive } = ulteroptions;
+  const { events, pathkey, subpathError, recursive } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -1377,6 +1387,8 @@ function setContentProperty() {
     const _path = (path !== null)
       ? String(path).concat('.', propertyKey)
       : propertyKey;
+    // Keychaining
+    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
       propertyValue = root[propertyKey];
@@ -1561,14 +1573,20 @@ function deleteContentProperty() {
   const { contentEvents } = $content.options;
   // Arguments
   const $path = arguments[0];
-  const ulteroptions = Object.assign({}, $options, arguments[1]);
-  const { events, pathkey, keychaining } = ulteroptions;
+  const ulteroptions = recursiveAssign({
+    pathkey: $content.options.pathkey,
+    subpathError: $content.options.subpathError,
+  }, $options, arguments[1]);
+  const { events, pathkey, subpathError } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = root[propertyKey];
 
+    // Keychaining
+    if(subpathError === false && propertyValue === undefined) { return undefined }
+    // Return: Subproperty
     if(subpaths.length) {
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
@@ -1864,19 +1882,21 @@ var Options$5 = {
   validationEvents: true, 
   contentEvents: true, 
   enableEvents: true, 
+  pathkey: true,
+  subpathError: false,
   traps: {
     accessor: {
       get: {
-        pathkey: true,
-        keychaining: true,
+        // pathkey: true,
+        // subpathError: false,
         events: [
           'get',
           'getProperty'
         ],
       },
       set: {
-        pathkey: true,
-        keychaining: true,
+        // pathkey: true,
+        // subpathError: false,
         recursive: true,
         events: [
           'set',
@@ -1884,8 +1904,8 @@ var Options$5 = {
         ],
       },
       delete: {
-        pathkey: true,
-        keychaining: true,
+        // pathkey: true,
+        // subpathError: false,
         events: [
           'delete',
           'deleteProperty'

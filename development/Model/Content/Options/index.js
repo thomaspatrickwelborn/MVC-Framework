@@ -6,12 +6,12 @@ export default {
   contentEvents: true, 
   enableEvents: true, 
   pathkey: true,
-  keychaining: true,
+  subpathError: false,
   traps: {
     accessor: {
       get: {
         // pathkey: true,
-        // keychaining: true,
+        // subpathError: false,
         events: [
           'get',
           'getProperty'
@@ -19,7 +19,7 @@ export default {
       },
       set: {
         // pathkey: true,
-        // keychaining: true,
+        // subpathError: false,
         recursive: true,
         events: [
           'set',
@@ -28,7 +28,7 @@ export default {
       },
       delete: {
         // pathkey: true,
-        // keychaining: true,
+        // subpathError: false,
         events: [
           'delete',
           'deleteProperty'

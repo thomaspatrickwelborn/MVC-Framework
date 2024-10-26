@@ -11,16 +11,16 @@ export default function getContentProperty() {
   const $path = arguments[0]
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
-    keychaining: $content.options.keychaining,
+    subpathError: $content.options.subpathError,
   }, $options, arguments[1])
-  const { events, pathkey, keychaining } = ulteroptions
+  const { events, pathkey, subpathError } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
     let propertyValue = root[propertyKey]
     // Keychaining
-    if(keychaining === true && propertyValue === undefined) { return undefined }
+    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
       return propertyValue.get(subpaths.join('.'), ulteroptions)

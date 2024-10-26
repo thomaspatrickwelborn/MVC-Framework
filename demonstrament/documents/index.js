@@ -9,15 +9,16 @@ const object = new Content({propertyA: { propertyB: "BBB" }})
 const array = new Content(
   [
     []
-  ]
+  ], null, { subpathError: true }
 )
-array.get('0').push(object)
-array.get("0").set("0", { propertyA: { propertyB: "BBB" } } )
-array.get("0.0").assign({ propertyA: { propertyB: "BBBBBB" } } )
-array.get("0").assign({
-  "1": { propertyA: { propertyB: "BBB" } }
-})
-console.log(array.string)
+console.log(array.get('1.1'))
+// array.get('0').push(object)
+// array.get("0").set("0", { propertyA: { propertyB: "BBB" } } )
+// array.get("0.0").assign({ propertyA: { propertyB: "BBBBBB" } } )
+// array.get("0").assign({
+//   "1": { propertyA: { propertyB: "BBB" } }
+// })
+// console.log(array.string)
 // array.get("0.1.propertyA")
 // .set("propertyB", "BBBBBB")
 // console.log(array.string)
