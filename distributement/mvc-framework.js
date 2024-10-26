@@ -1269,10 +1269,10 @@ function getContentProperty() {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = root[propertyKey];
-    // Keychaining
-    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
+      // Subpath Error
+      if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event
@@ -1374,7 +1374,7 @@ function setContentProperty() {
     subpathError: $content.options.subpathError,
   }, $options, arguments[2]);
   const contentOptions = $content.options;
-  contentOptions.traps.accessor.set = ulteroptions;
+  // contentOptions.traps.accessor.set = ulteroptions
   const { events, pathkey, subpathError, recursive } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
@@ -1387,8 +1387,6 @@ function setContentProperty() {
     const _path = (path !== null)
       ? String(path).concat('.', propertyKey)
       : propertyKey;
-    // Keychaining
-    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
       propertyValue = root[propertyKey];
@@ -1413,6 +1411,8 @@ function setContentProperty() {
           parent: proxy,
         }));
       }
+      // Subpath Error
+      if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.set(subpaths.join('.'), $value, ulteroptions)
     }
     // Validation
@@ -1448,6 +1448,8 @@ function setContentProperty() {
     else {
       propertyValue = $value;
     }
+    // Root Assignment
+    root[propertyKey] = propertyValue;
     // Set Property Event
     if(contentEvents && events['setProperty']) {
       $content.dispatchEvent(
@@ -1460,20 +1462,15 @@ function setContentProperty() {
         }, $content)
       );
     }
-    // Root Assignment
-    root[propertyKey] = propertyValue;
     // Return Property Value
     return propertyValue
   }
   // Path Key: false
   else if(pathkey === false) {
     let propertyKey = $path;
-    // Property Value: Content Instance
-    if($value.classToString === Content.toString()) {
-      propertyValue = Object.assign($value, { path: _path, parent: proxy });
-    }
-    // Property Value: New Content Instance
-    else if(typeof $value === 'object') {
+    // Property Value: Object
+    if(typeof $value === 'object') {
+      if($value.classToString === Content.toString()) { $value = $value.object; }
       let subschema;
       if(schema?.contextType === 'array') { subschema = schema.context[0]; }
       if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
@@ -1584,10 +1581,10 @@ function deleteContentProperty() {
     const propertyKey = subpaths.shift();
     let propertyValue = root[propertyKey];
 
-    // Keychaining
-    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
+      // Subpath Error
+      if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
     if(typeof propertyValue === 'object') {

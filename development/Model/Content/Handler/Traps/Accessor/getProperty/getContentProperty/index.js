@@ -19,10 +19,10 @@ export default function getContentProperty() {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
     let propertyValue = root[propertyKey]
-    // Keychaining
-    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
+      // Subpath Error
+      if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event

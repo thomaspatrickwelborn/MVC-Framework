@@ -20,10 +20,10 @@ export default function deleteContentProperty() {
     const propertyKey = subpaths.shift()
     let propertyValue = root[propertyKey]
 
-    // Keychaining
-    if(subpathError === false && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
+      // Subpath Error
+      if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
     if(typeof propertyValue === 'object') {
