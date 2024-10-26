@@ -5,36 +5,29 @@ const eventLog = ($event) => { console.log(
   "\n", "$event.path", $event.path,
   "\n", "$event.detail", $event.detail,
 ) }
-// const object = new Content({propertyA: { propertyB: "BBB" }})
+const object = new Content({propertyA: { propertyB: "BBB" }})
 const array = new Content(
   [
     []
   ]
 )
-// console.log(object.classToString)
-// console.log(array.get('0').push(object))
-// array.get('0').push(object)
-// array.set('0', {propertyA: { propertyB: "BBB" }})
-array.get("0")
-.set("0", { propertyA: { propertyB: "BBB" } } )
-console.log(array.string)
-array.get("0.0")
-.assign({ propertyA: { propertyB: "BBBBBB" } } )
-array.get("0")
-.assign({
+array.get('0').push(object)
+array.get("0").set("0", { propertyA: { propertyB: "BBB" } } )
+array.get("0.0").assign({ propertyA: { propertyB: "BBBBBB" } } )
+array.get("0").assign({
   "1": { propertyA: { propertyB: "BBB" } }
 })
 console.log(array.string)
-array.get("0.1.propertyA")
-.set("propertyB", "BBBBBB")
-console.log(array.string)
-array.get("0")
-.assign([
-  { propertyA: { propertyB: "BBB" } },
-  { propertyA: { propertyB: "BBBBBB" } }
-])
-console.log(array.string)
-console.log(array.get("1"))
+// array.get("0.1.propertyA")
+// .set("propertyB", "BBBBBB")
+// console.log(array.string)
+// array.get("0")
+// .assign([
+//   { propertyA: { propertyB: "BBB" } },
+//   { propertyA: { propertyB: "BBBBBB" } }
+// ])
+// console.log(array.string)
+// console.log(array.get("1"))
 /*
 const object = new Content()
 object.addEventListener('setProperty', eventLog)

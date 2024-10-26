@@ -43,10 +43,8 @@ export default function fill() {
       ? path.concat('.', fillIndex)
       : fillIndex
     let value = $arguments[0]
-    if(value.classToString === Content.toString()) {
-      value = Object.assign(value, { path: _path, parent: proxy })
-    }
-    else if(typeof value === 'object') {
+    if(typeof value === 'object') {
+      if(value?.classToString === Content.toString()) { value = value.object }
       const subschema = schema?.context[0] || null
       value = new Content(value, subschema, {
         path: _path,

@@ -6,7 +6,7 @@ export default function getContentProperty() {
   const $options = Array.prototype.shift.call(arguments)
   const { root, path } = $content
   const { contentEvents } = $content.options
-  const { proxy } = $conten
+  const { proxy } = $content
   // Arguments
   const $path = arguments[0]
   const ulteroptions = Object.assign({}, $options, arguments[1])

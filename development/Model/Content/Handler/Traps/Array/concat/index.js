@@ -34,12 +34,10 @@ export default function concat() {
     const _path = (path !== null)
       ? path.concat('.', valueIndex)
       : valueIndex
-    // Value: Content
-    if($value.classToString === Content.toString()) {
-      values[valueIndex] = Object.assign(value, { path: _path, parent: proxy })
-    }
     // Value: Object Type
-    else if(typeof $value === 'object') {
+    if(typeof $value === 'object') {
+      // Value: Content
+      if($value?.classToString === Content.toString()) { $value = $value.object }
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
         path: _path,

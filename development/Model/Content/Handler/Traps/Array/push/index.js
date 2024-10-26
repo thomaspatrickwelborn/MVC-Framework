@@ -27,10 +27,8 @@ export default function push() {
     const _path = (path !== null)
       ? path.concat('.', elementsIndex)
       : elementsIndex
-    if($element.classToString !== Content.toString()) {
-      $element = Object.assign($element, { path: _path, parent: proxy })
-    }
-    else if(typeof $element === 'object') {
+    if(typeof $element === 'object') {
+      if($element?.classToString === Content.toString()) { $element = $element.object }
       const subschema = schema?.context[0] || null
       $element = new Content($element, subschema, {
         path: _path,

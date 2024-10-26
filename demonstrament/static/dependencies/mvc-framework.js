@@ -372,6 +372,7 @@ function assign() {
       }
       // Source Prop: Object Type
       if(typeof $sourcePropVal === 'object') {
+        if($sourcePropVal?.classToString === Content.toString()) { $sourcePropVal = $sourcePropVal.object; }
         // Subschema
         let subschema;
         if(schema?.contextType === 'array') { subschema = schema.context[0]; }
@@ -381,10 +382,7 @@ function assign() {
         const _path = (path !== null)
           ? path.concat('.', $sourcePropKey)
           : $sourcePropKey;
-        const content = new Content($sourcePropVal, subschema, recursiveAssign({}, $content.options, {
-          path: _path,
-          parent: proxy,
-        }));
+        let sourcePropVal = root[$sourcePropKey];
         // Assignment
         let assignment;
         // Source Tree: False
@@ -393,17 +391,20 @@ function assign() {
         }
         // Source Tree: true
         else {
-          const sourcePropVal = root[$sourcePropKey];
           // Assignment: Existing Content Instance
           if(sourcePropVal?.classToString === Content.toString()) {
             sourcePropVal.assign($sourcePropVal);
-            Object.assign(sourcePropVal, { path: _path, parent: proxy });
-            assignment = { [$sourcePropKey]: sourcePropVal };
           }
           // Assignment: New Content Instance
           else {
-            assignment = { [$sourcePropKey]: content };
+            sourcePropVal = new Content($sourcePropVal, subschema, 
+              recursiveAssign({}, $content.options, {
+                path: _path,
+                parent: proxy,
+              })
+            );
           }
+          assignment = { [$sourcePropKey]: sourcePropVal };
         }
         // Assignment
         Object.assign(root, assignment);
@@ -685,12 +686,10 @@ function concat() {
     const _path = (path !== null)
       ? path.concat('.', valueIndex)
       : valueIndex;
-    // Value: Content
-    if($value.classToString === Content.toString()) {
-      values[valueIndex] = Object.assign(value, { path: _path, parent: proxy });
-    }
     // Value: Object Type
-    else if(typeof $value === 'object') {
+    if(typeof $value === 'object') {
+      // Value: Content
+      if($value?.classToString === Content.toString()) { $value = $value.object; }
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
         path: _path,
@@ -848,10 +847,8 @@ function fill() {
       ? path.concat('.', fillIndex)
       : fillIndex;
     let value = $arguments[0];
-    if(value.classToString === Content.toString()) {
-      value = Object.assign(value, { path: _path, parent: proxy });
-    }
-    else if(typeof value === 'object') {
+    if(typeof value === 'object') {
+      if(value?.classToString === Content.toString()) { value = value.object; }
       const subschema = schema?.context[0] || null;
       value = new Content(value, subschema, {
         path: _path,
@@ -945,10 +942,8 @@ function push() {
     const _path = (path !== null)
       ? path.concat('.', elementsIndex)
       : elementsIndex;
-    if($element.classToString !== Content.toString()) {
-      $element = Object.assign($element, { path: _path, parent: proxy });
-    }
-    else if(typeof $element === 'object') {
+    if(typeof $element === 'object') {
+      if($element?.classToString === Content.toString()) { $element = $element.object; }
       const subschema = schema?.context[0] || null;
       $element = new Content($element, subschema, {
         path: _path,
@@ -1098,10 +1093,8 @@ function splice() {
       : addItemsIndex;
     let startIndex = $start + addItemsIndex;
     // Add Item: Object Type
-    if(addItem.classToString !== Content.toString()) {
-      addItem = Object.assign(addItem, { path: _path, parent: proxy });
-    }
     if(typeof addItem === 'object') {
+      if(addItem?.classToString === Content.toString()) { addItem = addItem.object; }
       const subschema = schema?.context[0] || null;
       addItem = new Content(addItem, subschema, {
         path: _path,
@@ -1261,7 +1254,6 @@ function getContentProperty() {
   const $options = Array.prototype.shift.call(arguments);
   const { root, path } = $content;
   const { contentEvents } = $content.options;
-  $conten;
   // Arguments
   const $path = arguments[0];
   const ulteroptions = Object.assign({}, $options, arguments[1]);
@@ -1425,12 +1417,10 @@ function setContentProperty() {
       if(!validSourceProp.valid) { return }
     }
     // Return: Property
-    // Value: Content
-    if(propertyValue?.classToString === Content.toString()) {
-      propertyValue = Object.assign($value, { path: _path, parent: proxy });
-    }
     // Value: Object Literal
     else if(typeof $value === 'object') {
+      // Value: Content
+      if($value?.classToString === Content.toString()) { $value = $value.object; }
       let subschema;
       if(schema?.contextType === 'array') { subschema = schema.context[0]; }
       else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }

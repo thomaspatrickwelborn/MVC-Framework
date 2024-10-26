@@ -34,6 +34,7 @@ export default function assign() {
       }
       // Source Prop: Object Type
       if(typeof $sourcePropVal === 'object') {
+        if($sourcePropVal?.classToString === Content.toString()) { $sourcePropVal = $sourcePropVal.object }
         // Subschema
         let subschema
         if(schema?.contextType === 'array') { subschema = schema.context[0] }
@@ -43,10 +44,7 @@ export default function assign() {
         const _path = (path !== null)
           ? path.concat('.', $sourcePropKey)
           : $sourcePropKey
-        const content = new Content($sourcePropVal, subschema, recursiveAssign({}, $content.options, {
-          path: _path,
-          parent: proxy,
-        }))
+        let sourcePropVal = root[$sourcePropKey]
         // Assignment
         let assignment
         // Source Tree: False
@@ -55,17 +53,20 @@ export default function assign() {
         }
         // Source Tree: true
         else {
-          const sourcePropVal = root[$sourcePropKey]
           // Assignment: Existing Content Instance
           if(sourcePropVal?.classToString === Content.toString()) {
             sourcePropVal.assign($sourcePropVal)
-            Object.assign(sourcePropVal, { path: _path, parent: proxy })
-            assignment = { [$sourcePropKey]: sourcePropVal }
           }
           // Assignment: New Content Instance
           else {
-            assignment = { [$sourcePropKey]: content }
+            sourcePropVal = new Content($sourcePropVal, subschema, 
+              recursiveAssign({}, $content.options, {
+                path: _path,
+                parent: proxy,
+              })
+            )
           }
+          assignment = { [$sourcePropKey]: sourcePropVal }
         }
         // Assignment
         Object.assign(root, assignment)

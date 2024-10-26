@@ -68,12 +68,10 @@ export default function setContentProperty() {
       if(!validSourceProp.valid) { return }
     }
     // Return: Property
-    // Value: Content
-    if(propertyValue?.classToString === Content.toString()) {
-      propertyValue = Object.assign($value, { path: _path, parent: proxy })
-    }
     // Value: Object Literal
     else if(typeof $value === 'object') {
+      // Value: Content
+      if($value?.classToString === Content.toString()) { $value = $value.object }
       let subschema
       if(schema?.contextType === 'array') { subschema = schema.context[0] }
       else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey] }

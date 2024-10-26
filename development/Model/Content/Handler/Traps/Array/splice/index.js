@@ -62,10 +62,8 @@ export default function splice() {
       : addItemsIndex
     let startIndex = $start + addItemsIndex
     // Add Item: Object Type
-    if(addItem.classToString !== Content.toString()) {
-      addItem = Object.assign(addItem, { path: _path, parent: proxy })
-    }
     if(typeof addItem === 'object') {
+      if(addItem?.classToString === Content.toString()) { addItem = addItem.object }
       const subschema = schema?.context[0] || null
       addItem = new Content(addItem, subschema, {
         path: _path,
