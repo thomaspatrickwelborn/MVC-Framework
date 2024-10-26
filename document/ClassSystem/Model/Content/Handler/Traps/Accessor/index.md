@@ -16,10 +16,13 @@ Accessor Handler Trap Options are defined with new `Content` Instance creation.
 ```
 import { Content } from 'mvc-framework'
 const $contentOptions = {
+  pathkey: true,
+  keychaining: true,
   traps: {
     accessor: {
       get: {
         pathkey: true,
+        keychaining: true,
         events: [
           'get',
           'getProperty'
@@ -27,6 +30,7 @@ const $contentOptions = {
       },
       set: {
         pathkey: true,
+        keychaining: true,
         recursive: true,
         events: [
           'set',
@@ -35,6 +39,7 @@ const $contentOptions = {
       },
       delete: {
         pathkey: true,
+        keychaining: true,
         events: [
           'delete',
           'deleteProperty'
@@ -46,13 +51,31 @@ const $contentOptions = {
 const content = new Content({}, null, $contentOptions)
 ```
 ### `get`, `set`, `delete` Shared Options
+ - Shared Accessor Options may be set as `content` options or overriden as `content.traps.accessor.get`, `content.traps.accessor.set`, and `content.traps.accessor.delete`.  
+**All Accessor Methods**:  
+```
+const content = new Content({}, null, {
+  pathkey: false,
+  keychaining: false,
+})
+```
+**Individual Accessor Methods**:  
+```
+const content = new Content({}, null, {
+  traps: { accessor: {
+    get: { pathkey: false, keychaining: false },
+    set: { pathkey: false, keychaining: false },
+    delete: { pathkey: false, keychaining: false },
+  } }
+})
+```
 #### `pathkey` Option
 **Type**: `Boolean`  
 **Default**: `true`  
 **Descript**:  
  - When `true`, properties accessed through dot-notation path.  
  - When `false`, properties accessed through key. 
-##### `pathKey`: `true`
+##### `pathkey`: `true`
 ```
 const content = new Content({
   propertyA: {
@@ -66,7 +89,7 @@ console.log(
 )
 // LOG: "CCC"
 ```
-##### `pathKey`: `false`
+##### `pathkey`: `false`
 Path accessor notation disabled, returns `undefined`.  
 ```
 const content = new Content({
@@ -81,7 +104,7 @@ console.log(
 )
 // LOG: undefined
 ```
-##### `pathKey` Escape
+##### `pathkey` Escape
 Quotation enclosures escape path accessor notation.  
 ```
 const content = new Content({
@@ -105,7 +128,17 @@ console.log(
 **Type**: `Boolean`  
 **Default**: `true`  
 **Descript**:  
- - When `true` and `pathkey` is also `true`, 
+ - When `true` and `pathkey` is `true`, returns `undefined` when no subpath exists.  
+ - When `false` and `pathkey` is `true`, throws error.  
+##### `keychaining`: `true`  
+```
+const content = new Content({
+
+})
+```
+##### `keychaining`: `false`  
+```
+```
 
 ### `get` Options
 #### `get.events` Option

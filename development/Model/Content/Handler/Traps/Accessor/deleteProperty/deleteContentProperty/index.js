@@ -1,4 +1,4 @@
-import { regularExpressions } from '../../../../../../../Coutil/index.js'
+import { regularExpressions, recursiveAssign } from '../../../../../../../Coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../Events/index.js'
 export default function deleteContentProperty() {
@@ -9,7 +9,10 @@ export default function deleteContentProperty() {
   const { proxy } = $content
   // Arguments
   const $path = arguments[0]
-  const ulteroptions = Object.assign({}, $options, arguments[1])
+  const ulteroptions = recursiveAssign({
+    pathkey: $content.options.pathkey,
+    keychaining: $content.options.keychaining,
+  }, $options, arguments[1])
   const { events, pathkey, keychaining } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
@@ -17,6 +20,9 @@ export default function deleteContentProperty() {
     const propertyKey = subpaths.shift()
     let propertyValue = root[propertyKey]
 
+    // Keychaining
+    if(keychaining === true && propertyValue === undefined) { return undefined }
+    // Return: Subproperty
     if(subpaths.length) {
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }

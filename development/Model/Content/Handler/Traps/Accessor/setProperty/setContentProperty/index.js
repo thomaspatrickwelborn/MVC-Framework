@@ -1,4 +1,4 @@
-import { regularExpressions } from '../../../../../../../Coutil/index.js'
+import { regularExpressions, recursiveAssign } from '../../../../../../../Coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function setContentProperty() {
@@ -11,9 +11,10 @@ export default function setContentProperty() {
   const $path = arguments[0]
   const $value = arguments[1]
   // Options
-  const ulteroptions = Object.assign(
-    {}, $options, arguments[2]
-  )
+  const ulteroptions = recursiveAssign({
+    pathkey: $content.options.pathkey,
+    keychaining: $content.options.keychaining,
+  }, $options, arguments[2])
   const contentOptions = $content.options
   contentOptions.traps.accessor.set = ulteroptions
   const { events, pathkey, keychaining, recursive } = ulteroptions
@@ -28,6 +29,8 @@ export default function setContentProperty() {
     const _path = (path !== null)
       ? String(path).concat('.', propertyKey)
       : propertyKey
+    // Keychaining
+    if(keychaining === true && propertyValue === undefined) { return undefined }
     // Return: Subproperty
     if(subpaths.length) {
       propertyValue = root[propertyKey]

@@ -5,19 +5,21 @@ export default {
   validationEvents: true, 
   contentEvents: true, 
   enableEvents: true, 
+  pathkey: true,
+  keychaining: true,
   traps: {
     accessor: {
       get: {
-        pathkey: true,
-        keychaining: true,
+        // pathkey: true,
+        // keychaining: true,
         events: [
           'get',
           'getProperty'
         ],
       },
       set: {
-        pathkey: true,
-        keychaining: true,
+        // pathkey: true,
+        // keychaining: true,
         recursive: true,
         events: [
           'set',
@@ -25,8 +27,8 @@ export default {
         ],
       },
       delete: {
-        pathkey: true,
-        keychaining: true,
+        // pathkey: true,
+        // keychaining: true,
         events: [
           'delete',
           'deleteProperty'
