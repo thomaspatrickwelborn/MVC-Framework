@@ -34,27 +34,35 @@ const $contentOptions = {
     object: {
       assign: {
         sourceTree: true,
-        events: [
-          'assignSourceProperty',
-          'assignSource',
-          'assign'
-        ],
+        events: {
+          'assignSourceProperty': true,
+          'assignSource': true,
+          'assign': true,
+        },
       },
       defineProperties: {
         descriptorTree: true,
-        events: ['defineProperties'],
+        events: {
+          'defineProperties': true
+        },
       },
       defineProperty: {
         descriptorTree: true,
-        events: ['defineProperty'],
+        events: {
+          'defineProperty': true
+        },
       },
       freeze: {
         recursive: true,
-        events: ['freeze']
+        events: {
+          'freeze': true
+      }
       },
       seal: {
         recursive: true,
-        events: ['seal']
+        events: {
+          'seal': true
+      }
       },
     }
   }

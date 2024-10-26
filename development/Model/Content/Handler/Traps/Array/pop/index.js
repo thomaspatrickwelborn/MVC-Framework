@@ -7,7 +7,7 @@ export default function pop() {
   const popElement = Array.prototype.pop.call(root)
   const popElementIndex = root.length - 1
   // Array Pop Event
-  if(contentEvents && events.includes('pop')) {
+  if(contentEvents && events['pop']) {
     $content.dispatchEvent(
       new ContentEvent(
         'pop',

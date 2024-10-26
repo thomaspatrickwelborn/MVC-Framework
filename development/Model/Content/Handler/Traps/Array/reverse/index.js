@@ -6,7 +6,7 @@ export default function reverse() {
   const { root, path } = $content
   const { proxy } = $content
   Array.prototype.reverse.call(root, ...arguments)
-  if(contentEvents && events.includes('reverse')) {
+  if(contentEvents && events['reverse']) {
     $content.dispatchEvent(
       new ContentEvent(
         'reverse',

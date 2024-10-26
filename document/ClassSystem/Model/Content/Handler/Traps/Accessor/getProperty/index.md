@@ -6,7 +6,10 @@ const contentOptions = {
   traps: {
     accessor: {
       get: {
-        events: ['getProperty', 'get'],
+        events: {
+          'getProperty': true,
+          'get': true
+        },
       }
     }
   }

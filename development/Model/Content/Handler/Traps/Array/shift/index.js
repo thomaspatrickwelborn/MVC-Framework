@@ -7,7 +7,7 @@ export default function shift() {
   const shiftElement = Array.prototype.shift.call(root)
   const shiftElementIndex = 0
   // Array Shift Event
-  if(contentEvents && events.includes('shift')) {
+  if(contentEvents && events['shift']) {
     $content.dispatchEvent(
       new ContentEvent(
         'shift',

@@ -26,7 +26,7 @@ export default function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event
-    if(contentEvents && events.includes('getProperty')) {
+    if(contentEvents && events['getProperty']) {
       $content.dispatchEvent(
         new ContentEvent('getProperty', {
           path,

@@ -83,7 +83,7 @@ export default function assign() {
         Object.assign(assignedSource, assignment)
       }
       // Content Event: Assign Source Property
-      if(contentEvents && events.includes('assignSourceProperty')) {
+      if(contentEvents && events['assignSourceProperty']) {
         $content.dispatchEvent(
           new ContentEvent('assignSourceProperty', {
             path,
@@ -98,7 +98,7 @@ export default function assign() {
     }
     assignedSources.push(assignedSource)
     // Content Event: Assign Source
-    if(contentEvents && events.includes('assignSource')) {
+    if(contentEvents && events['assignSource']) {
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
           path,
@@ -110,7 +110,7 @@ export default function assign() {
     }
   }
   // Content Event: Assign
-  if(contentEvents && events.includes('assign')) {
+  if(contentEvents && events['assign']) {
     $content.dispatchEvent(
       new ContentEvent('assign', { 
         path,

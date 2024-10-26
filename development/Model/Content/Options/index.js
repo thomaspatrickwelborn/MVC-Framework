@@ -10,103 +10,97 @@ export default {
   traps: {
     accessor: {
       get: {
-        // pathkey: true,
-        // subpathError: false,
-        events: [
-          'get',
-          'getProperty'
-        ],
+        events: {
+          'get': true,
+          'getProperty': true,
+        },
       },
       set: {
-        // pathkey: true,
-        // subpathError: false,
         recursive: true,
-        events: [
-          'set',
-          'setProperty'
-        ],
+        events: {
+          'set': true,
+          'setProperty': true,
+        },
       },
       delete: {
-        // pathkey: true,
-        // subpathError: false,
-        events: [
-          'delete',
-          'deleteProperty'
-        ],
+        events: {
+          'delete': true,
+          'deleteProperty': true,
+        },
       },
     },
     object: {
       assign: {
         sourceTree: true,
-        events: [
-          'assignSourceProperty',
-          'assignSource',
-          'assign'
-        ],
+        events: {
+          'assignSourceProperty': true,
+          'assignSource': true,
+          'assign': true,
+        },
       },
       defineProperties: {
         descriptorTree: true,
-        events: ['defineProperties'],
+        events: { 'defineProperties': true },
       },
       defineProperty: {
         descriptorTree: true,
-        events: ['defineProperty'],
+        events: { 'defineProperty': true },
       },
       freeze: {
         recursive: true,
-        events: ['freeze']
+        events: { 'freeze': true  },
       },
       seal: {
         recursive: true,
-        events: ['seal']
+        events: { 'seal': true  },
       },
     },
     array: {
       concat: {
-        events: [
-          'concatValue',
-          'concat'
-        ]
+        events: {
+          'concatValue': true,
+          'concat': true,
+        }
       },
       copyWithin: {
-        events: [
-          'copyWithinIndex',
-          'copyWithin'
-        ]
+        events: {
+          'copyWithinIndex': true,
+          'copyWithin': true,
+        }
       },
       fill: {
-        events: [
-          'fillIndex',
-          'fill'
-        ]
+        events: {
+          'fillIndex': true,
+          'fill': true,
+        }
       },
       pop: {
-        events: ['pop']
+        events: { 'pop': true  },
       },
       push: {
-        events: [
-          'pushProp',
-          'push'
-        ]
+        events: {
+          'pushProp': true,
+          'push': true,
+        }
       },
       reverse: {
-        events: ['reverse']
+        events: { 'reverse': true  },
       },
       shift: {
-        events: ['shift']
+        events: { 'shift': true  },
       },
       splice: {
-        events: [
-          'spliceDelete',
-          'spliceAdd',
-          'splice'
-        ]
+        events: {
+          'spliceDelete': true,
+          'spliceAdd': true,
+          'splice': true,
+        }
       },
       unshift: {
-        events: [
-          'unshiftProp',
-          'unshift'
-        ]
+        events: {
+          'unshiftProp': true,
+          'unshift': true,
+        }
       },
     }
   }

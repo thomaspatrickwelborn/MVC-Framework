@@ -31,7 +31,7 @@ export default function deleteContentProperty() {
     }
     delete root[propertyKey]
     // Delete Property Event
-    if(contentEvents && events.includes('deleteProperty')) {
+    if(contentEvents && events['deleteProperty']) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
           path,
@@ -53,7 +53,7 @@ export default function deleteContentProperty() {
     }
     delete root[propertyKey]
     // Delete Property Event
-    if(contentEvents && events.includes('deleteProperty')) {
+    if(contentEvents && events['deleteProperty']) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
           path,

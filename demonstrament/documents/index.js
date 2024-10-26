@@ -9,8 +9,13 @@ const object = new Content({propertyA: { propertyB: "BBB" }})
 const array = new Content(
   [
     []
-  ], null, { subpathError: true }
+  ], null, {
+    subpathError: false,
+    traps: { accessor: { get: { events: ['getProperty'] } } }
+  }
 )
+array.addEventListener('get', eventLog)
+array.addEventListener('getProperty', eventLog)
 console.log(array.get('1.1'))
 // array.get('0').push(object)
 // array.get("0").set("0", { propertyA: { propertyB: "BBB" } } )

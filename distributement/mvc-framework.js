@@ -424,7 +424,7 @@ function assign() {
         Object.assign(assignedSource, assignment);
       }
       // Content Event: Assign Source Property
-      if(contentEvents && events.includes('assignSourceProperty')) {
+      if(contentEvents && events['assignSourceProperty']) {
         $content.dispatchEvent(
           new ContentEvent('assignSourceProperty', {
             path,
@@ -439,7 +439,7 @@ function assign() {
     }
     assignedSources.push(assignedSource);
     // Content Event: Assign Source
-    if(contentEvents && events.includes('assignSource')) {
+    if(contentEvents && events['assignSource']) {
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
           path,
@@ -451,7 +451,7 @@ function assign() {
     }
   }
   // Content Event: Assign
-  if(contentEvents && events.includes('assign')) {
+  if(contentEvents && events['assign']) {
     $content.dispatchEvent(
       new ContentEvent('assign', { 
         path,
@@ -485,7 +485,7 @@ function defineProperties() {
     $trap.defineProperty($propertyKey, $propertyDescriptor);
   }
   // Define Properties Event
-  if(contentEvents && events.includes('defineProperties')) {
+  if(contentEvents && events['defineProperties']) {
     $content.dispatchEvent(
       new ContentEvent(
         'defineProperties',
@@ -575,7 +575,7 @@ function defineProperty() {
     Object.defineProperty(root, propertyKey, propertyDescriptor);
   }
   // Define Property Event
-  if(contentEvents && events.includes('defineProperty')) {
+  if(contentEvents && events['defineProperty']) {
     $content.dispatchEvent(
       new ContentEvent('defineProperty', {
         path,
@@ -603,7 +603,7 @@ function freeze() {
         $propertyValue.freeze();
       }
       else { Object.freeze($propertyValue); }
-      if(contentEvents && events.includes('freeze')) {
+      if(contentEvents && events['freeze']) {
         $content.dispatchEvent(
           new ContentEvent(
             'freeze',
@@ -632,7 +632,7 @@ function seal() {
         $propertyValue.seal();
       }
       else { Object.seal($propertyValue); }
-      if(contentEvents && events.includes('seal')) {
+      if(contentEvents && events['seal']) {
         $content.dispatchEvent(
           new ContentEvent(
             'seal',
@@ -705,7 +705,7 @@ function concat() {
       values[valueIndex] = $value;
     }
     rootConcat = Array.prototype.concat.call(rootConcat, values[valueIndex]);
-    if(contentEvents && events.includes('concatValue')) {
+    if(contentEvents && events['concatValue']) {
       $content.dispatchEvent(
         new ContentEvent('concatValue', {
           path,
@@ -719,7 +719,7 @@ function concat() {
     valueIndex++;
   }
   proxyConcat = new Content(rootConcat, schema, $content.options);
-  if(contentEvents && events.includes('concat')) {
+  if(contentEvents && events['concat']) {
     $content.dispatchEvent(
       new ContentEvent('concat', {
         path,
@@ -766,7 +766,7 @@ function copyWithin() {
       copyIndex + 1
     );
     // Array Copy Within Index Event Data
-    if(contentEvents && events.includes('copyWithinIndex')) {
+    if(contentEvents && events['copyWithinIndex']) {
       $content.dispatchEvent(
         new ContentEvent(
           'copyWithinIndex',
@@ -787,7 +787,7 @@ function copyWithin() {
     targetIndex++;
   }
   // Array Copy Within Event
-  if(contentEvents && events.includes('copyWithin')) {
+  if(contentEvents && events['copyWithin']) {
     $content.dispatchEvent(
       new ContentEvent(
         'copyWithin',
@@ -862,7 +862,7 @@ function fill() {
       root, value, fillIndex, fillIndex + 1
     );
     // Array Fill Index Event
-    if(contentEvents && events.includes('fillIndex')) {
+    if(contentEvents && events['fillIndex']) {
       $content.dispatchEvent(
         new ContentEvent('fillIndex', {
           path, 
@@ -877,7 +877,7 @@ function fill() {
     fillIndex++;
   }
   // Array Fill Event
-  if(contentEvents && events.includes('fill')) {
+  if(contentEvents && events['fill']) {
     $content.dispatchEvent(
       new ContentEvent('fill', {
         path,
@@ -901,7 +901,7 @@ function pop() {
   const popElement = Array.prototype.pop.call(root);
   const popElementIndex = root.length - 1;
   // Array Pop Event
-  if(contentEvents && events.includes('pop')) {
+  if(contentEvents && events['pop']) {
     $content.dispatchEvent(
       new ContentEvent(
         'pop',
@@ -958,7 +958,7 @@ function push() {
       elements.push($element);
       Array.prototype.push.call(root, $element);
     }
-    if(contentEvents && events.includes('pushProp')) {
+    if(contentEvents && events['pushProp']) {
       $content.dispatchEvent(
         new ContentEvent('pushProp', {
           path,
@@ -972,7 +972,7 @@ function push() {
     elementsIndex++;
   }
   // Push Event
-  if(contentEvents && events.includes('push')) {
+  if(contentEvents && events['push']) {
     $content.dispatchEvent(
       new ContentEvent('push', {
         path,
@@ -992,7 +992,7 @@ function reverse() {
   const { root, path } = $content;
   const { proxy } = $content;
   Array.prototype.reverse.call(root, ...arguments);
-  if(contentEvents && events.includes('reverse')) {
+  if(contentEvents && events['reverse']) {
     $content.dispatchEvent(
       new ContentEvent(
         'reverse',
@@ -1017,7 +1017,7 @@ function shift() {
   const shiftElement = Array.prototype.shift.call(root);
   const shiftElementIndex = 0;
   // Array Shift Event
-  if(contentEvents && events.includes('shift')) {
+  if(contentEvents && events['shift']) {
     $content.dispatchEvent(
       new ContentEvent(
         'shift',
@@ -1060,7 +1060,7 @@ function splice() {
     const deleteItem = Array.prototype.splice.call(root, $start, 1)[0];
     deleteItems.push(deleteItem);
     // Array Splice Delete Event
-    if(contentEvents && events.includes('spliceDelete')) {
+    if(contentEvents && events['spliceDelete']) {
       $content.dispatchEvent(
         new ContentEvent('spliceDelete', {
           path,
@@ -1114,7 +1114,7 @@ function splice() {
       );
     }
     // Array Splice Add Event
-    if(contentEvents && events.includes('spliceAdd')) {
+    if(contentEvents && events['spliceAdd']) {
       $content.dispatchEvent(
         new ContentEvent('spliceAdd', {
           path,
@@ -1129,7 +1129,7 @@ function splice() {
     addItemsIndex++;
   }
   // Array Splice Event
-  if(contentEvents && events.includes('splice')) {
+  if(contentEvents && events['splice']) {
     $content.dispatchEvent(
       new ContentEvent('splice', {
         path,
@@ -1191,7 +1191,7 @@ function unshift() {
       Array.prototype.unshift.call(root, $element);
     }
     // Array Unshift Prop Event
-    if(contentEvents && events.includes('unshiftProp')) {
+    if(contentEvents && events['unshiftProp']) {
       $content.dispatchEvent(
         new ContentEvent('unshiftProp', {
           path,
@@ -1205,7 +1205,7 @@ function unshift() {
     elementIndex--;
   }
   // Array Unshift Event
-  if(contentEvents && events.includes('unshift') && elements.length) {
+  if(contentEvents && events['unshift'] && elements.length) {
     $content.dispatchEvent(
       new ContentEvent('unshift', {
         path,
@@ -1239,7 +1239,7 @@ function getContent() {
   const ulteroptions = Object.assign({}, $options, arguments[0] || {});
   const { events } = ulteroptions;
   // Get Property Event
-  if(contentEvents && events.includes('get')) {
+  if(contentEvents && events['get']) {
     $content.dispatchEvent(
       new ContentEvent('get', {
         path,
@@ -1276,7 +1276,7 @@ function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event
-    if(contentEvents && events.includes('getProperty')) {
+    if(contentEvents && events['getProperty']) {
       $content.dispatchEvent(
         new ContentEvent('getProperty', {
           path,
@@ -1345,7 +1345,7 @@ function setContent() {
     proxy.set($propertyKey, $propertyValue, ulteroptions);
   }
   // Set Property Event
-  if(contentEvents && events.includes('set')) {
+  if(contentEvents && events['set']) {
     $content.dispatchEvent(
       new ContentEvent('set', {
         path,
@@ -1449,7 +1449,7 @@ function setContentProperty() {
       propertyValue = $value;
     }
     // Set Property Event
-    if(contentEvents && events.includes('setProperty')) {
+    if(contentEvents && events['setProperty']) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
           path, 
@@ -1493,7 +1493,7 @@ function setContentProperty() {
     // Root Assignment
     root[propertyKey] = propertyValue;
     // Set Property Event
-    if(contentEvents && events.includes('setProperty')) {
+    if(contentEvents && events['setProperty']) {
       $content.dispatchEvent(
         new ContentEvent('setProperty', {
           path, 
@@ -1553,7 +1553,7 @@ function deleteContent() {
     proxy.delete($rootPropertyKey, ulteroptions);
   }
   // Delete Property Event
-  if(contentEvents && events?.includes('delete')) {
+  if(contentEvents && events['delete']) {
     $content.dispatchEvent(
       new ContentEvent('delete', {
         path,
@@ -1595,7 +1595,7 @@ function deleteContentProperty() {
     }
     delete root[propertyKey];
     // Delete Property Event
-    if(contentEvents && events.includes('deleteProperty')) {
+    if(contentEvents && events['deleteProperty']) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
           path,
@@ -1617,7 +1617,7 @@ function deleteContentProperty() {
     }
     delete root[propertyKey];
     // Delete Property Event
-    if(contentEvents && events.includes('deleteProperty')) {
+    if(contentEvents && events['deleteProperty']) {
       $content.dispatchEvent(
         new ContentEvent('deleteProperty', {
           path,
@@ -1887,103 +1887,97 @@ var Options$5 = {
   traps: {
     accessor: {
       get: {
-        // pathkey: true,
-        // subpathError: false,
-        events: [
-          'get',
-          'getProperty'
-        ],
+        events: {
+          'get': true,
+          'getProperty': true,
+        },
       },
       set: {
-        // pathkey: true,
-        // subpathError: false,
         recursive: true,
-        events: [
-          'set',
-          'setProperty'
-        ],
+        events: {
+          'set': true,
+          'setProperty': true,
+        },
       },
       delete: {
-        // pathkey: true,
-        // subpathError: false,
-        events: [
-          'delete',
-          'deleteProperty'
-        ],
+        events: {
+          'delete': true,
+          'deleteProperty': true,
+        },
       },
     },
     object: {
       assign: {
         sourceTree: true,
-        events: [
-          'assignSourceProperty',
-          'assignSource',
-          'assign'
-        ],
+        events: {
+          'assignSourceProperty': true,
+          'assignSource': true,
+          'assign': true,
+        },
       },
       defineProperties: {
         descriptorTree: true,
-        events: ['defineProperties'],
+        events: { 'defineProperties': true },
       },
       defineProperty: {
         descriptorTree: true,
-        events: ['defineProperty'],
+        events: { 'defineProperty': true },
       },
       freeze: {
         recursive: true,
-        events: ['freeze']
+        events: { 'freeze': true  },
       },
       seal: {
         recursive: true,
-        events: ['seal']
+        events: { 'seal': true  },
       },
     },
     array: {
       concat: {
-        events: [
-          'concatValue',
-          'concat'
-        ]
+        events: {
+          'concatValue': true,
+          'concat': true,
+        }
       },
       copyWithin: {
-        events: [
-          'copyWithinIndex',
-          'copyWithin'
-        ]
+        events: {
+          'copyWithinIndex': true,
+          'copyWithin': true,
+        }
       },
       fill: {
-        events: [
-          'fillIndex',
-          'fill'
-        ]
+        events: {
+          'fillIndex': true,
+          'fill': true,
+        }
       },
       pop: {
-        events: ['pop']
+        events: { 'pop': true  },
       },
       push: {
-        events: [
-          'pushProp',
-          'push'
-        ]
+        events: {
+          'pushProp': true,
+          'push': true,
+        }
       },
       reverse: {
-        events: ['reverse']
+        events: { 'reverse': true  },
       },
       shift: {
-        events: ['shift']
+        events: { 'shift': true  },
       },
       splice: {
-        events: [
-          'spliceDelete',
-          'spliceAdd',
-          'splice'
-        ]
+        events: {
+          'spliceDelete': true,
+          'spliceAdd': true,
+          'splice': true,
+        }
       },
       unshift: {
-        events: [
-          'unshiftProp',
-          'unshift'
-        ]
+        events: {
+          'unshiftProp': true,
+          'unshift': true,
+        }
       },
     }
   }

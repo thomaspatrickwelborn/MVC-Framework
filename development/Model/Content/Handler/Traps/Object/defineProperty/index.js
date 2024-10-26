@@ -74,7 +74,7 @@ export default function defineProperty() {
     Object.defineProperty(root, propertyKey, propertyDescriptor)
   }
   // Define Property Event
-  if(contentEvents && events.includes('defineProperty')) {
+  if(contentEvents && events['defineProperty']) {
     $content.dispatchEvent(
       new ContentEvent('defineProperty', {
         path,

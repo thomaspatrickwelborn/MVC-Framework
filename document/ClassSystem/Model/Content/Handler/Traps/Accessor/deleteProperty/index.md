@@ -7,7 +7,10 @@ const contentOptions = {
     accessor: {
       delete: {
         recursive: true,
-        events: ['deleteProperty', 'delete'],
+        events: {
+          'deleteProperty': true,
+          'delete': true,
+        },
       }
     }
   }

@@ -11,7 +11,10 @@ const contentOptions = {
     accessor: {
       set: {
         recursive: true,
-        events: ['setProperty', 'set'],
+        events: {
+          'setProperty': true,
+          'set': true
+        },
       }
     }
   }
