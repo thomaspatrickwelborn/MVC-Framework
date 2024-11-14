@@ -1415,9 +1415,10 @@ function setContentProperty() {
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
       propertyValue.set(subpaths.join('.'), $value, ulteroptions);
-      console.log(ulteroptions);
-      console.log('propertyValue', propertyValue);
       return propertyValue
+    }
+    else {
+      propertyValue = $value;
     }
     // Validation
     if(schema && enableValidation) {
@@ -2302,88 +2303,77 @@ var Options$4 = {
   validationType: 'primitive', // 'object', 
 };
 
-const Validators = [new TypeValidator()];
 class Schema extends EventTarget{
-  properties
   options
+  #properties
   #_contextType
   #_context
   constructor($properties = {}, $options = {}) {
     super();
-    this.properties = $properties;
+    this.#properties = $properties;
     this.options = Object.assign({}, Options$4, $options);
     this.context;
   }
   get validationType() { return this.options.validationType }
   get contextType() {
     if(this.#_contextType !== undefined) return this.#_contextType
-    if(Array.isArray(this.properties)) { this.#_contextType = 'array'; }
-    else if(typeOf(this.properties) === 'object') { this.#_contextType = 'object'; }
+    if(Array.isArray(this.#properties)) { this.#_contextType = 'array'; }
+    else if(typeOf(this.#properties) === 'object') { this.#_contextType = 'object'; }
     return this.#_contextType
   }
   get context() {
     if(this.#_context !== undefined) return this.#_context
     let properties;
     if(this.contextType === 'array') {
-      properties = this.properties.slice(0, 1);
+      properties = this.#properties.slice(0, 1);
       this.#_context = [];
     }
     else if(this.contextType === 'object') {
-      properties = this.properties; 
+      properties = this.#properties; 
       this.#_context = {};
     }
+    iterateProperties: 
     for(const [
       $contextKey, $contextVal
     ] of Object.entries(properties)) {
-      // Context Validators: Transform
+      // Context Val: Schema
+      if($contextVal instanceof Schema) {
+        this.#_context[$contextKey] = $contextVal;
+        continue iterateProperties
+      }
+      // Context Val: Object
+      else if(typeof $contextVal.type === 'object') {
+        this.#_context[$contextKey] = new Schema($contextVal.type, this.options);
+        continue iterateProperties
+      }
+      // Context Val: Primitive
+      else {
+        this.#_context[$contextKey] = $contextVal;
+      }
+      // Context Validators
+      this.#_context[$contextKey].validators = [new TypeValidator()];
       const addValidators = [];
       // Context Validator: Add Range
       if(
-        typeof properties[$contextKey].min === 'number' || 
-        typeof properties[$contextKey].max === 'number'
-      ) addValidators.push(new RangeValidator());
+        typeof this.#_context[$contextKey].min === 'number' || 
+        typeof this.#_context[$contextKey].max === 'number'
+      ) { addValidators.push(new RangeValidator()); }
       // Context Validator: Add Length
       if(
-        typeof properties[$contextKey].minLength === 'number' ||
-        typeof properties[$contextKey].maxLength === 'number'
-      ) addValidators.push(new LengthValidator());
+        typeof this.#_context[$contextKey].minLength === 'number' ||
+        typeof this.#_context[$contextKey].maxLength === 'number'
+      ) { addValidators.push(new LengthValidator()); }
       // Context Validator: Add Enum
       if(
-        Array.isArray(properties[$contextKey].enum) &&
-        properties[$contextKey].enum.length > 0
-      ) addValidators.push(new EnumValidator());
-      // Context Validators: Concat
-      properties[$contextKey].validators = Validators.concat(
-        addValidators, properties[$contextKey].validators || []
-      );
-      // Context Val Type: Schema Instance
-      if(properties[$contextKey].type instanceof Schema) {
-        this.#_context[$contextKey] = properties[$contextKey];
-      }
-      // Context Val Type: Primitive Prototype
-      else if(Object.values(Primitives).includes(properties[$contextKey].type)) {
-        this.#_context[$contextKey] = properties[$contextKey];
-      }
-      // Context Val Type: Object Prototype
-      else if(Object.values(Objects).includes(properties[$contextKey].type)) {
-        this.#_context[$contentKey] = new Schema(
-          new properties[$contentKey].type(), this.options
-        );
-      }
-      // Context Val Type: Object Literal
-      else if(Object.keys(Objects).includes(typeOf(properties[$contextKey].type))) {
-        this.#_context[$contextKey] = new Schema(
-          properties[$contextKey].type, this.options
-        );
-      }
-      // Context Val Type: Primitive Literal
-      else {
-        this.#_context[$contextKey] = properties[$contextKey];
-      }
+        Array.isArray(this.#_context[$contextKey].enum) &&
+        this.#_context[$contextKey].enum.length > 0
+      ) { addValidators.push(new EnumValidator()); }
+      this.#_context[$contextKey].validators = addValidators.concat(this.#_context[$contextKey].validators);
     }
     return this.#_context
   }
   validate($content) {
+    if($content.classToString === Content.toString()) { $content = $content.object; }
     let validateProperties;
     if(this.contextType === 'array') { validateProperties = []; }
     else if(this.contextType === 'object') { validateProperties = {}; }
@@ -2522,9 +2512,10 @@ class Model extends Core {
       const { localStorage, autoLoad } = this.options;
       // Local Storage, Auto Load
       if(localStorage && autoLoad) {
-        const localStorageContent = this.localStorage.get();
+        this.localStorage.get();
         this.#_content = new Content(
-          recursiveAssign({}, content, localStorageContent),
+          // recursiveAssign({}, content, localStorageContent),
+          content,
           this.schema,
           this.options.content
         );

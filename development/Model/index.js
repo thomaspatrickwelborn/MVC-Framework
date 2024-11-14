@@ -43,7 +43,8 @@ export default class Model extends Core {
       if(localStorage && autoLoad) {
         const localStorageContent = this.localStorage.get()
         this.#_content = new Content(
-          recursiveAssign({}, content, localStorageContent),
+          // recursiveAssign({}, content, localStorageContent),
+          content,
           this.schema,
           this.options.content
         )

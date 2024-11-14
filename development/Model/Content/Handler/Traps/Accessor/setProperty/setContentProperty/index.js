@@ -57,9 +57,10 @@ export default function setContentProperty() {
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
       propertyValue.set(subpaths.join('.'), $value, ulteroptions)
-      console.log(ulteroptions)
-      console.log('propertyValue', propertyValue)
       return propertyValue
+    }
+    else {
+      propertyValue = $value
     }
     // Validation
     if(schema && enableValidation) {
