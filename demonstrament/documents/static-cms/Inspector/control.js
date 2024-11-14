@@ -78,12 +78,13 @@ export default ($viewParent) => [{
       this.models.database.content.host = String(value)
     },
   },
-  start() {
+}, { defineProperties: {
+  start: { value: function () {
     this.views.default.render({
       device: this.models.device.parse(),
       database: this.models.database.parse(),
     }, 'default')
     this.enableEvents()
     return this
-  }
-}, { validSettings: ['start'] }]
+  } }
+} }]

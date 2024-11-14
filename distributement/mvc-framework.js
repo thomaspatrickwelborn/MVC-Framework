@@ -1,40 +1,40 @@
 const typeOf = ($data) => Object
-	.prototype
-	.toString
-	.call($data).slice(8, -1).toLowerCase();
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
 
 function expandEvents($propEvents) {
-	const propEvents = [];
-	if(Array.isArray($propEvents)) { return $propEvents }
-	else if($propEvents === undefined) { return propEvents }
-	for(const [
-		$propEventSettings, $propEventListener
-	] of Object.entries($propEvents)) {
-		const propEventSettings = $propEventSettings.split(' ');
-		let path, type, listener;
-		if(propEventSettings.length === 1) {
-			path = ':scope';
-			type = propEventSettings[0];
-		} else if(propEventSettings.length > 1) {
-			path = propEventSettings[0];
-			type = propEventSettings[1];
-		}
-		if(Array.isArray($propEventListener)) {
-			listener = $propEventListener[0];
-			$propEventListener[1];
-		}
-		else {
-			listener = $propEventListener;
-		}
-		const propEvent = {
-			type,
-			path,
-			listener,
-			enable: false,
-		};
-		propEvents.push(propEvent);
-	}
-	return propEvents
+  const propEvents = [];
+  if(Array.isArray($propEvents)) { return $propEvents }
+  else if($propEvents === undefined) { return propEvents }
+  for(const [
+    $propEventSettings, $propEventListener
+  ] of Object.entries($propEvents)) {
+    const propEventSettings = $propEventSettings.split(' ');
+    let path, type, listener;
+    if(propEventSettings.length === 1) {
+      path = ':scope';
+      type = propEventSettings[0];
+    } else if(propEventSettings.length > 1) {
+      path = propEventSettings[0];
+      type = propEventSettings[1];
+    }
+    if(Array.isArray($propEventListener)) {
+      listener = $propEventListener[0];
+      $propEventListener[1];
+    }
+    else {
+      listener = $propEventListener;
+    }
+    const propEvent = {
+      type,
+      path,
+      listener,
+      enable: false,
+    };
+    propEvents.push(propEvent);
+  }
+  return propEvents
 }
 
 function recursiveAssign() {
@@ -169,7 +169,7 @@ class Core extends EventTarget {
   }
   getEvents() {
     const getEvents = [];
-    const { events } = this0;
+    const { events } = this;
     const $events = expandEvents(arguments[0]);
     for(const $event of $events) {
       const { type, path, listener, enable } = $event;
@@ -237,16 +237,17 @@ class Core extends EventTarget {
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #assign() {
-    for(const $propertyName of this.options.assign) {
-      const propertyValue = this.settings[$propertyName];
-      Object.assign(this, { [$propertyName]: propertyValue });
+    for(const [
+        $propertyName, $propertyValue
+      ] of Object.entries(this.options.assign)) {
+      Object.assign(this, { [$propertyName]: $propertyValue });
     }
   }
   #defineProperties() {
     for(const [
       $propertyName, $propertyDescriptor
     ] of Object.entries(this.options.defineProperties)) {
-      $propertyDescriptor.value = this.settings[$propertyName];
+      if(typeof $propertyDescriptor.value === 'function') ;
       Object.defineProperty(this, $propertyName, $propertyDescriptor);
     }
   }
@@ -2914,51 +2915,51 @@ class FetchRouter extends Core {
 }
 
 const Settings$1 = {
-	routes: {},
+  routes: {},
 };
 const Options$1 = {
-	enable: true,
+  enable: true,
 };
 class LocationRouter extends Core {
-	constructor($settings = Settings$1, $options = Options$1) {
-		super(...arguments);
-		this.routes = $settings.routes;
-		if($options.enable === true) this.enable();
-	}
-	#_route
-	get route() { return this.#_route }
-	set route($route) {
-		this.#_route = $route;
-		this.dispatchEvent(new CustomEvent('routeChange', {
-			detail: $route
-		}));
-	}
-	#_routes = {}
-	get routes() { return this.#_routes }
-	set routes($routes) {
-		const _routes = this.#_routes;
-		for(const [
-			$routeName, $routeSettings
-		] of Object.entries($routes)) {
-			_routes[$routeName] = $routeSettings;
-		}
-	}
-	#_hashChange
-	#hashChange($event) {
-		const _routes = this.#_routes;
-		const { newURL, oldURL } = $event;
-		const newURLHash = newURL.split('#')[1];
-		oldURL.split('#')[1];
-		const routeData = _routes[newURLHash];
-		if(routeData === undefined) return
-		this.route = routeData;
-	}
-	enable() {
-		window.addEventListener('hashchange', this.#hashChange.bind(this));
-	}
-	disable() {
-		window.removeEventListener('hashchange', this.#hashChange.bind(this));
-	}
+  constructor($settings = Settings$1, $options = Options$1) {
+    super(...arguments);
+    this.routes = $settings.routes;
+    if($options.enable === true) this.enable();
+  }
+  #_route
+  get route() { return this.#_route }
+  set route($route) {
+    this.#_route = $route;
+    this.dispatchEvent(new CustomEvent('routeChange', {
+      detail: $route
+    }));
+  }
+  #_routes = {}
+  get routes() { return this.#_routes }
+  set routes($routes) {
+    const _routes = this.#_routes;
+    for(const [
+      $routeName, $routeSettings
+    ] of Object.entries($routes)) {
+      _routes[$routeName] = $routeSettings;
+    }
+  }
+  #_hashChange
+  #hashChange($event) {
+    const _routes = this.#_routes;
+    const { newURL, oldURL } = $event;
+    const newURLHash = newURL.split('#')[1];
+    oldURL.split('#')[1];
+    const routeData = _routes[newURLHash];
+    if(routeData === undefined) return
+    this.route = routeData;
+  }
+  enable() {
+    window.addEventListener('hashchange', this.#hashChange.bind(this));
+  }
+  disable() {
+    window.removeEventListener('hashchange', this.#hashChange.bind(this));
+  }
 }
 
 var Settings = {
@@ -2976,147 +2977,150 @@ var Options = {
   enableEvents: true
 };
 
+const ValidClassInstances = ["models", "views", "controls", "routers"];
 class Control extends Core {
-	#_models = {}
-	#_views = {}
-	#_controls = {}
-	#_routers = {
-		location: {},
-		fetch: {},
-	}
-	constructor($settings = {}, $options = {}) {
-		super(
-			Object.assign({}, Settings, $settings),
-			Object.assign({}, Options, $options),
-		);
-		this.addClassInstances($settings);
-		if(this.options.enableEvents === true) this.enableEvents();
-	}
-	get models() { return this.#_models }
-	set models($models) {
-		const models = this.models;
-		for(const [
-			$modelName, $model
-		] of Object.entries($models)) {
-			if($model instanceof Model) {
-				models[$modelName] = $model;
-			}
-			else if(typeOf($model) === 'object') {
-				models[$modelName] = new Model($model);
-			}
-			else if(typeOf($model) === 'array') {
-				models[$modelName] = new Model(...$model);
-			}
-		}
-	}
-	get views() { return this.#_views }
-	set views($views) {
-		const views = this.views;
-		for(const [
-			$viewName, $view
-		] of Object.entries($views)) {
-			if($view instanceof View) {
-				views[$viewName] = $view;
-			}
-			else if(typeOf($view) === 'object') {
-				views[$viewName] = new View($view);
-			}
-			else if(typeOf($view) === 'array') {
-				views[$viewName] = new View(...$view);
-			}
-		}
-	}
-	get controls() { return this.#_controls }
-	set controls($controls) {
-		const controls = this.controls;
-		for(const [
-			$controlName, $control
-		] of Object.entries($controls)) {
-			if($control instanceof Control) {
-				controls[$controlName] = $control;
-			}
-			else if(typeOf($control) === 'object') {
-				controls[$controlName] = new Control($control);
-			}
-			else if(typeOf($control) === 'array') {
-				controls[$controlName] = new Control(...$control);
-			}
-		}
-	}
-	get routers() { return this.#_routers }
-	set routers($routers) {
-		this.routers;
-		for(const [
-			$routerClassName, $routerClassInstances
-		] of Object.entries($routers)) {
-			for(const [
-				$routerClassInstanceName, $routerClassInstance
-			] of Object.entries($routerClassInstances)) {
-				if(
-					$routerClassInstance instanceof LocationRouter ||
-					$routerClassInstance instanceof FetchRouter
-				) {
-					this[$className][$routerClassName][$routerClassInstanceName] = $routerClassInstance;
-				}
-				else {
-					const Router = ($routerClassName === 'location')
-						? LocationRouter
-					  : ($routerClassName === 'fetch')
-						  ? FetchRouter
-						  : undefined;
-				  if(Router !== undefined) {
-				  	let routerParameters;
-						if(typeOf($routerClassInstance) === 'object') { routerParameters = [$routerClassInstance]; }
-						else if(typeOf($router) === 'array') { routerParameters = [...$routerClassInstance]; }
-				  	this[$className][$routerClassName][$routerClassInstanceName] = new Router(routerParameters);
-				  }
-				}
-			}
-		}
-	}
-	addClassInstances() {
-		let $classes;
-		if(arguments.length === 0) { $classes = this.settings; } 
-		else if(arguments.length === 1) { $classes = arguments[0]; }
-		for(const [
-			$className, $classInstances
-		] of Object.entries($classes)) {
-			this[$className] = $classInstances;
-		}
-		return this
-	}
-	removeClassInstances() {
-		let $classes;
-		if(arguments.length === 0) { $classes = this.settings; } 
-		else if(arguments.length === 1) { $classes = arguments[0]; }
-		for(const [
-			$className, $classInstances
-		] of Object.entries($classes)) {
-			// Model, View, Control Class Instances
-			if($className !== 'routers') {
-				let classInstanceKeys;
-				if(Array.isArray($classInstances)) { classInstanceKeys = $classInstances; }
-				else { classInstanceKeys = Object.keys($classInstances); }
-				for(const $classInstanceName of classInstanceKeys) {
-					delete this[$className][$classInstanceName];
-				}
-			}
-			// Router Class Instances
-			else {
-				for(const [
-					$routerClassName, $routerClassInstances
-				] of Object.entries($classInstances)) {
-					let routerClassInstanceKeys;
-					if(Array.isArray($routerClassInstances)) { routerClassInstanceKeys = $routerClassInstances; }
-					else { routerClassInstances = Object.keys($routerClassInstances); }
-					for(const $routerClassInstanceName of routerClassInstanceKeys) {
-						delete this[$className][$routerClassName][$routerClassInstanceName];
-					}
-				}
-			}
-		}
-		return this
-	}
+  #_models = {}
+  #_views = {}
+  #_controls = {}
+  #_routers = {
+    location: {},
+    fetch: {},
+  }
+  constructor($settings = {}, $options = {}) {
+    super(
+      Object.assign({}, Settings, $settings),
+      Object.assign({}, Options, $options),
+    );
+    this.addClassInstances($settings);
+    if(this.options.enableEvents === true) this.enableEvents();
+  }
+  get models() { return this.#_models }
+  set models($models) {
+    const models = this.models;
+    for(const [
+      $modelName, $model
+    ] of Object.entries($models)) {
+      if($model instanceof Model) {
+        models[$modelName] = $model;
+      }
+      else if(typeOf($model) === 'object') {
+        models[$modelName] = new Model($model);
+      }
+      else if(typeOf($model) === 'array') {
+        models[$modelName] = new Model(...$model);
+      }
+    }
+  }
+  get views() { return this.#_views }
+  set views($views) {
+    const views = this.views;
+    for(const [
+      $viewName, $view
+    ] of Object.entries($views)) {
+      if($view instanceof View) {
+        views[$viewName] = $view;
+      }
+      else if(typeOf($view) === 'object') {
+        views[$viewName] = new View($view);
+      }
+      else if(typeOf($view) === 'array') {
+        views[$viewName] = new View(...$view);
+      }
+    }
+  }
+  get controls() { return this.#_controls }
+  set controls($controls) {
+    const controls = this.controls;
+    for(const [
+      $controlName, $control
+    ] of Object.entries($controls)) {
+      if($control instanceof Control) {
+        controls[$controlName] = $control;
+      }
+      else if(typeOf($control) === 'object') {
+        controls[$controlName] = new Control($control);
+      }
+      else if(typeOf($control) === 'array') {
+        controls[$controlName] = new Control(...$control);
+      }
+    }
+  }
+  get routers() { return this.#_routers }
+  set routers($routers) {
+    this.routers;
+    for(const [
+      $routerClassName, $routerClassInstances
+    ] of Object.entries($routers)) {
+      for(const [
+        $routerClassInstanceName, $routerClassInstance
+      ] of Object.entries($routerClassInstances)) {
+        if(
+          $routerClassInstance instanceof LocationRouter ||
+          $routerClassInstance instanceof FetchRouter
+        ) {
+          this[$className][$routerClassName][$routerClassInstanceName] = $routerClassInstance;
+        }
+        else {
+          const Router = ($routerClassName === 'location')
+            ? LocationRouter
+            : ($routerClassName === 'fetch')
+              ? FetchRouter
+              : undefined;
+          if(Router !== undefined) {
+            let routerParameters;
+            if(typeOf($routerClassInstance) === 'object') { routerParameters = [$routerClassInstance]; }
+            else if(typeOf($router) === 'array') { routerParameters = [...$routerClassInstance]; }
+            this[$className][$routerClassName][$routerClassInstanceName] = new Router(routerParameters);
+          }
+        }
+      }
+    }
+  }
+  addClassInstances() {
+    let $classes;
+    if(arguments.length === 0) { $classes = this.settings; } 
+    else if(arguments.length === 1) { $classes = arguments[0]; }
+    for(const [
+      $className, $classInstances
+    ] of Object.entries($classes)) {
+      if(ValidClassInstances.includes($className)) {
+        this[$className] = $classInstances;
+      }
+    }
+    return this
+  }
+  removeClassInstances() {
+    let $classes;
+    if(arguments.length === 0) { $classes = this.settings; } 
+    else if(arguments.length === 1) { $classes = arguments[0]; }
+    for(const [
+      $className, $classInstances
+    ] of Object.entries($classes)) {
+      // Model, View, Control Class Instances
+      if($className !== 'routers') {
+        let classInstanceKeys;
+        if(Array.isArray($classInstances)) { classInstanceKeys = $classInstances; }
+        else { classInstanceKeys = Object.keys($classInstances); }
+        for(const $classInstanceName of classInstanceKeys) {
+          delete this[$className][$classInstanceName];
+        }
+      }
+      // Router Class Instances
+      else {
+        for(const [
+          $routerClassName, $routerClassInstances
+        ] of Object.entries($classInstances)) {
+          let routerClassInstanceKeys;
+          if(Array.isArray($routerClassInstances)) { routerClassInstanceKeys = $routerClassInstances; }
+          else { routerClassInstances = Object.keys($routerClassInstances); }
+          for(const $routerClassInstanceName of routerClassInstanceKeys) {
+            delete this[$className][$routerClassName][$routerClassInstanceName];
+          }
+        }
+      }
+    }
+    return this
+  }
 }
 
 export { Content, Control, Core, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, View };

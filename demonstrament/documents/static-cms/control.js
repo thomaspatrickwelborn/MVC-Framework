@@ -33,18 +33,21 @@ export default [{
     // express: ExpressControl,
     // routes: RoutesControl,
   },
-  start() {
-    this.views.default.render(this.models.default.parse(), 'default')
-    const controlViewParent = this.views.default.querySelectors['static-cms']
-    // Inspector
-    this.controls.inspector = new Control(...InspectorControl(controlViewParent)).start()
-    // console.log(this.controls.inspector)
-    // this.controls.https = HTTPSControl(controlViewParent)
-    // this.controls.browserSync = BrowserSyncControl(controlViewParent)
-    // this.controls.express = ExpressControl(controlViewParent)
-    // this.controls.routes = RoutesControl(controlViewParent)
-    return this
-  },
 }, {
-  validSettings: ['start']
+  defineProperties: {
+    start: { value: function () {
+      console.log(this.models.default.parse())
+      this.views.default.render(this.models.default.parse(), 'default')
+      console.log(this.views.default.querySelectors)
+      const controlViewParent = this.views.default.querySelectors['static-cms']
+      // Inspector
+      // console.log(InspectorControl(...InspectorControl(controlViewParent)))
+      this.controls.inspector = new Control(...InspectorControl(controlViewParent)).start()
+      // this.controls.https = HTTPSControl(controlViewParent)
+      // this.controls.browserSync = BrowserSyncControl(controlViewParent)
+      // this.controls.express = ExpressControl(controlViewParent)
+      // this.controls.routes = RoutesControl(controlViewParent)
+      return this
+    } }
+  }
 }]

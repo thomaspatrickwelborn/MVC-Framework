@@ -33,13 +33,14 @@ const index = new Control({
       },
     }, {}],
   },
-  start() {
-    this.views.default.render(
-      this.models.default.parse()
-    )
-    return this
-  }
 }, {
-  validSettings: ['start'],
+  defineProperties: {
+    start: { value: function () {
+      this.views.default.render(
+        this.models.default.parse()
+      )
+      return this
+    } }
+  }
 })
 index.start()

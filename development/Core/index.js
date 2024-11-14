@@ -32,7 +32,7 @@ export default class Core extends EventTarget {
   }
   getEvents() {
     const getEvents = []
-    const { events } = this0
+    const { events } = this
     const $events = expandEvents(arguments[0])
     iterateEvents: 
     for(const $event of $events) {
@@ -102,16 +102,22 @@ export default class Core extends EventTarget {
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #assign() {
-    for(const $propertyName of this.options.assign) {
-      const propertyValue = this.settings[$propertyName]
-      Object.assign(this, { [$propertyName]: propertyValue })
+    for(const [
+        $propertyName, $propertyValue
+      ] of Object.entries(this.options.assign)) {
+      if(typeof $propertyValue === 'function') {
+        // $propertyValue = $propertyValue.bind(this)
+      }
+      Object.assign(this, { [$propertyName]: $propertyValue })
     }
   }
   #defineProperties() {
     for(const [
       $propertyName, $propertyDescriptor
     ] of Object.entries(this.options.defineProperties)) {
-      $propertyDescriptor.value = this.settings[$propertyName]
+      if(typeof $propertyDescriptor.value === 'function') {
+        // $propertyDescriptor.value = $propertyDescriptor.value.bind(this)
+      }
       Object.defineProperty(this, $propertyName, $propertyDescriptor)
     }
   }

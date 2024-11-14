@@ -5,9 +5,9 @@ import recursiveAssign from './recursiveAssign/index.js'
 import regularExpressions from './regularExpressions/index.js'
 
 export {
-	typeOf, 
-	impandEvents,
-	expandEvents, 
-	recursiveAssign, 
-	regularExpressions, 
+  typeOf, 
+  impandEvents,
+  expandEvents, 
+  recursiveAssign, 
+  regularExpressions, 
 }
