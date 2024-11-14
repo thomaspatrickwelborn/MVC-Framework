@@ -1,18 +1,13 @@
-import { Model } from '/dependencies/mvc-framework.js'
-const model = new Model({
-  schema: { aaa: { type: String }},
-  content: { aaa: "aaa" },
-})
-console.log(model.content)
-/*
-import { Control, Model, Schema } from '/dependencies/mvc-framework.js'
+import { Control, Model, Schema, Content } from '/dependencies/mvc-framework.js'
 import DefaultTemplate from './template.js'
 const index = new Control({
   models: {
     default: [{
       schema: [{
-        'data-href': String, 
-        'textContent': String,
+        type: {
+          'data-href': { type: String }, 
+          'textContent': { type: String },
+        }
       }],
       content: [{
         'data-href': "./static-cms",
@@ -39,7 +34,6 @@ const index = new Control({
     }, {}],
   },
   start() {
-    console.log(this.models.default)
     this.views.default.render(
       this.models.default.parse()
     )
@@ -49,4 +43,3 @@ const index = new Control({
   validSettings: ['start'],
 })
 index.start()
-*/
