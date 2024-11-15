@@ -1,3 +1,4 @@
+import commonjs from '@rollup/plugin-commonjs'
 export default {
   input: './index.js',
   output: [
@@ -11,5 +12,8 @@ export default {
       format: 'es',
       sourcemap: true,
     }
-  ]
+  ],
+  plugins: [commonjs({
+    transformMixedEsModules: true
+  })]
 }

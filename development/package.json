@@ -9,9 +9,12 @@
   "scripts": {
     "start": "nodemon --config nodemon.config.json"
   },
-  "imports": {},
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
     "nodemon": "^3.1.6",
     "rollup": "^4.21.3"
+  },
+  "dependencies": {
+    "path-to-regexp": "^8.2.0"
   }
 }
