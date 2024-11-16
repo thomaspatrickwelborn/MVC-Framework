@@ -1,5 +1,6 @@
 import { LocationRouter } from '/dependencies/mvc-framework.js'
 const locationRouter = new LocationRouter({
+  hashpath: false,
   routes: {
     "/": {
       name: "Index",
