@@ -1,7 +1,7 @@
 # Window Router
 ```
 {
-  hash: false,
+  hashpath: false,
   routes: {
     "/": { 
       name: "Index",

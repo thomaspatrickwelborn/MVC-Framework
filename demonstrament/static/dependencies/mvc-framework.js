@@ -268,7 +268,7 @@ class ContentEvent extends Event {
   #content
   #_basename
   constructor($type, $settings, $content) {
-    super($type);
+    super($type, $settings);
     this.#settings = $settings;
     this.#content = $content;
     this.#content.addEventListener(
@@ -3328,42 +3328,111 @@ function requireDist () {
 
 var distExports = requireDist();
 
+class Route extends EventTarget {
+  #settings
+  #_enable
+  #_match
+  constructor($settings = {}) {
+    super();
+    this.#settings = $settings;
+  }
+  get name() { return this.#settings.name }
+  get basename() { return this.#settings.basename }
+  get enable() {
+    if(this.#_enable !== undefined) return this.#_enable
+    this.#_enable = this.#settings.enable;
+    return this.#_enable
+  }
+  set enable($enable) {
+    if(this.#_enable !== $enable) this.#_enable = $enable;
+  }
+  get match() {
+    if(this.#_match !== undefined) return this.#_match
+    this.#_match = distExports.match(this.basename);
+    return this.#_match
+  }
+}
+
+class RouteEvent extends Event {
+  #settings
+  #router
+  #_route
+  constructor($type, $settings, $router, $route) {
+    super($type, $settings);
+    this.#settings = $settings;
+    this.#router = $router;
+    this.#_route = $route;
+  }
+  get route() { return this.#_route }
+}
+
 const Settings$1 = { routes: {} };
 const Options$1 = {};
 class LocationRouter extends Core {
+  #_boundPopState
   #_window
-  #_match
   #_routes
   constructor($settings, $options) {
     super(
       recursiveAssign(Settings$1, $settings),
       recursiveAssign(Options$1, $options),
     );
-    this.window.addEventListener('load', ($event) => {
-
-    });
+    this.window.location;
+    this.#popState();
+  }
+  get hashpath() { return this.settings.hashpath }
+  get routes() {
+    if(this.#_routes !== undefined) return this.#_routes
+    this.#_routes = {};
+    const routeEntries = Object.entries(this.settings.routes);
+    for(const [$routePath, $routeSettings] of routeEntries) {
+      this.setRoute($routePath, $routeSettings);
+    }
+    return this.#_routes
   }
   get window() {
     if(this.#_window !== undefined) return this.#_window
     this.#_window = window;
-    this.#_window.addEventListener('popstate', ($event) => {
-      const routePath = this.#_window.location.pathname.concat(
-        this.#_window.location.hash
-      );
-      this.#findRouteByPath(routePath);
-    });
+    this.#_window.addEventListener('popstate', this.#boundPopState);
     return this.#_window
   }
-  get routes() { return this.settings.routes }
-  #findRouteByPath($path) {
+  get #boundPopState() {
+    if(this.#_boundPopState !== undefined) return this.#_boundPopState
+    this.#_boundPopState = this.#popState.bind(this);
+    return this.#_boundPopState
+  }
+  #popState() {
+    const { pathname, hash } = this.window.location;
+    const route = this.getRoute(pathname, hash);
+    if(route && route?.enable) { this.dispatchEvent(
+      new RouteEvent("route", {}, this, route)
+    ); }
+  }
+  enableRoute($path) {
+    const route = this.getRoute($path);
+    route.enable = true;
+    return route
+  }
+  disableRoute($path) {
+    const route = this.getRoute($path);
+    route.enable = false;
+    return route
+  }
+  setRoute($routePath, $routeSettings) {
+    const routeSettings = recursiveAssign({
+      basename: $routePath
+    }, $routeSettings);
+    this.#_routes[$routePath] = new Route(routeSettings);
+    return this.#_routes[$routePath]
+  }
+  getRoute($path) {
     const routeEntries = Object.entries(this.routes);
     let routeEntryIndex = 0;
     let route;
     iterateMatchEntries: 
     while(routeEntryIndex < routeEntries.length) {
-      const [$routePath, $routeSettings] = routeEntries[routeEntryIndex];
-      const routeMatch = distExports.match($routePath);
-      route = routeMatch($path);
+      const [$routePath, $route] = routeEntries[routeEntryIndex];
+      route = $route.match($routePath);
       if(route) {
         route = recursiveAssign(route, this.routes[$routePath]);
         break iterateMatchEntries
@@ -3371,6 +3440,10 @@ class LocationRouter extends Core {
       routeEntryIndex++;
     }
     return route
+  }
+  deleteRoute($routePath) {
+    delete this.#_routes[$routePath];
+    return this.#_routes[$routePath]
   }
 }
 

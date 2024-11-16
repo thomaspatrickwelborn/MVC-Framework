@@ -3,7 +3,7 @@ export default class ContentEvent extends Event {
   #content
   #_basename
   constructor($type, $settings, $content) {
-    super($type)
+    super($type, $settings)
     this.#settings = $settings
     this.#content = $content
     this.#content.addEventListener(
