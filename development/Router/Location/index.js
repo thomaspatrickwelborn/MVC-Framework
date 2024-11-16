@@ -1,27 +1,54 @@
-// import * as pathToRegExp from '../../node_modules/path-to-regexp/dist/index.js'
 import { match } from '../../node_modules/path-to-regexp/dist/index.js'
-console.log(match)
-// const pathToRegExp = await import('../../node_modules/path-to-regexp/dist/index.js')
 import { recursiveAssign } from '../../Coutil/index.js'
 import Core from '../../Core/index.js'
 const Settings = { routes: {} }
 const Options = {}
 export default class LocationRouter extends Core {
+  #_window
+  #_match
   #_routes
   constructor($settings, $options) {
     super(
       recursiveAssign(Settings, $settings),
       recursiveAssign(Options, $options),
     )
+    this.window
   }
-  get routes() {
-    if(this.#_routes !== undefined) return this.#_routes
-    this.#_routes = {}
-    for(const [
-      $routeName, $routeListener
-    ] of Object.entries(this.settings.routes)) {
-      this.#_routes[$routeName] = $routeListener
+  get window() {
+    if(this.#_window !== undefined) return this.#_window
+    this.#_window = window
+    this.window.addEventListener('load', ($event) => {
+      this.dispatchEvemt(new CustomEvent("route", {
+        detail: route
+      }), { once: true })
+    })
+    this.#_window.addEventListener('popstate', ($event) => {
+      const routePath = this.#_window.location.pathname.concat(
+        this.#_window.location.hash
+      )
+      const route = this.#findRouteByPath(routePath)
+      this.dispatch(new CustomEvent("route", {
+        detail: route
+      }))
+    })
+    return this.#_window
+  }
+  get routes() { return this.settings.routes }
+  #findRouteByPath($path) {
+    const routeEntries = Object.entries(this.routes)
+    let routeEntryIndex = 0
+    let route
+    iterateMatchEntries: 
+    while(routeEntryIndex < routeEntries.length) {
+      const [$routePath, $routeSettings] = routeEntries[routeEntryIndex]
+      const routeMatch = match($routePath)
+      route = routeMatch($path)
+      if(route) {
+        route = recursiveAssign(route, this.routes[$routePath])
+        break iterateMatchEntries
+      }
+      routeEntryIndex++
     }
-    return this.#_routes
+    return route
   }
 }

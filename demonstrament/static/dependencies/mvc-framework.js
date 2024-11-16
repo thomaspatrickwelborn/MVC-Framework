@@ -3328,27 +3328,49 @@ function requireDist () {
 
 var distExports = requireDist();
 
-// import * as pathToRegExp from '../../node_modules/path-to-regexp/dist/index.js'
-console.log(distExports.match);
 const Settings$1 = { routes: {} };
 const Options$1 = {};
 class LocationRouter extends Core {
+  #_window
+  #_match
   #_routes
   constructor($settings, $options) {
     super(
       recursiveAssign(Settings$1, $settings),
       recursiveAssign(Options$1, $options),
     );
+    this.window.addEventListener('load', ($event) => {
+
+    });
   }
-  get routes() {
-    if(this.#_routes !== undefined) return this.#_routes
-    this.#_routes = {};
-    for(const [
-      $routeName, $routeListener
-    ] of Object.entries(this.settings.routes)) {
-      this.#_routes[$routeName] = $routeListener;
+  get window() {
+    if(this.#_window !== undefined) return this.#_window
+    this.#_window = window;
+    this.#_window.addEventListener('popstate', ($event) => {
+      const routePath = this.#_window.location.pathname.concat(
+        this.#_window.location.hash
+      );
+      this.#findRouteByPath(routePath);
+    });
+    return this.#_window
+  }
+  get routes() { return this.settings.routes }
+  #findRouteByPath($path) {
+    const routeEntries = Object.entries(this.routes);
+    let routeEntryIndex = 0;
+    let route;
+    iterateMatchEntries: 
+    while(routeEntryIndex < routeEntries.length) {
+      const [$routePath, $routeSettings] = routeEntries[routeEntryIndex];
+      const routeMatch = distExports.match($routePath);
+      route = routeMatch($path);
+      if(route) {
+        route = recursiveAssign(route, this.routes[$routePath]);
+        break iterateMatchEntries
+      }
+      routeEntryIndex++;
     }
-    return this.#_routes
+    return route
   }
 }
 
