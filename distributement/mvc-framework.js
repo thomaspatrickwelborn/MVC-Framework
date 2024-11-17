@@ -1896,6 +1896,7 @@ var Options$5 = {
         events: {
           'get': true,
           'getProperty': true,
+          'getProperty:$key': true,
         },
       },
       set: {
@@ -1903,12 +1904,14 @@ var Options$5 = {
         events: {
           'set': true,
           'setProperty': true,
+          'setProperty:$key': true,
         },
       },
       delete: {
         events: {
           'delete': true,
           'deleteProperty': true,
+          'deleteProperty:$key': true,
         },
       },
     },
@@ -1916,6 +1919,7 @@ var Options$5 = {
       assign: {
         sourceTree: true,
         events: {
+          'assignSourceProperty:$key': true,
           'assignSourceProperty': true,
           'assignSource': true,
           'assign': true,
@@ -1927,7 +1931,10 @@ var Options$5 = {
       },
       defineProperty: {
         descriptorTree: true,
-        events: { 'defineProperty': true },
+        events: {
+          'defineProperty': true,
+          'defineProperty:$key': true,
+        },
       },
       freeze: {
         recursive: true,
@@ -1941,18 +1948,21 @@ var Options$5 = {
     array: {
       concat: {
         events: {
+          'concatValue:$index': true,
           'concatValue': true,
           'concat': true,
         }
       },
       copyWithin: {
         events: {
+          'copyWithinIndex:$index': true,
           'copyWithinIndex': true,
           'copyWithin': true,
         }
       },
       fill: {
         events: {
+          'fillIndex:$index': true,
           'fillIndex': true,
           'fill': true,
         }
@@ -1962,6 +1972,7 @@ var Options$5 = {
       },
       push: {
         events: {
+          'pushProp:$index': true,
           'pushProp': true,
           'push': true,
         }
@@ -1974,13 +1985,16 @@ var Options$5 = {
       },
       splice: {
         events: {
+          'spliceDelete:$index': true,
           'spliceDelete': true,
+          'spliceAdd:$index': true,
           'spliceAdd': true,
           'splice': true,
         }
       },
       unshift: {
         events: {
+          'unshiftProp:$index': true,
           'unshiftProp': true,
           'unshift': true,
         }

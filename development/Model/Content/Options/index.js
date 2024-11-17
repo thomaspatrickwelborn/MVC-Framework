@@ -13,6 +13,7 @@ export default {
         events: {
           'get': true,
           'getProperty': true,
+          'getProperty:$key': true,
         },
       },
       set: {
@@ -20,12 +21,14 @@ export default {
         events: {
           'set': true,
           'setProperty': true,
+          'setProperty:$key': true,
         },
       },
       delete: {
         events: {
           'delete': true,
           'deleteProperty': true,
+          'deleteProperty:$key': true,
         },
       },
     },
@@ -33,6 +36,7 @@ export default {
       assign: {
         sourceTree: true,
         events: {
+          'assignSourceProperty:$key': true,
           'assignSourceProperty': true,
           'assignSource': true,
           'assign': true,
@@ -44,7 +48,10 @@ export default {
       },
       defineProperty: {
         descriptorTree: true,
-        events: { 'defineProperty': true },
+        events: {
+          'defineProperty': true,
+          'defineProperty:$key': true,
+        },
       },
       freeze: {
         recursive: true,
@@ -58,18 +65,21 @@ export default {
     array: {
       concat: {
         events: {
+          'concatValue:$index': true,
           'concatValue': true,
           'concat': true,
         }
       },
       copyWithin: {
         events: {
+          'copyWithinIndex:$index': true,
           'copyWithinIndex': true,
           'copyWithin': true,
         }
       },
       fill: {
         events: {
+          'fillIndex:$index': true,
           'fillIndex': true,
           'fill': true,
         }
@@ -79,6 +89,7 @@ export default {
       },
       push: {
         events: {
+          'pushProp:$index': true,
           'pushProp': true,
           'push': true,
         }
@@ -91,13 +102,16 @@ export default {
       },
       splice: {
         events: {
+          'spliceDelete:$index': true,
           'spliceDelete': true,
+          'spliceAdd:$index': true,
           'spliceAdd': true,
           'splice': true,
         }
       },
       unshift: {
         events: {
+          'unshiftProp:$index': true,
           'unshiftProp': true,
           'unshift': true,
         }
