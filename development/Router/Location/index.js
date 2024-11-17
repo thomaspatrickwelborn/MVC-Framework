@@ -8,15 +8,16 @@ export default class LocationRouter extends Core {
   #_window
   #_hashpath
   #_routes
-  #_activeRoute
+  #_location
+  #_route
   #_boundPopState
   constructor($settings, $options) {
     super(
       recursiveAssign(Settings, $settings),
       recursiveAssign(Options, $options),
     )
-    this.#popState()
     this.enableEvents()
+    this.#popState()
   }
   get window() {
     if(this.#_window !== undefined) return this.#_window
@@ -41,17 +42,8 @@ export default class LocationRouter extends Core {
     }
     return this.#_routes
   }
-  get activeRoute() {
-    let route
-    iterateRoutes: 
-    for(const $route of Object.values(this.routes)) {
-      if($route.active) {
-        route = $route
-        break iterateRoutes
-      }
-    }
-    return route
-  }
+  get location() { return this.#_location }
+  get route() { return this.#_route }
   get #boundPopState() {
     if(this.#_boundPopState !== undefined) return this.#_boundPopState
     this.#_boundPopState = this.#popState.bind(this)
@@ -59,16 +51,29 @@ export default class LocationRouter extends Core {
   }
   // Methods
   #popState($event = {}) {
-    const preterRoute = this.activeRoute
+    const preterRoute = this.route
     if(preterRoute) preterRoute.active = false
     const { pathname, hash } = this.window.location
     const path = (this.hashpath) ? hash.slice(1) : pathname
-    const route = this.matchRoute(path)
+    const { route, location } = this.#matchRoute(path)
     if(route && route?.enable) {
       route.active = true
-      route.state = $event?.state
+      location.state = $event.state
+      location.pathname = this.window.location.pathname
+      location.hash = this.window.location.hash
+      location.search = this.window.location.search
+      delete location.path
+      this.#_route = route
+      this.#_location = location
       this.dispatchEvent(
-        new RouteEvent("route", { route })
+        new RouteEvent("route", { path, route, location })
+      )
+    }
+    else {
+      this.#_route = null
+      this.#_location = null
+      this.dispatchEvent(
+        new RouteEvent("error", { path })
       )
     }
   }
@@ -98,27 +103,21 @@ export default class LocationRouter extends Core {
     delete this.#_routes[$routePath]
     return this.#_routes[$routePath]
   }
-  matchRoute($path) {
+  #matchRoute($path) {
     const routeEntries = Object.entries(this.routes)
     let routeEntryIndex = 0
-    let route
+    let route = null
+    let location = null
     iterateMatchEntries: 
     while(routeEntryIndex < routeEntries.length) {
       const [$routePath, $route] = routeEntries[routeEntryIndex]
-      const routeMatch = $route.match($path)
-      if(routeMatch) {
-        route = Object.entries(Object.getOwnPropertyDescriptors($route))
-        .reduce(($propertyDescriptors, [$key, $descriptor]) => {
-          $propertyDescriptors[$key] = $descriptor.value
-          return $propertyDescriptors
-        }, {
-          enable: $route.enable
-        })
-        Object.assign(route, routeMatch)
+      location = $route.match($path) || null
+      if(location) {
+        route = $route
         break iterateMatchEntries
       }
       routeEntryIndex++
     }
-    return route
+    return { route, location }
   }
 }

@@ -45,6 +45,14 @@ export default [{
           "/": {
             "name": "Index",
             "class": "Index",
+          },
+          "/subfolder": {
+            "name": "Subfolder",
+            "class": "Subfolder",
+          },
+          "/subfolder/:fileID": {
+            "name": "Subfolder File",
+            "class": "SubfolderFile",
           }
         } 
       }
@@ -52,7 +60,10 @@ export default [{
   },
   events: {
     "routers.location.default route": ($event) => {
-      console.log($event)
+      console.log($event.type, $event.path, $event.location, $event.route)
+    },
+    "routers.location.default error": ($event) => {
+      console.log($event.type, $event.path)
     }
   },
 }, {
