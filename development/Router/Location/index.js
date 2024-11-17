@@ -182,7 +182,6 @@ export default class LocationRouter extends Core {
     const { pathname, hash } = this.window.location
     const path = (this.hashpath) ? hash.slice(1) : pathname
     const route = this.matchRoute(path)
-    console.log('route', route)
     if(route && route?.enable) {
       route.active = true
       this.protocol = this.window.location.protocol
@@ -216,7 +215,6 @@ export default class LocationRouter extends Core {
   // Route Ministration 
   setRoute($routePath, $routeSettings) {
     const routeSettings = recursiveAssign({
-      window: this.window,
       basename: $routePath,
     }, $routeSettings)
     this.#_routes[$routePath] = new Route(routeSettings)

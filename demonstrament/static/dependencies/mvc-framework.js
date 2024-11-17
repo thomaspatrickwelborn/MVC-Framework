@@ -155,12 +155,12 @@ class Core extends EventTarget {
   set settings($settings) {
     if(this.#_settings !== undefined) return
     $settings.events = expandEvents($settings.events);
-    this.#_settings = recursiveAssign({}, Settings$4, $settings);
+    this.#_settings = recursiveAssign(structuredClone(Settings$4), $settings);
   }
   get options() { return this.#_options }
   set options($options) {
     if(this.#_options !== undefined) return
-    this.#_options = recursiveAssign({}, Options$6, $options);
+    this.#_options = recursiveAssign(structuredClone(Options$6), $options);
   }
   get events() {
     if(this.#_events !== undefined) return this.#_events
@@ -237,19 +237,22 @@ class Core extends EventTarget {
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #assign() {
+    if(Object.keys(this.options.assign).length === 0) return this
     for(const [
         $propertyName, $propertyValue
       ] of Object.entries(this.options.assign)) {
       Object.assign(this, { [$propertyName]: $propertyValue });
     }
+    return this
   }
   #defineProperties() {
+    if(Object.keys(this.options.defineProperties).length === 0) return this
     for(const [
       $propertyName, $propertyDescriptor
     ] of Object.entries(this.options.defineProperties)) {
-      if(typeof $propertyDescriptor.value === 'function') ;
       Object.defineProperty(this, $propertyName, $propertyDescriptor);
     }
+    return this
   }
   #toggleEventAbility($eventListenerMethod, $events) {
     let enability;
@@ -3341,7 +3344,10 @@ class Route extends EventTarget {
   get basename() { return this.#settings.basename }
   get enable() {
     if(this.#_enable !== undefined) return this.#_enable
-    this.#_enable = this.#settings.enable;
+    if(this.#settings.enable !== undefined) {
+      this.#_enable = this.#settings.enable;
+    }
+    else { this.#_enable = true; }
     return this.#_enable
   }
   set enable($enable) {
@@ -3561,7 +3567,6 @@ class LocationRouter extends Core {
     const { pathname, hash } = this.window.location;
     const path = (this.hashpath) ? hash.slice(1) : pathname;
     const route = this.matchRoute(path);
-    console.log('route', route);
     if(route && route?.enable) {
       route.active = true;
       this.protocol = this.window.location.protocol;
@@ -3595,7 +3600,6 @@ class LocationRouter extends Core {
   // Route Ministration 
   setRoute($routePath, $routeSettings) {
     const routeSettings = recursiveAssign({
-      window: this.window,
       basename: $routePath,
     }, $routeSettings);
     this.#_routes[$routePath] = new Route(routeSettings);
@@ -3710,7 +3714,7 @@ class Control extends Core {
   }
   get routers() { return this.#_routers }
   set routers($routers) {
-    this.routers;
+    const routers = this.routers;
     for(const [
       $routerClassName, $routerClassInstances
     ] of Object.entries($routers)) {
@@ -3721,7 +3725,7 @@ class Control extends Core {
           $routerClassInstance instanceof LocationRouter ||
           $routerClassInstance instanceof FetchRouter
         ) {
-          this[$className][$routerClassName][$routerClassInstanceName] = $routerClassInstance;
+          routers[$routerClassName][$routerClassInstanceName] = $routerClassInstance;
         }
         else {
           const Router = ($routerClassName === 'location')
@@ -3730,10 +3734,12 @@ class Control extends Core {
               ? FetchRouter
               : undefined;
           if(Router !== undefined) {
-            let routerParameters;
-            if(typeOf($routerClassInstance) === 'object') { routerParameters = [$routerClassInstance]; }
-            else if(typeOf($router) === 'array') { routerParameters = [...$routerClassInstance]; }
-            this[$className][$routerClassName][$routerClassInstanceName] = new Router(routerParameters);
+            if(typeOf($routerClassInstance) === 'object') {
+              routers[$routerClassName][$routerClassInstanceName] = new Router($routerClassInstance);
+            }
+            else if(typeOf($router) === 'array') {
+              routers[$routerClassName][$routerClassInstanceName] = new Router(...$routerClassInstance);
+            }
           }
         }
       }

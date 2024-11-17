@@ -91,7 +91,7 @@ export default class Control extends Core {
           $routerClassInstance instanceof LocationRouter ||
           $routerClassInstance instanceof FetchRouter
         ) {
-          this[$className][$routerClassName][$routerClassInstanceName] = $routerClassInstance
+          routers[$routerClassName][$routerClassInstanceName] = $routerClassInstance
         }
         else {
           const Router = ($routerClassName === 'location')
@@ -101,9 +101,12 @@ export default class Control extends Core {
               : undefined
           if(Router !== undefined) {
             let routerParameters
-            if(typeOf($routerClassInstance) === 'object') { routerParameters = [$routerClassInstance] }
-            else if(typeOf($router) === 'array') { routerParameters = [...$routerClassInstance] }
-            this[$className][$routerClassName][$routerClassInstanceName] = new Router(routerParameters)
+            if(typeOf($routerClassInstance) === 'object') {
+              routers[$routerClassName][$routerClassInstanceName] = new Router($routerClassInstance)
+            }
+            else if(typeOf($router) === 'array') {
+              routers[$routerClassName][$routerClassInstanceName] = new Router(...$routerClassInstance)
+            }
           }
         }
       }

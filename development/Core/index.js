@@ -18,12 +18,12 @@ export default class Core extends EventTarget {
   set settings($settings) {
     if(this.#_settings !== undefined) return
     $settings.events = expandEvents($settings.events)
-    this.#_settings = recursiveAssign({}, Settings, $settings)
+    this.#_settings = recursiveAssign(structuredClone(Settings), $settings)
   }
   get options() { return this.#_options }
   set options($options) {
     if(this.#_options !== undefined) return
-    this.#_options = recursiveAssign({}, Options, $options)
+    this.#_options = recursiveAssign(structuredClone(Options), $options)
   }
   get events() {
     if(this.#_events !== undefined) return this.#_events
@@ -102,24 +102,22 @@ export default class Core extends EventTarget {
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #assign() {
+    if(Object.keys(this.options.assign).length === 0) return this
     for(const [
         $propertyName, $propertyValue
       ] of Object.entries(this.options.assign)) {
-      if(typeof $propertyValue === 'function') {
-        // $propertyValue = $propertyValue.bind(this)
-      }
       Object.assign(this, { [$propertyName]: $propertyValue })
     }
+    return this
   }
   #defineProperties() {
+    if(Object.keys(this.options.defineProperties).length === 0) return this
     for(const [
       $propertyName, $propertyDescriptor
     ] of Object.entries(this.options.defineProperties)) {
-      if(typeof $propertyDescriptor.value === 'function') {
-        // $propertyDescriptor.value = $propertyDescriptor.value.bind(this)
-      }
       Object.defineProperty(this, $propertyName, $propertyDescriptor)
     }
+    return this
   }
   #toggleEventAbility($eventListenerMethod, $events) {
     let enability

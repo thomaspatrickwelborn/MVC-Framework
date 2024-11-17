@@ -12,7 +12,10 @@ export default class Route extends EventTarget {
   get basename() { return this.#settings.basename }
   get enable() {
     if(this.#_enable !== undefined) return this.#_enable
-    this.#_enable = this.#settings.enable
+    if(this.#settings.enable !== undefined) {
+      this.#_enable = this.#settings.enable
+    }
+    else { this.#_enable = true }
     return this.#_enable
   }
   set enable($enable) {
