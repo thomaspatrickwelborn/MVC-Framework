@@ -14,14 +14,18 @@ export default class LocationRouter extends Core {
   #_protocol
   #_hostname
   #_port
+  #_origin
   #_pathname
   #_hash
   #_search
+  #_href
   constructor($settings, $options) {
     super(
       recursiveAssign(Settings, $settings),
       recursiveAssign(Options, $options),
     )
+    this.enableEvents()
+    this.#popState()
   }
   get window() {
     if(this.#_window !== undefined) return this.#_window
@@ -65,7 +69,7 @@ export default class LocationRouter extends Core {
   // Window Location Properties
   get protocol() {
     if(this.#_protocol !== undefined) return this.#_protocol
-    this.#_protocol = this.window.protocol
+    this.#_protocol = this.window.location.protocol
     return this.#_protocol
   }
   set protocol($protocol) {
@@ -75,7 +79,7 @@ export default class LocationRouter extends Core {
   }
   get hostname() {
     if(this.#_hostname !== undefined) return this.#_hostname
-    this.#_hostname = this.window.hostname
+    this.#_hostname = this.window.location.hostname
     return this.#_hostname
   }
   set hostname($hostname) {
@@ -85,7 +89,7 @@ export default class LocationRouter extends Core {
   }
   get port() {
     if(this.#_port !== undefined) return this.#_port
-    this.#_port = this.window.port
+    this.#_port = this.window.location.port
     return this.#_port
   }
   set port($port) {
@@ -93,64 +97,92 @@ export default class LocationRouter extends Core {
       this.#_port = $port
     }
   }
+  get origin() {
+    if(this.#_origin !== undefined) return this.#_origin
+    this.#_origin = this.window.location.origin
+    return this.#_origin
+  }
+  set origin($origin) {
+    if($origin !== this.#_origin) {
+      this.#_origin = $origin
+    }
+  }
   get pathname() {
     if(this.#_pathname !== undefined) return this.#_pathname
-    this.#_pathname = this.window.pathname
+    this.#_pathname = this.window.location.pathname
     return this.#_pathname
   }
   set pathname($pathname) {
     if($pathname !== this.#_pathname) {
-      this.#_pathname = $pathname
+      const preter = this.#_pathname
+      const anter = $pathname
+      this.#_pathname = anter
       this.dispatchEvent(
-        new RouteEvent("route:pathname", {}, this. )
+        new RouteEvent("route:pathname", {
+          detail: { preter, anter }
+        }, this)
       )
     }
   }
   get hash() {
     if(this.#_hash !== undefined) return this.#_hash
-    this.#_hash = this.window.hash
+    this.#_hash = this.window.location.hash
     return this.#_hash
   }
   set hash($hash) {
     if($hash !== this.#_hash) {
-      this.#_hash = $hash
+      const preter = this.#_hash
+      const anter = $hash
+      this.#_hash = anter
       this.dispatchEvent(
-        new RouteEvent("route:hash", {}, this. )
+        new RouteEvent("route:hash", {
+          detail: { preter, anter }
+        }, this)
       )
     }
   }
   get search() {
     if(this.#_search !== undefined) return this.#_search
-    this.#_search = this.window.search
+    this.#_search = this.window.location.search
     return this.#_search
   }
   set search($search) {
     if($search !== this.#_search) {
-      this.#_search = $search
+      const preter = this.#_search
+      const anter = $search
+      this.#_search = anter
       this.dispatchEvent(
-        new RouteEvent("route:search", {}, this)
+        new RouteEvent("route:search", {
+          detail: { preter, anter }
+        }, this)
       )
     }
   }
   get href() {
     if(this.#_href !== undefined) return this.#_href
-    this.#_href = this.window.href
+    this.#_href = this.window.location.href
     return this.#_href
   }
   set href($href) {
     if($href !== this.#_href) {
-      this.#_href = $href
+      const preter = this.#_href
+      const anter = $href
+      this.#_href = anter
       this.dispatchEvent(
-        new RouteEvent("route:href", {}, this)
+        new RouteEvent("route:href", {
+          detail: { preter, anter }
+        }, this)
       )
     }
   }
   // Methods
   #popState() {
-    this.activeRoute?.active = false
+    const preterRoute = this.activeRoute
+    if(preterRoute) preterRoute.active = false
     const { pathname, hash } = this.window.location
     const path = (this.hashpath) ? hash.slice(1) : pathname
     const route = this.matchRoute(path)
+    console.log('route', route)
     if(route && route?.enable) {
       route.active = true
       this.protocol = this.window.location.protocol
@@ -161,7 +193,12 @@ export default class LocationRouter extends Core {
       this.search = this.window.location.search
       this.href = this.window.location.href
       this.dispatchEvent(
-        new RouteEvent("route", {}, this)
+        new RouteEvent("route", {
+          detail: {
+            preterRoute, 
+            anterRoute: route,
+          }
+        }, this)
       )
     }
   }
@@ -199,9 +236,8 @@ export default class LocationRouter extends Core {
     iterateMatchEntries: 
     while(routeEntryIndex < routeEntries.length) {
       const [$routePath, $route] = routeEntries[routeEntryIndex]
-      route = $route.match($path)
-      if(route) {
-        route = recursiveAssign(route, this.routes[$routePath])
+      if($route.match($path)) {
+        route = $route
         break iterateMatchEntries
       }
       routeEntryIndex++

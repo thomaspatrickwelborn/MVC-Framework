@@ -1,23 +1,22 @@
 import { LocationRouter } from '/dependencies/mvc-framework.js'
 const locationRouter = new LocationRouter({
-  hashpath: false,
+  hashpath: true,
   routes: {
-    "/": {
-      name: "Index",
-      enable: true,
-    },
-    "/static-cms": {
+    '/': {
       name: "Static CMS",
       enable: true,
     },
-    "/static-cms/subpage": {
+    "/subpage": {
       name: "Static CMS Subpage",
       enable: true,
     },
-    "/static-cms/subpage/:subpageID": {
+    "/subpage/:subpageID": {
       name: "Static CMS Subpage",
       enable: true,
     },
+  },
+  events: {
+    'route': ($event) => { console.log($event.type, $event) }
   }
 })
 console.log(locationRouter)

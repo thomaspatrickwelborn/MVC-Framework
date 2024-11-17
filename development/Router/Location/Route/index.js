@@ -20,7 +20,7 @@ export default class Route extends EventTarget {
   }
   get active() {
     if(this.#_active !== undefined) return this.#_active
-    this.#_active = this.#settings.active
+    if(this.#settings.active === undefined) { this.#_active = false }
     return this.#_active
   }
   set active($active) {
@@ -31,7 +31,4 @@ export default class Route extends EventTarget {
     this.#_match = match(this.basename)
     return this.#_match
   }
-  pathname() { return this.settings.window.pathname }
-  hash() { return this.settings.window.hash }
-  search() { return this.settings.window.search }
 }
