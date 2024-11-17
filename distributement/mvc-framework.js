@@ -3332,7 +3332,7 @@ function requireDist () {
 var distExports = requireDist();
 
 class Route extends EventTarget {
-  #settings
+  #_settings
   #_enable
   #_active
   #_match
@@ -3340,7 +3340,13 @@ class Route extends EventTarget {
     super();
     this.#settings = $settings;
   }
-  get name() { return this.#settings.name }
+  get #settings() { return this.#_settings }
+  set #settings($settings) {
+    this.#_settings = $settings;
+    for(const [$settingKey, $settingVal] of Object.entries($settings)) {
+      Object.defineProperty(this, $settingKey, { value: $settingVal });
+    }
+  }
   get basename() { return this.#settings.basename }
   get enable() {
     if(this.#_enable !== undefined) return this.#_enable
@@ -3370,21 +3376,11 @@ class Route extends EventTarget {
 
 class RouteEvent extends Event {
   #settings
-  #router
-  #_route
-  constructor($type, $settings, $router) {
+  constructor($type, $settings) {
     super($type, $settings);
     this.#settings = $settings;
-    this.#router = $router;
   }
-  get detail() { return this.#settings.detail }
-  get protocol() { return this.#router.protocol }
-  get hostname() { return this.#router.hostname }
-  get port() { return this.#router.port }
-  get pathname() { return this.#router.pathname }
-  get hash() { return this.#router.hash }
-  get search() { return this.#router.search }
-  get href() { return this.#router.href }
+  get route() { return this.#settings.route }
 }
 
 const Settings$1 = { routes: {} };
@@ -3395,22 +3391,13 @@ class LocationRouter extends Core {
   #_routes
   #_activeRoute
   #_boundPopState
-  // Window Location Properties
-  #_protocol
-  #_hostname
-  #_port
-  #_origin
-  #_pathname
-  #_hash
-  #_search
-  #_href
   constructor($settings, $options) {
     super(
       recursiveAssign(Settings$1, $settings),
       recursiveAssign(Options$1, $options),
     );
-    this.enableEvents();
     this.#popState();
+    this.enableEvents();
   }
   get window() {
     if(this.#_window !== undefined) return this.#_window
@@ -3451,117 +3438,8 @@ class LocationRouter extends Core {
     this.#_boundPopState = this.#popState.bind(this);
     return this.#_boundPopState
   }
-  // Window Location Properties
-  get protocol() {
-    if(this.#_protocol !== undefined) return this.#_protocol
-    this.#_protocol = this.window.location.protocol;
-    return this.#_protocol
-  }
-  set protocol($protocol) {
-    if($protocol !== this.#_protocol) {
-      this.#_protocol = $protocol;
-    }
-  }
-  get hostname() {
-    if(this.#_hostname !== undefined) return this.#_hostname
-    this.#_hostname = this.window.location.hostname;
-    return this.#_hostname
-  }
-  set hostname($hostname) {
-    if($hostname !== this.#_hostname) {
-      this.#_hostname = $hostname;
-    }
-  }
-  get port() {
-    if(this.#_port !== undefined) return this.#_port
-    this.#_port = this.window.location.port;
-    return this.#_port
-  }
-  set port($port) {
-    if($port !== this.#_port) {
-      this.#_port = $port;
-    }
-  }
-  get origin() {
-    if(this.#_origin !== undefined) return this.#_origin
-    this.#_origin = this.window.location.origin;
-    return this.#_origin
-  }
-  set origin($origin) {
-    if($origin !== this.#_origin) {
-      this.#_origin = $origin;
-    }
-  }
-  get pathname() {
-    if(this.#_pathname !== undefined) return this.#_pathname
-    this.#_pathname = this.window.location.pathname;
-    return this.#_pathname
-  }
-  set pathname($pathname) {
-    if($pathname !== this.#_pathname) {
-      const preter = this.#_pathname;
-      const anter = $pathname;
-      this.#_pathname = anter;
-      this.dispatchEvent(
-        new RouteEvent("route:pathname", {
-          detail: { preter, anter }
-        }, this)
-      );
-    }
-  }
-  get hash() {
-    if(this.#_hash !== undefined) return this.#_hash
-    this.#_hash = this.window.location.hash;
-    return this.#_hash
-  }
-  set hash($hash) {
-    if($hash !== this.#_hash) {
-      const preter = this.#_hash;
-      const anter = $hash;
-      this.#_hash = anter;
-      this.dispatchEvent(
-        new RouteEvent("route:hash", {
-          detail: { preter, anter }
-        }, this)
-      );
-    }
-  }
-  get search() {
-    if(this.#_search !== undefined) return this.#_search
-    this.#_search = this.window.location.search;
-    return this.#_search
-  }
-  set search($search) {
-    if($search !== this.#_search) {
-      const preter = this.#_search;
-      const anter = $search;
-      this.#_search = anter;
-      this.dispatchEvent(
-        new RouteEvent("route:search", {
-          detail: { preter, anter }
-        }, this)
-      );
-    }
-  }
-  get href() {
-    if(this.#_href !== undefined) return this.#_href
-    this.#_href = this.window.location.href;
-    return this.#_href
-  }
-  set href($href) {
-    if($href !== this.#_href) {
-      const preter = this.#_href;
-      const anter = $href;
-      this.#_href = anter;
-      this.dispatchEvent(
-        new RouteEvent("route:href", {
-          detail: { preter, anter }
-        }, this)
-      );
-    }
-  }
   // Methods
-  #popState() {
+  #popState($event = {}) {
     const preterRoute = this.activeRoute;
     if(preterRoute) preterRoute.active = false;
     const { pathname, hash } = this.window.location;
@@ -3569,20 +3447,9 @@ class LocationRouter extends Core {
     const route = this.matchRoute(path);
     if(route && route?.enable) {
       route.active = true;
-      this.protocol = this.window.location.protocol;
-      this.hostname = this.window.location.hostname;
-      this.port = this.window.location.port;
-      this.pathname = this.window.location.pathname;
-      this.hash = this.window.location.hash;
-      this.search = this.window.location.search;
-      this.href = this.window.location.href;
+      route.state = $event?.state;
       this.dispatchEvent(
-        new RouteEvent("route", {
-          detail: {
-            preterRoute, 
-            anterRoute: route,
-          }
-        }, this)
+        new RouteEvent("route", { route })
       );
     }
   }
@@ -3619,8 +3486,16 @@ class LocationRouter extends Core {
     iterateMatchEntries: 
     while(routeEntryIndex < routeEntries.length) {
       const [$routePath, $route] = routeEntries[routeEntryIndex];
-      if($route.match($path)) {
-        route = $route;
+      const routeMatch = $route.match($path);
+      if(routeMatch) {
+        route = Object.entries(Object.getOwnPropertyDescriptors($route))
+        .reduce(($propertyDescriptors, [$key, $descriptor]) => {
+          $propertyDescriptors[$key] = $descriptor.value;
+          return $propertyDescriptors
+        }, {
+          enable: $route.enable
+        });
+        Object.assign(route, routeMatch);
         break iterateMatchEntries
       }
       routeEntryIndex++;

@@ -1,6 +1,6 @@
 import { match } from '../../../node_modules/path-to-regexp/dist/index.js'
 export default class Route extends EventTarget {
-  #settings
+  #_settings
   #_enable
   #_active
   #_match
@@ -8,7 +8,13 @@ export default class Route extends EventTarget {
     super()
     this.#settings = $settings
   }
-  get name() { return this.#settings.name }
+  get #settings() { return this.#_settings }
+  set #settings($settings) {
+    this.#_settings = $settings
+    for(const [$settingKey, $settingVal] of Object.entries($settings)) {
+      Object.defineProperty(this, $settingKey, { value: $settingVal })
+    }
+  }
   get basename() { return this.#settings.basename }
   get enable() {
     if(this.#_enable !== undefined) return this.#_enable

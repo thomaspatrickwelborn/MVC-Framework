@@ -50,11 +50,15 @@ export default [{
       }
     }
   },
-  events: {},
+  events: {
+    "routers.location.default route": ($event) => {
+      console.log($event)
+    }
+  },
 }, {
   defineProperties: {
     start: { value: function () {
-    //   console.log(this.models.default.parse())
+      console.log(this.models.default.parse())
     //   this.views.default.render(this.models.default.parse(), 'default')
     //   console.log(this.views.default.querySelectors)
     //   const controlViewParent = this.views.default.querySelectors['static-cms']
