@@ -16,7 +16,20 @@ import { Content, Model } from '/dependencies/mvc-framework.js'
 // content.delete('propertyA')
 // content.get('propertyA')
 
-const { content } = new Model({
+const { schema, content } = new Model({
+  schema: {
+    propertyA: {
+      type: {
+        propertyB: {
+          type: {
+            propertyC: {
+              type: String
+            }
+          }
+        }
+      }
+    }
+  },
   content: {
     propertyA: {
       propertyB: {
@@ -30,8 +43,11 @@ const { content } = new Model({
     // },
     "content.propertyA.propertyB getProperty:propertyC": function getPropertyC($event) {
       console.log($event.type, $event.basename, $event.detail)
-    }
+    },
   }
 }, { enableEvents: true })
 
+// console.log(schema)
+// console.log(content)
+// console.log(content.object)
 console.log(content.get("propertyA.propertyB.propertyC"))

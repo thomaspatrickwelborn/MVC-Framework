@@ -1362,10 +1362,7 @@ function setContentProperty() {
       : propertyKey;
     // Return: Subproperty
     if(subpaths.length) {
-      propertyValue = root[propertyKey];
-      // Recursive: True
-      // Property Value: Undefined
-      if(recursive && propertyValue === undefined) {
+      if(recursive && root[propertyKey] === undefined) {
         // Subschema
         let subschema;
         if(schema?.contextType === 'array') { subschema = schema.context[0]; }
@@ -1383,15 +1380,14 @@ function setContentProperty() {
           path: _path,
           parent: proxy,
         }));
-        root[propertyKey] = propertyValue;
+      }
+      else {
+        propertyValue = root[propertyKey];
       }
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
       propertyValue.set(subpaths.join('.'), $value, ulteroptions);
       return propertyValue
-    }
-    else {
-      propertyValue = $value;
     }
     // Validation
     if(schema && enableValidation) {
@@ -1408,7 +1404,7 @@ function setContentProperty() {
     }
     // Return: Property
     // Value: Object Literal
-    else if(typeof $value === 'object') {
+    if(typeof $value === 'object') {
       // Value: Content
       if($value?.classToString === Content.toString()) { $value = $value.object; }
       let subschema;
@@ -2476,11 +2472,7 @@ class Content extends EventTarget {
     ).reduce(($parsement, [
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
-      // if(typeof $propertyDescriptor.value === 'object') {
-      //   $parsement[$propertyDescriptorName] = $propertyDescriptor.value?.parse()
-      // } else {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value;
-      // }
+      $parsement[$propertyDescriptorName] = $propertyDescriptor.value;
       return $parsement
     }, parsement);
     if(
