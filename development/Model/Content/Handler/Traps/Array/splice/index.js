@@ -26,17 +26,33 @@ export default function splice() {
     const deleteItem = Array.prototype.splice.call(root, $start, 1)[0]
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
-    if(contentEvents && events['spliceDelete']) {
-      $content.dispatchEvent(
-        new ContentEvent('spliceDelete', {
-          path,
-          detail: {
-            index: $start + deleteItemsIndex,
-            deleteIndex: deleteItemsIndex,
-            deleteItem: deleteItem,
-          },
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['spliceDelete']) {
+        $content.dispatchEvent(
+          new ContentEvent('spliceDelete', {
+            path,
+            detail: {
+              index: $start + deleteItemsIndex,
+              deleteIndex: deleteItemsIndex,
+              deleteItem: deleteItem,
+            },
+          }, $content)
+        )
+      }
+      if(events['spliceDelete:$index']) {
+        const type = ['spliceDelete', ':', deleteItemsIndex].join('')
+        const _path = [path, '.', deleteItemsIndex].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              index: $start + deleteItemsIndex,
+              deleteIndex: deleteItemsIndex,
+              deleteItem: deleteItem,
+            },
+          }, $content)
+        )
+      }
     }
     deleteItemsIndex++
   }
@@ -80,17 +96,33 @@ export default function splice() {
       )
     }
     // Array Splice Add Event
-    if(contentEvents && events['spliceAdd']) {
-      $content.dispatchEvent(
-        new ContentEvent('spliceAdd', {
-          path,
-          detail: {
-            index: $start + addItemsIndex,
-            addIndex: addItemsIndex,
-            addItem: addItem,
-          },
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['spliceAdd']) {
+        $content.dispatchEvent(
+          new ContentEvent('spliceAdd', {
+            path,
+            detail: {
+              index: $start + addItemsIndex,
+              addIndex: addItemsIndex,
+              addItem: addItem,
+            },
+          }, $content)
+        )
+      }
+      if(events['spliceAdd:$index']) {
+        const type = ['spliceAdd', ':', addItemsIndex].join('')
+        const _path = [path, '.', addItemsIndex].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              index: $start + addItemsIndex,
+              addIndex: addItemsIndex,
+              addItem: addItem,
+            },
+          }, $content)
+        )
+      }
     }
     addItemsIndex++
   }

@@ -74,16 +74,31 @@ export default function defineProperty() {
     Object.defineProperty(root, propertyKey, propertyDescriptor)
   }
   // Define Property Event
-  if(contentEvents && events['defineProperty']) {
-    $content.dispatchEvent(
-      new ContentEvent('defineProperty', {
-        path,
-        detail: {
-          prop: propertyKey,
-          descriptor: propertyDescriptor,
-        },
-      }, $content
-    ))
+  if(contentEvents) {
+    if(events['defineProperty']) {
+      $content.dispatchEvent(
+        new ContentEvent('defineProperty', {
+          path,
+          detail: {
+            prop: propertyKey,
+            descriptor: propertyDescriptor,
+          },
+        }, $content
+      ))
+    }
+    if(events['defineProperty:$key']) {
+      const type = ['defineProperty', ':', propertyKey].join('')
+      const _path = [path, '.', propertyKey].join('')
+      $content.dispatchEvent(
+        new ContentEvent(type, {
+          path: _path,
+          detail: {
+            prop: propertyKey,
+            descriptor: propertyDescriptor,
+          },
+        }, $content
+      ))
+    }
   }
   return proxy
 }

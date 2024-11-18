@@ -55,17 +55,33 @@ export default function fill() {
       root, value, fillIndex, fillIndex + 1
     )
     // Array Fill Index Event
-    if(contentEvents && events['fillIndex']) {
-      $content.dispatchEvent(
-        new ContentEvent('fillIndex', {
-          path, 
-          detail: {
-            start: fillIndex,
-            end: fillIndex + 1,
-            value,
-          },
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['fillIndex']) {
+        $content.dispatchEvent(
+          new ContentEvent('fillIndex', {
+            path, 
+            detail: {
+              start: fillIndex,
+              end: fillIndex + 1,
+              value,
+            },
+          }, $content)
+        )
+      }
+      if(events['fillIndex:$index']) {
+        const type = ['fillIndex', ':', fillIndex].join('')
+        const _path = [path, '.', fillIndex].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path, 
+            detail: {
+              start: fillIndex,
+              end: fillIndex + 1,
+              value,
+            },
+          }, $content)
+        )
+      }
     }
     fillIndex++
   }

@@ -1,3 +1,4 @@
+import Content from '../../Model/Content/index.js'
 export default class CoreEvent {
   #settings
   #_boundListener
@@ -9,20 +10,33 @@ export default class CoreEvent {
   get path() { return this.#settings.path }
   get target() {
     let target = this.#context
+    const pathKeys = this.path.split('.')
+    let pathKeysIndex = 0
     iterateTargetPathKeys: 
-    for(const $targetPathKey of this.path.split('.')) {
-      if($targetPathKey === ':scope') { break iterateTargetPathKeys }
-      if(target[$targetPathKey] === undefined) { return undefined }
-      target = target[$targetPathKey]
+    while(pathKeysIndex < pathKeys.length) {
+      const pathKey = pathKeys[pathKeysIndex]
+      if(pathKeysIndex === 0 && pathKey === ':scope') {
+        break iterateTargetPathKeys
+      }
+      if(target.classToString === Content.toString()) {
+        target = target.get(pathKey)
+      }
+      else {
+        target = target[pathKey]
+      }
+      if(target === undefined) { break iterateTargetPathKeys }
+      pathKeysIndex++
     }
-    if(target instanceof EventTarget) { return target }
     return target
   }
   get listener() { return this.#settings.listener }
   get options() { return this.#settings.options }
   get enable() { return this.#_enable }
   set enable($enable) {
-    if($enable === this.#_enable) { return }
+    if(
+      $enable === this.#_enable ||
+      this.target === undefined
+    ) { return }
     const eventAbility = (
       $enable === true
     ) ? 'addEventListener'

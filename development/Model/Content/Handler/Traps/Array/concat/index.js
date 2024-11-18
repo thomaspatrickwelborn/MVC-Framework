@@ -50,16 +50,31 @@ export default function concat() {
       values[valueIndex] = $value
     }
     rootConcat = Array.prototype.concat.call(rootConcat, values[valueIndex])
-    if(contentEvents && events['concatValue']) {
-      $content.dispatchEvent(
-        new ContentEvent('concatValue', {
-          path,
-          detail: {
-            valueIndex,
-            value: values[valueIndex],
-          },
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['concatValue']) {
+        $content.dispatchEvent(
+          new ContentEvent('concatValue', {
+            path,
+            detail: {
+              valueIndex,
+              value: values[valueIndex],
+            },
+          }, $content)
+        )
+      }
+      if(events['concatValue:$index']) {
+        const type = ['concatValue', ':', valueIndex].join('')
+        const _path = [path, '.', valueIndex].join('')
+        $content.dispatchEvent(
+          new ContentEvent('concatValue', {
+            path: _path,
+            detail: {
+              valueIndex,
+              value: values[valueIndex],
+            },
+          }, $content)
+        )
+      }
     }
     valueIndex++
   }

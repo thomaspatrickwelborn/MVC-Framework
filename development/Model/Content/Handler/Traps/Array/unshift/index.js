@@ -46,16 +46,32 @@ export default function unshift() {
       Array.prototype.unshift.call(root, $element)
     }
     // Array Unshift Prop Event
-    if(contentEvents && events['unshiftProp']) {
-      $content.dispatchEvent(
-        new ContentEvent('unshiftProp', {
-          path,
-          detail: {
-            elementIndex, 
-            element: element,
-          },
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['unshiftProp']) {
+        $content.dispatchEvent(
+          new ContentEvent('unshiftProp', {
+            path,
+            detail: {
+              elementIndex, 
+              element: element,
+            },
+          }, $content)
+        )
+      }
+      if(events['unshiftProp:$index']) {
+        const type = ['unshiftProp', ':', elementIndex].join('')
+        const _path = [path, '.', elementIndex]
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              elementIndex, 
+              element: element,
+            },
+          }, $content)
+        )
+      }
+
     }
     elementIndex--
   }

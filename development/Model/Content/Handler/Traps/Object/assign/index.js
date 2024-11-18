@@ -83,17 +83,33 @@ export default function assign() {
         Object.assign(assignedSource, assignment)
       }
       // Content Event: Assign Source Property
-      if(contentEvents && events['assignSourceProperty']) {
-        $content.dispatchEvent(
-          new ContentEvent('assignSourceProperty', {
-            path,
-            detail: {
-              key: $sourcePropKey,
-              val: $sourcePropVal,
-              source: $source,
-            }
-          }, $content)
-        )
+      if(contentEvents) {
+        if(events['assignSourceProperty']) {
+          $content.dispatchEvent(
+            new ContentEvent('assignSourceProperty', {
+              path,
+              detail: {
+                key: $sourcePropKey,
+                val: $sourcePropVal,
+                source: $source,
+              }
+            }, $content)
+          )
+        }
+        if(events['assignSourceProperty:$key']) {
+          const type = ['assignSourceProperty', ':', $sourcePropKey].join('')
+          const _path = [path, '.', $sourcePropKey].join('')
+          $content.dispatchEvent(
+            new ContentEvent(type, {
+              path: _path,
+              detail: {
+                key: $sourcePropKey,
+                val: $sourcePropVal,
+                source: $source,
+              }
+            }, $content)
+          )
+        }
       }
     }
     assignedSources.push(assignedSource)

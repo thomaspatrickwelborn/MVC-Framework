@@ -35,22 +35,43 @@ export default function copyWithin() {
       copyIndex + 1
     )
     // Array Copy Within Index Event Data
-    if(contentEvents && events['copyWithinIndex']) {
-      $content.dispatchEvent(
-        new ContentEvent(
-          'copyWithinIndex',
-          {
-            path,
-            detail: {
-              target: targetIndex,
-              start: copyIndex,
-              end: copyIndex + 1,
-              item: copyItem,
+    if(contentEvents) {
+      if(events['copyWithinIndex']) {
+        $content.dispatchEvent(
+          new ContentEvent(
+            'copyWithinIndex',
+            {
+              path,
+              detail: {
+                target: targetIndex,
+                start: copyIndex,
+                end: copyIndex + 1,
+                item: copyItem,
+              },
             },
-          },
-          $content
+            $content
+          )
         )
-      )
+      }
+      if(events['copyWithinIndex:$index']) {
+        const type  = ['copyWithinIndex', ':', copyIndex].join('')
+        const _path = [path, '.', copyIndex].join('')
+        $content.dispatchEvent(
+          new ContentEvent(
+            type,
+            {
+              path: _path,
+              detail: {
+                target: targetIndex,
+                start: copyIndex,
+                end: copyIndex + 1,
+                item: copyItem,
+              },
+            },
+            $content
+          )
+        )
+      }
     }
     copyIndex++
     targetIndex++

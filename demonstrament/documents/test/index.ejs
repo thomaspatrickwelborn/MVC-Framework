@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= $content.title %></title>
+  <%- await include(
+    '/html5/structure.ejs', 
+    { structure: $content.styles }, {
+      async: true,
+    }
+  ) -%>
+</head>
+<body data-brightness="MIN">
+  <header>
+    <h1><%= $content.title %></h1>
+  </header>
+  <main></main>
+  <footer></footer>
+  <%- await include(
+    '/html5/structure.ejs', 
+    { structure: $content.scripts }, {
+      async: true,
+    }
+  ) -%>
+</body>
+</html>

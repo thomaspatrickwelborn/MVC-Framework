@@ -129,6 +129,51 @@ export default {
           watch: ['**/\$*.ejs', '!index.ejs'],
         }],
       }
+    },
+    {
+      name: 'Test',
+      url: '/test',
+      source: 'documents/test',
+      target: 'localhost/test',
+      main: 'index.html',
+      clear: {
+        target: [
+          '/**/*.{html,css,js,md}',
+        ],
+        source: [
+          '**/template.js'
+        ],
+      },
+      documents: {
+        simules: [],
+        styles: [{
+          type: 'style',
+          input: 'index.scss',
+          output: 'index.css',
+          watch: ['**/*.scss'],
+        }],
+        scripts: [{
+          type: 'script',
+          input: 'index.js',
+          output: 'index.js',
+          watch: ['**/*.js'],
+          external: ['/dependencies/mvc-framework.js']
+        }],
+        structs: [{
+          type: 'struct',
+          outputType: 'server',
+          model: 'index.json',
+          input: 'index.ejs',
+          output: 'index.html',
+          watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+        }, {
+          type: 'struct',
+          outputType: 'client',
+          input: '**/*.ejs',
+          output: '',
+          watch: ['**/\$*.ejs', '!index.ejs'],
+        }],
+      }
     }
   ],
 }

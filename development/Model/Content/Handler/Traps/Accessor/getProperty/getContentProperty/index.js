@@ -26,16 +26,30 @@ export default function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event
-    if(contentEvents && events['getProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('getProperty', {
-          path,
-          detail: {
-            key: propertyKey,
-            val: propertyValue,
-          }
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['getProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('getProperty', {
+            path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      if(events['getProperty:$key']) {
+        const type = ['getProperty', ':', propertyKey].join('')
+        const _path = [path, '.', propertyKey].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
     }
     return propertyValue
   }

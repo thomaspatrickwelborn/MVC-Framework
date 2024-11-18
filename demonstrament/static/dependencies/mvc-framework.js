@@ -76,196 +76,6 @@ var regularExpressions = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
-class CoreEvent {
-  #settings
-  #_boundListener
-  #_enable = false
-  constructor($settings) { 
-    this.#settings = $settings;
-  }
-  get type() { return this.#settings.type }
-  get path() { return this.#settings.path }
-  get target() {
-    let target = this.#context;
-    iterateTargetPathKeys: 
-    for(const $targetPathKey of this.path.split('.')) {
-      if($targetPathKey === ':scope') { break iterateTargetPathKeys }
-      if(target[$targetPathKey] === undefined) { return undefined }
-      target = target[$targetPathKey];
-    }
-    if(target instanceof EventTarget) { return target }
-    return target
-  }
-  get listener() { return this.#settings.listener }
-  get options() { return this.#settings.options }
-  get enable() { return this.#_enable }
-  set enable($enable) {
-    if($enable === this.#_enable) { return }
-    const eventAbility = (
-      $enable === true
-    ) ? 'addEventListener'
-      : 'removeEventListener';
-    if(this.target instanceof NodeList) {
-      for(const $target of this.target) {
-        $target[eventAbility](this.type, this.#boundListener, this.options);
-      }
-      this.#_enable = $enable;
-    }
-    else if(this.target instanceof EventTarget) {
-      this.target[eventAbility](this.type, this.#boundListener, this.options);
-      this.#_enable = $enable;
-    }
-    else {
-      try {
-        this.target[eventAbility](this.type, this.#boundListener, this.options);
-        this.#_enable = $enable;
-      } catch($err) {}
-    }
-  }
-  get #context() { return this.#settings.context }
-  get #boundListener() {
-    if(this.#_boundListener !== undefined) { return this.#_boundListener }
-    this.#_boundListener = this.#settings.listener.bind(this.context);
-    return this.#_boundListener
-  }
-}
-
-var Settings$4 = {
-  events: []
-};
-
-var Options$6 = {
-  defineProperties: {},
-  assign: [],
-};
-
-class Core extends EventTarget {
-  #_settings
-  #_options
-  #_events
-  constructor($settings, $options) {
-    super();
-    this.settings = $settings;
-    this.options = $options;
-    this.addEvents();
-    this.#assign();
-    this.#defineProperties();
-  }
-  get settings() { return this.#_settings }
-  set settings($settings) {
-    if(this.#_settings !== undefined) return
-    $settings.events = expandEvents($settings.events);
-    this.#_settings = recursiveAssign(structuredClone(Settings$4), $settings);
-  }
-  get options() { return this.#_options }
-  set options($options) {
-    if(this.#_options !== undefined) return
-    this.#_options = recursiveAssign(structuredClone(Options$6), $options);
-  }
-  get events() {
-    if(this.#_events !== undefined) return this.#_events
-    this.#_events = [];
-    return this.#_events
-  }
-  getEvents() {
-    const getEvents = [];
-    const { events } = this;
-    const $events = expandEvents(arguments[0]);
-    for(const $event of $events) {
-      const { type, path, listener, enable } = $event;
-      const eventFilterProperties = [];
-      if(type !== undefined) { eventFilterProperties.push(['type', type]); }
-      if(path !== undefined) { eventFilterProperties.push(['path', path]); }
-      if(listener !== undefined) { eventFilterProperties.push(['listener', listener]); }
-      if(enable !== undefined) { eventFilterProperties.push(['enable', enable]); }
-      getEvents.push(
-        ...events.filter(($existingEvent) => {
-          return eventFilterProperties.reduce(($match, [
-            $eventFilterPropertyKey, $eventFilterPropertyValue
-          ]) => {
-            const match = (
-              $existingEvent[$eventFilterPropertyKey] === $eventFilterPropertyValue
-            ) ? true : false;
-            if($match !== false) { $match = match; }
-            return $match
-          }, undefined)
-        })
-      );
-    }
-    return getEvents
-  }
-  addEvents() {
-    const { events } = this;
-    let $events;
-    if(arguments.length === 0) { $events = this.settings.events; }
-    else if(arguments.length === 1) { $events = expandEvents(arguments[0]); }
-    for(let $event of $events) {
-      $event = Object.assign({}, $event, { context: this });
-      events.push(new CoreEvent($event));
-    }
-    return this
-  }
-  removeEvents() {
-    const { events } = this;
-    let $events;
-    if(arguments.length === 0) { $events = events; }
-    else if(arguments.length === 1) {
-      $events = this.getEvents(expandEvents(arguments[0]));
-    }
-    let eventsIndex = events.length - 1;
-    while(eventsIndex > -1) {
-      const event = events[eventsIndex];
-      const removeEventIndex = $events.findIndex(
-        ($event) => $event === event
-      );
-      event.enable = false;
-      if(removeEventIndex !== -1) events.splice(eventsIndex, 1);
-      eventsIndex--;
-    }
-    return this
-  }
-  enableEvents() {
-    let $events;
-    if(arguments.length === 0) { $events = this.events; }
-    else { $events = this.getEvents(arguments[0]); }
-    return this.#toggleEventAbility('addEventListener', $events)
-  }
-  disableEvents() {
-    let $events;
-    if(arguments.length === 0) { $events = this.events; }
-    else { $events = this.getEvents(arguments[0]); }
-    return this.#toggleEventAbility('removeEventListener', $events)
-  }
-  #assign() {
-    if(Object.keys(this.options.assign).length === 0) return this
-    for(const [
-        $propertyName, $propertyValue
-      ] of Object.entries(this.options.assign)) {
-      Object.assign(this, { [$propertyName]: $propertyValue });
-    }
-    return this
-  }
-  #defineProperties() {
-    if(Object.keys(this.options.defineProperties).length === 0) return this
-    for(const [
-      $propertyName, $propertyDescriptor
-    ] of Object.entries(this.options.defineProperties)) {
-      Object.defineProperty(this, $propertyName, $propertyDescriptor);
-    }
-    return this
-  }
-  #toggleEventAbility($eventListenerMethod, $events) {
-    let enability;
-    if($eventListenerMethod === 'addEventListener') { enability = true; }
-    else if($eventListenerMethod === 'removeEventListener') { enability = false; }
-    else { return this }
-    for(const $event of $events) {
-      $event.enable = enability;
-    }
-    return this
-  }
-}
-
 class ContentEvent extends Event {
   #settings
   #content
@@ -428,17 +238,33 @@ function assign() {
         Object.assign(assignedSource, assignment);
       }
       // Content Event: Assign Source Property
-      if(contentEvents && events['assignSourceProperty']) {
-        $content.dispatchEvent(
-          new ContentEvent('assignSourceProperty', {
-            path,
-            detail: {
-              key: $sourcePropKey,
-              val: $sourcePropVal,
-              source: $source,
-            }
-          }, $content)
-        );
+      if(contentEvents) {
+        if(events['assignSourceProperty']) {
+          $content.dispatchEvent(
+            new ContentEvent('assignSourceProperty', {
+              path,
+              detail: {
+                key: $sourcePropKey,
+                val: $sourcePropVal,
+                source: $source,
+              }
+            }, $content)
+          );
+        }
+        if(events['assignSourceProperty:$key']) {
+          const type = ['assignSourceProperty', ':', $sourcePropKey].join('');
+          const _path = [path, '.', $sourcePropKey].join('');
+          $content.dispatchEvent(
+            new ContentEvent(type, {
+              path: _path,
+              detail: {
+                key: $sourcePropKey,
+                val: $sourcePropVal,
+                source: $source,
+              }
+            }, $content)
+          );
+        }
       }
     }
     assignedSources.push(assignedSource);
@@ -579,16 +405,31 @@ function defineProperty() {
     Object.defineProperty(root, propertyKey, propertyDescriptor);
   }
   // Define Property Event
-  if(contentEvents && events['defineProperty']) {
-    $content.dispatchEvent(
-      new ContentEvent('defineProperty', {
-        path,
-        detail: {
-          prop: propertyKey,
-          descriptor: propertyDescriptor,
-        },
-      }, $content
-    ));
+  if(contentEvents) {
+    if(events['defineProperty']) {
+      $content.dispatchEvent(
+        new ContentEvent('defineProperty', {
+          path,
+          detail: {
+            prop: propertyKey,
+            descriptor: propertyDescriptor,
+          },
+        }, $content
+      ));
+    }
+    if(events['defineProperty:$key']) {
+      const type = ['defineProperty', ':', propertyKey].join('');
+      const _path = [path, '.', propertyKey].join('');
+      $content.dispatchEvent(
+        new ContentEvent(type, {
+          path: _path,
+          detail: {
+            prop: propertyKey,
+            descriptor: propertyDescriptor,
+          },
+        }, $content
+      ));
+    }
   }
   return proxy
 }
@@ -709,16 +550,30 @@ function concat() {
       values[valueIndex] = $value;
     }
     rootConcat = Array.prototype.concat.call(rootConcat, values[valueIndex]);
-    if(contentEvents && events['concatValue']) {
-      $content.dispatchEvent(
-        new ContentEvent('concatValue', {
-          path,
-          detail: {
-            valueIndex,
-            value: values[valueIndex],
-          },
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['concatValue']) {
+        $content.dispatchEvent(
+          new ContentEvent('concatValue', {
+            path,
+            detail: {
+              valueIndex,
+              value: values[valueIndex],
+            },
+          }, $content)
+        );
+      }
+      if(events['concatValue:$index']) {
+        const _path = [path, '.', valueIndex].join('');
+        $content.dispatchEvent(
+          new ContentEvent('concatValue', {
+            path: _path,
+            detail: {
+              valueIndex,
+              value: values[valueIndex],
+            },
+          }, $content)
+        );
+      }
     }
     valueIndex++;
   }
@@ -770,22 +625,43 @@ function copyWithin() {
       copyIndex + 1
     );
     // Array Copy Within Index Event Data
-    if(contentEvents && events['copyWithinIndex']) {
-      $content.dispatchEvent(
-        new ContentEvent(
-          'copyWithinIndex',
-          {
-            path,
-            detail: {
-              target: targetIndex,
-              start: copyIndex,
-              end: copyIndex + 1,
-              item: copyItem,
+    if(contentEvents) {
+      if(events['copyWithinIndex']) {
+        $content.dispatchEvent(
+          new ContentEvent(
+            'copyWithinIndex',
+            {
+              path,
+              detail: {
+                target: targetIndex,
+                start: copyIndex,
+                end: copyIndex + 1,
+                item: copyItem,
+              },
             },
-          },
-          $content
-        )
-      );
+            $content
+          )
+        );
+      }
+      if(events['copyWithinIndex:$index']) {
+        const type  = ['copyWithinIndex', ':', copyIndex].join('');
+        const _path = [path, '.', copyIndex].join('');
+        $content.dispatchEvent(
+          new ContentEvent(
+            type,
+            {
+              path: _path,
+              detail: {
+                target: targetIndex,
+                start: copyIndex,
+                end: copyIndex + 1,
+                item: copyItem,
+              },
+            },
+            $content
+          )
+        );
+      }
     }
     copyIndex++;
     targetIndex++;
@@ -866,17 +742,33 @@ function fill() {
       root, value, fillIndex, fillIndex + 1
     );
     // Array Fill Index Event
-    if(contentEvents && events['fillIndex']) {
-      $content.dispatchEvent(
-        new ContentEvent('fillIndex', {
-          path, 
-          detail: {
-            start: fillIndex,
-            end: fillIndex + 1,
-            value,
-          },
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['fillIndex']) {
+        $content.dispatchEvent(
+          new ContentEvent('fillIndex', {
+            path, 
+            detail: {
+              start: fillIndex,
+              end: fillIndex + 1,
+              value,
+            },
+          }, $content)
+        );
+      }
+      if(events['fillIndex:$index']) {
+        const type = ['fillIndex', ':', fillIndex].join('');
+        const _path = [path, '.', fillIndex].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path, 
+            detail: {
+              start: fillIndex,
+              end: fillIndex + 1,
+              value,
+            },
+          }, $content)
+        );
+      }
     }
     fillIndex++;
   }
@@ -962,16 +854,31 @@ function push() {
       elements.push($element);
       Array.prototype.push.call(root, $element);
     }
-    if(contentEvents && events['pushProp']) {
-      $content.dispatchEvent(
-        new ContentEvent('pushProp', {
-          path,
-          detail: {
-            elementsIndex,
-            element: elements[elementsIndex],
-          },
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['pushProp']) {
+        $content.dispatchEvent(
+          new ContentEvent('pushProp', {
+            path,
+            detail: {
+              elementsIndex,
+              element: elements[elementsIndex],
+            },
+          }, $content)
+        );
+      }
+      if(events['pushProp:$index']) {
+        const type = ['pushProp', ':', elementsIndex].join('');
+        const _path = [path, '.', elementsIndex].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              elementsIndex,
+              element: elements[elementsIndex],
+            },
+          }, $content)
+        );
+      }
     }
     elementsIndex++;
   }
@@ -1064,17 +971,33 @@ function splice() {
     const deleteItem = Array.prototype.splice.call(root, $start, 1)[0];
     deleteItems.push(deleteItem);
     // Array Splice Delete Event
-    if(contentEvents && events['spliceDelete']) {
-      $content.dispatchEvent(
-        new ContentEvent('spliceDelete', {
-          path,
-          detail: {
-            index: $start + deleteItemsIndex,
-            deleteIndex: deleteItemsIndex,
-            deleteItem: deleteItem,
-          },
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['spliceDelete']) {
+        $content.dispatchEvent(
+          new ContentEvent('spliceDelete', {
+            path,
+            detail: {
+              index: $start + deleteItemsIndex,
+              deleteIndex: deleteItemsIndex,
+              deleteItem: deleteItem,
+            },
+          }, $content)
+        );
+      }
+      if(events['spliceDelete:$index']) {
+        const type = ['spliceDelete', ':', deleteItemsIndex].join('');
+        const _path = [path, '.', deleteItemsIndex].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              index: $start + deleteItemsIndex,
+              deleteIndex: deleteItemsIndex,
+              deleteItem: deleteItem,
+            },
+          }, $content)
+        );
+      }
     }
     deleteItemsIndex++;
   }
@@ -1118,17 +1041,33 @@ function splice() {
       );
     }
     // Array Splice Add Event
-    if(contentEvents && events['spliceAdd']) {
-      $content.dispatchEvent(
-        new ContentEvent('spliceAdd', {
-          path,
-          detail: {
-            index: $start + addItemsIndex,
-            addIndex: addItemsIndex,
-            addItem: addItem,
-          },
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['spliceAdd']) {
+        $content.dispatchEvent(
+          new ContentEvent('spliceAdd', {
+            path,
+            detail: {
+              index: $start + addItemsIndex,
+              addIndex: addItemsIndex,
+              addItem: addItem,
+            },
+          }, $content)
+        );
+      }
+      if(events['spliceAdd:$index']) {
+        const type = ['spliceAdd', ':', addItemsIndex].join('');
+        const _path = [path, '.', addItemsIndex].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              index: $start + addItemsIndex,
+              addIndex: addItemsIndex,
+              addItem: addItem,
+            },
+          }, $content)
+        );
+      }
     }
     addItemsIndex++;
   }
@@ -1195,16 +1134,32 @@ function unshift() {
       Array.prototype.unshift.call(root, $element);
     }
     // Array Unshift Prop Event
-    if(contentEvents && events['unshiftProp']) {
-      $content.dispatchEvent(
-        new ContentEvent('unshiftProp', {
-          path,
-          detail: {
-            elementIndex, 
-            element: element,
-          },
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['unshiftProp']) {
+        $content.dispatchEvent(
+          new ContentEvent('unshiftProp', {
+            path,
+            detail: {
+              elementIndex, 
+              element: element,
+            },
+          }, $content)
+        );
+      }
+      if(events['unshiftProp:$index']) {
+        const type = ['unshiftProp', ':', elementIndex].join('');
+        const _path = [path, '.', elementIndex];
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              elementIndex, 
+              element: element,
+            },
+          }, $content)
+        );
+      }
+
     }
     elementIndex--;
   }
@@ -1280,16 +1235,30 @@ function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event
-    if(contentEvents && events['getProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('getProperty', {
-          path,
-          detail: {
-            key: propertyKey,
-            val: propertyValue,
-          }
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['getProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('getProperty', {
+            path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      if(events['getProperty:$key']) {
+        const type = ['getProperty', ':', propertyKey].join('');
+        const _path = [path, '.', propertyKey].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              val: propertyValue,
+            }
+          }, $content)
+        );
+      }
     }
     return propertyValue
   }
@@ -1460,16 +1429,30 @@ function setContentProperty() {
     // Root Assignment
     root[propertyKey] = propertyValue;
     // Set Property Event
-    if(contentEvents && events['setProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('setProperty', {
-          path, 
-          detail: {
-            key: propertyKey,
-            value: propertyValue,
-          }
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['setProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('setProperty', {
+            path, 
+            detail: {
+              key: propertyKey,
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      if(events['setProperty:$key']) {
+        const type = ['setProperty', ':', propertyKey].join('');
+        const _path = [path, '.', propertyKey].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path, 
+            detail: {
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
     }
     // Return Property Value
     return propertyValue
@@ -1499,16 +1482,30 @@ function setContentProperty() {
     // Root Assignment
     root[propertyKey] = propertyValue;
     // Set Property Event
-    if(contentEvents && events['setProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('setProperty', {
-          path, 
-          detail: {
-            key: propertyKey,
-            value: propertyValue,
-          }
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['setProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('setProperty', {
+            path, 
+            detail: {
+              key: propertyKey,
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      if(events['setProperty:$key']) {
+        const type = ['setProperty', ':', propertyKey].join('');
+        const _path = [path, '.', propertyKey].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path, 
+            detail: {
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
     }
     // Return Property Value
     return propertyValue
@@ -1601,16 +1598,30 @@ function deleteContentProperty() {
     }
     delete root[propertyKey];
     // Delete Property Event
-    if(contentEvents && events['deleteProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('deleteProperty', {
-          path,
-          detail: {
-            key: propertyKey,
-            val: propertyValue,
-          }
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['deleteProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      if(events['deleteProperty:$key']) {
+        const type = ['deleteProperty', ':', propertyKey].join('');
+        const _path = [path, '.', propertyKey].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              val: propertyValue,
+            }
+          }, $content)
+        );
+      }
     }
     return undefined
   }
@@ -1623,16 +1634,30 @@ function deleteContentProperty() {
     }
     delete root[propertyKey];
     // Delete Property Event
-    if(contentEvents && events['deleteProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('deleteProperty', {
-          path,
-          detail: {
-            key: propertyKey,
-            val: propertyValue,
-          }
-        }, $content)
-      );
+    if(contentEvents) {
+      if(events['deleteProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      if(events['deleteProperty:$key']) {
+        const type = ['deleteProperty', ':', propertyKey].join('');
+        const _path = [path, '.', propertyKey].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              val: propertyValue,
+            }
+          }, $content)
+        );
+      }
     }
     return undefined
   }
@@ -1881,6 +1906,352 @@ class Handler {
   }
 }
 
+class Validation extends EventTarget {
+  #settings
+  #_type
+  #_valid
+  #_context
+  #_contentKey
+  #_contentVal
+  #_message
+  constructor($settings = {}) {
+    super();
+    this.#settings = Object.freeze($settings);
+  }
+  // Property: Type
+  get type() { return this.#settings.type }
+  // Property: Valid
+  get valid() { return this.#_valid }
+  set valid($valid) {
+    if(this.#_valid === undefined) {
+      this.#_valid = $valid;
+    }
+  }
+  // Property: Message
+  get message() {
+    if(this.#_message !== undefined) return this.#_message
+    if(
+      this.valid !== undefined &&
+      this.#_message === undefined
+    ) {
+      this.#_message = this.#settings.messages[this.#_valid](this);
+    }
+    return this.#_message
+  }
+  // Property: Context
+  get context() { return this.#settings.context }
+  // Property: Context Key
+  get contextKey() { return this.#settings.contentKey }
+  // Property: Context Val
+  get contextVal() { return this.#settings.context[this.contentKey] }
+  // Property: Content Key
+  get contentKey() { return this.#settings.contentKey }
+  // Property: Content Val
+  get contentVal() { return this.#settings.contentVal }
+}
+
+class Validator extends EventTarget {
+  #settings
+  constructor($settings = {}) {
+    super();
+    this.#settings = $settings;
+    // Property: Validate
+    Object.defineProperties(this, {
+      'validate': {
+        configurable: false,
+        writable: false,
+        enumerable: true,
+        value: this.#settings.validate
+      }
+    });
+  }
+  // Property: Type
+  get type() { return this.#settings.type }
+  // Property: Messages
+  get messages() { return this.#settings.messages }
+}
+
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'undefined': undefined,
+  'null': null,
+};
+const Objects = {
+  'object': Object,
+  'array': Array,
+};
+Object.assign({}, Primitives, Objects);
+
+class TypeValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      'type': 'type',
+      'messages': {
+        'true': ($validation) => `${$validation.valid}`,
+        'false': ($validation) => `${$validation.valid}`,
+      },
+      'validate': ($context, $contentKey, $contentVal) => {
+        let validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+          messages: this.messages,
+        });
+        const typeOfContentVal = typeOf($contentVal);
+        const typeOfContextVal = ($context.type === undefined)
+          ? $context.type
+          : typeOf($context.type());
+        if(
+          Object.values(Primitives).includes($context.type) &&
+          Object.keys(Primitives).includes(typeOfContentVal)
+        ) {
+          if(
+            typeOfContextVal === typeOfContentVal ||
+            typeOfContextVal === undefined
+          ) { validation.valid = true; }
+          else { validation.valid = false; }
+        }
+        return validation
+      },
+    }));
+  }
+}
+
+class RangeValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'range',
+      validate: ($context, $contentKey, $contentVal) => {
+        const { min, max } = $context;
+        const validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+        });
+        if(min !== undefined) {
+          validation.min = min;
+          (contentVal >= min);
+        }
+        if(max !== undefined) {
+          validation.max = max;
+          (contentVal <= max);
+        }
+        return validation
+      },
+    }));
+  }
+}
+
+class LengthValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'length',
+      validate: ($context, $contentKey, $contentVal) => {
+        const { minLength, maxLength } = $context;
+        const validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+        });
+        if(minLength !== undefined) {
+          validation.minLength = minLength;
+          (contentVal.length >= minLength);
+        }
+        if(maxLength !== undefined) {
+          validation.maxLength = maxLength;
+          (contentVal.length <= maxLength);
+        }
+        return validation
+      },
+    }));
+  }
+}
+
+class EnumValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'length',
+      validate: ($context, $contentKey, $contentVal) => {
+        const enumeration = $context.enum;
+        const validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+        });
+        validation.valid = enumeration.includes($contentVal);
+        return validation
+      },
+    }));
+  }
+}
+
+var Options$6 = {
+  validationType: 'primitive', // 'object', 
+};
+
+class Schema extends EventTarget{
+  options
+  #properties
+  #_contextType
+  #_context
+  constructor($properties = {}, $options = {}) {
+    super();
+    this.#properties = $properties;
+    this.options = Object.assign({}, Options$6, $options);
+    this.context;
+  }
+  get validationType() { return this.options.validationType }
+  get contextType() {
+    if(this.#_contextType !== undefined) return this.#_contextType
+    if(Array.isArray(this.#properties)) { this.#_contextType = 'array'; }
+    else if(typeOf(this.#properties) === 'object') { this.#_contextType = 'object'; }
+    return this.#_contextType
+  }
+  get context() {
+    if(this.#_context !== undefined) return this.#_context
+    let properties;
+    if(this.contextType === 'array') {
+      properties = this.#properties.slice(0, 1);
+      this.#_context = [];
+    }
+    else if(this.contextType === 'object') {
+      properties = this.#properties; 
+      this.#_context = {};
+    }
+    iterateProperties: 
+    for(const [
+      $contextKey, $contextVal
+    ] of Object.entries(properties)) {
+      // Context Val: Schema
+      if($contextVal instanceof Schema) {
+        this.#_context[$contextKey] = $contextVal;
+        continue iterateProperties
+      }
+      // Context Val: Object
+      else if(typeof $contextVal.type === 'object') {
+        this.#_context[$contextKey] = new Schema($contextVal.type, this.options);
+        continue iterateProperties
+      }
+      // Context Val: Primitive
+      else {
+        this.#_context[$contextKey] = $contextVal;
+      }
+      // Context Validators
+      this.#_context[$contextKey].validators = [new TypeValidator()];
+      const addValidators = [];
+      // Context Validator: Add Range
+      if(
+        typeof this.#_context[$contextKey].min === 'number' || 
+        typeof this.#_context[$contextKey].max === 'number'
+      ) { addValidators.push(new RangeValidator()); }
+      // Context Validator: Add Length
+      if(
+        typeof this.#_context[$contextKey].minLength === 'number' ||
+        typeof this.#_context[$contextKey].maxLength === 'number'
+      ) { addValidators.push(new LengthValidator()); }
+      // Context Validator: Add Enum
+      if(
+        Array.isArray(this.#_context[$contextKey].enum) &&
+        this.#_context[$contextKey].enum.length > 0
+      ) { addValidators.push(new EnumValidator()); }
+      this.#_context[$contextKey].validators = addValidators.concat(this.#_context[$contextKey].validators);
+    }
+    return this.#_context
+  }
+  validate($content) {
+    if($content.classToString === Content.toString()) { $content = $content.object; }
+    let validateProperties;
+    if(this.contextType === 'array') { validateProperties = []; }
+    else if(this.contextType === 'object') { validateProperties = {}; }
+    const Validation = {
+      properties: validateProperties,
+      valid: undefined,
+    };
+    const validation = Object.entries($content).reduce(
+      ($validation, [
+        $contentKey, $contentVal
+      ], $validatorIndex, $contentEntries) => {
+        const validation = this.validateProperty($contentKey, $contentVal);
+        if(validation === null) return $validation
+        if($validation.valid !== false) $validation.valid = validation.valid;
+        $validation.properties[$contentKey] = validation;
+        return $validation
+      }, structuredClone(Validation)
+    );
+    return validation
+  }
+  validateProperty($key, $val) {
+    const PropertyValidation = {
+      key: $key,
+      val: $val,
+      advance: [], 
+      deadvance: [], 
+      unadvance: [], 
+      valid: undefined, // Boolean
+    };
+    const propertyValidation = structuredClone(PropertyValidation);
+    let validation;
+    let contextVal;
+    if(this.contextType === 'array') { contextVal = this.context[0]; }
+    else if(this.contextType === 'object') { contextVal = this.context[$key]; }
+    // Context Val: Undefined
+    if(contextVal === undefined) {
+      validation = new Validation({
+        context: contextVal,
+        contentKey: $key,
+        contentVal: $val,
+        type: 'key',
+        valid: null,
+      });
+      propertyValidation.unadvance.push(validation);
+      return propertyValidation
+    }
+    // Context Val: Object
+    else if(contextVal instanceof Schema) {
+      validation = contextVal.validate($val);
+      // 
+      if(validation.valid === true) { propertyValidation.advance.push(validation); }
+      else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
+      // 
+      if(this.validationType === 'object') { propertyValidation.valid === validation.valid; }
+      else if(this.validationType === 'primitive') {
+        propertyValidation.valid = (validation.valid === false)
+          ? !validation.valid
+          : validation.valid; 
+      }
+    }
+    // Context Val: Primitive
+    else {
+      validation = contextVal.validators.reduce(
+        ($propertyValidation, $validator, $validatorIndex, $validators) => {
+          const validation = $validator.validate(contextVal, $key, $val);
+          // 
+          if(validation.valid === true) { $propertyValidation.advance.push(validation); }
+          else if(validation.valid === false) { $propertyValidation.deadvance.push(validation); }
+          // 
+          if($propertyValidation.valid !== false) $propertyValidation.valid = validation.valid;
+          return $propertyValidation
+        }, propertyValidation
+      );
+    }
+    return propertyValidation
+  }
+}
+
 var Options$5 = {
   path: null, 
   parent: null, 
@@ -2124,349 +2495,206 @@ class Content extends EventTarget {
   }
 }
 
-class Validation extends EventTarget {
+class CoreEvent {
   #settings
-  #_type
-  #_valid
-  #_context
-  #_contentKey
-  #_contentVal
-  #_message
-  constructor($settings = {}) {
-    super();
-    this.#settings = Object.freeze($settings);
-  }
-  // Property: Type
-  get type() { return this.#settings.type }
-  // Property: Valid
-  get valid() { return this.#_valid }
-  set valid($valid) {
-    if(this.#_valid === undefined) {
-      this.#_valid = $valid;
-    }
-  }
-  // Property: Message
-  get message() {
-    if(this.#_message !== undefined) return this.#_message
-    if(
-      this.valid !== undefined &&
-      this.#_message === undefined
-    ) {
-      this.#_message = this.#settings.messages[this.#_valid](this);
-    }
-    return this.#_message
-  }
-  // Property: Context
-  get context() { return this.#settings.context }
-  // Property: Context Key
-  get contextKey() { return this.#settings.contentKey }
-  // Property: Context Val
-  get contextVal() { return this.#settings.context[this.contentKey] }
-  // Property: Content Key
-  get contentKey() { return this.#settings.contentKey }
-  // Property: Content Val
-  get contentVal() { return this.#settings.contentVal }
-}
-
-class Validator extends EventTarget {
-  #settings
-  constructor($settings = {}) {
-    super();
+  #_boundListener
+  #_enable = false
+  constructor($settings) { 
     this.#settings = $settings;
-    // Property: Validate
-    Object.defineProperties(this, {
-      'validate': {
-        configurable: false,
-        writable: false,
-        enumerable: true,
-        value: this.#settings.validate
-      }
-    });
   }
-  // Property: Type
   get type() { return this.#settings.type }
-  // Property: Messages
-  get messages() { return this.#settings.messages }
+  get path() { return this.#settings.path }
+  get target() {
+    let target = this.#context;
+    const pathKeys = this.path.split('.');
+    let pathKeysIndex = 0;
+    iterateTargetPathKeys: 
+    while(pathKeysIndex < pathKeys.length) {
+      const pathKey = pathKeys[pathKeysIndex];
+      if(pathKeysIndex === 0 && pathKey === ':scope') {
+        break iterateTargetPathKeys
+      }
+      if(target.classToString === Content.toString()) {
+        target = target.get(pathKey);
+      }
+      else {
+        target = target[pathKey];
+      }
+      if(target === undefined) { break iterateTargetPathKeys }
+      pathKeysIndex++;
+    }
+    return target
+  }
+  get listener() { return this.#settings.listener }
+  get options() { return this.#settings.options }
+  get enable() { return this.#_enable }
+  set enable($enable) {
+    if(
+      $enable === this.#_enable ||
+      this.target === undefined
+    ) { return }
+    const eventAbility = (
+      $enable === true
+    ) ? 'addEventListener'
+      : 'removeEventListener';
+    if(this.target instanceof NodeList) {
+      for(const $target of this.target) {
+        $target[eventAbility](this.type, this.#boundListener, this.options);
+      }
+      this.#_enable = $enable;
+    }
+    else if(this.target instanceof EventTarget) {
+      this.target[eventAbility](this.type, this.#boundListener, this.options);
+      this.#_enable = $enable;
+    }
+    else {
+      try {
+        this.target[eventAbility](this.type, this.#boundListener, this.options);
+        this.#_enable = $enable;
+      } catch($err) {}
+    }
+  }
+  get #context() { return this.#settings.context }
+  get #boundListener() {
+    if(this.#_boundListener !== undefined) { return this.#_boundListener }
+    this.#_boundListener = this.#settings.listener.bind(this.context);
+    return this.#_boundListener
+  }
 }
 
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'undefined': undefined,
-  'null': null,
+var Settings$4 = {
+  events: []
 };
-const Objects = {
-  'object': Object,
-  'array': Array,
-};
-Object.assign({}, Primitives, Objects);
-
-class TypeValidator extends Validator {
-  #settings
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
-      'type': 'type',
-      'messages': {
-        'true': ($validation) => `${$validation.valid}`,
-        'false': ($validation) => `${$validation.valid}`,
-      },
-      'validate': ($context, $contentKey, $contentVal) => {
-        let validation = new Validation({
-          context: $context,
-          contentKey: $contentKey,
-          contentVal: $contentVal,
-          type: this.type,
-          valid: undefined,
-          messages: this.messages,
-        });
-        const typeOfContentVal = typeOf($contentVal);
-        const typeOfContextVal = ($context.type === undefined)
-          ? $context.type
-          : typeOf($context.type());
-        if(
-          Object.values(Primitives).includes($context.type) &&
-          Object.keys(Primitives).includes(typeOfContentVal)
-        ) {
-          if(
-            typeOfContextVal === typeOfContentVal ||
-            typeOfContextVal === undefined
-          ) { validation.valid = true; }
-          else { validation.valid = false; }
-        }
-        return validation
-      },
-    }));
-  }
-}
-
-class RangeValidator extends Validator {
-  #settings
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
-      type: 'range',
-      validate: ($context, $contentKey, $contentVal) => {
-        const { min, max } = $context;
-        const validation = new Validation({
-          context: $context,
-          contentKey: $contentKey,
-          contentVal: $contentVal,
-          type: this.type,
-          valid: undefined,
-        });
-        if(min !== undefined) {
-          validation.min = min;
-          (contentVal >= min);
-        }
-        if(max !== undefined) {
-          validation.max = max;
-          (contentVal <= max);
-        }
-        return validation
-      },
-    }));
-  }
-}
-
-class LengthValidator extends Validator {
-  #settings
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
-      type: 'length',
-      validate: ($context, $contentKey, $contentVal) => {
-        const { minLength, maxLength } = $context;
-        const validation = new Validation({
-          context: $context,
-          contentKey: $contentKey,
-          contentVal: $contentVal,
-          type: this.type,
-          valid: undefined,
-        });
-        if(minLength !== undefined) {
-          validation.minLength = minLength;
-          (contentVal.length >= minLength);
-        }
-        if(maxLength !== undefined) {
-          validation.maxLength = maxLength;
-          (contentVal.length <= maxLength);
-        }
-        return validation
-      },
-    }));
-  }
-}
-
-class EnumValidator extends Validator {
-  #settings
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
-      type: 'length',
-      validate: ($context, $contentKey, $contentVal) => {
-        const enumeration = $context.enum;
-        const validation = new Validation({
-          context: $context,
-          contentKey: $contentKey,
-          contentVal: $contentVal,
-          type: this.type,
-          valid: undefined,
-        });
-        validation.valid = enumeration.includes($contentVal);
-        return validation
-      },
-    }));
-  }
-}
 
 var Options$4 = {
-  validationType: 'primitive', // 'object', 
+  defineProperties: {},
+  assign: [],
 };
 
-class Schema extends EventTarget{
-  options
-  #properties
-  #_contextType
-  #_context
-  constructor($properties = {}, $options = {}) {
+class Core extends EventTarget {
+  #_settings
+  #_options
+  #_events
+  constructor($settings, $options) {
     super();
-    this.#properties = $properties;
-    this.options = Object.assign({}, Options$4, $options);
-    this.context;
+    this.settings = $settings;
+    this.options = $options;
+    this.addEvents();
+    this.#assign();
+    this.#defineProperties();
   }
-  get validationType() { return this.options.validationType }
-  get contextType() {
-    if(this.#_contextType !== undefined) return this.#_contextType
-    if(Array.isArray(this.#properties)) { this.#_contextType = 'array'; }
-    else if(typeOf(this.#properties) === 'object') { this.#_contextType = 'object'; }
-    return this.#_contextType
+  get settings() { return this.#_settings }
+  set settings($settings) {
+    if(this.#_settings !== undefined) return
+    $settings.events = expandEvents($settings.events);
+    this.#_settings = recursiveAssign(structuredClone(Settings$4), $settings);
   }
-  get context() {
-    if(this.#_context !== undefined) return this.#_context
-    let properties;
-    if(this.contextType === 'array') {
-      properties = this.#properties.slice(0, 1);
-      this.#_context = [];
-    }
-    else if(this.contextType === 'object') {
-      properties = this.#properties; 
-      this.#_context = {};
-    }
-    iterateProperties: 
-    for(const [
-      $contextKey, $contextVal
-    ] of Object.entries(properties)) {
-      // Context Val: Schema
-      if($contextVal instanceof Schema) {
-        this.#_context[$contextKey] = $contextVal;
-        continue iterateProperties
-      }
-      // Context Val: Object
-      else if(typeof $contextVal.type === 'object') {
-        this.#_context[$contextKey] = new Schema($contextVal.type, this.options);
-        continue iterateProperties
-      }
-      // Context Val: Primitive
-      else {
-        this.#_context[$contextKey] = $contextVal;
-      }
-      // Context Validators
-      this.#_context[$contextKey].validators = [new TypeValidator()];
-      const addValidators = [];
-      // Context Validator: Add Range
-      if(
-        typeof this.#_context[$contextKey].min === 'number' || 
-        typeof this.#_context[$contextKey].max === 'number'
-      ) { addValidators.push(new RangeValidator()); }
-      // Context Validator: Add Length
-      if(
-        typeof this.#_context[$contextKey].minLength === 'number' ||
-        typeof this.#_context[$contextKey].maxLength === 'number'
-      ) { addValidators.push(new LengthValidator()); }
-      // Context Validator: Add Enum
-      if(
-        Array.isArray(this.#_context[$contextKey].enum) &&
-        this.#_context[$contextKey].enum.length > 0
-      ) { addValidators.push(new EnumValidator()); }
-      this.#_context[$contextKey].validators = addValidators.concat(this.#_context[$contextKey].validators);
-    }
-    return this.#_context
+  get options() { return this.#_options }
+  set options($options) {
+    if(this.#_options !== undefined) return
+    this.#_options = recursiveAssign(structuredClone(Options$4), $options);
   }
-  validate($content) {
-    if($content.classToString === Content.toString()) { $content = $content.object; }
-    let validateProperties;
-    if(this.contextType === 'array') { validateProperties = []; }
-    else if(this.contextType === 'object') { validateProperties = {}; }
-    const Validation = {
-      properties: validateProperties,
-      valid: undefined,
-    };
-    const validation = Object.entries($content).reduce(
-      ($validation, [
-        $contentKey, $contentVal
-      ], $validatorIndex, $contentEntries) => {
-        const validation = this.validateProperty($contentKey, $contentVal);
-        if(validation === null) return $validation
-        if($validation.valid !== false) $validation.valid = validation.valid;
-        $validation.properties[$contentKey] = validation;
-        return $validation
-      }, structuredClone(Validation)
-    );
-    return validation
+  get events() {
+    if(this.#_events !== undefined) return this.#_events
+    this.#_events = [];
+    return this.#_events
   }
-  validateProperty($key, $val) {
-    const PropertyValidation = {
-      key: $key,
-      val: $val,
-      advance: [], 
-      deadvance: [], 
-      unadvance: [], 
-      valid: undefined, // Boolean
-    };
-    const propertyValidation = structuredClone(PropertyValidation);
-    let validation;
-    let contextVal;
-    if(this.contextType === 'array') { contextVal = this.context[0]; }
-    else if(this.contextType === 'object') { contextVal = this.context[$key]; }
-    // Context Val: Undefined
-    if(contextVal === undefined) {
-      validation = new Validation({
-        context: contextVal,
-        contentKey: $key,
-        contentVal: $val,
-        type: 'key',
-        valid: null,
-      });
-      propertyValidation.unadvance.push(validation);
-      return propertyValidation
-    }
-    // Context Val: Object
-    else if(contextVal instanceof Schema) {
-      validation = contextVal.validate($val);
-      // 
-      if(validation.valid === true) { propertyValidation.advance.push(validation); }
-      else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
-      // 
-      if(this.validationType === 'object') { propertyValidation.valid === validation.valid; }
-      else if(this.validationType === 'primitive') {
-        propertyValidation.valid = (validation.valid === false)
-          ? !validation.valid
-          : validation.valid; 
-      }
-    }
-    // Context Val: Primitive
-    else {
-      validation = contextVal.validators.reduce(
-        ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const validation = $validator.validate(contextVal, $key, $val);
-          // 
-          if(validation.valid === true) { $propertyValidation.advance.push(validation); }
-          else if(validation.valid === false) { $propertyValidation.deadvance.push(validation); }
-          // 
-          if($propertyValidation.valid !== false) $propertyValidation.valid = validation.valid;
-          return $propertyValidation
-        }, propertyValidation
+  getEvents() {
+    const getEvents = [];
+    const { events } = this;
+    const $events = expandEvents(arguments[0]);
+    for(const $event of $events) {
+      const { type, path, listener, enable } = $event;
+      const eventFilterProperties = [];
+      if(type !== undefined) { eventFilterProperties.push(['type', type]); }
+      if(path !== undefined) { eventFilterProperties.push(['path', path]); }
+      if(listener !== undefined) { eventFilterProperties.push(['listener', listener]); }
+      if(enable !== undefined) { eventFilterProperties.push(['enable', enable]); }
+      getEvents.push(
+        ...events.filter(($existingEvent) => {
+          return eventFilterProperties.reduce(($match, [
+            $eventFilterPropertyKey, $eventFilterPropertyValue
+          ]) => {
+            const match = (
+              $existingEvent[$eventFilterPropertyKey] === $eventFilterPropertyValue
+            ) ? true : false;
+            if($match !== false) { $match = match; }
+            return $match
+          }, undefined)
+        })
       );
     }
-    return propertyValidation
+    return getEvents
+  }
+  addEvents() {
+    const { events } = this;
+    let $events;
+    if(arguments.length === 0) { $events = this.settings.events; }
+    else if(arguments.length === 1) { $events = expandEvents(arguments[0]); }
+    for(let $event of $events) {
+      $event = Object.assign({}, $event, { context: this });
+      events.push(new CoreEvent($event));
+    }
+    return this
+  }
+  removeEvents() {
+    const { events } = this;
+    let $events;
+    if(arguments.length === 0) { $events = events; }
+    else if(arguments.length === 1) {
+      $events = this.getEvents(expandEvents(arguments[0]));
+    }
+    let eventsIndex = events.length - 1;
+    while(eventsIndex > -1) {
+      const event = events[eventsIndex];
+      const removeEventIndex = $events.findIndex(
+        ($event) => $event === event
+      );
+      event.enable = false;
+      if(removeEventIndex !== -1) events.splice(eventsIndex, 1);
+      eventsIndex--;
+    }
+    return this
+  }
+  enableEvents() {
+    let $events;
+    if(arguments.length === 0) { $events = this.events; }
+    else { $events = this.getEvents(arguments[0]); }
+    return this.#toggleEventAbility('addEventListener', $events)
+  }
+  disableEvents() {
+    let $events;
+    if(arguments.length === 0) { $events = this.events; }
+    else { $events = this.getEvents(arguments[0]); }
+    return this.#toggleEventAbility('removeEventListener', $events)
+  }
+  #assign() {
+    if(Object.keys(this.options.assign).length === 0) return this
+    for(const [
+        $propertyName, $propertyValue
+      ] of Object.entries(this.options.assign)) {
+      Object.assign(this, { [$propertyName]: $propertyValue });
+    }
+    return this
+  }
+  #defineProperties() {
+    if(Object.keys(this.options.defineProperties).length === 0) return this
+    for(const [
+      $propertyName, $propertyDescriptor
+    ] of Object.entries(this.options.defineProperties)) {
+      Object.defineProperty(this, $propertyName, $propertyDescriptor);
+    }
+    return this
+  }
+  #toggleEventAbility($eventListenerMethod, $events) {
+    let enability;
+    if($eventListenerMethod === 'addEventListener') { enability = true; }
+    else if($eventListenerMethod === 'removeEventListener') { enability = false; }
+    else { return this }
+    for(const $event of $events) {
+      $event.enable = enability;
+    }
+    return this
   }
 }
 

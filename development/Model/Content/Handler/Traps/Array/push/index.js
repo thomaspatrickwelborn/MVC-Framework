@@ -40,16 +40,31 @@ export default function push() {
       elements.push($element)
       Array.prototype.push.call(root, $element)
     }
-    if(contentEvents && events['pushProp']) {
-      $content.dispatchEvent(
-        new ContentEvent('pushProp', {
-          path,
-          detail: {
-            elementsIndex,
-            element: elements[elementsIndex],
-          },
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['pushProp']) {
+        $content.dispatchEvent(
+          new ContentEvent('pushProp', {
+            path,
+            detail: {
+              elementsIndex,
+              element: elements[elementsIndex],
+            },
+          }, $content)
+        )
+      }
+      if(events['pushProp:$index']) {
+        const type = ['pushProp', ':', elementsIndex].join('')
+        const _path = [path, '.', elementsIndex].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              elementsIndex,
+              element: elements[elementsIndex],
+            },
+          }, $content)
+        )
+      }
     }
     elementsIndex++
   }

@@ -31,16 +31,30 @@ export default function deleteContentProperty() {
     }
     delete root[propertyKey]
     // Delete Property Event
-    if(contentEvents && events['deleteProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('deleteProperty', {
-          path,
-          detail: {
-            key: propertyKey,
-            val: propertyValue,
-          }
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['deleteProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      if(events['deleteProperty:$key']) {
+        const type = ['deleteProperty', ':', propertyKey].join('')
+        const _path = [path, '.', propertyKey].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
     }
     return undefined
   }
@@ -53,16 +67,30 @@ export default function deleteContentProperty() {
     }
     delete root[propertyKey]
     // Delete Property Event
-    if(contentEvents && events['deleteProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('deleteProperty', {
-          path,
-          detail: {
-            key: propertyKey,
-            val: propertyValue,
-          }
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['deleteProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            path,
+            detail: {
+              key: propertyKey,
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      if(events['deleteProperty:$key']) {
+        const type = ['deleteProperty', ':', propertyKey].join('')
+        const _path = [path, '.', propertyKey].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            detail: {
+              val: propertyValue,
+            }
+          }, $content)
+        )
+      }
     }
     return undefined
   }

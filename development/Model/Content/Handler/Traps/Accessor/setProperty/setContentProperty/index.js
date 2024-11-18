@@ -98,16 +98,30 @@ export default function setContentProperty() {
     // Root Assignment
     root[propertyKey] = propertyValue
     // Set Property Event
-    if(contentEvents && events['setProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('setProperty', {
-          path, 
-          detail: {
-            key: propertyKey,
-            value: propertyValue,
-          }
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['setProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('setProperty', {
+            path, 
+            detail: {
+              key: propertyKey,
+              value: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      if(events['setProperty:$key']) {
+        const type = ['setProperty', ':', propertyKey].join('')
+        const _path = [path, '.', propertyKey].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path, 
+            detail: {
+              value: propertyValue,
+            }
+          }, $content)
+        )
+      }
     }
     // Return Property Value
     return propertyValue
@@ -137,16 +151,30 @@ export default function setContentProperty() {
     // Root Assignment
     root[propertyKey] = propertyValue
     // Set Property Event
-    if(contentEvents && events['setProperty']) {
-      $content.dispatchEvent(
-        new ContentEvent('setProperty', {
-          path, 
-          detail: {
-            key: propertyKey,
-            value: propertyValue,
-          }
-        }, $content)
-      )
+    if(contentEvents) {
+      if(events['setProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('setProperty', {
+            path, 
+            detail: {
+              key: propertyKey,
+              value: propertyValue,
+            }
+          }, $content)
+        )
+      }
+      if(events['setProperty:$key']) {
+        const type = ['setProperty', ':', propertyKey].join('')
+        const _path = [path, '.', propertyKey].join('')
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path, 
+            detail: {
+              value: propertyValue,
+            }
+          }, $content)
+        )
+      }
     }
     // Return Property Value
     return propertyValue
