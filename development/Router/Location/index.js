@@ -16,12 +16,14 @@ export default class LocationRouter extends Core {
       recursiveAssign(Settings, $settings),
       recursiveAssign(Options, $options),
     )
+    this.window
     this.enableEvents()
-    this.#popState()
+    // this.#popState()
   }
   get window() {
     if(this.#_window !== undefined) return this.#_window
     this.#_window = window
+    this.#_window.addEventListener('load', this.#boundPopState, { once: true })
     this.#_window.addEventListener('popstate', this.#boundPopState)
     return this.#_window
   }
@@ -50,7 +52,7 @@ export default class LocationRouter extends Core {
     return this.#_boundPopState
   }
   // Methods
-  #popState($event = {}) {
+  #popState() {
     const preterRoute = this.route
     if(preterRoute) preterRoute.active = false
     const { pathname, hash } = this.window.location
@@ -58,7 +60,7 @@ export default class LocationRouter extends Core {
     const { route, location } = this.#matchRoute(path)
     if(route && route?.enable) {
       route.active = true
-      location.state = $event.state
+      location.state = history.state
       location.pathname = this.window.location.pathname
       location.hash = this.window.location.hash
       location.search = this.window.location.search
