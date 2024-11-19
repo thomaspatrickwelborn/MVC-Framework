@@ -37,8 +37,8 @@ export default function assign() {
         if($sourcePropVal?.classToString === Content.toString()) { $sourcePropVal = $sourcePropVal.object }
         // Subschema
         let subschema
-        if(schema?.contextType === 'array') { subschema = schema.context[0] }
-        else if(schema?.contextType === 'object') { subschema = schema.context[$sourcePropKey] }
+        if(schema?.type === 'array') { subschema = schema.context[0] }
+        else if(schema?.type === 'object') { subschema = schema.context[$sourcePropKey] }
         else { subschema = null }
         // Content
         const _path = (path !== null)

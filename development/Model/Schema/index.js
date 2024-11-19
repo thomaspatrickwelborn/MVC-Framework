@@ -13,29 +13,29 @@ const ValidatorKeys = {
 export default class Schema extends EventTarget{
   options
   #properties
-  #_contextType
+  #_type
   #_context
   constructor($properties = {}, $options = {}) {
     super()
     this.#properties = $properties
     this.options = Object.assign({}, Options, $options)
-    this.context
+    // this.context
   }
   get validationType() { return this.options.validationType }
-  get contextType() {
-    if(this.#_contextType !== undefined) return this.#_contextType
-    if(Array.isArray(this.#properties)) { this.#_contextType = 'array' }
-    else if(typeOf(this.#properties) === 'object') { this.#_contextType = 'object' }
-    return this.#_contextType
+  get type() {
+    if(this.#_type !== undefined) return this.#_type
+    if(Array.isArray(this.#properties)) { this.#_type = 'array' }
+    else if(typeOf(this.#properties) === 'object') { this.#_type = 'object' }
+    return this.#_type
   }
   get context() {
     if(this.#_context !== undefined) return this.#_context
     let properties
-    if(this.contextType === 'array') {
+    if(this.type === 'array') {
       properties = this.#properties.slice(0, 1)
       this.#_context = []
     }
-    else if(this.contextType === 'object') {
+    else if(this.type === 'object') {
       properties = this.#properties 
       this.#_context = {}
     }
@@ -83,8 +83,8 @@ export default class Schema extends EventTarget{
   validate($content) {
     if($content.classToString === Content.toString()) { $content = $content.object }
     let validateProperties
-    if(this.contextType === 'array') { validateProperties = [] }
-    else if(this.contextType === 'object') { validateProperties = {} }
+    if(this.type === 'array') { validateProperties = [] }
+    else if(this.type === 'object') { validateProperties = {} }
     const Validation = {
       properties: validateProperties,
       valid: undefined,
@@ -114,8 +114,8 @@ export default class Schema extends EventTarget{
     const propertyValidation = structuredClone(PropertyValidation)
     let validation
     let contextVal
-    if(this.contextType === 'array') { contextVal = this.context[0] }
-    else if(this.contextType === 'object') { contextVal = this.context[$key] }
+    if(this.type === 'array') { contextVal = this.context[0] }
+    else if(this.type === 'object') { contextVal = this.context[$key] }
     // Context Val: Undefined
     if(contextVal === undefined) {
       validation = new Validation({
@@ -131,10 +131,8 @@ export default class Schema extends EventTarget{
     // Context Val: Object
     else if(contextVal instanceof Schema) {
       validation = contextVal.validate($val)
-      // 
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
-      // 
       if(this.validationType === 'object') { propertyValidation.valid === validation.valid }
       else if(this.validationType === 'primitive') {
         propertyValidation.valid = (validation.valid === false)

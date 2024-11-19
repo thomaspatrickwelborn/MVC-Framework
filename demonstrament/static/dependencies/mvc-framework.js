@@ -192,8 +192,8 @@ function assign() {
         if($sourcePropVal?.classToString === Content.toString()) { $sourcePropVal = $sourcePropVal.object; }
         // Subschema
         let subschema;
-        if(schema?.contextType === 'array') { subschema = schema.context[0]; }
-        else if(schema?.contextType === 'object') { subschema = schema.context[$sourcePropKey]; }
+        if(schema?.type === 'array') { subschema = schema.context[0]; }
+        else if(schema?.type === 'object') { subschema = schema.context[$sourcePropKey]; }
         else { subschema = null; }
         // Content
         const _path = (path !== null)
@@ -357,8 +357,8 @@ function defineProperty() {
   if(typeof propertyDescriptor.value === 'object') {
     // Subschema
     let subschema;
-    if(schema.contextType === 'array') { subschema = schema.context[0]; }
-    else if(schema.contextType === 'object') { subschema = schema.context[propertyKey]; }
+    if(schema.type === 'array') { subschema = schema.context[0]; }
+    else if(schema.type === 'object') { subschema = schema.context[propertyKey]; }
     else { subschema = undefined;}
     const rootPropertyDescriptor = Object.getOwnPropertyDescriptor(root, propertyKey) || {};
     // Root Property Descriptor Value: Existent Content Instance
@@ -1370,13 +1370,13 @@ function setContentProperty() {
       if(recursive && root[propertyKey] === undefined) {
         // Subschema
         let subschema;
-        if(schema?.contextType === 'array') { subschema = schema.context[0]; }
-        else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
+        if(schema?.type === 'array') { subschema = schema.context[0]; }
+        else if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
         else { subschema = undefined; }
         // Subcontent
         let subcontent;
-        if(subschema?.contextType === 'array') { subcontent = []; }
-        else if(subschema?.contextType === 'object') { subcontent = {}; }
+        if(subschema?.type === 'array') { subcontent = []; }
+        else if(subschema?.type === 'object') { subcontent = {}; }
         else {
           if(Number(propertyKey)) { subcontent = []; }
           else { subcontent = {}; }
@@ -1413,8 +1413,8 @@ function setContentProperty() {
       // Value: Content
       if($value?.classToString === Content.toString()) { $value = $value.object; }
       let subschema;
-      if(schema?.contextType === 'array') { subschema = schema.context[0]; }
-      else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
+      if(schema?.type === 'array') { subschema = schema.context[0]; }
+      else if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
       else { subschema = undefined; }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
@@ -1465,8 +1465,8 @@ function setContentProperty() {
     if(typeof $value === 'object') {
       if($value.classToString === Content.toString()) { $value = $value.object; }
       let subschema;
-      if(schema?.contextType === 'array') { subschema = schema.context[0]; }
-      if(schema?.contextType === 'object') { subschema = schema.context[propertyKey]; }
+      if(schema?.type === 'array') { subschema = schema.context[0]; }
+      if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
       else { subschema = undefined; }
       const _path = (path !== null)
         ? path.concat('.', propertyKey)
@@ -1919,16 +1919,13 @@ class Validation extends EventTarget {
     super();
     this.#settings = Object.freeze($settings);
   }
-  // Property: Type
   get type() { return this.#settings.type }
-  // Property: Valid
   get valid() { return this.#_valid }
   set valid($valid) {
     if(this.#_valid === undefined) {
       this.#_valid = $valid;
     }
   }
-  // Property: Message
   get message() {
     if(this.#_message !== undefined) return this.#_message
     if(
@@ -1939,15 +1936,10 @@ class Validation extends EventTarget {
     }
     return this.#_message
   }
-  // Property: Context
   get context() { return this.#settings.context }
-  // Property: Context Key
   get contextKey() { return this.#settings.contentKey }
-  // Property: Context Val
   get contextVal() { return this.#settings.context[this.contentKey] }
-  // Property: Content Key
   get contentKey() { return this.#settings.contentKey }
-  // Property: Content Val
   get contentVal() { return this.#settings.contentVal }
 }
 
@@ -2107,29 +2099,29 @@ var Options$6 = {
 class Schema extends EventTarget{
   options
   #properties
-  #_contextType
+  #_type
   #_context
   constructor($properties = {}, $options = {}) {
     super();
     this.#properties = $properties;
     this.options = Object.assign({}, Options$6, $options);
-    this.context;
+    // this.context
   }
   get validationType() { return this.options.validationType }
-  get contextType() {
-    if(this.#_contextType !== undefined) return this.#_contextType
-    if(Array.isArray(this.#properties)) { this.#_contextType = 'array'; }
-    else if(typeOf(this.#properties) === 'object') { this.#_contextType = 'object'; }
-    return this.#_contextType
+  get type() {
+    if(this.#_type !== undefined) return this.#_type
+    if(Array.isArray(this.#properties)) { this.#_type = 'array'; }
+    else if(typeOf(this.#properties) === 'object') { this.#_type = 'object'; }
+    return this.#_type
   }
   get context() {
     if(this.#_context !== undefined) return this.#_context
     let properties;
-    if(this.contextType === 'array') {
+    if(this.type === 'array') {
       properties = this.#properties.slice(0, 1);
       this.#_context = [];
     }
-    else if(this.contextType === 'object') {
+    else if(this.type === 'object') {
       properties = this.#properties; 
       this.#_context = {};
     }
@@ -2176,8 +2168,8 @@ class Schema extends EventTarget{
   validate($content) {
     if($content.classToString === Content.toString()) { $content = $content.object; }
     let validateProperties;
-    if(this.contextType === 'array') { validateProperties = []; }
-    else if(this.contextType === 'object') { validateProperties = {}; }
+    if(this.type === 'array') { validateProperties = []; }
+    else if(this.type === 'object') { validateProperties = {}; }
     const Validation = {
       properties: validateProperties,
       valid: undefined,
@@ -2207,8 +2199,8 @@ class Schema extends EventTarget{
     const propertyValidation = structuredClone(PropertyValidation);
     let validation;
     let contextVal;
-    if(this.contextType === 'array') { contextVal = this.context[0]; }
-    else if(this.contextType === 'object') { contextVal = this.context[$key]; }
+    if(this.type === 'array') { contextVal = this.context[0]; }
+    else if(this.type === 'object') { contextVal = this.context[$key]; }
     // Context Val: Undefined
     if(contextVal === undefined) {
       validation = new Validation({
@@ -2224,10 +2216,8 @@ class Schema extends EventTarget{
     // Context Val: Object
     else if(contextVal instanceof Schema) {
       validation = contextVal.validate($val);
-      // 
       if(validation.valid === true) { propertyValidation.advance.push(validation); }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
-      // 
       if(this.validationType === 'object') { propertyValidation.valid === validation.valid; }
       else if(this.validationType === 'primitive') {
         propertyValidation.valid = (validation.valid === false)
@@ -2391,7 +2381,11 @@ class Content extends EventTarget {
     this.#properties = $properties;
     this.options = $options;
     this.schema = $schema;
-    return this.proxy
+    if(
+      this.schema !== null && 
+      this.schema?.type !== this.type
+    ) { return undefined }
+    else { return this.proxy }
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
@@ -2712,6 +2706,7 @@ class LocalStorage extends EventTarget {
 }
 
 var Settings$3 = {
+  localStorage: undefined,
   schema: undefined,
   content: undefined,
 };
@@ -2760,10 +2755,9 @@ class Model extends Core {
       const { localStorage, autoLoad } = this.options;
       // Local Storage, Auto Load
       if(localStorage && autoLoad) {
-        this.localStorage.get();
+        const localStorageContent = this.localStorage.get();
         this.#_content = new Content(
-          // recursiveAssign({}, content, localStorageContent),
-          content,
+          recursiveAssign({}, content, localStorageContent),
           this.schema,
           this.options.content
         );

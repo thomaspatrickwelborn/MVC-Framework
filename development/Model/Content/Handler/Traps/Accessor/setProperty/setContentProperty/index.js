@@ -34,13 +34,13 @@ export default function setContentProperty() {
       if(recursive && root[propertyKey] === undefined) {
         // Subschema
         let subschema
-        if(schema?.contextType === 'array') { subschema = schema.context[0] }
-        else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey] }
+        if(schema?.type === 'array') { subschema = schema.context[0] }
+        else if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
         else { subschema = undefined }
         // Subcontent
         let subcontent
-        if(subschema?.contextType === 'array') { subcontent = [] }
-        else if(subschema?.contextType === 'object') { subcontent = {} }
+        if(subschema?.type === 'array') { subcontent = [] }
+        else if(subschema?.type === 'object') { subcontent = {} }
         else {
           if(Number(propertyKey)) { subcontent = [] }
           else { subcontent = {} }
@@ -77,8 +77,8 @@ export default function setContentProperty() {
       // Value: Content
       if($value?.classToString === Content.toString()) { $value = $value.object }
       let subschema
-      if(schema?.contextType === 'array') { subschema = schema.context[0] }
-      else if(schema?.contextType === 'object') { subschema = schema.context[propertyKey] }
+      if(schema?.type === 'array') { subschema = schema.context[0] }
+      else if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
       else { subschema = undefined }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
@@ -129,8 +129,8 @@ export default function setContentProperty() {
     if(typeof $value === 'object') {
       if($value.classToString === Content.toString()) { $value = $value.object }
       let subschema
-      if(schema?.contextType === 'array') { subschema = schema.context[0] }
-      if(schema?.contextType === 'object') { subschema = schema.context[propertyKey] }
+      if(schema?.type === 'array') { subschema = schema.context[0] }
+      if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
       else { subschema = undefined }
       const _path = (path !== null)
         ? path.concat('.', propertyKey)

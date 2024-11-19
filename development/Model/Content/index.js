@@ -18,7 +18,11 @@ export default class Content extends EventTarget {
     this.#properties = $properties
     this.options = $options
     this.schema = $schema
-    return this.proxy
+    if(
+      this.schema !== null && 
+      this.schema?.type !== this.type
+    ) { return undefined }
+    else { return this.proxy }
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {

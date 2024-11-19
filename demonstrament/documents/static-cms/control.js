@@ -27,7 +27,7 @@ export default [{
   },
   // Controls
   controls: {
-    // inspector: InspectorControl,
+    inspector: InspectorControl,
     // https: HTTPSControl,
     // browserSync: BrowserSyncControl,
     // express: ExpressControl,
@@ -60,9 +60,7 @@ export default [{
   },
   events: {
     "routers.location.default route": function route($event) {
-      console.log(this)
-      // console.log($event)
-      // this.start()
+      this.start()
     },
     // "routers.location.default error": ($event) => {
     //   console.log($event.type, $event.path)
@@ -71,13 +69,10 @@ export default [{
 }, {
   defineProperties: {
     start: { value: function () {
-      console.log(this.models.default.parse())
       this.views.default.render(this.models.default.parse(), 'default')
-    //   console.log(this.views.default.querySelectors)
-    //   const controlViewParent = this.views.default.querySelectors['static-cms']
-    //   // Inspector
-    //   // console.log(InspectorControl(...InspectorControl(controlViewParent)))
-    //   this.controls.inspector = new Control(...InspectorControl(controlViewParent)).start()
+      const controlViewParent = this.views.default.querySelectors['static-cms']
+      // Inspector
+      this.controls.inspector = new Control(...InspectorControl(controlViewParent)).start()
     //   // this.controls.https = HTTPSControl(controlViewParent)
     //   // this.controls.browserSync = BrowserSyncControl(controlViewParent)
     //   // this.controls.express = ExpressControl(controlViewParent)
