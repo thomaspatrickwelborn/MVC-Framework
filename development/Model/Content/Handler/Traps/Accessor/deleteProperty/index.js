@@ -22,7 +22,7 @@ export default function deleteProperty() {
     typeof arguments[0 + defaultArgumentsLength] === 'string'
   ) || (
     // Ulteroptions
-    arguments.length === 2 &&
+    arguments.length === 2 + defaultArgumentsLength &&
     typeof arguments[0 + defaultArgumentsLength] === 'string' &&
     typeof arguments[1 + defaultArgumentsLength] === 'object'
   )) { return deleteContentProperty(...arguments) }

@@ -1304,7 +1304,12 @@ function setContent() {
   const { contentEvents } = $content.options;
   const { proxy } = $content;
   // Delete Preterproperties
-  proxy.delete();
+  // proxy.delete()
+  proxy.delete({
+    events: {
+      ['delete']: false, ['deleteProperty']: false, ['deleteProperty:$key']: false
+    }
+  });
   // Arguments
   const $value = arguments[0];
   // Ulteroptions
@@ -1681,7 +1686,7 @@ function deleteProperty() {
     typeof arguments[0 + defaultArgumentsLength] === 'string'
   ) || (
     // Ulteroptions
-    arguments.length === 2 &&
+    arguments.length === 2 + defaultArgumentsLength &&
     typeof arguments[0 + defaultArgumentsLength] === 'string' &&
     typeof arguments[1 + defaultArgumentsLength] === 'object'
   )) { return deleteContentProperty(...arguments) }

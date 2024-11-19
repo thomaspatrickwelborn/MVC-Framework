@@ -7,7 +7,12 @@ export default function setContent() {
   const { contentEvents } = $content.options
   const { proxy } = $content
   // Delete Preterproperties
-  proxy.delete()
+  // proxy.delete()
+  proxy.delete({
+    events: {
+      ['delete']: false, ['deleteProperty']: false, ['deleteProperty:$key']: false
+    }
+  })
   // Arguments
   const $value = arguments[0]
   // Ulteroptions

@@ -38,16 +38,18 @@ const { schema, content } = new Model({
     }
   },
   events: {
-    // "content.propertyA.propertyB getProperty": function getProperty($event) {
-    //   $event.type, $event.basename, $event.detail
-    // },
     "content.propertyA.propertyB getProperty:propertyC": function getPropertyC($event) {
+      console.log($event.type, $event.basename, $event.detail)
+    },
+    "content.propertyA.propertyB setProperty:propertyC": function setPropertyC($event) {
+      console.log($event.type, $event.basename, $event.detail)
+    },
+    "content.propertyA.propertyB deleteProperty:propertyC": function deletePropertyC($event) {
       console.log($event.type, $event.basename, $event.detail)
     },
   }
 }, { enableEvents: true })
 
-// console.log(schema)
-// console.log(content)
-// console.log(content.object)
-console.log(content.get("propertyA.propertyB.propertyC"))
+content.get("propertyA.propertyB.propertyC")
+content.set("propertyA.propertyB.propertyC", "CCCCCCCCC")
+content.delete("propertyA.propertyB.propertyC")
