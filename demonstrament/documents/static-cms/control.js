@@ -59,18 +59,20 @@ export default [{
     }
   },
   events: {
-    "routers.location.default route": ($event) => {
-      console.log($event.type, $event.path, $event.location, $event.route)
+    "routers.location.default route": function route($event) {
+      console.log(this)
+      // console.log($event)
+      // this.start()
     },
-    "routers.location.default error": ($event) => {
-      console.log($event.type, $event.path)
-    }
+    // "routers.location.default error": ($event) => {
+    //   console.log($event.type, $event.path)
+    // }
   },
 }, {
   defineProperties: {
     start: { value: function () {
       console.log(this.models.default.parse())
-    //   this.views.default.render(this.models.default.parse(), 'default')
+      this.views.default.render(this.models.default.parse(), 'default')
     //   console.log(this.views.default.querySelectors)
     //   const controlViewParent = this.views.default.querySelectors['static-cms']
     //   // Inspector

@@ -104,7 +104,12 @@ export default class Content extends EventTarget {
     ).reduce(($parsement, [
       $propertyDescriptorName, $propertyDescriptor
     ]) => {
-      $parsement[$propertyDescriptorName] = $propertyDescriptor.value
+      if($propertyDescriptor.value?.classToString === Content.toString()) {
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value.object
+      }
+      else {
+        $parsement[$propertyDescriptorName] = $propertyDescriptor.value
+      }
       return $parsement
     }, parsement)
     if(

@@ -61,7 +61,7 @@ export default class CoreEvent {
   get #context() { return this.#settings.context }
   get #boundListener() {
     if(this.#_boundListener !== undefined) { return this.#_boundListener }
-    this.#_boundListener = this.#settings.listener.bind(this.context)
+    this.#_boundListener = this.#settings.listener.bind(this.#context)
     return this.#_boundListener
   }
 }

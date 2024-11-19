@@ -36,6 +36,7 @@ const index = new Control({
 }, {
   defineProperties: {
     start: { value: function () {
+      console.log(this.models.default.parse())
       this.views.default.render(
         this.models.default.parse()
       )
