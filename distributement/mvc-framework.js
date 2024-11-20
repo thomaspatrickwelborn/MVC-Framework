@@ -2193,7 +2193,8 @@ class Schema extends EventTarget{
         this.#_context[$contextKey] = $contextVal;
       }
       // Context Validators
-      this.#_context[$contextKey].validators = [new TypeValidator()];
+      this.#_context[$contextKey].validators = this.#_context[$contextKey].validators || [];
+      this.#_context[$contextKey].validators.unshift(new TypeValidator());
       const addValidators = [];
       // Context Validator: Add Range
       if(

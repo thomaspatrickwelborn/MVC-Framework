@@ -85,12 +85,12 @@ export default ($viewParent) => [{
           resourcesButton: 'fieldset > resources > header > button',
           resourcesMain: 'fieldset > resources > main',
           resourceAnchor: 'fieldset > resources > main > resource > a',
-        },
+        }
       }
     },
   },
   events: {
-    'models.database.content nonvalid': function ($event) {
+    'models.database.content nonvalidProperty:host': function ($event) {
       console.log($event.type, $event.detail)
     },
     'models.device.content.resources setProperty:active': function ($event) {
@@ -105,13 +105,15 @@ export default ($viewParent) => [{
     },
     'views.default.qs.inputPort change': function ($event) {
       $event.preventDefault()
+      const { content } = this.models.database
       const { value } = $event.currentTarget
-      this.models.database.content.port = Number(value)
+      content.set('port', Number(value))
     },
     'views.default.qs.inputHost change': function ($event) {
       $event.preventDefault()
+      const { content } = this.models.database
       const { value } = $event.currentTarget
-      this.models.database.content.host = String(value)
+      content.set('host', String(value))
     },
   },
 }, { defineProperties: {

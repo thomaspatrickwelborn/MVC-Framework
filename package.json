@@ -1,7 +1,7 @@
 {
   "name": "js-mvc-framework",
   "author": "Thomas Patrick Welborn",
-  "version": "1.2.24",
+  "version": "1.2.25",
   "type": "module",
   "scripts": {
     "demonstrament": "concurrently \"npm run start --workspace development\" \"npm run start --workspace demonstrament\"",
