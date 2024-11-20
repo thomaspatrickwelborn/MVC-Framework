@@ -39,28 +39,23 @@ export default [{
         hashpath: true,
         routes: {
           "": {
-            "name": "Index Alias",
+            "name": "index-alias",
             "class": "Index",
           },
           "/": {
-            "name": "Index",
+            "name": "index",
             "class": "Index",
           },
-          "/subfolder": {
-            "name": "Subfolder",
-            "class": "Subfolder",
-          },
-          "/subfolder/:fileID": {
-            "name": "Subfolder File",
-            "class": "SubfolderFile",
-          }
         } 
       }
     }
   },
   events: {
+    "routers.location.default.window load": function route($event) {
+      this.routers.location.default.navigate()
+    },
     "routers.location.default route": function route($event) {
-      this.start()
+      console.log($event.type, $event)
     },
     // "routers.location.default error": ($event) => {
     //   console.log($event.type, $event.path)

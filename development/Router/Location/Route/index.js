@@ -7,6 +7,7 @@ export default class Route extends EventTarget {
   constructor($settings = {}) {
     super()
     this.#settings = $settings
+    console.log(this)
   }
   get #settings() { return this.#_settings }
   set #settings($settings) {
@@ -15,7 +16,7 @@ export default class Route extends EventTarget {
       Object.defineProperty(this, $settingKey, { value: $settingVal })
     }
   }
-  get basename() { return this.#settings.basename }
+  get pathname() { return this.#settings.pathname }
   get enable() {
     if(this.#_enable !== undefined) return this.#_enable
     if(this.#settings.enable !== undefined) {
@@ -37,7 +38,7 @@ export default class Route extends EventTarget {
   }
   get match() {
     if(this.#_match !== undefined) return this.#_match
-    this.#_match = match(this.basename)
+    this.#_match = match(this.pathname)
     return this.#_match
   }
 }

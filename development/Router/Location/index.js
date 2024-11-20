@@ -10,21 +10,21 @@ export default class LocationRouter extends Core {
   #_routes
   #_location
   #_route
+  #_enable
   #_boundPopState
+  #regularExpressions = {
+    windowLocationOrigin: new RegExp(`^${this.window.location.origin}`)
+  }
   constructor($settings, $options) {
     super(
       recursiveAssign(Settings, $settings),
       recursiveAssign(Options, $options),
     )
-    this.window
     this.enableEvents()
-    // this.#popState()
   }
   get window() {
     if(this.#_window !== undefined) return this.#_window
     this.#_window = window
-    this.#_window.addEventListener('load', this.#boundPopState, { once: true })
-    this.#_window.addEventListener('popstate', this.#boundPopState)
     return this.#_window
   }
   get hashpath() {
@@ -46,21 +46,40 @@ export default class LocationRouter extends Core {
   }
   get location() { return this.#_location }
   get route() { return this.#_route }
+  get enable() { return this.#_enable }
+  set enable($enable) {
+    if(this.#_enable === $enable) return
+    if(this.#_enable === true) {
+      this.#_window.addEventListener('popstate', this.#boundPopState)
+    }
+    else if(this.#_enable === false) {
+      this.#_window.removeEventListener('popstate', this.#boundPopState)
+    }
+    this.#_enable = $enable
+  }
   get #boundPopState() {
     if(this.#_boundPopState !== undefined) return this.#_boundPopState
     this.#_boundPopState = this.#popState.bind(this)
     return this.#_boundPopState
   }
+  #popState($event) { this.navigate($event.currentTarget.location) }
   // Methods
-  #popState() {
+  navigate($path) {
+    $path = ($path === undefined) ? String(this.window.location) : $path
+    const { windowLocationOrigin } = this.#regularExpressions
+    let url
+    if($path.match(windowLocationOrigin)) { url = new URL($path) }
+    else { url = new URL($path, this.window.location.origin) }
+    const { pathname, hash, href, origin } = url
     const preterRoute = this.route
-    if(preterRoute) preterRoute.active = false
-    const { pathname, hash } = this.window.location
+    if(preterRoute) {
+      preterRoute.active = false
+    }
     const path = (this.hashpath) ? hash.slice(1) : pathname
     const { route, location } = this.#matchRoute(path)
     if(route && route?.enable) {
       route.active = true
-      location.state = history.state
+      location.state = this.window.history.state
       location.pathname = this.window.location.pathname
       location.hash = this.window.location.hash
       location.search = this.window.location.search
@@ -93,7 +112,7 @@ export default class LocationRouter extends Core {
   // Route Ministration 
   setRoute($routePath, $routeSettings) {
     const routeSettings = recursiveAssign({
-      basename: $routePath,
+      pathname: $routePath,
     }, $routeSettings)
     this.#_routes[$routePath] = new Route(routeSettings)
     return this.#_routes[$routePath]
