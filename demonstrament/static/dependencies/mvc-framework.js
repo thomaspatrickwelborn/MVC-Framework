@@ -2152,6 +2152,29 @@ class EnumValidator extends Validator {
   }
 }
 
+class MatchValidator extends Validator {
+  #settings
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'length',
+      validate: ($context, $contentKey, $contentVal) => {
+        const { match } = $context;
+        const validation = new Validation({
+          context: $context,
+          contentKey: $contentKey,
+          contentVal: $contentVal,
+          type: this.type,
+          valid: undefined,
+        });
+        validation.valid = (match.exec($contentVal) !== null)
+          ? true
+          : false;
+        return validation
+      },
+    }));
+  }
+}
+
 var Options$6 = {
   validationType: 'primitive', // 'object', 
 };
@@ -2221,6 +2244,11 @@ class Schema extends EventTarget{
         Array.isArray(this.#_context[$contextKey].enum) &&
         this.#_context[$contextKey].enum.length > 0
       ) { addValidators.push(new EnumValidator()); }
+      // Context Validator: Add Match
+      if(
+        Array.isArray(this.#_context[$contextKey].match) &&
+        this.#_context[$contextKey].match.length > 0
+      ) { addValidators.push(new MatchValidator()); }
       this.#_context[$contextKey].validators = addValidators.concat(this.#_context[$contextKey].validators);
     }
     return this.#_context

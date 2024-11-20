@@ -76,6 +76,11 @@ export default class Schema extends EventTarget{
         Array.isArray(this.#_context[$contextKey].enum) &&
         this.#_context[$contextKey].enum.length > 0
       ) { addValidators.push(new EnumValidator()) }
+      // Context Validator: Add Match
+      if(
+        Array.isArray(this.#_context[$contextKey].match) &&
+        this.#_context[$contextKey].match.length > 0
+      ) { addValidators.push(new MatchValidator()) }
       this.#_context[$contextKey].validators = addValidators.concat(this.#_context[$contextKey].validators)
     }
     return this.#_context

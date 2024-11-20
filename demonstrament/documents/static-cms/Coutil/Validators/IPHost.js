@@ -20,6 +20,8 @@ export default class IPHostValidator extends Validator {
         const ipv6Executive = RegularExpressions.IPV6.exec($contentVal)
         if(ipv4Executive !== null || ipv6Executive !== null) {
           validation.valid = true
+        } else {
+          validation.valid = false
         }
         return validation
       },
