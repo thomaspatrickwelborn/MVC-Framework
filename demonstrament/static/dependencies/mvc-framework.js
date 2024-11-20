@@ -2079,14 +2079,20 @@ class RangeValidator extends Validator {
           type: this.type,
           valid: undefined,
         });
+        let valid = undefined;
         if(min !== undefined) {
           validation.min = min;
-          (contentVal >= min);
+          console.log($contentVal >= min);
+          const validMin = ($contentVal >= min);
+          if(valid !== false) valid = validMin;
         }
         if(max !== undefined) {
           validation.max = max;
-          (contentVal <= max);
+          console.log($contentVal <= max);
+          const validMax = ($contentVal <= max);
+          if(valid !== false) valid = validMax;
         }
+        validation.valid = valid;
         return validation
       },
     }));
@@ -2107,14 +2113,18 @@ class LengthValidator extends Validator {
           type: this.type,
           valid: undefined,
         });
+        let valid = undefined;
         if(minLength !== undefined) {
           validation.minLength = minLength;
-          (contentVal.length >= minLength);
+          const validMinLength = (contentVal.length >= minLength);
+          if(valid !== false) valid = validMinLength;
         }
         if(maxLength !== undefined) {
           validation.maxLength = maxLength;
-          (contentVal.length <= maxLength);
+          const validMaxLength = (contentVal.length <= maxLength);
+          if(valid !== false) valid = validMaxLength;
         }
+        validation.valid = valid;
         return validation
       },
     }));

@@ -28,6 +28,7 @@ export default class LengthValidator extends Validator {
           const validMaxLength = (contentVal.length <= maxLength)
           if(valid !== false) valid = validMaxLength
         }
+        validation.valid = valid
         return validation
       },
     }))
