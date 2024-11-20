@@ -62,9 +62,17 @@ export default function setContentProperty() {
     if(schema && enableValidation) {
       const validSourceProp = schema.validateProperty(propertyKey, $value)
       if(validationEvents) {
+        let type
+        const _path = [path, '.', propertyKey].join('')
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', propertyKey].join('')
+        }
+        else {
+          type = ['nonvalidProperty', ':', propertyKey].join('')
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path, 
+          new ValidatorEvent(type, {
+            path: _path, 
             detail: validSourceProp,
           }, $content)
         )

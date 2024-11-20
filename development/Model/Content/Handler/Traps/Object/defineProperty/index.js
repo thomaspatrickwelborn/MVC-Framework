@@ -13,6 +13,14 @@ export default function defineProperty() {
   if(schema && enableValidation) {
     const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value)
     if(validationEvents) {
+      let type
+      const _path = [path, '.', propertyKey].join('')
+      if(validSourceProp.valid) {
+        type = ['validProperty', ':', propertyKey].join('')
+      }
+      else {
+        type = ['nonvalidProperty', ':', propertyKey].join('')
+      }
       $content.dispatchEvent(
         new ValidatorEvent('validateProperty', {
           path,

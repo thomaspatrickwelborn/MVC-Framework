@@ -1,0 +1,83 @@
+fieldset {
+	box-sizing: border-box;
+	display: flex;
+	position: relative;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin: 0.5em;
+	& > field {
+		display: flex;
+		flex-direction: column; 
+		margin: 0 0.5em;
+		& > label {}
+		& > input {
+			flex: 1;
+			background-color: rgba(255, 255, 255, 0.3)
+		}
+	}
+	& > resources {
+		display: flex;
+		flex-direction: column;
+		position: absolute;
+		top: 0;
+		right: 0;
+		background-color: lightseagreen;
+		&[data-active="true"] {
+			& > header {
+				padding-left: 0.5em;
+			}
+			& > header > button {
+				&::before {
+					content: "▲";
+				}
+			}
+		}
+		&[data-active="false"] {
+			padding: 0;
+			& > header > name {
+				display: none;
+			}
+			& > main {
+				display: none;
+			}
+			& > header > button {
+				&::before {
+					content: "▼";
+				}
+			}
+		}
+		& > header {
+			box-sizing: border-box;
+			display: flex;
+			width: 100%;
+			font-size: 1em;
+			justify-content: flex-end;
+			height: 1em;
+			& > button {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin: 0;
+				padding: 0;
+				// width: 1.5em;
+				// height: 1.5em;
+			}
+			& > name {
+				display: flex;
+				width: 100%;
+			}
+		}
+		& > main {
+			box-sizing: border-box;
+			padding-top: 0.25em;
+			padding-right: 0.5em;
+			padding-bottom: 0.25em;
+			padding-left: 0.5em;
+			& > resource {
+				display: flex;
+				font-size: 0.9em;
+				justify-content: flex-end;
+			}
+		}
+	}
+}

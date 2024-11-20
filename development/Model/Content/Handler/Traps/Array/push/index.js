@@ -15,9 +15,17 @@ export default function push() {
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element)
       if(validationEvents) {
+        let type
+        const _path = [path, '.', elementsIndex].join('')
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', elementsIndex].join('')
+        }
+        else {
+          type = ['nonvalidProperty', ':', elementsIndex].join('')
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path,
+          new ValidatorEvent(type, {
+            path: _path,
             detail: validElement,
           }, $content)
         )

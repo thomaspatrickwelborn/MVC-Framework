@@ -22,6 +22,14 @@ export default function assign() {
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal)
         if(validationEvents) {
+          let type
+          const _path = [path, '.', $sourcePropKey].join('')
+          if(validSourceProp.valid) {
+            type = ['validProperty', ':', $sourcePropKey].join('')
+          }
+          else {
+            type = ['nonvalidProperty', ':', $sourcePropKey].join('')
+          }
           // Validator Event: Validate Property
           $content.dispatchEvent(
             new ValidatorEvent('validateProperty', {

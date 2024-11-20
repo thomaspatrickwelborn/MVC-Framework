@@ -19,7 +19,6 @@ export default class Schema extends EventTarget{
     super()
     this.#properties = $properties
     this.options = Object.assign({}, Options, $options)
-    // this.context
   }
   get validationType() { return this.options.validationType }
   get type() {

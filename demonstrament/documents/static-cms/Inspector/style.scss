@@ -1,21 +1,4 @@
+@use "../Coutil/Fieldset/index.scss" as Fieldset; 
 fieldset[data-id="inspector"] {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	margin: 0.5em;
-	padding: 0.5em;
-	& > resource {
-		display: flex;
-		width: 100%;
-	}
-	& > field {
-		display: flex;
-		flex-direction: column; 
-		margin: 0 0.5em;
-		& > label {}
-		& > input {
-			flex: 1;
-			background-color: rgba(255, 255, 255, 0.3)
-		}
-	}
+
 }

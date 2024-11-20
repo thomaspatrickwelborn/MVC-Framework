@@ -13,10 +13,16 @@ export default async function SassPiler($settings) {
   const sassPileSourceMapPath = $settings.output.replace(
     new RegExp(/\.css$/), sourceMapExtension
   )
-  var sassPile = sass.compile($settings.input, {
-    sourceMap: true,
-    sourceMapIncludeSources: true,
-  })
+  var sassPile 
+  try {
+    sassPile = sass.compile($settings.input, {
+      sourceMap: true,
+      sourceMapIncludeSources: true,
+      stopOnError: false, 
+      errorCSS: false,
+    })
+  }
+  catch($err) { return }
   const sassPileCSS = sassPile.css.concat(sassPileSourceMapPend)
   const sassPileSourceMap =JSON.stringify(sassPile.sourceMap)
   await writeFile(sassPilePath, sassPileCSS)

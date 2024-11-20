@@ -1,10 +1,2 @@
-body {
-	display: flex; 
-	flex-direction: column;
-	width: 100vw;
-	height: 100vh;
-	background-color: mediumaquamarine;
-	padding: 0;
-	margin: 0;
-	font-size: 16px;
-}
+@use "./Fieldset/index.scss" as Fieldset;
+@use "./Body/index.scss" as Body;

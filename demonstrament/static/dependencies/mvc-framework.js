@@ -177,6 +177,7 @@ function assign() {
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal);
         if(validationEvents) {
+          if(validSourceProp.valid) ;
           // Validator Event: Validate Property
           $content.dispatchEvent(
             new ValidatorEvent$1('validateProperty', {
@@ -344,6 +345,7 @@ function defineProperty() {
   if(schema && enableValidation) {
     const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value);
     if(validationEvents) {
+      if(validSourceProp.valid) ;
       $content.dispatchEvent(
         new ValidatorEvent$1('validateProperty', {
           path,
@@ -522,9 +524,17 @@ function concat() {
     if(schema && enableValidation) {
       const validValue = schema.validateProperty(valueIndex, $subvalue);
       if(schema &&validationEvents) {
+        let type;
+        const _path = [path, '.', valueIndex].join('');
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', valueIndex].join('');
+        }
+        else {
+          type = ['nonvalidProperty', ':', valueIndex].join('');
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path,
+          new ValidatorEvent(type, {
+            path: _path,
             detail: validValue,
           }, $content)
         );
@@ -717,9 +727,17 @@ function fill() {
     if(schema && enableValidation) {
       let validValue = schema.validate(validValue);
       if(validationEvents) {
+        let type;
+        const _path = [path, '.', fillIndex].join('');
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', fillIndex].join('');
+        }
+        else {
+          type = ['nonvalidProperty', ':', fillIndex].join('');
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path, 
+          new ValidatorEvent(type, {
+            path: _path, 
             detail: validValue,
           }, $content)
         );
@@ -829,9 +847,17 @@ function push() {
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element);
       if(validationEvents) {
+        let type;
+        const _path = [path, '.', elementsIndex].join('');
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', elementsIndex].join('');
+        }
+        else {
+          type = ['nonvalidProperty', ':', elementsIndex].join('');
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path,
+          new ValidatorEvent(type, {
+            path: _path,
             detail: validElement,
           }, $content)
         );
@@ -1009,9 +1035,17 @@ function splice() {
     if(schema && enableValidation) {
       const validAddItem = schema.validateProperty(elementIndex, element);
       if(validationEvents) {
+        let type;
+        const _path = [path, '.', addItemsIndex].join('');
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', addItemsIndex].join('');
+        }
+        else {
+          type = ['nonvalidProperty', ':', addItemsIndex].join('');
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path,
+          new ValidatorEvent(type, {
+            path: _path,
             detail: validAddItem,
           }, $content)
         );
@@ -1106,9 +1140,17 @@ function unshift() {
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementIndex, $element);
       if(validationEvents) {
+        let type;
+        const _path = [path, '.', elementIndex].join('');
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', elementIndex].join('');
+        }
+        else {
+          type = ['nonvalidProperty', ':', elementIndex].join('');
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path,
+          new ValidatorEvent(type, {
+            path: _path,
             detail: validElement,
           }, $content)
         );
@@ -1398,9 +1440,17 @@ function setContentProperty() {
     if(schema && enableValidation) {
       const validSourceProp = schema.validateProperty(propertyKey, $value);
       if(validationEvents) {
+        let type;
+        const _path = [path, '.', propertyKey].join('');
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', propertyKey].join('');
+        }
+        else {
+          type = ['nonvalidProperty', ':', propertyKey].join('');
+        }
         $content.dispatchEvent(
-          new ValidatorEvent$1('validateProperty', {
-            path, 
+          new ValidatorEvent$1(type, {
+            path: _path, 
             detail: validSourceProp,
           }, $content)
         );
@@ -2105,7 +2155,6 @@ class Schema extends EventTarget{
     super();
     this.#properties = $properties;
     this.options = Object.assign({}, Options$6, $options);
-    // this.context
   }
   get validationType() { return this.options.validationType }
   get type() {

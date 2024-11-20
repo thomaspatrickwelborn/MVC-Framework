@@ -29,15 +29,11 @@ export default function anonymous($content, escapeFn, include, rethrow) {
     ;
     __append("\n<fieldset data-id=\"inspector\">\n	<legend>");
     __append(escapeFn(device.legend));
-    __append("</legend>\n	<resource>\n		<a\n		  href=\"");
-    __append(escapeFn(device.resource.href));
-    __append("\"\n		  target=\"_blank\"\n	  >");
-    __append(escapeFn(device.resource.textContent));
-    __append("</a>\n	</resource>\n	<field data-id=\"host\">\n		<label>");
+    __append("</legend>\n	<field data-id=\"host\">\n		<label>");
     __append(escapeFn(device.host.label));
     __append("</label>\n		<input\n			type=\"text\"\n		  value=\"");
     __append(escapeFn(database.host));
-    __append("\"\n		  pattern=\"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$\"\n		  required\n	  >\n	  <detail>");
+    __append("\"\n		  required\n	  >\n	  <detail>");
     __append(escapeFn(device.host.detail));
     __append("</detail>\n	</field>\n	<field data-id=\"port\">\n		<label>");
     __append(escapeFn(device.port.label));
@@ -45,7 +41,20 @@ export default function anonymous($content, escapeFn, include, rethrow) {
     __append(escapeFn(database.port));
     __append("\"\n	  >\n	  <detail>");
     __append(escapeFn(device.port.detail));
-    __append("</detail>\n	</field>\n</fieldset>")
+    __append("</detail>\n	</field>\n	<resources data-active=\"");
+    __append(escapeFn(device.resources.active));
+    __append("\">\n		<header>\n			<name>");
+    __append(escapeFn(device.resources.name));
+    __append("</name>\n			<button></button>\n		</header>\n		<main>\n			");
+    for (const $resource of device.resources.items) {
+        ;
+        __append("\n				<resource>\n					<a\n					  href=\"");
+        __append(escapeFn($resource.href));
+        __append("\"\n					  target=\"_blank\"\n				  >");
+        __append(escapeFn($resource.textContent));
+        __append("</a>\n				</resource>\n			");
+    };
+    __append("\n		</main>\n	</resources>\n</fieldset>")
     return __output;
 
 }

@@ -18,9 +18,17 @@ export default function unshift() {
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementIndex, $element)
       if(validationEvents) {
+        let type
+        const _path = [path, '.', elementIndex].join('')
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', elementIndex].join('')
+        }
+        else {
+          type = ['nonvalidProperty', ':', elementIndex].join('')
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path,
+          new ValidatorEvent(type, {
+            path: _path,
             detail: validElement,
           }, $content)
         )

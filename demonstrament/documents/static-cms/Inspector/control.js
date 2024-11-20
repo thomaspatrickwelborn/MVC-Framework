@@ -5,42 +5,64 @@ export default ($viewParent) => [{
   // Models
   models: {
     // Device Model
-    device: [{
-      schema: {
-        legend: { type: String },
-        resource: { type: {
-          textContent: { type: String },
-          href: { type: String },
-        } },
-        port: { type: {
-          label: { type: String },
-          detail: { type: String },
-        } },
-        host: { type: {
-          label: { type: String },
-          detail: { type: String },
-        } },
-      },
-      content: {
-        legend: 'Node Inspector',
-        resource: {
-          textContent: 'Node Inspector | Open',
-          href: 'https://nodejs.org/api/inspector.html#inspectoropenport-host-wait'
+    device: [
+      {
+        schema: {
+          legend: { type: String },
+          resources: { type: {
+            name: { type: String },
+            active: { type: Boolean },
+            items: { type: [{ type: {
+              textContent: { type: String },
+              href: { type: String },
+            }
+            }]
+            } }
+          },
+          port: { type: {
+            label: { type: String },
+            detail: { type: String },
+          } },
+          host: { type: {
+            label: { type: String },
+            detail: { type: String },
+          } },
         },
-        port: {
-          label: 'Port',
-          detail: 'Example: 9000',
-        },
-        host: {
-          label: 'Host',
-          detail: 'Example: 127.0.0.1',
-        },
+        content: {
+          legend: 'Node Inspector',
+          resources: {
+            name: "Resources",
+            active: false,
+            items: [{
+              textContent: 'Node Inspector Documentation',
+              href: 'https://nodejs.org/api/inspector.html#inspectoropenport-host-wait'
+            }]
+          },
+          port: {
+            label: 'Port',
+            detail: 'Example: 9000',
+          },
+          host: {
+            label: 'Host',
+            detail: 'Example: 127.0.0.1',
+          },
+        }
+      }, {
+        assign: {
+          toggleResourcesActive: function() {
+            this.content.set("resources.active", !this.content.get("resources.active"))
+          }
+        }
       }
-    }],
+    ],
     // Database Model
     database: {
       schema: {
-        port: { type: Number },
+        port: {
+          type: Number,
+          min: 0,
+          max: 65535,
+        },
         host: {
           type: String,
           validators: [new IPHostValidator()],
@@ -59,20 +81,34 @@ export default ($viewParent) => [{
         querySelector: {
           inputPort: '[data-id="inspector"] [data-id="port"] > input',
           inputHost: '[data-id="inspector"] [data-id="host"] > input',
+          resources: 'fieldset > resources',
+          resourcesButton: 'fieldset > resources > header > button',
+          resourcesMain: 'fieldset > resources > main',
+          resourceAnchor: 'fieldset > resources > main > resource > a',
         },
       }
     },
   },
   events: {
-    'models.database.content valid:err': function ($event) {
+    'models.database.content nonvalid': function ($event) {
       console.log($event.type, $event.detail)
     },
-    'views.default.querySelectors.inputPort change': function ($event) {
+    'models.device.content.resources setProperty:active': function ($event) {
+      const { resources } = this.views.default.qs 
+      resources.setAttribute('data-active', $event.detail.value)
+    },
+    "views.default.qs.resourceAnchor click": function ($event) {
+      this.models.device.content.set("resources.active", false)
+    },
+    "views.default.qs.resourcesButton click": function ($event) {
+      this.models.device.toggleResourcesActive()
+    },
+    'views.default.qs.inputPort change': function ($event) {
       $event.preventDefault()
       const { value } = $event.currentTarget
-      // this.models.database.content.port = Number(value)
+      this.models.database.content.port = Number(value)
     },
-    'views.default.querySelectors.inputHost change': function ($event) {
+    'views.default.qs.inputHost change': function ($event) {
       $event.preventDefault()
       const { value } = $event.currentTarget
       this.models.database.content.host = String(value)

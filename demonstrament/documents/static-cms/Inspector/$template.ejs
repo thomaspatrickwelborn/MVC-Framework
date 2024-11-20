@@ -1,18 +1,11 @@
 <% const { device, database } = $content %>
 <fieldset data-id="inspector">
 	<legend><%= device.legend %></legend>
-	<resource>
-		<a
-		  href="<%= device.resource.href %>"
-		  target="_blank"
-	  ><%= device.resource.textContent %></a>
-	</resource>
 	<field data-id="host">
 		<label><%= device.host.label %>%></label>
 		<input
 			type="text"
 		  value="<%= database.host %>"
-		  pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
 		  required
 	  >
 	  <detail><%= device.host.detail %></detail>
@@ -25,4 +18,20 @@
 	  >
 	  <detail><%= device.port.detail %></detail>
 	</field>
+	<resources data-active="<%= device.resources.active %>">
+		<header>
+			<name><%= device.resources.name %></name>
+			<button></button>
+		</header>
+		<main>
+			<% for(const $resource of device.resources.items) { %>
+				<resource>
+					<a
+					  href="<%= $resource.href %>"
+					  target="_blank"
+				  ><%= $resource.textContent %></a>
+				</resource>
+			<% } %>
+		</main>
+	</resources>
 </fieldset>

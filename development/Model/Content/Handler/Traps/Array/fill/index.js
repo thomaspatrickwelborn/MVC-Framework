@@ -30,9 +30,17 @@ export default function fill() {
     if(schema && enableValidation) {
       let validValue = schema.validate(validValue)
       if(validationEvents) {
+        let type
+        const _path = [path, '.', fillIndex].join('')
+        if(validSourceProp.valid) {
+          type = ['validProperty', ':', fillIndex].join('')
+        }
+        else {
+          type = ['nonvalidProperty', ':', fillIndex].join('')
+        }
         $content.dispatchEvent(
-          new ValidatorEvent('validateProperty', {
-            path, 
+          new ValidatorEvent(type, {
+            path: _path, 
             detail: validValue,
           }, $content)
         )
