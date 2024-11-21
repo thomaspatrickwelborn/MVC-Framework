@@ -15,6 +15,7 @@ export default class Route extends EventTarget {
       Object.defineProperty(this, $settingKey, { value: $settingVal })
     }
   }
+  get base() { return this.#settings.base }
   get pathname() { return this.#settings.pathname }
   get enable() {
     if(this.#_enable !== undefined) return this.#_enable

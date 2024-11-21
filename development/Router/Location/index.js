@@ -23,6 +23,7 @@ export default class LocationRouter extends Core {
     this.enableEvents()
     this.enable = true
   }
+  get base() { return this.settings.base }
   get window() {
     if(this.#_window !== undefined) return this.#_window
     this.#_window = window
@@ -60,25 +61,28 @@ export default class LocationRouter extends Core {
   }
   get #boundPopState() {
     if(this.#_boundPopState !== undefined) return this.#_boundPopState
-    this.#_boundPopState = this.#popState.bind(this)
+    this.#_boundPopState = function popState($event) {
+      return this.navigate(this.window.location.href, null)
+    }.bind(this)
     return this.#_boundPopState
   }
-  #popState($event) {
-    this.navigate($event.currentTarget.location)
-    return this
-  }
-  navigate($path, $method = "assign") {
-    $path = ($path === undefined) ? String(this.window.location) : String($path)
-    const url = new URL($path)
+  navigate($path, $method) {
+    $path = ($path !== undefined) ? new URL($path) : this.window.location
+    let path
+    if(this.hashpath) { path = $path.hash.slice(1) }
+    else {
+      path = $path.href
+      .replace(new RegExp(`^${this.window.origin}`), '')
+      .replace(new RegExp(`^${this.base}`), '')
+    }
+    const base = [this.window.origin, this.base].join('')
+    const url = new URL(path, base)
     const { pathname, hash, href, origin } = url
     const preterRoute = this.route
     if(preterRoute) { preterRoute.active = false }
-    const path = (this.hashpath) ? hash.slice(1) : pathname
     const { route, location } = this.#matchRoute(path)
     if(route && route?.enable) {
-      if(String(url) !== String(this.window.location)) {
-        this.window.location[$method](url)
-      }
+      if($method) { this.window?.location[$method](path) }
       route.active = true
       location.state = this.window.history.state
       location.pathname = this.window.location.pathname

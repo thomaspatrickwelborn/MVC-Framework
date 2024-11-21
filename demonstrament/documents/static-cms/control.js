@@ -36,22 +36,20 @@ export default [{
   routers: {
     location: {
       default: {
-        hashpath: true,
-        routes: {
+        "base": "/static-cms/",
+        "hashpath": true,
+        "routes": {
           "": {
-            "base": "/static-cms/",
             "pathname": "",
             "name": "index-alias",
             "class": "Index",
           },
           "/": {
-            "base": "/static-cms/",
             "pathname": "/",
             "name": "index",
             "class": "Index",
           },
           "/:subpageID": {
-            "base": "/static-cms/",
             "pathname": "/:subpageID",
             "name": "subpage",
             "class": "Subpage",
@@ -63,6 +61,7 @@ export default [{
   events: {
     "routers.location.default.window load": function route($event) {
       this.routers.location.default.navigate()
+      // window.location.assign(window.location)
     },
     "routers.location.default route": function route($event) {
       console.log($event.type, $event)
