@@ -7,7 +7,6 @@ export default class Route extends EventTarget {
   constructor($settings = {}) {
     super()
     this.#settings = $settings
-    console.log(this)
   }
   get #settings() { return this.#_settings }
   set #settings($settings) {

@@ -39,12 +39,22 @@ export default [{
         hashpath: true,
         routes: {
           "": {
+            "base": "/static-cms/",
+            "pathname": "",
             "name": "index-alias",
             "class": "Index",
           },
           "/": {
+            "base": "/static-cms/",
+            "pathname": "/",
             "name": "index",
             "class": "Index",
+          },
+          "/:subpageID": {
+            "base": "/static-cms/",
+            "pathname": "/:subpageID",
+            "name": "subpage",
+            "class": "Subpage",
           },
         } 
       }
@@ -55,6 +65,12 @@ export default [{
       this.routers.location.default.navigate()
     },
     "routers.location.default route": function route($event) {
+      console.log($event.type, $event)
+    },
+    "routers.location.default route:subpage": function route($event) {
+      console.log($event.type, $event)
+    },
+    "routers.location.default nonroute": function route($event) {
       console.log($event.type, $event)
     },
     // "routers.location.default error": ($event) => {
@@ -68,7 +84,7 @@ export default [{
       const controlViewParent = this.views.default.querySelectors['static-cms']
       // Inspector
       this.controls.inspector = new Control(...InspectorControl(controlViewParent)).start()
-    //   // this.controls.https = HTTPSControl(controlViewParent)
+    //   // this.controls.https = HTTPSCo ntrol(controlViewParent)
     //   // this.controls.browserSync = BrowserSyncControl(controlViewParent)
     //   // this.controls.express = ExpressControl(controlViewParent)
     //   // this.controls.routes = RoutesControl(controlViewParent)

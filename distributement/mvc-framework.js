@@ -3665,7 +3665,6 @@ class Route extends EventTarget {
   constructor($settings = {}) {
     super();
     this.#settings = $settings;
-    console.log(this);
   }
   get #settings() { return this.#_settings }
   set #settings($settings) {
@@ -3731,6 +3730,7 @@ class LocationRouter extends Core {
       recursiveAssign(Options$1, $options),
     );
     this.enableEvents();
+    this.enable = true;
   }
   get window() {
     if(this.#_window !== undefined) return this.#_window
@@ -3759,10 +3759,10 @@ class LocationRouter extends Core {
   get enable() { return this.#_enable }
   set enable($enable) {
     if(this.#_enable === $enable) return
-    if(this.#_enable === true) {
+    if($enable === true) {
       this.#_window.addEventListener('popstate', this.#boundPopState);
     }
-    else if(this.#_enable === false) {
+    else if($enable === false) {
       this.#_window.removeEventListener('popstate', this.#boundPopState);
     }
     this.#_enable = $enable;
@@ -3772,22 +3772,22 @@ class LocationRouter extends Core {
     this.#_boundPopState = this.#popState.bind(this);
     return this.#_boundPopState
   }
-  #popState($event) { this.navigate($event.currentTarget.location); }
-  // Methods
-  navigate($path) {
-    $path = ($path === undefined) ? String(this.window.location) : $path;
-    const { windowLocationOrigin } = this.#regularExpressions;
-    let url;
-    if($path.match(windowLocationOrigin)) { url = new URL($path); }
-    else { url = new URL($path, this.window.location.origin); }
+  #popState($event) {
+    this.navigate($event.currentTarget.location);
+    return this
+  }
+  navigate($path, $method = "assign") {
+    $path = ($path === undefined) ? String(this.window.location) : String($path);
+    const url = new URL($path);
     const { pathname, hash, href, origin } = url;
     const preterRoute = this.route;
-    if(preterRoute) {
-      preterRoute.active = false;
-    }
+    if(preterRoute) { preterRoute.active = false; }
     const path = (this.hashpath) ? hash.slice(1) : pathname;
     const { route, location } = this.#matchRoute(path);
     if(route && route?.enable) {
+      if(String(url) !== String(this.window.location)) {
+        this.window.location[$method](url);
+      }
       route.active = true;
       location.state = this.window.history.state;
       location.pathname = this.window.location.pathname;
@@ -3799,14 +3799,18 @@ class LocationRouter extends Core {
       this.dispatchEvent(
         new RouteEvent("route", { path, route, location })
       );
+      this.dispatchEvent(
+        new RouteEvent(`route:${route.name}`)
+      );
     }
     else {
       this.#_route = null;
       this.#_location = null;
       this.dispatchEvent(
-        new RouteEvent("error", { path })
+        new RouteEvent("nonroute", { path })
       );
     }
+    return this
   }
   // Route Ability
   enableRoute($path) {
@@ -3822,7 +3826,7 @@ class LocationRouter extends Core {
   // Route Ministration 
   setRoute($routePath, $routeSettings) {
     const routeSettings = recursiveAssign({
-      pathname: $routePath,
+      pathname: $routeSettings.pathname || $routePath,
     }, $routeSettings);
     this.#_routes[$routePath] = new Route(routeSettings);
     return this.#_routes[$routePath]
