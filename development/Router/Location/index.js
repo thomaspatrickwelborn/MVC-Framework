@@ -52,7 +52,7 @@ export default class LocationRouter extends Core {
   get enable() { return this.#_enable }
   set enable($enable) {
     if(this.#_enable === $enable) return
-    const boundPopstate = this.#boundPopstate
+    const boundPopstate = this.#popstate.bind(this)
     if($enable === true) {
       this.#_window.addEventListener('popstate', boundPopstate)
     }
@@ -60,11 +60,6 @@ export default class LocationRouter extends Core {
       this.#_window.removeEventListener('popstate', boundPopstate)
     }
     this.#_enable = $enable
-  }
-  #boundPopstate() {
-    if(this.#_boundPopstate !== undefined) { return this.#_boundPopstate }
-    this.#_boundPopstate = this.#popstate.bind(this)
-    return this.#_boundPopstate
   }
   #popstate() { this.navigate() }
   navigate($path, $method) {

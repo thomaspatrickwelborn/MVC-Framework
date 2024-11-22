@@ -55,20 +55,10 @@ export default [{
   },
   events: {
     "routers.location.default.window load": function route($event) {
-      console.log($event.type, $event)
-      this.routers.location.default.navigate()
+      const defaultRouter = this.routers.location.default
+      defaultRouter.navigate()
     },
-    // "routers.location.default route:index-alias": function route($event) {
-    //   console.log($event.type, $event)
-    //   this.routers.location.default.navigate("#/", "assign")
-    // },
     "routers.location.default route:index": function route($event) {
-      console.log($event.type, $event)
-    },
-    "routers.location.default route:subpage": function route($event) {
-      console.log($event.type, $event)
-    },
-    "routers.location.default nonroute": function route($event) {
       console.log($event.type, $event)
     },
     // "routers.location.default error": ($event) => {
