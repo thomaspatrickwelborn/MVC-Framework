@@ -2082,13 +2082,11 @@ class RangeValidator extends Validator {
         let valid = undefined;
         if(min !== undefined) {
           validation.min = min;
-          console.log($contentVal >= min);
           const validMin = ($contentVal >= min);
           if(valid !== false) valid = validMin;
         }
         if(max !== undefined) {
           validation.max = max;
-          console.log($contentVal <= max);
           const validMax = ($contentVal <= max);
           if(valid !== false) valid = validMax;
         }
@@ -3673,7 +3671,6 @@ class Route extends EventTarget {
       Object.defineProperty(this, $settingKey, { value: $settingVal });
     }
   }
-  get base() { return this.#settings.base }
   get pathname() { return this.#settings.pathname }
   get enable() {
     if(this.#_enable !== undefined) return this.#_enable
@@ -3702,14 +3699,14 @@ class Route extends EventTarget {
 }
 
 class RouteEvent extends Event {
-  #settings
-  constructor($type, $settings) {
-    super($type, $settings);
-    this.#settings = $settings;
+  #options
+  constructor($type, $options) {
+    super($type, $options);
+    this.#options = $options;
   }
-  get path() { return this.#settings.path }
-  get route() { return this.#settings.route }
-  get location() { return this.#settings.location }
+  get path() { return this.#options.path }
+  get route() { return this.#options.route }
+  get location() { return this.#options.location }
 }
 
 const Settings$1 = { routes: {} };
@@ -3721,7 +3718,8 @@ class LocationRouter extends Core {
   #_location
   #_route
   #_enable
-  #_boundPopState
+  #_popstate
+  #_boundPopstate
   #regularExpressions = {
     windowLocationOrigin: new RegExp(`^${this.window.location.origin}`)
   }
@@ -3761,57 +3759,72 @@ class LocationRouter extends Core {
   get enable() { return this.#_enable }
   set enable($enable) {
     if(this.#_enable === $enable) return
+    const boundPopstate = this.#boundPopstate;
     if($enable === true) {
-      this.#_window.addEventListener('popstate', this.#boundPopState);
+      this.#_window.addEventListener('popstate', boundPopstate);
     }
     else if($enable === false) {
-      this.#_window.removeEventListener('popstate', this.#boundPopState);
+      this.#_window.removeEventListener('popstate', boundPopstate);
     }
     this.#_enable = $enable;
   }
-  get #boundPopState() {
-    if(this.#_boundPopState !== undefined) return this.#_boundPopState
-    this.#_boundPopState = function popState($event) {
-      return this.navigate(this.window.location.href, null)
-    }.bind(this);
-    return this.#_boundPopState
+  #boundPopstate() {
+    if(this.#_boundPopstate !== undefined) { return this.#_boundPopstate }
+    this.#_boundPopstate = this.#popstate.bind(this);
+    return this.#_boundPopstate
   }
+  #popstate() { this.navigate(); }
   navigate($path, $method) {
-    $path = ($path !== undefined) ? new URL($path) : this.window.location;
-    let path;
-    if(this.hashpath) { path = $path.hash.slice(1); }
+    if(
+      typeof $path === 'string' && 
+      ['assign', 'replace'].includes($method)
+    ) {
+      this.window?.location[$method]($path);
+      return this
+    }
+    [this.window.origin, this.base].join('');
+    let matchPath, matchRoute;
+    if(this.hashpath) {
+      matchPath = this.window.location.hash.slice(1);
+      matchRoute = this.#matchRoute(matchPath);
+    }
     else {
-      path = $path.href
+      matchPath = this.window.location.href
       .replace(new RegExp(`^${this.window.origin}`), '')
       .replace(new RegExp(`^${this.base}`), '');
+      matchRoute = this.#matchRoute(matchPath);
     }
-    const base = [this.window.origin, this.base].join('');
-    new URL(path, base);
+    const { route, location } = matchRoute;
+    const routeEventOptions = {
+      route: route,
+      location: location,
+      path: matchPath,
+    };
     const preterRoute = this.route;
     if(preterRoute) { preterRoute.active = false; }
-    const { route, location } = this.#matchRoute(path);
     if(route && route?.enable) {
-      if($method) { this.window?.location[$method](path); }
       route.active = true;
       location.state = this.window.history.state;
-      location.pathname = this.window.location.pathname;
+      location.base = this.base;
+      location.pathname = this.window.location.pathname
+      .replace(new RegExp(`^${this.base}`), '');
       location.hash = this.window.location.hash;
       location.search = this.window.location.search;
       delete location.path;
       this.#_route = route;
       this.#_location = location;
       this.dispatchEvent(
-        new RouteEvent("route", { path, route, location })
+        new RouteEvent("route", routeEventOptions)
       );
       this.dispatchEvent(
-        new RouteEvent(`route:${route.name}`)
+        new RouteEvent(`route:${route.name}`, routeEventOptions)
       );
     }
     else {
       this.#_route = null;
       this.#_location = null;
       this.dispatchEvent(
-        new RouteEvent("nonroute", { path })
+        new RouteEvent("nonroute", routeEventOptions)
       );
     }
     return this

@@ -1,10 +1,10 @@
 export default class RouteEvent extends Event {
-  #settings
-  constructor($type, $settings) {
-    super($type, $settings)
-    this.#settings = $settings
+  #options
+  constructor($type, $options) {
+    super($type, $options)
+    this.#options = $options
   }
-  get path() { return this.#settings.path }
-  get route() { return this.#settings.route }
-  get location() { return this.#settings.location }
+  get path() { return this.#options.path }
+  get route() { return this.#options.route }
+  get location() { return this.#options.location }
 }

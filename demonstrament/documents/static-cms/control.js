@@ -39,11 +39,6 @@ export default [{
         "base": "/static-cms/",
         "hashpath": true,
         "routes": {
-          "": {
-            "pathname": "",
-            "name": "index-alias",
-            "class": "Index",
-          },
           "/": {
             "pathname": "/",
             "name": "index",
@@ -60,10 +55,14 @@ export default [{
   },
   events: {
     "routers.location.default.window load": function route($event) {
+      console.log($event.type, $event)
       this.routers.location.default.navigate()
-      // window.location.assign(window.location)
     },
-    "routers.location.default route": function route($event) {
+    // "routers.location.default route:index-alias": function route($event) {
+    //   console.log($event.type, $event)
+    //   this.routers.location.default.navigate("#/", "assign")
+    // },
+    "routers.location.default route:index": function route($event) {
       console.log($event.type, $event)
     },
     "routers.location.default route:subpage": function route($event) {

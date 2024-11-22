@@ -11,7 +11,8 @@ export default class LocationRouter extends Core {
   #_location
   #_route
   #_enable
-  #_boundPopState
+  #_popstate
+  #_boundPopstate
   #regularExpressions = {
     windowLocationOrigin: new RegExp(`^${this.window.location.origin}`)
   }
@@ -51,58 +52,72 @@ export default class LocationRouter extends Core {
   get enable() { return this.#_enable }
   set enable($enable) {
     if(this.#_enable === $enable) return
+    const boundPopstate = this.#boundPopstate
     if($enable === true) {
-      this.#_window.addEventListener('popstate', this.#boundPopState)
+      this.#_window.addEventListener('popstate', boundPopstate)
     }
     else if($enable === false) {
-      this.#_window.removeEventListener('popstate', this.#boundPopState)
+      this.#_window.removeEventListener('popstate', boundPopstate)
     }
     this.#_enable = $enable
   }
-  get #boundPopState() {
-    if(this.#_boundPopState !== undefined) return this.#_boundPopState
-    this.#_boundPopState = function popState($event) {
-      return this.navigate(this.window.location.href, null)
-    }.bind(this)
-    return this.#_boundPopState
+  #boundPopstate() {
+    if(this.#_boundPopstate !== undefined) { return this.#_boundPopstate }
+    this.#_boundPopstate = this.#popstate.bind(this)
+    return this.#_boundPopstate
   }
+  #popstate() { this.navigate() }
   navigate($path, $method) {
-    $path = ($path !== undefined) ? new URL($path) : this.window.location
-    let path
-    if(this.hashpath) { path = $path.hash.slice(1) }
-    else {
-      path = $path.href
-      .replace(new RegExp(`^${this.window.origin}`), '')
-      .replace(new RegExp(`^${this.base}`), '')
+    if(
+      typeof $path === 'string' && 
+      ['assign', 'replace'].includes($method)
+    ) {
+      this.window?.location[$method]($path)
+      return this
     }
     const base = [this.window.origin, this.base].join('')
-    const url = new URL(path, base)
-    const { pathname, hash, href, origin } = url
+    let matchPath, matchRoute
+    if(this.hashpath) {
+      matchPath = this.window.location.hash.slice(1)
+      matchRoute = this.#matchRoute(matchPath)
+    }
+    else {
+      matchPath = this.window.location.href
+      .replace(new RegExp(`^${this.window.origin}`), '')
+      .replace(new RegExp(`^${this.base}`), '')
+      matchRoute = this.#matchRoute(matchPath)
+    }
+    const { route, location } = matchRoute
+    const routeEventOptions = {
+      route: route,
+      location: location,
+      path: matchPath,
+    }
     const preterRoute = this.route
     if(preterRoute) { preterRoute.active = false }
-    const { route, location } = this.#matchRoute(path)
     if(route && route?.enable) {
-      if($method) { this.window?.location[$method](path) }
       route.active = true
       location.state = this.window.history.state
+      location.base = this.base
       location.pathname = this.window.location.pathname
+      .replace(new RegExp(`^${this.base}`), '')
       location.hash = this.window.location.hash
       location.search = this.window.location.search
       delete location.path
       this.#_route = route
       this.#_location = location
       this.dispatchEvent(
-        new RouteEvent("route", { path, route, location })
+        new RouteEvent("route", routeEventOptions)
       )
       this.dispatchEvent(
-        new RouteEvent(`route:${route.name}`)
+        new RouteEvent(`route:${route.name}`, routeEventOptions)
       )
     }
     else {
       this.#_route = null
       this.#_location = null
       this.dispatchEvent(
-        new RouteEvent("nonroute", { path })
+        new RouteEvent("nonroute", routeEventOptions)
       )
     }
     return this
