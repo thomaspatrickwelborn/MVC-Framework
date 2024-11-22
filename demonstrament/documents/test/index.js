@@ -1,3 +1,24 @@
+import { View } from "/dependencies/mvc-framework.js"
+const view = new View({
+  parent: document.createElement("app"),
+  templates: { default: () => `
+    <button>BUTTON</button>
+  ` },
+  querySelectors: {
+    querySelector: {
+      button: ':scope > button',
+    }
+  },
+  events: {
+    "querySelectors.button click": ($event) => {
+      console.log($event.type, $event)
+    }
+  },
+}).render()
+document
+.querySelector('main')
+.insertAdjacentElement('afterbegin', view.parent)
+/*
 import { Content, Model } from '/dependencies/mvc-framework.js'
 // const content = new Content({
 //   propertyA: "AAA",
@@ -53,3 +74,4 @@ const { schema, content } = new Model({
 content.get("propertyA.propertyB.propertyC")
 content.set("propertyA.propertyB.propertyC", "CCCCCCCCC")
 content.delete("propertyA.propertyB.propertyC")
+*/

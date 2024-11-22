@@ -14,12 +14,13 @@ import Validation from './Model/Schema/Validation/index.js'
 
 export {
   // Primary Exports
-  Core, 
   Model, 
   View, 
   Control, 
   LocationRouter, FetchRouter,
   // Secondary Exports
+  Core, 
   Schema, Content,
+  // Tertiary Exports
   Validator, Validation,
 }
