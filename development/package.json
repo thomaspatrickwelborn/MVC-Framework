@@ -2,12 +2,12 @@
   "name": "js-mvc-framework-development",
   "author": "Thomas Patrick Welborn",
   "description": "",
-  "version": "1.1.0",
   "license": "ISC",
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --config nodemon.config.json"
+    "start": "nodemon --config nodemon.config.json",
+    "distribute": "rollup --config ./rollup.config.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.1",
