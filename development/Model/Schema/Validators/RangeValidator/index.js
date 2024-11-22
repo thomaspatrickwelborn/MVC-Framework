@@ -20,13 +20,11 @@ export default class RangeValidator extends Validator {
         let valid = undefined
         if(min !== undefined) {
           validation.min = min
-          console.log($contentVal >= min)
           const validMin = ($contentVal >= min)
           if(valid !== false) valid = validMin
         }
         if(max !== undefined) {
           validation.max = max
-          console.log($contentVal <= max)
           const validMax = ($contentVal <= max)
           if(valid !== false) valid = validMax
         }
