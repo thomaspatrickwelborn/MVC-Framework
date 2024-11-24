@@ -13,9 +13,10 @@ export default function shift() {
         'shift',
         {
           path,
+          value: shiftElement,
           detail: {
-            element: shiftElement,
             elementIndex: shiftElementIndex,
+            element: shiftElement,
           },
         },
         $content

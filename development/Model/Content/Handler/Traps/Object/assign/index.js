@@ -96,9 +96,10 @@ export default function assign() {
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path,
+              value: $sourcePropVal,
               detail: {
                 key: $sourcePropKey,
-                val: $sourcePropVal,
+                value: $sourcePropVal,
                 source: $source,
               }
             }, $content)
@@ -112,7 +113,7 @@ export default function assign() {
               path: _path,
               detail: {
                 key: $sourcePropKey,
-                val: $sourcePropVal,
+                value: $sourcePropVal,
                 source: $source,
               }
             }, $content)

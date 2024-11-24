@@ -31,6 +31,7 @@ export default function getContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('getProperty', {
             path,
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,

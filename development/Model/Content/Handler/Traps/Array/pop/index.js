@@ -13,9 +13,10 @@ export default function pop() {
         'pop',
         {
           path, 
+          value: popElement,
           detail: {
-            element: popElement,
             elementIndex: popElementIndex,
+            element: popElement,
           },
         },
         $content

@@ -63,6 +63,7 @@ export default function concat() {
         $content.dispatchEvent(
           new ContentEvent('concatValue', {
             path,
+            value: values[valueIndex],
             detail: {
               valueIndex,
               value: values[valueIndex],

@@ -42,6 +42,7 @@ export default function copyWithin() {
             'copyWithinIndex',
             {
               path,
+              value: copyItem,
               detail: {
                 target: targetIndex,
                 start: copyIndex,

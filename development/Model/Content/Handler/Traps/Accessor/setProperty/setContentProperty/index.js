@@ -107,6 +107,7 @@ export default function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
             path, 
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,

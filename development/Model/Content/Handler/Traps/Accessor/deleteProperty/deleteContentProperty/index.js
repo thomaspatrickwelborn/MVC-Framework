@@ -36,6 +36,7 @@ export default function deleteContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('deleteProperty', {
             path,
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,

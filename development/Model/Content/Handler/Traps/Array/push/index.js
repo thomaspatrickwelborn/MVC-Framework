@@ -53,6 +53,7 @@ export default function push() {
         $content.dispatchEvent(
           new ContentEvent('pushProp', {
             path,
+            value: elements[elementsIndex],
             detail: {
               elementsIndex,
               element: elements[elementsIndex],

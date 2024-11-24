@@ -68,6 +68,7 @@ export default function fill() {
         $content.dispatchEvent(
           new ContentEvent('fillIndex', {
             path, 
+            value: value,
             detail: {
               start: fillIndex,
               end: fillIndex + 1,

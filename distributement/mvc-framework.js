@@ -79,7 +79,7 @@ var regularExpressions = {
 class ContentEvent extends Event {
   #settings
   #content
-  #_basename
+  #_key
   constructor($type, $settings, $content) {
     super($type, $settings);
     this.#settings = $settings;
@@ -105,12 +105,13 @@ class ContentEvent extends Event {
       }
     );
   }
-  get basename() {
-    if(this.#_basename !== undefined) { return this.#_basename }
-    if(this.path) { this.#_basename = this.path.split('.').pop(); }
-    else { this.#_basename = null; }
-    return this.#_basename
+  get key() {
+    if(this.#_key !== undefined) { return this.#_key }
+    if(this.path) { this.#_key = this.path.split('.').pop(); }
+    else { this.#_key = null; }
+    return this.#_key
   }
+  get value() { return this.#settings.value }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
 }
@@ -244,9 +245,10 @@ function assign() {
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path,
+              value: $sourcePropVal,
               detail: {
                 key: $sourcePropKey,
-                val: $sourcePropVal,
+                value: $sourcePropVal,
                 source: $source,
               }
             }, $content)
@@ -260,7 +262,7 @@ function assign() {
               path: _path,
               detail: {
                 key: $sourcePropKey,
-                val: $sourcePropVal,
+                value: $sourcePropVal,
                 source: $source,
               }
             }, $content)
@@ -412,6 +414,7 @@ function defineProperty() {
       $content.dispatchEvent(
         new ContentEvent('defineProperty', {
           path,
+          value: propertyDescriptor.value,
           detail: {
             prop: propertyKey,
             descriptor: propertyDescriptor,
@@ -565,6 +568,7 @@ function concat() {
         $content.dispatchEvent(
           new ContentEvent('concatValue', {
             path,
+            value: values[valueIndex],
             detail: {
               valueIndex,
               value: values[valueIndex],
@@ -642,6 +646,7 @@ function copyWithin() {
             'copyWithinIndex',
             {
               path,
+              value: copyItem,
               detail: {
                 target: targetIndex,
                 start: copyIndex,
@@ -765,6 +770,7 @@ function fill() {
         $content.dispatchEvent(
           new ContentEvent('fillIndex', {
             path, 
+            value: value,
             detail: {
               start: fillIndex,
               end: fillIndex + 1,
@@ -821,9 +827,10 @@ function pop() {
         'pop',
         {
           path, 
+          value: popElement,
           detail: {
-            element: popElement,
             elementIndex: popElementIndex,
+            element: popElement,
           },
         },
         $content
@@ -885,6 +892,7 @@ function push() {
         $content.dispatchEvent(
           new ContentEvent('pushProp', {
             path,
+            value: elements[elementsIndex],
             detail: {
               elementsIndex,
               element: elements[elementsIndex],
@@ -960,9 +968,10 @@ function shift() {
         'shift',
         {
           path,
+          value: shiftElement,
           detail: {
-            element: shiftElement,
             elementIndex: shiftElementIndex,
+            element: shiftElement,
           },
         },
         $content
@@ -1002,6 +1011,7 @@ function splice() {
         $content.dispatchEvent(
           new ContentEvent('spliceDelete', {
             path,
+            value: deleteItem,
             detail: {
               index: $start + deleteItemsIndex,
               deleteIndex: deleteItemsIndex,
@@ -1080,6 +1090,7 @@ function splice() {
         $content.dispatchEvent(
           new ContentEvent('spliceAdd', {
             path,
+            value: addItem,
             detail: {
               index: $start + addItemsIndex,
               addIndex: addItemsIndex,
@@ -1181,6 +1192,7 @@ function unshift() {
         $content.dispatchEvent(
           new ContentEvent('unshiftProp', {
             path,
+            value: element,
             detail: {
               elementIndex, 
               element: element,
@@ -1282,6 +1294,7 @@ function getContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('getProperty', {
             path,
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -1485,6 +1498,7 @@ function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
             path, 
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -1654,6 +1668,7 @@ function deleteContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('deleteProperty', {
             path,
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,

@@ -59,6 +59,7 @@ export default function unshift() {
         $content.dispatchEvent(
           new ContentEvent('unshiftProp', {
             path,
+            value: element,
             detail: {
               elementIndex, 
               element: element,
