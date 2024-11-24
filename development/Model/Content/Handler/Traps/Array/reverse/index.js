@@ -3,9 +3,9 @@ export default function reverse() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, path } = $content
+  const { source, path } = $content
   const { proxy } = $content
-  Array.prototype.reverse.call(root, ...arguments)
+  Array.prototype.reverse.call(source, ...arguments)
   if(contentEvents && events['reverse']) {
     $content.dispatchEvent(
       new ContentEvent(
@@ -13,7 +13,7 @@ export default function reverse() {
         {
           path,
           detail: {
-            reference: root
+            reference: source
           },
         },
         $content

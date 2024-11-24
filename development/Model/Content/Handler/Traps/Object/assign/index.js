@@ -5,7 +5,7 @@ export default function assign() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { sourceTree, events } = $options
-  const { path, root, schema, proxy } = $content
+  const { path, source, schema, proxy } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const sources = [...arguments]
   const assignedSources = []
@@ -52,7 +52,7 @@ export default function assign() {
         const _path = (path !== null)
           ? path.concat('.', $sourcePropKey)
           : $sourcePropKey
-        let sourcePropVal = root[$sourcePropKey]
+        let sourcePropVal = source[$sourcePropKey]
         // Assignment
         let assignment
         // Source Tree: False
@@ -77,7 +77,7 @@ export default function assign() {
           assignment = { [$sourcePropKey]: sourcePropVal }
         }
         // Assignment
-        Object.assign(root, assignment)
+        Object.assign(source, assignment)
         Object.assign(assignedSource, assignment)
       }
       // Source Prop: Primitive Type
@@ -86,7 +86,7 @@ export default function assign() {
           [$sourcePropKey]: $sourcePropVal
         }
         // Assign Root
-        Object.assign(root, assignment)
+        Object.assign(source, assignment)
         // Assigned Source
         Object.assign(assignedSource, assignment)
       }

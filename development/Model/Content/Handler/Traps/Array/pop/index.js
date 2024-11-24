@@ -3,9 +3,9 @@ export default function pop() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, path } = $content
-  const popElement = Array.prototype.pop.call(root)
-  const popElementIndex = root.length - 1
+  const { source, path } = $content
+  const popElement = Array.prototype.pop.call(source)
+  const popElementIndex = source.length - 1
   // Array Pop Event
   if(contentEvents && events['pop']) {
     $content.dispatchEvent(

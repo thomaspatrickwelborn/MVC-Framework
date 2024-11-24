@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function deleteContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { root, path } = $content
+  const { source, path } = $content
   const { contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
@@ -18,7 +18,7 @@ export default function deleteContentProperty() {
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
-    let propertyValue = root[propertyKey]
+    let propertyValue = source[propertyKey]
 
     // Return: Subproperty
     if(subpaths.length) {
@@ -29,7 +29,7 @@ export default function deleteContentProperty() {
     if(typeof propertyValue === 'object') {
       propertyValue.delete(ulteroptions)
     }
-    delete root[propertyKey]
+    delete source[propertyKey]
     // Delete Property Event
     if(contentEvents) {
       if(events['deleteProperty']) {
@@ -61,11 +61,11 @@ export default function deleteContentProperty() {
   // Path Key: false
   else if(pathkey === false) {
     const propertyKey = $path
-    const propertyValue = root[propertyKey]
+    const propertyValue = source[propertyKey]
     if(propertyValue instanceof Content) {
       propertyValue.delete(ulteroptions)
     }
-    delete root[propertyKey]
+    delete source[propertyKey]
     // Delete Property Event
     if(contentEvents) {
       if(events['deleteProperty']) {

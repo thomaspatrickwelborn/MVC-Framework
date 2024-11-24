@@ -4,7 +4,7 @@ export default function fill() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, path, schema } = $content
+  const { source, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments]
@@ -12,19 +12,19 @@ export default function fill() {
   if(typeof $arguments[1] === 'number') {
     $start = ($arguments[1] >= 0)
       ? $arguments[1]
-      : root.length + $arguments[1]
+      : source.length + $arguments[1]
   }
   else { $start = 0 }
   let $end
   if(typeof $arguments[2] === 'number') {
     $end = ($arguments[2] >= 0)
       ? $arguments[2]
-      : root.length + $arguments[2]
-  } else { $end = root.length }
+      : source.length + $arguments[2]
+  } else { $end = source.length }
   let fillIndex = $start
   iterateFillIndexes: 
   while(
-    fillIndex < root.length &&
+    fillIndex < source.length &&
     fillIndex < $end
   ) {
     if(schema && enableValidation) {
@@ -60,7 +60,7 @@ export default function fill() {
       })
     }
     Array.prototype.fill.call(
-      root, value, fillIndex, fillIndex + 1
+      source, value, fillIndex, fillIndex + 1
     )
     // Array Fill Index Event
     if(contentEvents) {

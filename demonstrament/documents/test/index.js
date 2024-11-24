@@ -14,7 +14,7 @@ const model = new Model({
   },
   localStorage: "/model"
 })
-console.log(model)
+console.log(model.content.source)
 /*
 import { View } from "/dependencies/mvc-framework.js"
 const view = new View({

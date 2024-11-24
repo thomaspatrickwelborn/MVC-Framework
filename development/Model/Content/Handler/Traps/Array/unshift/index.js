@@ -5,7 +5,7 @@ export default function unshift() {
   const $options = Array.prototype.shift.call(arguments)
   const $arguments = [...arguments]
   const { events } = $options
-  const { root, path, schema } = $content
+  const { source, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const elements = []
   const elementsLength = $arguments.length
@@ -46,12 +46,12 @@ export default function unshift() {
         parent: proxy,
       })
       elements.unshift(element)
-      Array.prototype.unshift.call(root, element)
+      Array.prototype.unshift.call(source, element)
     }
     // Element: Primitive Type
     else {
       elements.unshift($element)
-      Array.prototype.unshift.call(root, $element)
+      Array.prototype.unshift.call(source, $element)
     }
     // Array Unshift Prop Event
     if(contentEvents) {

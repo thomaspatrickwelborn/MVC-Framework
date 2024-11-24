@@ -3,8 +3,8 @@ export default function shift() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, path } = $content
-  const shiftElement = Array.prototype.shift.call(root)
+  const { source, path } = $content
+  const shiftElement = Array.prototype.shift.call(source)
   const shiftElementIndex = 0
   // Array Shift Event
   if(contentEvents && events['shift']) {

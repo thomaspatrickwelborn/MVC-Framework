@@ -7,7 +7,7 @@ export default class Content extends EventTarget {
   #_options
   #_schema
   #_type
-  #_root
+  #_source
   #_parent
   #_basename
   #_path
@@ -79,14 +79,14 @@ export default class Content extends EventTarget {
       : null
     return this.#_path
   }
-  get root() {
-    if(this.#_root !== undefined) return this.#_root
-    this.#_root = this.typedObjectLiteral
-    return this.#_root
+  get source() {
+    if(this.#_source !== undefined) return this.#_source
+    this.#_source = this.typedObjectLiteral
+    return this.#_source
   }
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
-    this.#_proxy = new Proxy(this.root, this.#handler)
+    this.#_proxy = new Proxy(this.source, this.#handler)
     this.#_proxy.set(this.#properties)
     return this.#_proxy
   }

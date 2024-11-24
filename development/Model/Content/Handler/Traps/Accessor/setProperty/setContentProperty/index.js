@@ -4,7 +4,7 @@ import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function setContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { root, path, schema } = $content
+  const { source, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
@@ -31,7 +31,7 @@ export default function setContentProperty() {
       : propertyKey
     // Return: Subproperty
     if(subpaths.length) {
-      if(recursive && root[propertyKey] === undefined) {
+      if(recursive && source[propertyKey] === undefined) {
         // Subschema
         let subschema
         if(schema?.type === 'array') { subschema = schema.context[0] }
@@ -51,7 +51,7 @@ export default function setContentProperty() {
         }))
       }
       else {
-        propertyValue = root[propertyKey]
+        propertyValue = source[propertyKey]
       }
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
@@ -100,7 +100,7 @@ export default function setContentProperty() {
       propertyValue = $value
     }
     // Root Assignment
-    root[propertyKey] = propertyValue
+    source[propertyKey] = propertyValue
     // Set Property Event
     if(contentEvents) {
       if(events['setProperty']) {
@@ -153,7 +153,7 @@ export default function setContentProperty() {
     // Property Value: Primitive Literal
     else { propertyValue = $value }
     // Root Assignment
-    root[propertyKey] = propertyValue
+    source[propertyKey] = propertyValue
     // Set Property Event
     if(contentEvents) {
       if(events['setProperty']) {

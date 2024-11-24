@@ -4,7 +4,7 @@ export default function push() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, path, schema } = $content
+  const { source, path, schema } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const { proxy } = $content
   const elements = []
@@ -30,7 +30,7 @@ export default function push() {
           }, $content)
         )
       }
-      if(!validElement.valid) { return root.length }
+      if(!validElement.valid) { return source.length }
     }
     const _path = (path !== null)
       ? path.concat('.', elementsIndex)
@@ -43,10 +43,10 @@ export default function push() {
         parent: proxy,
       })
       elements.push($element)
-      Array.prototype.push.call(root, $element)
+      Array.prototype.push.call(source, $element)
     } else {
       elements.push($element)
-      Array.prototype.push.call(root, $element)
+      Array.prototype.push.call(source, $element)
     }
     if(contentEvents) {
       if(events['pushProp']) {
@@ -87,5 +87,5 @@ export default function push() {
       }, $content)
     )
   }
-  return root.length
+  return source.length
 }

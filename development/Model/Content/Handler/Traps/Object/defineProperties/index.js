@@ -4,7 +4,7 @@ export default function defineProperties() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { root, path, schema, proxy } = $content
+  const { source, path, schema, proxy } = $content
   const $propertyDescriptors = arguments[0]
   const properties = Object.entries($propertyDescriptors)
   .reduce(($properties, [

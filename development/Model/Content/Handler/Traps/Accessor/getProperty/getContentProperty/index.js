@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function getContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { root, path } = $content
+  const { source, path } = $content
   const { contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
@@ -18,7 +18,7 @@ export default function getContentProperty() {
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
-    let propertyValue = root[propertyKey]
+    let propertyValue = source[propertyKey]
     // Return: Subproperty
     if(subpaths.length) {
       // Subpath Error
@@ -55,7 +55,7 @@ export default function getContentProperty() {
   }
   // Path Key: false
   else if(pathkey === false) {
-    const propertyValue = root[propertyKey]
+    const propertyValue = source[propertyKey]
     return propertyValue
   }
 }
