@@ -14,6 +14,10 @@ export default class Model extends Core {
       recursiveAssign({}, Settings, $settings), 
       recursiveAssign({}, Options, $options),
     )
+    if(
+      !this.settings.content ||
+      typeof this.settings.content !== 'object'
+    ) { return null }
     if(this.options.enableEvents === true) this.enableEvents()
   }
   get schema() {
@@ -40,7 +44,7 @@ export default class Model extends Core {
     else if(content?.classToString === Content.toString()) {
       properties = content.object
     }
-    else if(typeof content === 'object') {
+    else {
       properties = content
     }
     if(properties !== undefined) {
@@ -57,15 +61,15 @@ export default class Model extends Core {
   }
   save() {
     if(this.localStorage) {
-      this.localStorage.set(this.content.string)
-      return JSON.parse(this.localStorage.get())
+      this.localStorage.set(this.content.object)
+      return this.localStorage.get()
     }
     return null
   }
   load() {
     if(this.localStorage) {
-      this.content.set(JSON.parse(this.localStorage.get()))
-      return JSON.parse(this.localStorage.get())
+      this.content.set(this.localStorage.get())
+      return this.localStorage.get()
     }
     return null
   }

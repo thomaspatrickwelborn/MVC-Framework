@@ -20,6 +20,10 @@ const model = new Model({
 })
 console.log(model.content.source)
 console.log(model.content.get("propertyA.propertyB").root)
+model.save()
+console.log(model.localStorage.get())
+model.unload()
+console.log(model.localStorage.get())
 /*
 import { View } from "/dependencies/mvc-framework.js"
 const view = new View({

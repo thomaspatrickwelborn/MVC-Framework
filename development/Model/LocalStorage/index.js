@@ -10,7 +10,13 @@ export default class LocalStorage extends EventTarget {
     if(this.#_path !== undefined) return
     this.#_path = $path
   }
-  get() { return this.#db.getItem(this.path) }
-  set($content) { return this.#db.setItem(this.path, $content) }
-  remove() { return this.#db.removeItem(this.path) }
+  get() {
+    return JSON.parse(this.#db.getItem(this.path))
+  }
+  set($content) {
+    return this.#db.setItem(this.path, JSON.stringify($content))
+  }
+  remove() {
+    return this.#db.removeItem(this.path)
+  }
 }

@@ -2666,6 +2666,9 @@ class Core extends EventTarget {
   #_settings
   #_options
   #_events
+  #_basename
+  #_path
+  #_parent
   constructor($settings, $options) {
     super();
     this.settings = $settings;
@@ -2685,6 +2688,29 @@ class Core extends EventTarget {
     if(this.#_options !== undefined) return
     this.#_options = recursiveAssign(structuredClone(Options$4), $options);
   }
+  get basename() {
+    if(this.#_basename !== undefined) return this.#_basename
+    this.#_basename = (this.settings.basename !== undefined)
+      ? this.settings.basename
+      : null;
+    return this.#_basename
+  }
+  get path() {
+    if(this.#_path !== undefined) return this.#_path
+    this.#_path = (this.settings.path !== undefined)
+      ? this.settings.path
+      : null;
+    return this.#_path
+  }
+  get parent() {
+    if(this.#_parent !== undefined) return this.#_parent
+    this.#_parent = (
+      this.settings.parent !== undefined
+    ) ? this.settings.parent
+      : null;
+    return this.#_parent
+  }
+  get root() {}
   get events() {
     if(this.#_events !== undefined) return this.#_events
     this.#_events = [];
@@ -2801,9 +2827,15 @@ class LocalStorage extends EventTarget {
     if(this.#_path !== undefined) return
     this.#_path = $path;
   }
-  get() { return this.#db.getItem(this.path) }
-  set($content) { return this.#db.setItem(this.path, $content) }
-  remove() { return this.#db.removeItem(this.path) }
+  get() {
+    return JSON.parse(this.#db.getItem(this.path))
+  }
+  set($content) {
+    return this.#db.setItem(this.path, JSON.stringify($content))
+  }
+  remove() {
+    return this.#db.removeItem(this.path)
+  }
 }
 
 var Settings$3 = {
@@ -2828,6 +2860,10 @@ class Model extends Core {
       recursiveAssign({}, Settings$3, $settings), 
       recursiveAssign({}, Options$3, $options),
     );
+    if(
+      !this.settings.content ||
+      typeof this.settings.content !== 'object'
+    ) { return null }
     if(this.options.enableEvents === true) this.enableEvents();
   }
   get schema() {
@@ -2854,7 +2890,7 @@ class Model extends Core {
     else if(content?.classToString === Content.toString()) {
       properties = content.object;
     }
-    else if(typeof content === 'object') {
+    else {
       properties = content;
     }
     if(properties !== undefined) {
@@ -2871,15 +2907,15 @@ class Model extends Core {
   }
   save() {
     if(this.localStorage) {
-      this.localStorage.set(this.content.string);
-      return JSON.parse(this.localStorage.get())
+      this.localStorage.set(this.content.object);
+      return this.localStorage.get()
     }
     return null
   }
   load() {
     if(this.localStorage) {
-      this.content.set(JSON.parse(this.localStorage.get()));
-      return JSON.parse(this.localStorage.get())
+      this.content.set(this.localStorage.get());
+      return this.localStorage.get()
     }
     return null
   }
