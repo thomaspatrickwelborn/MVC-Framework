@@ -1284,7 +1284,7 @@ function getContentProperty() {
             path,
             detail: {
               key: propertyKey,
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         );
@@ -1296,7 +1296,7 @@ function getContentProperty() {
           new ContentEvent(type, {
             path: _path,
             detail: {
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         );
@@ -1656,7 +1656,7 @@ function deleteContentProperty() {
             path,
             detail: {
               key: propertyKey,
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         );
@@ -1668,7 +1668,7 @@ function deleteContentProperty() {
           new ContentEvent(type, {
             path: _path,
             detail: {
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         );
@@ -1692,7 +1692,7 @@ function deleteContentProperty() {
             path,
             detail: {
               key: propertyKey,
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         );
@@ -1704,7 +1704,7 @@ function deleteContentProperty() {
           new ContentEvent(type, {
             path: _path,
             detail: {
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         );
@@ -2849,6 +2849,7 @@ var Options$3 = {
   content: undefined, // Content
   enableEvents: true, // Boolean
   autoload: false, // Boolean
+  autosave: false, // Boolean
 };
 
 class Model extends Core {
@@ -2881,7 +2882,7 @@ class Model extends Core {
   get content() {
     if(this.#_content !== undefined) return this.#_content
     const { content } = this.settings;
-    const { localStorage, autoload } = this.options;
+    const { localStorage, autoload, autosave } = this.options;
     let properties;
     const localStorageProperties = this.localStorage.get();
     if(localStorage && autoload && localStorageProperties) {
@@ -2896,6 +2897,9 @@ class Model extends Core {
     if(properties !== undefined) {
       this.#_content = new Content(properties, this.schema, this.options.content);
     }
+    if(autosave) {
+      this.#propertyChange;
+    }
     return this.#_content
   }
   get localStorage() {
@@ -2905,6 +2909,7 @@ class Model extends Core {
     }
     return this.#_localStorage
   }
+  #propertyChange($event) {}
   save() {
     if(this.localStorage) {
       this.localStorage.set(this.content.object);

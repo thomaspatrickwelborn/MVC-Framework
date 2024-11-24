@@ -33,7 +33,7 @@ export default function getContentProperty() {
             path,
             detail: {
               key: propertyKey,
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         )
@@ -45,7 +45,7 @@ export default function getContentProperty() {
           new ContentEvent(type, {
             path: _path,
             detail: {
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         )

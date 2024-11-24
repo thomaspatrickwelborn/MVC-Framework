@@ -38,7 +38,7 @@ export default function deleteContentProperty() {
             path,
             detail: {
               key: propertyKey,
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         )
@@ -50,7 +50,7 @@ export default function deleteContentProperty() {
           new ContentEvent(type, {
             path: _path,
             detail: {
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         )
@@ -74,7 +74,7 @@ export default function deleteContentProperty() {
             path,
             detail: {
               key: propertyKey,
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         )
@@ -86,7 +86,7 @@ export default function deleteContentProperty() {
           new ContentEvent(type, {
             path: _path,
             detail: {
-              val: propertyValue,
+              value: propertyValue,
             }
           }, $content)
         )

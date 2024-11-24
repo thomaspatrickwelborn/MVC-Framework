@@ -35,7 +35,7 @@ export default class Model extends Core {
   get content() {
     if(this.#_content !== undefined) return this.#_content
     const { content } = this.settings
-    const { localStorage, autoload } = this.options
+    const { localStorage, autoload, autosave } = this.options
     let properties
     const localStorageProperties = this.localStorage.get()
     if(localStorage && autoload && localStorageProperties) {
@@ -50,6 +50,9 @@ export default class Model extends Core {
     if(properties !== undefined) {
       this.#_content = new Content(properties, this.schema, this.options.content)
     }
+    if(autosave) {
+      const boundPropertyChange = this.#propertyChange
+    }
     return this.#_content
   }
   get localStorage() {
@@ -59,6 +62,7 @@ export default class Model extends Core {
     }
     return this.#_localStorage
   }
+  #propertyChange($event) {}
   save() {
     if(this.localStorage) {
       this.localStorage.set(this.content.object)

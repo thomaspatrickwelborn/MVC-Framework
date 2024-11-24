@@ -3,4 +3,5 @@ export default {
   content: undefined, // Content
   enableEvents: true, // Boolean
   autoload: false, // Boolean
+  autosave: false, // Boolean
 }

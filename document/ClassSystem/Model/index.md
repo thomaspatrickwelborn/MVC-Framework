@@ -10,13 +10,13 @@
 **Required**: `false`  
 **Type**: `object`, `array`, `Schema`, `undefined`  
 **Descript**:  
- - [Schema settings](./Schema/index.md#settings-property).  
+ - [`Schema` settings](./Schema/index.md#settings-property).  
 ### `content` Setting
 **Default**: `undefined`  
 **Required**: `true`  
-**Type**: `object`, `array`, `Content`, `undefined`  
+**Type**: `object`, `array`, `Content`  
 **Descript**:  
- - [Content Settings](./Content/index.md#settings-property).  
+ - [`Content` Settings](./Content/index.md#settings-property).  
  - Required to instantiate model, otherwise `constructor` returns `null`.  
 ### `localStorage` Setting
 **Default**: `undefined`  
@@ -46,11 +46,16 @@
 **Required**: `false`  
 **Type**: `boolean`  
 **Descript**:  
- - Specifies `content` property instantiated with parametered `localStorage` item.  
+   - Specifies `content` property instantiated with `localStorage` item.  
+### `autosave` Option
+**Default**: `false`  
+**Required**: `false`  
+**Type**: `boolean`  
+**Descript**:  
+ - Specifies `content` saved to `localStorage` after each content property modifier event.  
 
 ## `constructor` Method
  - When `settings.content` is `null` or `undefined` *and* `settings.content` is not type of `object`, return `null`.  
-### `$options` Argument
 
 ## Public Properties
 ### `schema` Property
@@ -59,7 +64,7 @@
 **Descript**:  
  - When `settings.schema` is `undefined` then `schema` assigned `null`.  
  - When `settings.schema` is instance of `Schema` then `#_schema` assigned `settings.schema`.  
- - When `settings.schema` is type of `object` then `#_schema` assigned new `Schema` instance parametered with `settings.schema` and `options.schema`. 
+ - When `settings.schema` is type of `object` then `#_schema` assigned new `Schema` instance with `settings.schema` and `options.schema`. 
 ### `content` Property
 **Type**: `get`  
 **Return**: `#_content`  
@@ -74,7 +79,7 @@
 **Type**: `function`  
 **Return**: `object`  
 **Descript**:  
- - When  `localStorage` is defined, evoke `localStorage.set` with parametered `content.object`.  
+ - When  `localStorage` is defined, evoke `localStorage.set` with `content.object`.  
 ### `load` Method
 **Type**: `function`  
 **Return**: `object`  
