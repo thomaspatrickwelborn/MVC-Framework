@@ -1,10 +1,16 @@
 export default class LocalStorage extends EventTarget {
-  #settings
-  constructor($settings, $options) {
+  #db = localStorage
+  #_path
+  constructor($path) {
     super()
-    this.#settings = $settings
+    this.path = $path
   }
-  get() { localStorage.getItem(this.#settings) }
-  set($content) { localStorage.setItem(this.#settings, $content) }
-  remove() { localStorage.removeItem(this.#settings) }
+  get path() { return this.#_path }
+  set path($path) {
+    if(this.#_path !== undefined) return
+    this.#_path = $path
+  }
+  get() { return this.#db.getItem(this.path) }
+  set($content) { return this.#db.setItem(this.path, $content) }
+  remove() { return this.#db.removeItem(this.path) }
 }

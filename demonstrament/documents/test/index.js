@@ -1,3 +1,21 @@
+import { Model } from "/dependencies/mvc-framework.js"
+const model = new Model({
+  schema: {
+    propertyA: {
+      type: {
+        propertyB: { type: String }
+      }
+    }
+  },
+  content: {
+    propertyA: {
+      propertyB: "BBB"
+    }
+  },
+  localStorage: "/model"
+})
+console.log(model)
+/*
 import { View } from "/dependencies/mvc-framework.js"
 const view = new View({
   parent: document.createElement("app"),
@@ -18,6 +36,7 @@ const view = new View({
 document
 .querySelector('main')
 .insertAdjacentElement('afterbegin', view.parent)
+*/
 /*
 import { Content, Model } from '/dependencies/mvc-framework.js'
 // const content = new Content({

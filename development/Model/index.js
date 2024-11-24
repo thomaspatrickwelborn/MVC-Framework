@@ -19,11 +19,8 @@ export default class Model extends Core {
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
     const { schema } = this.settings
-    // No Schema
     if(!schema) { this.#_schema = null }
-    // Existing Schema
     else if(schema instanceof Schema) { this.#_schema = schema }
-    // New Schema
     else {
       this.#_schema = new Schema(
         schema, this.options.schema
@@ -34,39 +31,49 @@ export default class Model extends Core {
   get content() {
     if(this.#_content !== undefined) return this.#_content
     const { content } = this.settings
-    // Existing Content
-    if(content instanceof Content) { this.#_content = content }
-    // New Content
-    else {
-      const { localStorage, autoLoad } = this.options
-      // Local Storage, Auto Load
-      if(localStorage && autoLoad) {
-        const localStorageContent = this.localStorage.get()
-        this.#_content = new Content(
-          recursiveAssign({}, content, localStorageContent),
-          this.schema,
-          this.options.content
-        )
-      }
-      // No Local Storage, No Auto Load
-      else {
-        this.#_content = new Content(content, this.schema, this.options.content)
-      }
+    const { localStorage, autoload } = this.options
+    let properties
+    const localStorageProperties = this.localStorage.get()
+    if(localStorage && autoload && localStorageProperties) {
+      properties = localStorageProperties 
+    }
+    else if(content?.classToString === Content.toString()) {
+      properties = content.object
+    }
+    else if(typeof content === 'object') {
+      properties = content
+    }
+    if(properties !== undefined) {
+      this.#_content = new Content(properties, this.schema, this.options.content)
     }
     return this.#_content
   }
   get localStorage() {
     if(this.#_localStorage !== undefined) { return this.#_localStorage }
-    this.#_localStorage = new LocalStorage(this.settings.localStorage)
+    if(this.settings.localStorage !== undefined) {
+      this.#_localStorage = new LocalStorage(this.settings.localStorage)
+    }
     return this.#_localStorage
   }
   save() {
-    if(this.localStorage) { this.localStorage.set(this.content.string) }
-    return this
+    if(this.localStorage) {
+      this.localStorage.set(this.content.string)
+      return JSON.parse(this.localStorage.get())
+    }
+    return null
   }
   load() {
-    if(this.localStorage) { this.content.set(JSON.parse(this.localStorage.get())) }
-    return this
+    if(this.localStorage) {
+      this.content.set(JSON.parse(this.localStorage.get()))
+      return JSON.parse(this.localStorage.get())
+    }
+    return null
+  }
+  unload() {
+    if(this.localStorage) {
+      return this.localStorage.remove()
+    }
+    return null
   }
   parse() { return this.content.parse(...arguments) }
 }
