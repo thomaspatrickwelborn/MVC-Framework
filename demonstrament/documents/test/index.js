@@ -3,18 +3,23 @@ const model = new Model({
   schema: {
     propertyA: {
       type: {
-        propertyB: { type: String }
+        propertyB: { type: {
+          propertyC: { type: String }
+        } }
       }
     }
   },
   content: {
     propertyA: {
-      propertyB: "BBB"
+      propertyB: {
+        propertyC: "CCC"
+      }
     }
   },
   localStorage: "/model"
 })
 console.log(model.content.source)
+console.log(model.content.get("propertyA.propertyB").root)
 /*
 import { View } from "/dependencies/mvc-framework.js"
 const view = new View({

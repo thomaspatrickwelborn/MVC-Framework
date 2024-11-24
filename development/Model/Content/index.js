@@ -66,6 +66,15 @@ export default class Content extends EventTarget {
       : null
     return this.#_parent
   }
+  get root() {
+    let root = this
+    iterateParents: 
+    while(root) {
+      if(!root.parent) { break iterateParents }
+      root = root.parent
+    }
+    return root
+  }
   get basename() {
     if(this.#_basename !== undefined) { return this.#_basename }
     if(this.path) { this.#_basename = this.path.split('.').pop() }
