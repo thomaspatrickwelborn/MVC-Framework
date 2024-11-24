@@ -101,6 +101,7 @@ export default function defineProperty() {
       $content.dispatchEvent(
         new ContentEvent(type, {
           path: _path,
+          value: propertyDescriptor.value,
           detail: {
             prop: propertyKey,
             descriptor: propertyDescriptor,

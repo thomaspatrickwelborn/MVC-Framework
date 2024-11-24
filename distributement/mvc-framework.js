@@ -260,6 +260,7 @@ function assign() {
           $content.dispatchEvent(
             new ContentEvent(type, {
               path: _path,
+              value: $sourcePropVal,
               detail: {
                 key: $sourcePropKey,
                 value: $sourcePropVal,
@@ -428,6 +429,7 @@ function defineProperty() {
       $content.dispatchEvent(
         new ContentEvent(type, {
           path: _path,
+          value: propertyDescriptor.value,
           detail: {
             prop: propertyKey,
             descriptor: propertyDescriptor,
@@ -581,6 +583,7 @@ function concat() {
         $content.dispatchEvent(
           new ContentEvent('concatValue', {
             path: _path,
+            value: values[valueIndex],
             detail: {
               valueIndex,
               value: values[valueIndex],
@@ -906,6 +909,7 @@ function push() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: elements[elementsIndex],
             detail: {
               elementsIndex,
               element: elements[elementsIndex],
@@ -1026,6 +1030,7 @@ function splice() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: deleteItem,
             detail: {
               index: $start + deleteItemsIndex,
               deleteIndex: deleteItemsIndex,
@@ -1105,6 +1110,7 @@ function splice() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: addItem,
             detail: {
               index: $start + addItemsIndex,
               addIndex: addItemsIndex,
@@ -1206,6 +1212,7 @@ function unshift() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: element,
             detail: {
               elementIndex, 
               element: element,
@@ -1256,6 +1263,7 @@ function getContent() {
     $content.dispatchEvent(
       new ContentEvent('get', {
         path,
+        value: proxy,
         detail: {
           value: proxy
         }
@@ -1382,6 +1390,7 @@ function setContent() {
     $content.dispatchEvent(
       new ContentEvent('set', {
         path,
+        value: $value,
         detail: {
           value: $value
         }
@@ -1512,6 +1521,7 @@ function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path, 
+            value: propertyValue,
             detail: {
               value: propertyValue,
             }
@@ -1552,6 +1562,7 @@ function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
             path, 
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -1565,6 +1576,7 @@ function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path, 
+            value: propertyValue,
             detail: {
               value: propertyValue,
             }
@@ -1682,6 +1694,7 @@ function deleteContentProperty() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: propertyValue,
             detail: {
               value: propertyValue,
             }
@@ -1705,6 +1718,7 @@ function deleteContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('deleteProperty', {
             path,
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -1718,6 +1732,7 @@ function deleteContentProperty() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: propertyValue,
             detail: {
               value: propertyValue,
             }
@@ -2843,13 +2858,31 @@ class LocalStorage extends EventTarget {
     this.#_path = $path;
   }
   get() {
-    return JSON.parse(this.#db.getItem(this.path))
+    try{
+      return JSON.parse(this.#db.getItem(this.path))
+    }
+    catch($err) {
+      console.log($err);
+      return
+    }
   }
   set($content) {
-    return this.#db.setItem(this.path, JSON.stringify($content))
+    try {
+      return this.#db.setItem(this.path, JSON.stringify($content))
+    }
+    catch($err) {
+      console.log($err);
+      return
+    }
   }
   remove() {
-    return this.#db.removeItem(this.path)
+    try {
+      return this.#db.removeItem(this.path)
+    }
+    catch($err) {
+      console.log($err);
+      return
+    }
   }
 }
 
@@ -2899,9 +2932,11 @@ class Model extends Core {
     const { content } = this.settings;
     const { localStorage, autoload, autosave } = this.options;
     let properties;
-    const localStorageProperties = this.localStorage.get();
-    if(localStorage && autoload && localStorageProperties) {
-      properties = localStorageProperties; 
+    if(localStorage && autoload) {
+      const localStorageProperties = this.localStorage.get();
+      if(localStorageProperties) {
+        properties = localStorageProperties; 
+      }
     }
     else if(content?.classToString === Content.toString()) {
       properties = content.object;
@@ -2913,7 +2948,18 @@ class Model extends Core {
       this.#_content = new Content(properties, this.schema, this.options.content);
     }
     if(autosave) {
-      this.#propertyChange;
+      const boundPropertyChange = this.#propertyChange;
+      for(const $eventType of [
+        // Accessor
+        "getProperty", "setProperty", "deleteProperty", 
+        // Array
+        "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
+        "spliceDelete", "spliceAdd", "unshiftProp", 
+        // Object
+        "assignSourceProperty", "defineProperty",
+      ]) {
+        this.#_content.addEventListener($eventType, boundPropertyChange);
+      }
     }
     return this.#_content
   }
@@ -2924,7 +2970,7 @@ class Model extends Core {
     }
     return this.#_localStorage
   }
-  #propertyChange($event) {}
+  #propertyChange($event) { this.save(); }
   save() {
     if(this.localStorage) {
       this.localStorage.set(this.content.object);

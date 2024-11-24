@@ -73,6 +73,7 @@ export default function unshift() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: element,
             detail: {
               elementIndex, 
               element: element,

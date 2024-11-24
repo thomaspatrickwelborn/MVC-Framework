@@ -121,6 +121,7 @@ export default function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path, 
+            value: propertyValue,
             detail: {
               value: propertyValue,
             }
@@ -161,6 +162,7 @@ export default function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
             path, 
+            value: propertyValue,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -174,6 +176,7 @@ export default function setContentProperty() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path, 
+            value: propertyValue,
             detail: {
               value: propertyValue,
             }

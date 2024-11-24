@@ -46,6 +46,7 @@ export default function splice() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: deleteItem,
             detail: {
               index: $start + deleteItemsIndex,
               deleteIndex: deleteItemsIndex,
@@ -125,6 +126,7 @@ export default function splice() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: addItem,
             detail: {
               index: $start + addItemsIndex,
               addIndex: addItemsIndex,

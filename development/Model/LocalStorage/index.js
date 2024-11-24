@@ -11,12 +11,31 @@ export default class LocalStorage extends EventTarget {
     this.#_path = $path
   }
   get() {
-    return JSON.parse(this.#db.getItem(this.path))
+    let dbItem
+    try{
+      return JSON.parse(this.#db.getItem(this.path))
+    }
+    catch($err) {
+      console.log($err)
+      return
+    }
   }
   set($content) {
-    return this.#db.setItem(this.path, JSON.stringify($content))
+    try {
+      return this.#db.setItem(this.path, JSON.stringify($content))
+    }
+    catch($err) {
+      console.log($err)
+      return
+    }
   }
   remove() {
-    return this.#db.removeItem(this.path)
+    try {
+      return this.#db.removeItem(this.path)
+    }
+    catch($err) {
+      console.log($err)
+      return
+    }
   }
 }

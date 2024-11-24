@@ -31,6 +31,7 @@ export default function setContent() {
     $content.dispatchEvent(
       new ContentEvent('set', {
         path,
+        value: $value,
         detail: {
           value: $value
         }

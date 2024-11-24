@@ -111,6 +111,7 @@ export default function assign() {
           $content.dispatchEvent(
             new ContentEvent(type, {
               path: _path,
+              value: $sourcePropVal,
               detail: {
                 key: $sourcePropKey,
                 value: $sourcePropVal,

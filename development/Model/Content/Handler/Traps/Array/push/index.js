@@ -67,6 +67,7 @@ export default function push() {
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
+            value: elements[elementsIndex],
             detail: {
               elementsIndex,
               element: elements[elementsIndex],

@@ -37,9 +37,11 @@ export default class Model extends Core {
     const { content } = this.settings
     const { localStorage, autoload, autosave } = this.options
     let properties
-    const localStorageProperties = this.localStorage.get()
-    if(localStorage && autoload && localStorageProperties) {
-      properties = localStorageProperties 
+    if(localStorage && autoload) {
+      const localStorageProperties = this.localStorage.get()
+      if(localStorageProperties) {
+        properties = localStorageProperties 
+      }
     }
     else if(content?.classToString === Content.toString()) {
       properties = content.object
@@ -52,6 +54,17 @@ export default class Model extends Core {
     }
     if(autosave) {
       const boundPropertyChange = this.#propertyChange
+      for(const $eventType of [
+        // Accessor
+        "getProperty", "setProperty", "deleteProperty", 
+        // Array
+        "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
+        "spliceDelete", "spliceAdd", "unshiftProp", 
+        // Object
+        "assignSourceProperty", "defineProperty",
+      ]) {
+        this.#_content.addEventListener($eventType, boundPropertyChange)
+      }
     }
     return this.#_content
   }
@@ -62,7 +75,7 @@ export default class Model extends Core {
     }
     return this.#_localStorage
   }
-  #propertyChange($event) {}
+  #propertyChange($event) { this.save() }
   save() {
     if(this.localStorage) {
       this.localStorage.set(this.content.object)
