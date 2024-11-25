@@ -15,6 +15,7 @@ export default class ContentEvent extends Event {
               this.type, 
               {
                 path: $event.path,
+                value: $event.value,
                 detail: $event.detail,
               },
               this.#content.parent

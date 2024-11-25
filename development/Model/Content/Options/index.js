@@ -5,6 +5,7 @@ export default {
   validationEvents: true, 
   contentEvents: true, 
   enableEvents: true, 
+  changeEvents: true,
   pathkey: true,
   subpathError: false,
   traps: {
@@ -30,36 +31,6 @@ export default {
           'deleteProperty': true,
           'deleteProperty:$key': true,
         },
-      },
-    },
-    object: {
-      assign: {
-        sourceTree: true,
-        events: {
-          'assignSourceProperty:$key': true,
-          'assignSourceProperty': true,
-          'assignSource': true,
-          'assign': true,
-        },
-      },
-      defineProperties: {
-        descriptorTree: true,
-        events: { 'defineProperties': true },
-      },
-      defineProperty: {
-        descriptorTree: true,
-        events: {
-          'defineProperty': true,
-          'defineProperty:$key': true,
-        },
-      },
-      freeze: {
-        recursive: true,
-        events: { 'freeze': true  },
-      },
-      seal: {
-        recursive: true,
-        events: { 'seal': true  },
       },
     },
     array: {
@@ -116,6 +87,36 @@ export default {
           'unshift': true,
         }
       },
-    }
+    },
+    object: {
+      assign: {
+        sourceTree: true,
+        events: {
+          'assignSourceProperty:$key': true,
+          'assignSourceProperty': true,
+          'assignSource': true,
+          'assign': true,
+        },
+      },
+      defineProperties: {
+        descriptorTree: true,
+        events: { 'defineProperties': true },
+      },
+      defineProperty: {
+        descriptorTree: true,
+        events: {
+          'defineProperty': true,
+          'defineProperty:$key': true,
+        },
+      },
+      freeze: {
+        recursive: true,
+        events: { 'freeze': true  },
+      },
+      seal: {
+        recursive: true,
+        events: { 'seal': true  },
+      },
+    },
   }
 }

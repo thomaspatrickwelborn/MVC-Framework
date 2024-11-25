@@ -2,6 +2,16 @@ import { typeOf, recursiveAssign } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
+import ContentEvent from './Events/Content/index.js'
+// const ChangeEvents = [
+//   // Accessor
+//   "getProperty", "setProperty", "deleteProperty", 
+//   // Array
+//   "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
+//   "spliceDelete", "spliceAdd", "unshiftProp", 
+//   // Object
+//   "assignSourceProperty", "defineProperty",
+// ]
 export default class Content extends EventTarget {
   #_properties
   #_options
@@ -22,7 +32,9 @@ export default class Content extends EventTarget {
       this.schema !== null && 
       this.schema?.type !== this.type
     ) { return undefined }
-    else { return this.proxy }
+    else {
+      return this.proxy
+    }
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
@@ -47,8 +59,8 @@ export default class Content extends EventTarget {
     }
   }
   get classToString() { return Content.toString() }
-  get object() { return this.parse({ type: 'object' }) }
-  get string() { return this.parse({ type: 'string' }) }
+  get object() { return this.#parse({ type: 'object' }) }
+  get string() { return this.#parse({ type: 'string' }) }
   get type() {
     if(this.#_type !== undefined) return this.#_type
     this.#_type = typeOf(this.#properties)
@@ -106,7 +118,7 @@ export default class Content extends EventTarget {
     })
     return this.#_handler
   }
-  parse($settings = {
+  #parse($settings = {
     type: 'object',
   }) {
     let parsement

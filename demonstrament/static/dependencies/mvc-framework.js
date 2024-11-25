@@ -93,6 +93,7 @@ class ContentEvent extends Event {
               this.type, 
               {
                 path: $event.path,
+                value: $event.value,
                 detail: $event.detail,
               },
               this.#content.parent
@@ -2366,6 +2367,7 @@ var Options$5 = {
   validationEvents: true, 
   contentEvents: true, 
   enableEvents: true, 
+  changeEvents: true,
   pathkey: true,
   subpathError: false,
   traps: {
@@ -2391,36 +2393,6 @@ var Options$5 = {
           'deleteProperty': true,
           'deleteProperty:$key': true,
         },
-      },
-    },
-    object: {
-      assign: {
-        sourceTree: true,
-        events: {
-          'assignSourceProperty:$key': true,
-          'assignSourceProperty': true,
-          'assignSource': true,
-          'assign': true,
-        },
-      },
-      defineProperties: {
-        descriptorTree: true,
-        events: { 'defineProperties': true },
-      },
-      defineProperty: {
-        descriptorTree: true,
-        events: {
-          'defineProperty': true,
-          'defineProperty:$key': true,
-        },
-      },
-      freeze: {
-        recursive: true,
-        events: { 'freeze': true  },
-      },
-      seal: {
-        recursive: true,
-        events: { 'seal': true  },
       },
     },
     array: {
@@ -2477,10 +2449,49 @@ var Options$5 = {
           'unshift': true,
         }
       },
-    }
+    },
+    object: {
+      assign: {
+        sourceTree: true,
+        events: {
+          'assignSourceProperty:$key': true,
+          'assignSourceProperty': true,
+          'assignSource': true,
+          'assign': true,
+        },
+      },
+      defineProperties: {
+        descriptorTree: true,
+        events: { 'defineProperties': true },
+      },
+      defineProperty: {
+        descriptorTree: true,
+        events: {
+          'defineProperty': true,
+          'defineProperty:$key': true,
+        },
+      },
+      freeze: {
+        recursive: true,
+        events: { 'freeze': true  },
+      },
+      seal: {
+        recursive: true,
+        events: { 'seal': true  },
+      },
+    },
   }
 };
 
+// const ChangeEvents = [
+//   // Accessor
+//   "getProperty", "setProperty", "deleteProperty", 
+//   // Array
+//   "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
+//   "spliceDelete", "spliceAdd", "unshiftProp", 
+//   // Object
+//   "assignSourceProperty", "defineProperty",
+// ]
 class Content extends EventTarget {
   #_properties
   #_options
@@ -2501,7 +2512,9 @@ class Content extends EventTarget {
       this.schema !== null && 
       this.schema?.type !== this.type
     ) { return undefined }
-    else { return this.proxy }
+    else {
+      return this.proxy
+    }
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
@@ -2526,8 +2539,8 @@ class Content extends EventTarget {
     }
   }
   get classToString() { return Content.toString() }
-  get object() { return this.parse({ type: 'object' }) }
-  get string() { return this.parse({ type: 'string' }) }
+  get object() { return this.#parse({ type: 'object' }) }
+  get string() { return this.#parse({ type: 'string' }) }
   get type() {
     if(this.#_type !== undefined) return this.#_type
     this.#_type = typeOf(this.#properties);
@@ -2585,7 +2598,7 @@ class Content extends EventTarget {
     });
     return this.#_handler
   }
-  parse($settings = {
+  #parse($settings = {
     type: 'object',
   }) {
     let parsement;
@@ -2900,10 +2913,22 @@ var Options$3 = {
   autosave: false, // Boolean
 };
 
+const ChangeEvents = [
+  // Accessor
+  "getProperty", "setProperty", "deleteProperty", 
+  // Array
+  "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
+  "spliceDelete", "spliceAdd", "unshiftProp", 
+  // Object
+  "assignSourceProperty", "defineProperty",
+];
 class Model extends Core {
   #_schema
   #_content
   #_localStorage
+  #_change
+  #_changeEvents
+  #_boundPropertyChange
   constructor($settings = {}, $options = {}) {
     super(
       recursiveAssign({}, Settings$3, $settings), 
@@ -2914,6 +2939,7 @@ class Model extends Core {
       typeof this.settings.content !== 'object'
     ) { return null }
     if(this.options.enableEvents === true) this.enableEvents();
+    this.changeEvents = this.options.changeEvents;
   }
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
@@ -2947,20 +2973,6 @@ class Model extends Core {
     if(properties !== undefined) {
       this.#_content = new Content(properties, this.schema, this.options.content);
     }
-    if(autosave) {
-      const boundPropertyChange = this.#propertyChange;
-      for(const $eventType of [
-        // Accessor
-        "getProperty", "setProperty", "deleteProperty", 
-        // Array
-        "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
-        "spliceDelete", "spliceAdd", "unshiftProp", 
-        // Object
-        "assignSourceProperty", "defineProperty",
-      ]) {
-        this.#_content.addEventListener($eventType, boundPropertyChange);
-      }
-    }
     return this.#_content
   }
   get localStorage() {
@@ -2970,7 +2982,35 @@ class Model extends Core {
     }
     return this.#_localStorage
   }
-  #propertyChange($event) { this.save(); }
+  get changeEvents() { return this.#_changeEvents }
+  set changeEvents($changeEvents) {
+    if($changeEvents !== this.#_changeEvents) {
+      this.#_changeEvents = $changeEvents;
+      switch(this.#_changeEvents) {
+        case true:
+          for(const $eventType of ChangeEvents) {
+            this.content.addEventListener($eventType, this.#boundPropertyChange);
+          }
+        break
+        case false:
+          for(const $eventType of ChangeEvents) {
+            this.content.removeEventListener($eventType, this.#boundPropertyChange);
+          }
+        break
+
+      }
+    }
+  }
+  get #boundPropertyChange() {
+    if(this.#_boundPropertyChange !== undefined) return this.#_boundPropertyChange
+    this.#_boundPropertyChange = this.#propertyChange.bind(this);
+    return this.#_boundPropertyChange
+  }
+  #propertyChange($event) {
+    let { type, path, key, value, detail } = $event;
+    detail = Object.assign({ type }, detail);
+    this.save();
+  }
   save() {
     if(this.localStorage) {
       this.localStorage.set(this.content.object);
@@ -2991,7 +3031,6 @@ class Model extends Core {
     }
     return null
   }
-  parse() { return this.content.parse(...arguments) }
 }
 
 class QuerySelector {

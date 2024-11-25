@@ -16,14 +16,33 @@ const model = new Model({
       }
     }
   },
-  localStorage: "/model"
+  localStorage: "/model",
+  events: {
+    'change': ($event) => {
+      console.log(
+        "\n", "-----",
+        "\n", $event.type,
+        "\n", $event.path,
+        "\n", $event.detail,
+        // "\n", $event.detail
+      )
+    }
+  }
+}, { changeEvents: true })
+model.content.assign({
+  propertyA: {
+    propertyB: {
+      propertyC: "3333"
+    }
+  }
 })
-console.log(model.content.source)
-console.log(model.content.get("propertyA.propertyB").root)
+// console.log(model.content.source)
+// console.log(model.content.get("propertyA.propertyB").root)
 model.save()
-console.log(model.localStorage.get())
+// console.log(model.localStorage.get())
 model.unload()
-console.log(model.localStorage.get())
+// console.log(model.localStorage.get())
+
 /*
 import { View } from "/dependencies/mvc-framework.js"
 const view = new View({
