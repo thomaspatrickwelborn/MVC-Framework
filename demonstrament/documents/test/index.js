@@ -1,41 +1,64 @@
 import { Model } from "/dependencies/mvc-framework.js"
 const model = new Model({
   schema: {
-    propertyA: {
-      type: {
-        propertyB: { type: {
-          propertyC: { type: String }
-        } }
-      }
-    }
+    propertyA: { type: {
+      propertyB: { type: {
+        propertyC: { type: String }
+      } }
+    } }
   },
   content: {
     propertyA: {
       propertyB: {
-        propertyC: "CCC"
+        propertyC: "333"
       }
     }
   },
   localStorage: "/model",
   events: {
-    'change': ($event) => {
-      console.log(
-        "\n", "-----",
-        "\n", $event.type,
-        "\n", $event.path,
-        "\n", $event.detail,
-        // "\n", $event.detail
-      )
-    }
+    'content validProperty': ($event) => {
+      console.log($event.type)
+    },
+    'content nonvalidProperty': ($event) => {
+      console.log($event.type)
+    },
+    // 'change': ($event) => {
+    //   console.log(
+    //     "\n", "-----",
+    //     "\n", $event.type,
+    //     "\n", $event.path,
+    //     "\n", $event.detail,
+    //     // "\n", $event.detail
+    //   )
+    // }
   }
-}, { changeEvents: true })
-model.content.assign({
-  propertyA: {
-    propertyB: {
-      propertyC: "3333"
-    }
-  }
+}, {
+  changeEvents: true,
+  validationEvents: true,
+  schema: { validationType: 'primitive' },
+  content: { proxyAssignmentMethod: 'assign' },
 })
+// model.content.assign({
+//   propertyA: {
+//     propertyB: {
+//       propertyC: "3333"
+//     }
+//   }
+// })
+// model.content.assign({
+//   propertyA: {
+//     propertyB: {
+//       propertyC: "3333"
+//     }
+//   }
+// })
+// model.content.assign({
+//   propertyA: {
+//     propertyB: {
+//       propertyC: 3333
+//     }
+//   }
+// })
 // console.log(model.content.source)
 // console.log(model.content.get("propertyA.propertyB").root)
 // model.save()

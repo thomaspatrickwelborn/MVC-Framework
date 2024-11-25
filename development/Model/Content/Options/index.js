@@ -7,6 +7,7 @@ export default {
   enableEvents: true, 
   pathkey: true,
   subpathError: false,
+  proxyAssignmentMethod: 'set',
   traps: {
     accessor: {
       get: {

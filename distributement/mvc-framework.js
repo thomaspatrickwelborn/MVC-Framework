@@ -179,14 +179,24 @@ function assign() {
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal);
         if(validationEvents) {
-          if(validSourceProp.valid) ;
+          let type, propertyType;
+          if(validSourceProp.valid) {
+            type = 'validProperty';
+            propertyType = ['validProperty', ':', $sourcePropKey].join('');
+          }
+          else {
+            type = 'nonvalidProperty';
+            propertyType = ['nonvalidProperty', ':', $sourcePropKey].join('');
+          }
+          for(const $eventType of [type, propertyType]) {
+            $content.dispatchEvent(
+              new ValidatorEvent$1($eventType, {
+                path,
+                detail: validSourceProp,
+              }, $content)
+            );
+          }
           // Validator Event: Validate Property
-          $content.dispatchEvent(
-            new ValidatorEvent$1('validateProperty', {
-              path,
-              detail: validSourceProp,
-            }, $content)
-          );
         }
         if(!validSourceProp.valid) { continue iterateSourceProps }
       }
@@ -349,13 +359,23 @@ function defineProperty() {
   if(schema && enableValidation) {
     const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value);
     if(validationEvents) {
-      if(validSourceProp.valid) ;
-      $content.dispatchEvent(
-        new ValidatorEvent$1('validateProperty', {
-          path,
-          detail: validSourceProp,
-        }, $content)
-      );
+      let type, propertyType;
+      if(validSourceProp.valid) {
+        type = 'validProperty';
+        propertyType = ['validProperty', ':', propertyKey].join('');
+      }
+      else {
+        type = 'nonvalidProperty';
+        propertyType = ['nonvalidProperty', ':', propertyKey].join('');
+      }
+      for(const $eventType of [type, propertyType]) {
+        $content.dispatchEvent(
+          new ValidatorEvent$1($eventType, {
+            path,
+            detail: validSourceProp,
+          }, $content)
+        );
+      }
     }
     if(!validSourceProp.valid) { return proxy }
   }
@@ -530,20 +550,23 @@ function concat() {
     if(schema && enableValidation) {
       const validValue = schema.validateProperty(valueIndex, $subvalue);
       if(schema &&validationEvents) {
-        let type;
-        const _path = [path, '.', valueIndex].join('');
+        let type, propertyType;
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', valueIndex].join('');
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', valueIndex].join('');
         }
         else {
-          type = ['nonvalidProperty', ':', valueIndex].join('');
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', valueIndex].join('');
         }
-        $content.dispatchEvent(
-          new ValidatorEvent(type, {
-            path: _path,
-            detail: validValue,
-          }, $content)
-        );
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          );
+        }
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
@@ -736,20 +759,23 @@ function fill() {
     if(schema && enableValidation) {
       let validValue = schema.validate(validValue);
       if(validationEvents) {
-        let type;
-        const _path = [path, '.', fillIndex].join('');
+        let type, propertyType;
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', fillIndex].join('');
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', fillIndex].join('');
         }
         else {
-          type = ['nonvalidProperty', ':', fillIndex].join('');
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', fillIndex].join('');
         }
-        $content.dispatchEvent(
-          new ValidatorEvent(type, {
-            path: _path, 
-            detail: validValue,
-          }, $content)
-        );
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          );
+        }
       }
       if(!validValue.valid) { continue iterateFillIndexes }
     }
@@ -858,20 +884,23 @@ function push() {
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element);
       if(validationEvents) {
-        let type;
-        const _path = [path, '.', elementsIndex].join('');
+        let type, propertyType;
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', elementsIndex].join('');
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', elementsIndex].join('');
         }
         else {
-          type = ['nonvalidProperty', ':', elementsIndex].join('');
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', elementsIndex].join('');
         }
-        $content.dispatchEvent(
-          new ValidatorEvent(type, {
-            path: _path,
-            detail: validElement,
-          }, $content)
-        );
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          );
+        }
       }
       if(!validElement.valid) { return source.length }
     }
@@ -1051,20 +1080,23 @@ function splice() {
     if(schema && enableValidation) {
       const validAddItem = schema.validateProperty(elementIndex, element);
       if(validationEvents) {
-        let type;
-        const _path = [path, '.', addItemsIndex].join('');
+        let type, propertyType;
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', addItemsIndex].join('');
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', addItemsIndex].join('');
         }
         else {
-          type = ['nonvalidProperty', ':', addItemsIndex].join('');
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', addItemsIndex].join('');
         }
-        $content.dispatchEvent(
-          new ValidatorEvent(type, {
-            path: _path,
-            detail: validAddItem,
-          }, $content)
-        );
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          );
+        }
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
     }
@@ -1158,20 +1190,23 @@ function unshift() {
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementIndex, $element);
       if(validationEvents) {
-        let type;
-        const _path = [path, '.', elementIndex].join('');
+        let type, propertyType;
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', elementIndex].join('');
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', elementIndex].join('');
         }
         else {
-          type = ['nonvalidProperty', ':', elementIndex].join('');
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', elementIndex].join('');
         }
-        $content.dispatchEvent(
-          new ValidatorEvent(type, {
-            path: _path,
-            detail: validElement,
-          }, $content)
-        );
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          );
+        }
       }
       if(!validElement.valid) { return proxy.length }
     }
@@ -1463,20 +1498,23 @@ function setContentProperty() {
     if(schema && enableValidation) {
       const validSourceProp = schema.validateProperty(propertyKey, $value);
       if(validationEvents) {
-        let type;
-        const _path = [path, '.', propertyKey].join('');
+        let type, propertyType;
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', propertyKey].join('');
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', propertyKey].join('');
         }
         else {
-          type = ['nonvalidProperty', ':', propertyKey].join('');
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', propertyKey].join('');
         }
-        $content.dispatchEvent(
-          new ValidatorEvent$1(type, {
-            path: _path, 
-            detail: validSourceProp,
-          }, $content)
-        );
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent$1($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          );
+        }
       }
       if(!validSourceProp.valid) { return }
     }
@@ -1990,7 +2028,7 @@ class Handler {
 
 class Validation extends EventTarget {
   #settings
-  #_type
+  // #_type
   #_valid
   #_context
   #_contentKey
@@ -2000,7 +2038,7 @@ class Validation extends EventTarget {
     super();
     this.#settings = Object.freeze($settings);
   }
-  get type() { return this.#settings.type }
+  // get type() { return this.#settings.type }
   get valid() { return this.#_valid }
   set valid($valid) {
     if(this.#_valid === undefined) {
@@ -2019,9 +2057,9 @@ class Validation extends EventTarget {
   }
   get context() { return this.#settings.context }
   get contextKey() { return this.#settings.contentKey }
-  get contextVal() { return this.#settings.context[this.contentKey] }
+  get contextVal() { return this.#settings.context }
   get contentKey() { return this.#settings.contentKey }
-  get contentVal() { return this.#settings.contentVal }
+  get contentVal() { return this.#settings.context[this.contextKey] }
 }
 
 class Validator extends EventTarget {
@@ -2295,10 +2333,10 @@ class Schema extends EventTarget{
       ($validation, [
         $contentKey, $contentVal
       ], $validatorIndex, $contentEntries) => {
-        const validation = this.validateProperty($contentKey, $contentVal);
-        if(validation === null) return $validation
-        if($validation.valid !== false) $validation.valid = validation.valid;
-        $validation.properties[$contentKey] = validation;
+        const _validation = this.validateProperty($contentKey, $contentVal);
+        if(_validation === null) return $validation
+        if($validation.valid !== false) $validation.valid = _validation.valid;
+        $validation.properties[$contentKey] = _validation;
         return $validation
       }, structuredClone(Validation)
     );
@@ -2321,25 +2359,26 @@ class Schema extends EventTarget{
     // Context Val: Undefined
     if(contextVal === undefined) {
       validation = new Validation({
-        context: contextVal,
+        context: context,
         contentKey: $key,
         contentVal: $val,
-        type: 'key',
+        // type: 'key',
         valid: null,
       });
       propertyValidation.unadvance.push(validation);
-      return propertyValidation
     }
     // Context Val: Object
     else if(contextVal instanceof Schema) {
       validation = contextVal.validate($val);
       if(validation.valid === true) { propertyValidation.advance.push(validation); }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
-      if(this.validationType === 'object') { propertyValidation.valid === validation.valid; }
+      if(this.validationType === 'object') {
+        propertyValidation.valid = validation.valid;
+      }
       else if(this.validationType === 'primitive') {
         propertyValidation.valid = (validation.valid === false)
           ? !validation.valid
-          : validation.valid; 
+          : validation.valid;
       }
     }
     // Context Val: Primitive
@@ -2347,10 +2386,8 @@ class Schema extends EventTarget{
       validation = contextVal.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
           const validation = $validator.validate(contextVal, $key, $val);
-          // 
           if(validation.valid === true) { $propertyValidation.advance.push(validation); }
           else if(validation.valid === false) { $propertyValidation.deadvance.push(validation); }
-          // 
           if($propertyValidation.valid !== false) $propertyValidation.valid = validation.valid;
           return $propertyValidation
         }, propertyValidation
@@ -2369,6 +2406,7 @@ var Options$5 = {
   enableEvents: true, 
   pathkey: true,
   subpathError: false,
+  proxyAssignmentMethod: 'set',
   traps: {
     accessor: {
       get: {
@@ -2482,15 +2520,6 @@ var Options$5 = {
   }
 };
 
-// const ChangeEvents = [
-//   // Accessor
-//   "getProperty", "setProperty", "deleteProperty", 
-//   // Array
-//   "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
-//   "spliceDelete", "spliceAdd", "unshiftProp", 
-//   // Object
-//   "assignSourceProperty", "defineProperty",
-// ]
 class Content extends EventTarget {
   #_properties
   #_options
@@ -2586,8 +2615,9 @@ class Content extends EventTarget {
   }
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
+    const { proxyAssignmentMethod } = this.options;
     this.#_proxy = new Proxy(this.source, this.#handler);
-    this.#_proxy.set(this.#properties);
+    this.#_proxy[proxyAssignmentMethod](this.#properties);
     return this.#_proxy
   }
   get #handler() {

@@ -22,20 +22,24 @@ export default function concat() {
     if(schema && enableValidation) {
       const validValue = schema.validateProperty(valueIndex, $subvalue)
       if(schema &&validationEvents) {
-        let type
+        let type, propertyType
         const _path = [path, '.', valueIndex].join('')
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', valueIndex].join('')
+          type = 'validProperty'
+          propertyType = ['validProperty', ':', valueIndex].join('')
         }
         else {
-          type = ['nonvalidProperty', ':', valueIndex].join('')
+          type = 'nonvalidProperty'
+          propertyType = ['nonvalidProperty', ':', valueIndex].join('')
         }
-        $content.dispatchEvent(
-          new ValidatorEvent(type, {
-            path: _path,
-            detail: validValue,
-          }, $content)
-        )
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          )
+        }
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }

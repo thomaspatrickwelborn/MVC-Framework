@@ -1,6 +1,6 @@
 export default class Validation extends EventTarget {
   #settings
-  #_type
+  // #_type
   #_valid
   #_context
   #_contentKey
@@ -10,7 +10,7 @@ export default class Validation extends EventTarget {
     super()
     this.#settings = Object.freeze($settings)
   }
-  get type() { return this.#settings.type }
+  // get type() { return this.#settings.type }
   get valid() { return this.#_valid }
   set valid($valid) {
     if(this.#_valid === undefined) {
@@ -29,7 +29,7 @@ export default class Validation extends EventTarget {
   }
   get context() { return this.#settings.context }
   get contextKey() { return this.#settings.contentKey }
-  get contextVal() { return this.#settings.context[this.contentKey] }
+  get contextVal() { return this.#settings.context }
   get contentKey() { return this.#settings.contentKey }
-  get contentVal() { return this.#settings.contentVal }
+  get contentVal() { return this.#settings.context[this.contextKey] }
 }

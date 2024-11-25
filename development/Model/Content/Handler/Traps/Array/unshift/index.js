@@ -18,20 +18,24 @@ export default function unshift() {
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementIndex, $element)
       if(validationEvents) {
-        let type
+        let type, propertyType
         const _path = [path, '.', elementIndex].join('')
         if(validSourceProp.valid) {
-          type = ['validProperty', ':', elementIndex].join('')
+          type = 'validProperty'
+          propertyType = ['validProperty', ':', elementIndex].join('')
         }
         else {
-          type = ['nonvalidProperty', ':', elementIndex].join('')
+          type = 'nonvalidProperty'
+          propertyType = ['nonvalidProperty', ':', elementIndex].join('')
         }
-        $content.dispatchEvent(
-          new ValidatorEvent(type, {
-            path: _path,
-            detail: validElement,
-          }, $content)
-        )
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, {
+              path,
+              detail: validSourceProp,
+            }, $content)
+          )
+        }
       }
       if(!validElement.valid) { return proxy.length }
     }

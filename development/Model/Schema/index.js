@@ -98,10 +98,10 @@ export default class Schema extends EventTarget{
       ($validation, [
         $contentKey, $contentVal
       ], $validatorIndex, $contentEntries) => {
-        const validation = this.validateProperty($contentKey, $contentVal)
-        if(validation === null) return $validation
-        if($validation.valid !== false) $validation.valid = validation.valid
-        $validation.properties[$contentKey] = validation
+        const _validation = this.validateProperty($contentKey, $contentVal)
+        if(_validation === null) return $validation
+        if($validation.valid !== false) $validation.valid = _validation.valid
+        $validation.properties[$contentKey] = _validation
         return $validation
       }, structuredClone(Validation)
     )
@@ -124,25 +124,26 @@ export default class Schema extends EventTarget{
     // Context Val: Undefined
     if(contextVal === undefined) {
       validation = new Validation({
-        context: contextVal,
+        context: context,
         contentKey: $key,
         contentVal: $val,
-        type: 'key',
+        // type: 'key',
         valid: null,
       })
       propertyValidation.unadvance.push(validation)
-      return propertyValidation
     }
     // Context Val: Object
     else if(contextVal instanceof Schema) {
       validation = contextVal.validate($val)
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
-      if(this.validationType === 'object') { propertyValidation.valid === validation.valid }
+      if(this.validationType === 'object') {
+        propertyValidation.valid = validation.valid
+      }
       else if(this.validationType === 'primitive') {
         propertyValidation.valid = (validation.valid === false)
           ? !validation.valid
-          : validation.valid 
+          : validation.valid
       }
     }
     // Context Val: Primitive
@@ -150,10 +151,8 @@ export default class Schema extends EventTarget{
       validation = contextVal.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
           const validation = $validator.validate(contextVal, $key, $val)
-          // 
           if(validation.valid === true) { $propertyValidation.advance.push(validation) }
           else if(validation.valid === false) { $propertyValidation.deadvance.push(validation) }
-          // 
           if($propertyValidation.valid !== false) $propertyValidation.valid = validation.valid
           return $propertyValidation
         }, propertyValidation

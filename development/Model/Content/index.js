@@ -3,15 +3,6 @@ import Handler from './Handler/index.js'
 import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
 import ContentEvent from './Events/Content/index.js'
-// const ChangeEvents = [
-//   // Accessor
-//   "getProperty", "setProperty", "deleteProperty", 
-//   // Array
-//   "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
-//   "spliceDelete", "spliceAdd", "unshiftProp", 
-//   // Object
-//   "assignSourceProperty", "defineProperty",
-// ]
 export default class Content extends EventTarget {
   #_properties
   #_options
@@ -107,8 +98,9 @@ export default class Content extends EventTarget {
   }
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
+    const { proxyAssignmentMethod } = this.options
     this.#_proxy = new Proxy(this.source, this.#handler)
-    this.#_proxy.set(this.#properties)
+    this.#_proxy[proxyAssignmentMethod](this.#properties)
     return this.#_proxy
   }
   get #handler() {
