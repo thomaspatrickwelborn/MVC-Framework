@@ -5,7 +5,6 @@ export default {
   validationEvents: true, 
   contentEvents: true, 
   enableEvents: true, 
-  changeEvents: true,
   pathkey: true,
   subpathError: false,
   traps: {

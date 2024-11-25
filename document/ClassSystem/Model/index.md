@@ -53,9 +53,16 @@
 **Type**: `boolean`  
 **Descript**:  
  - Specifies `content` saved to `localStorage` after each content property modifier event.  
+### `changEvents` Options
+**Default**: `false`  
+**Required**: `false`  
+**Type**: `Boolean`  
+**Descript**:  
+ - Specifies `content` property modifier events (`ChangeEvents`) captured
 
 ## `constructor` Method
  - When `settings.content` is `null` or `undefined` *and* `settings.content` is not type of `object`, return `null`.  
+
 
 ## Public Properties
 ### `schema` Property
@@ -74,6 +81,15 @@
 **Type**: `get`  
 **Return**: `#_localStorage`  
 **Descript**:  
+### `changeEvents` Property
+**Type**: `get`, `set`  
+**Inturn**: `$changeEvents`  
+**Return**: `#_changeEvents`
+**Descript**:  
+ - When `$changeEvents` differs from `#_changeEvents` the new value is assigned. 
+   - When `$changeEvents` is `true` an event listener is added to `content` for each `ChangeEvents` type.  
+   - When `$changeEvents` is `falase` an event listener is removed from `content` for each `ChangeEvents` type.  
+
 ## Public Methods
 ### `save` Method
 **Type**: `function`  
@@ -100,6 +116,7 @@
 **Type**: `Schema`, `null`
 ### `#_content` Property
 **Type**: `Content`, `null`
-### `#_localStorage` property
+### `#_localStorage` Property
 **Type**: `LocalStorage`  
-
+### `#_changeEvents` Property
+**Type**: `Boolean`  

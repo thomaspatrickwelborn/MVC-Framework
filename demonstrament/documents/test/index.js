@@ -38,9 +38,9 @@ model.content.assign({
 })
 // console.log(model.content.source)
 // console.log(model.content.get("propertyA.propertyB").root)
-model.save()
+// model.save()
 // console.log(model.localStorage.get())
-model.unload()
+// model.unload()
 // console.log(model.localStorage.get())
 
 /*

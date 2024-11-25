@@ -2367,7 +2367,6 @@ var Options$5 = {
   validationEvents: true, 
   contentEvents: true, 
   enableEvents: true, 
-  changeEvents: true,
   pathkey: true,
   subpathError: false,
   traps: {
@@ -2911,7 +2910,28 @@ var Options$3 = {
   enableEvents: true, // Boolean
   autoload: false, // Boolean
   autosave: false, // Boolean
+  changeEvents: false, // Boolean
 };
+
+class ChangeEvent extends Event {
+  #settings
+  #content
+  #_key
+  constructor($type, $settings, $content) {
+    super($type, $settings);
+    this.#settings = $settings;
+  }
+  get originalEvent() { return this.#settings.originalEvent }
+  get key() {
+    if(this.#_key !== undefined) { return this.#_key }
+    if(this.path) { this.#_key = this.path.split('.').pop(); }
+    else { this.#_key = null; }
+    return this.#_key
+  }
+  get value() { return this.#settings.value }
+  get path() { return this.#settings.path }
+  get detail() { return this.#settings.detail }
+}
 
 const ChangeEvents = [
   // Accessor
@@ -2926,9 +2946,7 @@ class Model extends Core {
   #_schema
   #_content
   #_localStorage
-  #_change
   #_changeEvents
-  #_boundPropertyChange
   constructor($settings = {}, $options = {}) {
     super(
       recursiveAssign({}, Settings$3, $settings), 
@@ -2985,31 +3003,31 @@ class Model extends Core {
   get changeEvents() { return this.#_changeEvents }
   set changeEvents($changeEvents) {
     if($changeEvents !== this.#_changeEvents) {
+      const boundPropertyChange = this.#propertyChange.bind(this);
       this.#_changeEvents = $changeEvents;
       switch(this.#_changeEvents) {
         case true:
           for(const $eventType of ChangeEvents) {
-            this.content.addEventListener($eventType, this.#boundPropertyChange);
+            this.content.addEventListener($eventType, boundPropertyChange);
           }
         break
         case false:
           for(const $eventType of ChangeEvents) {
-            this.content.removeEventListener($eventType, this.#boundPropertyChange);
+            this.content.removeEventListener($eventType, boundPropertyChange);
           }
         break
 
       }
     }
   }
-  get #boundPropertyChange() {
-    if(this.#_boundPropertyChange !== undefined) return this.#_boundPropertyChange
-    this.#_boundPropertyChange = this.#propertyChange.bind(this);
-    return this.#_boundPropertyChange
-  }
   #propertyChange($event) {
-    let { type, path, key, value, detail } = $event;
-    detail = Object.assign({ type }, detail);
     this.save();
+    const { type, path, value } = $event;
+    const detail = Object.assign({ type }, $event.detail);
+    const originalEvent = $event;
+    this.dispatchEvent(
+      new ChangeEvent("change", { path, value, detail, originalEvent })
+    );
   }
   save() {
     if(this.localStorage) {

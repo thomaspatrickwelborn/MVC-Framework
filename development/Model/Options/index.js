@@ -4,4 +4,5 @@ export default {
   enableEvents: true, // Boolean
   autoload: false, // Boolean
   autosave: false, // Boolean
+  changeEvents: false, // Boolean
 }

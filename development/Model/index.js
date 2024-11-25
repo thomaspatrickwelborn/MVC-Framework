@@ -5,7 +5,7 @@ import Schema from './Schema/index.js'
 import LocalStorage from './LocalStorage/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
-import ContentEvent from './Content/Events/Content/index.js'
+import ChangeEvent from './ChangeEvent/index.js'
 const ChangeEvents = [
   // Accessor
   "getProperty", "setProperty", "deleteProperty", 
@@ -19,9 +19,7 @@ export default class Model extends Core {
   #_schema
   #_content
   #_localStorage
-  #_change
   #_changeEvents
-  #_boundPropertyChange
   constructor($settings = {}, $options = {}) {
     super(
       recursiveAssign({}, Settings, $settings), 
@@ -78,31 +76,31 @@ export default class Model extends Core {
   get changeEvents() { return this.#_changeEvents }
   set changeEvents($changeEvents) {
     if($changeEvents !== this.#_changeEvents) {
+      const boundPropertyChange = this.#propertyChange.bind(this)
       this.#_changeEvents = $changeEvents
       switch(this.#_changeEvents) {
         case true:
           for(const $eventType of ChangeEvents) {
-            this.content.addEventListener($eventType, this.#boundPropertyChange)
+            this.content.addEventListener($eventType, boundPropertyChange)
           }
         break
         case false:
           for(const $eventType of ChangeEvents) {
-            this.content.removeEventListener($eventType, this.#boundPropertyChange)
+            this.content.removeEventListener($eventType, boundPropertyChange)
           }
         break
 
       }
     }
   }
-  get #boundPropertyChange() {
-    if(this.#_boundPropertyChange !== undefined) return this.#_boundPropertyChange
-    this.#_boundPropertyChange = this.#propertyChange.bind(this)
-    return this.#_boundPropertyChange
-  }
   #propertyChange($event) {
-    let { type, path, key, value, detail } = $event
-    detail = Object.assign({ type }, detail)
     this.save()
+    const { type, path, value } = $event
+    const detail = Object.assign({ type }, $event.detail)
+    const originalEvent = $event
+    this.dispatchEvent(
+      new ChangeEvent("change", { path, value, detail, originalEvent })
+    )
   }
   save() {
     if(this.localStorage) {
