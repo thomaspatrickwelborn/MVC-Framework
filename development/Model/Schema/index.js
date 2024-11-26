@@ -110,7 +110,7 @@ export default class Schema extends EventTarget{
   validateProperty($key, $val) {
     const PropertyValidation = {
       key: $key,
-      val: $val,
+      value: $val,
       advance: [], 
       deadvance: [], 
       unadvance: [], 
@@ -124,7 +124,7 @@ export default class Schema extends EventTarget{
     // Context Val: Undefined
     if(contextVal === undefined) {
       validation = new Validation({
-        context: context,
+        context: this.context,
         contentKey: $key,
         contentVal: $val,
         // type: 'key',

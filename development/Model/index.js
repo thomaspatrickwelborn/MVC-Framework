@@ -29,8 +29,8 @@ export default class Model extends Core {
       !this.settings.content ||
       typeof this.settings.content !== 'object'
     ) { return null }
-    if(this.options.enableEvents === true) this.enableEvents()
     this.changeEvents = this.options.changeEvents
+    if(this.options.enableEvents === true) this.enableEvents()
   }
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
@@ -95,11 +95,11 @@ export default class Model extends Core {
   }
   #propertyChange($event) {
     this.save()
-    const { type, path, value } = $event
+    const { type, path, value, change } = $event
     const detail = Object.assign({ type }, $event.detail)
     const originalEvent = $event
     this.dispatchEvent(
-      new ChangeEvent("change", { path, value, detail, originalEvent })
+      new ChangeEvent("change", { path, value, detail, change, originalEvent })
     )
   }
   save() {

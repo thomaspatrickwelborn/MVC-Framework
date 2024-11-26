@@ -76,6 +76,22 @@ var regularExpressions = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
+const definePropertiesTree = ($descriptorTree) => {
+  let properties;
+  if(Array.isArray($descriptorTree)) { properties = []; }
+  else if(typeof $descriptorTree === 'object') { properties = {}; }
+  for(const [$propertyKey, $propertyDescriptor] of Object.entries($descriptorTree)) {
+    const propertyDescriptorValue = $propertyDescriptor.value;
+    if(typeof propertyDescriptorValue === 'object') {
+      properties[$propertyKey] = definePropertiesTree(propertyDescriptorValue);
+    }
+    else {
+      properties[$propertyKey] = propertyDescriptorValue;
+    }
+  }
+  return properties
+};
+
 class ContentEvent extends Event {
   #settings
   #content
@@ -112,6 +128,7 @@ class ContentEvent extends Event {
     else { this.#_key = null; }
     return this.#_key
   }
+  get change() { return this.#settings.change }
   get value() { return this.#settings.value }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
@@ -165,28 +182,33 @@ function assign() {
   const { sourceTree, events } = $options;
   const { path, source, schema, proxy } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
-  const sources = [...arguments];
+  const assignSources = [...arguments];
   const assignedSources = [];
   // Iterate Sources
-  for(let $source of sources) {
+  for(let $assignSource of assignSources) {
     let assignedSource;
-    if(Array.isArray($source)) { assignedSource = []; }
-    else if(typeof $source === 'object') { assignedSource = {}; }
+    if(Array.isArray($assignSource)) { assignedSource = []; }
+    else if(typeof $assignSource === 'object') { assignedSource = {}; }
     // Iterate Source Props
     iterateSourceProps:
-    for(let [$sourcePropKey, $sourcePropVal] of Object.entries($source)) {
+    for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
+      let sourcePropVal = source[$assignSourcePropKey];
+      const sourcePropValIsContentInstance = (
+        source[$assignSourcePropKey]?.classToString === Content.toString()
+      ) ? true : false;
       // Validation
       if(schema && enableValidation) {
-        const validSourceProp = schema.validateProperty($sourcePropKey, $sourcePropVal);
+        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal);
+        // console.log("validSourceProp", validSourceProp)
         if(validationEvents) {
           let type, propertyType;
           if(validSourceProp.valid) {
             type = 'validProperty';
-            propertyType = ['validProperty', ':', $sourcePropKey].join('');
+            propertyType = ['validProperty', ':', $assignSourcePropKey].join('');
           }
           else {
             type = 'nonvalidProperty';
-            propertyType = ['nonvalidProperty', ':', $sourcePropKey].join('');
+            propertyType = ['nonvalidProperty', ':', $assignSourcePropKey].join('');
           }
           for(const $eventType of [type, propertyType]) {
             $content.dispatchEvent(
@@ -200,41 +222,54 @@ function assign() {
         }
         if(!validSourceProp.valid) { continue iterateSourceProps }
       }
+      const change = {
+        preter: {
+          key: $assignSourcePropKey,
+          value: source[$assignSourcePropKey],
+        },
+        anter: {
+          key: $assignSourcePropKey,
+          // value: $assignSourcePropVal,
+          value: undefined,
+        },
+        conter: undefined
+      };
       // Source Prop: Object Type
-      if(typeof $sourcePropVal === 'object') {
-        if($sourcePropVal?.classToString === Content.toString()) { $sourcePropVal = $sourcePropVal.object; }
+      if(typeof $assignSourcePropVal === 'object') {
+        if($assignSourcePropVal.classToString === Content.toString()) {
+          $assignSourcePropVal = $assignSourcePropVal.object;
+        }
         // Subschema
         let subschema;
         if(schema?.type === 'array') { subschema = schema.context[0]; }
-        else if(schema?.type === 'object') { subschema = schema.context[$sourcePropKey]; }
+        else if(schema?.type === 'object') { subschema = schema.context[$assignSourcePropKey]; }
         else { subschema = null; }
         // Content
         const _path = (path !== null)
-          ? path.concat('.', $sourcePropKey)
-          : $sourcePropKey;
-        let sourcePropVal = source[$sourcePropKey];
+          ? path.concat('.', $assignSourcePropKey)
+          : $assignSourcePropKey;
         // Assignment
         let assignment;
         // Source Tree: False
         if(sourceTree === false) {
-          assignment = { [$sourcePropKey]: content };
+          assignment = { [$assignSourcePropKey]: content };
         }
         // Source Tree: true
         else {
           // Assignment: Existing Content Instance
-          if(sourcePropVal?.classToString === Content.toString()) {
-            sourcePropVal.assign($sourcePropVal);
+          if(sourcePropValIsContentInstance) {
+            sourcePropVal.assign($assignSourcePropVal);
           }
           // Assignment: New Content Instance
           else {
-            sourcePropVal = new Content($sourcePropVal, subschema, 
+            sourcePropVal = new Content($assignSourcePropVal, subschema, 
               recursiveAssign({}, $content.options, {
                 path: _path,
                 parent: proxy,
               })
             );
           }
-          assignment = { [$sourcePropKey]: sourcePropVal };
+          assignment = { [$assignSourcePropKey]: sourcePropVal };
         }
         // Assignment
         Object.assign(source, assignment);
@@ -243,39 +278,46 @@ function assign() {
       // Source Prop: Primitive Type
       else {
         let assignment = {
-          [$sourcePropKey]: $sourcePropVal
+          [$assignSourcePropKey]: $assignSourcePropVal
         };
         // Assign Root
         Object.assign(source, assignment);
         // Assigned Source
         Object.assign(assignedSource, assignment);
       }
+      change.anter.value = sourcePropVal;
+      change.conter = (sourcePropValIsContentInstance)
+        ? (sourcePropertyValue.string !== JSON.stringify(sourcePropVal))
+        : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(sourcePropVal));
+      change.anter.value = sourcePropVal;
       // Content Event: Assign Source Property
       if(contentEvents) {
         if(events['assignSourceProperty']) {
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path,
-              value: $sourcePropVal,
+              value: $assignSourcePropVal,
+              change,
               detail: {
-                key: $sourcePropKey,
-                value: $sourcePropVal,
-                source: $source,
+                key: $assignSourcePropKey,
+                value: $assignSourcePropVal,
+                source: $assignSource,
               }
             }, $content)
           );
         }
         if(events['assignSourceProperty:$key']) {
-          const type = ['assignSourceProperty', ':', $sourcePropKey].join('');
-          const _path = [path, '.', $sourcePropKey].join('');
+          const type = ['assignSourceProperty', ':', $assignSourcePropKey].join('');
+          const _path = [path, '.', $assignSourcePropKey].join('');
           $content.dispatchEvent(
             new ContentEvent(type, {
               path: _path,
-              value: $sourcePropVal,
+              value: $assignSourcePropVal,
+              change,
               detail: {
-                key: $sourcePropKey,
-                value: $sourcePropVal,
-                source: $source,
+                key: $assignSourcePropKey,
+                value: $assignSourcePropVal,
+                source: $assignSource,
               }
             }, $content)
           );
@@ -314,6 +356,7 @@ function defineProperties() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path, schema, proxy } = $content;
+  const contentEvents = $content.options.contentEvents;
   const $propertyDescriptors = arguments[0];
   Object.entries($propertyDescriptors)
   .reduce(($properties, [
@@ -327,7 +370,7 @@ function defineProperties() {
     $propertyKey, $propertyDescriptor
   ] of Object.entries($propertyDescriptors)) {
     // Property Descriptor Value Is Direct Instance Of Array/Object/Map
-    $trap.defineProperty($propertyKey, $propertyDescriptor);
+    proxy.defineProperty($propertyKey, $propertyDescriptor);
   }
   // Define Properties Event
   if(contentEvents && events['defineProperties']) {
@@ -355,12 +398,22 @@ function defineProperty() {
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const propertyKey = arguments[0];
   const propertyDescriptor = arguments[1];
+  const propertyValue = propertyDescriptor.value;
+  const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {};
+  const sourcePropertyValue = sourcePropertyDescriptor.value;
+  const sourcePropertyValueIsContentInstance = (
+    sourcePropertyValue?.classToString === Content.toString()
+  ) ? true : false;
+  
   // Validation
   if(schema && enableValidation) {
-    const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value);
+    const flattenedPropertyValue = definePropertiesTree({
+      [propertyKey]: propertyDescriptor
+    })[propertyKey];
+    const validProperty = schema.validateProperty(propertyKey, flattenedPropertyValue);
     if(validationEvents) {
       let type, propertyType;
-      if(validSourceProp.valid) {
+      if(validProperty.valid) {
         type = 'validProperty';
         propertyType = ['validProperty', ':', propertyKey].join('');
       }
@@ -372,31 +425,43 @@ function defineProperty() {
         $content.dispatchEvent(
           new ValidatorEvent$1($eventType, {
             path,
-            detail: validSourceProp,
+            detail: validProperty,
           }, $content)
         );
       }
     }
-    if(!validSourceProp.valid) { return proxy }
+    if(!validProperty.valid) { return proxy }
   }
+  const change = {
+    preter: {
+      key: propertyKey,
+      value: source[propertyKey],
+    },
+    anter: {
+      key: propertyKey,
+      value: undefined,
+      // value: propertyValue,
+    },
+    conter: undefined,
+  };
   // Property Descriptor Value: Object Type
-  if(typeof propertyDescriptor.value === 'object') {
+  if(typeof propertyValue === 'object') {
     // Subschema
     let subschema;
     if(schema.type === 'array') { subschema = schema.context[0]; }
     else if(schema.type === 'object') { subschema = schema.context[propertyKey]; }
     else { subschema = undefined;}
-    const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {};
+    // const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
     const _path = (
       path !== null
     ) ? path.concat('.', propertyKey)
       : propertyKey;
-    if(sourcePropertyDescriptor.value.classToString === Content.toString()) {
+    if(sourcePropertyValueIsContentInstance) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
-        propertyDescriptor.value = Object.assign(propertyDescriptor.value, { path: _path, parent: proxy });
-        sourcePropertyDescriptor.value.defineProperties(propertyDescriptor.value);
+        propertyValue = Object.assign(propertyValue, { path: _path, parent: proxy });
+        sourcePropertyValue.defineProperties(propertyValue);
       }
       // Descriptor Tree: false
       else {
@@ -406,8 +471,8 @@ function defineProperty() {
     // Root Property Descriptor Value: New Content Instance
     else {
       let _source;
-      if(typeOf(propertyDescriptor.value) === 'object') { _source = {}; }
-      else if (typeOf(propertyDescriptor.value) === 'array') { _source = []; }
+      if(typeOf(propertyValue) === 'object') { _source = {}; }
+      else if (typeOf(propertyValue) === 'array') { _source = []; }
       else { _source = {}; }
       const contentObject = new Content(
         _source, subschema, {
@@ -417,7 +482,7 @@ function defineProperty() {
       );
       // Root Define Properties, Descriptor Tree
       if(descriptorTree === true) {
-        contentObject.defineProperties(propertyDescriptor.value);
+        contentObject.defineProperties(propertyValue);
         source[propertyKey] = contentObject;
       } else 
       // Root Define Properties, No Descriptor Tree
@@ -430,13 +495,19 @@ function defineProperty() {
   else {
     Object.defineProperty(source, propertyKey, propertyDescriptor);
   }
+  change.anter.value = propertyValue;
+  change.conter = (sourcePropertyValueIsContentInstance)
+    ? (sourcePropertyValue.string !== JSON.stringify(propertyValue))
+    : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue));
+  console.log("change", change);
   // Define Property Event
   if(contentEvents) {
     if(events['defineProperty']) {
       $content.dispatchEvent(
         new ContentEvent('defineProperty', {
           path,
-          value: propertyDescriptor.value,
+          value: propertyValue,
+          change, 
           detail: {
             prop: propertyKey,
             descriptor: propertyDescriptor,
@@ -450,7 +521,8 @@ function defineProperty() {
       $content.dispatchEvent(
         new ContentEvent(type, {
           path: _path,
-          value: propertyDescriptor.value,
+          value: propertyValue,
+          change, 
           detail: {
             prop: propertyKey,
             descriptor: propertyDescriptor,
@@ -1518,6 +1590,17 @@ function setContentProperty() {
       }
       if(!validSourceProp.valid) { return }
     }
+    const change = {
+      preter: {
+        key: propertyKey,
+        value: source[propertyKey],
+      },
+      anter: {
+        key: propertyKey,
+        value: $value,
+      },
+      conter: undefined,
+    };
     // Return: Property
     // Value: Object Literal
     if(typeof $value === 'object') {
@@ -1547,6 +1630,7 @@ function setContentProperty() {
           new ContentEvent('setProperty', {
             path, 
             value: propertyValue,
+            change,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -1561,6 +1645,7 @@ function setContentProperty() {
           new ContentEvent(type, {
             path: _path, 
             value: propertyValue,
+            change,
             detail: {
               value: propertyValue,
             }
@@ -2345,7 +2430,7 @@ class Schema extends EventTarget{
   validateProperty($key, $val) {
     const PropertyValidation = {
       key: $key,
-      val: $val,
+      value: $val,
       advance: [], 
       deadvance: [], 
       unadvance: [], 
@@ -2359,7 +2444,7 @@ class Schema extends EventTarget{
     // Context Val: Undefined
     if(contextVal === undefined) {
       validation = new Validation({
-        context: context,
+        context: this.context,
         contentKey: $key,
         contentVal: $val,
         // type: 'key',
@@ -2958,6 +3043,7 @@ class ChangeEvent extends Event {
     else { this.#_key = null; }
     return this.#_key
   }
+  get change() { return this.#settings.change }
   get value() { return this.#settings.value }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
@@ -2986,8 +3072,8 @@ class Model extends Core {
       !this.settings.content ||
       typeof this.settings.content !== 'object'
     ) { return null }
-    if(this.options.enableEvents === true) this.enableEvents();
     this.changeEvents = this.options.changeEvents;
+    if(this.options.enableEvents === true) this.enableEvents();
   }
   get schema() {
     if(this.#_schema !== undefined) return this.#_schema
@@ -3052,11 +3138,11 @@ class Model extends Core {
   }
   #propertyChange($event) {
     this.save();
-    const { type, path, value } = $event;
+    const { type, path, value, change } = $event;
     const detail = Object.assign({ type }, $event.detail);
     const originalEvent = $event;
     this.dispatchEvent(
-      new ChangeEvent("change", { path, value, detail, originalEvent })
+      new ChangeEvent("change", { path, value, detail, change, originalEvent })
     );
   }
   save() {

@@ -1,3 +1,4 @@
+
 import { Model } from "/dependencies/mvc-framework.js"
 const model = new Model({
   schema: {
@@ -8,20 +9,105 @@ const model = new Model({
     } }
   },
   content: {
-    propertyA: {
-      propertyB: {
-        propertyC: "333"
-      }
-    }
+    // propertyA: {
+    //   propertyB: {
+    //     propertyC: "333333"
+    //   }
+    // }
   },
   localStorage: "/model",
   events: {
-    'content validProperty': ($event) => {
-      console.log($event.type)
-    },
-    'content nonvalidProperty': ($event) => {
-      console.log($event.type)
-    },
+    // 'content validProperty': ($event) => {
+    //   console.log($event.type, $event.path)
+    // },
+    // 'content nonvalidProperty': ($event) => {
+    //   console.log($event.type, $event.path)
+    // },
+    'change': ($event) => {
+      console.log(
+        "\n", "-----",
+        "\n", $event.type,
+        "\n", $event
+        // "\n", $event.path,
+        // "\n", $event.detail,
+        // "\n", $event.change,
+      )
+    }
+  }
+}, {
+  changeEvents: true,
+  validationEvents: true,
+  schema: { validationType: 'primitive' },
+  content: { proxyAssignmentMethod: 'assign' },
+})
+model.content.defineProperties({
+  propertyA: { value: {
+    propertyB: { value: {
+      propertyC: { value: "###" }
+    } }
+  } }
+})
+
+/*
+const propertyDescriptorTree = {
+  aaa: {
+    value: {
+      bbb: {
+        value: [{
+          value: "ccc"
+        }, {
+          value: "ddd"
+        }]
+      },
+      eee: {
+        value: "eee"
+      }
+    }
+  }
+}
+const definePropertiesTree = ($descriptorTree) => {
+  let properties
+  if(Array.isArray($descriptorTree)) { properties = [] }
+  else if(typeof $descriptorTree === 'object') { properties = {} }
+  for(const [$propertyKey, $propertyDescriptor] of Object.entries($descriptorTree)) {
+    const propertyDescriptorValue = $propertyDescriptor.value
+    if(typeof propertyDescriptorValue === 'object') {
+      properties[$propertyKey] = definePropertiesTree(propertyDescriptorValue)
+    }
+    else {
+      properties[$propertyKey] = propertyDescriptorValue
+    }
+  }
+  return properties
+}
+console.log(propertyDescriptorTree)
+console.log(definePropertiesTree(propertyDescriptorTree))
+*/
+/*
+import { Model } from "/dependencies/mvc-framework.js"
+const model = new Model({
+  schema: {
+    propertyA: { type: {
+      propertyB: { type: {
+        propertyC: { type: String }
+      } }
+    } }
+  },
+  content: {
+    // propertyA: {
+    //   propertyB: {
+    //     propertyC: "333333"
+    //   }
+    // }
+  },
+  localStorage: "/model",
+  events: {
+    // 'content validProperty': ($event) => {
+    //   console.log($event.type)
+    // },
+    // 'content nonvalidProperty': ($event) => {
+    //   console.log($event.type)
+    // },
     // 'change': ($event) => {
     //   console.log(
     //     "\n", "-----",
@@ -38,6 +124,14 @@ const model = new Model({
   schema: { validationType: 'primitive' },
   content: { proxyAssignmentMethod: 'assign' },
 })
+model.content.defineProperties({
+  propertyA: { value: {
+    propertyB: { value: {
+      propertyC: { value: "###" }
+    } }
+  } }
+})
+*/
 // model.content.assign({
 //   propertyA: {
 //     propertyB: {

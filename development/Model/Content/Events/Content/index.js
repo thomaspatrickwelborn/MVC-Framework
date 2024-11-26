@@ -34,6 +34,7 @@ export default class ContentEvent extends Event {
     else { this.#_key = null }
     return this.#_key
   }
+  get change() { return this.#settings.change }
   get value() { return this.#settings.value }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }

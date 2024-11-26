@@ -3,11 +3,13 @@ import impandEvents from './impandEvents/index.js'
 import expandEvents from './expandEvents/index.js'
 import recursiveAssign from './recursiveAssign/index.js'
 import regularExpressions from './regularExpressions/index.js'
+import definePropertiesTree from './definePropertiesTree/index.js'
 
 export {
   typeOf, 
-  impandEvents,
+  impandEvents, 
   expandEvents, 
   recursiveAssign, 
   regularExpressions, 
+  definePropertiesTree, 
 }

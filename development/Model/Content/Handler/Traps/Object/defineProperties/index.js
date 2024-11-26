@@ -5,6 +5,7 @@ export default function defineProperties() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { source, path, schema, proxy } = $content
+  const contentEvents = $content.options.contentEvents
   const $propertyDescriptors = arguments[0]
   const properties = Object.entries($propertyDescriptors)
   .reduce(($properties, [
@@ -19,7 +20,7 @@ export default function defineProperties() {
     $propertyKey, $propertyDescriptor
   ] of Object.entries($propertyDescriptors)) {
     // Property Descriptor Value Is Direct Instance Of Array/Object/Map
-    $trap.defineProperty($propertyKey, $propertyDescriptor)
+    proxy.defineProperty($propertyKey, $propertyDescriptor)
   }
   // Define Properties Event
   if(contentEvents && events['defineProperties']) {

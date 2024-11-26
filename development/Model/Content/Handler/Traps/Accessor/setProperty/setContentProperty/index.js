@@ -83,6 +83,17 @@ export default function setContentProperty() {
       }
       if(!validSourceProp.valid) { return }
     }
+    const change = {
+      preter: {
+        key: propertyKey,
+        value: source[propertyKey],
+      },
+      anter: {
+        key: propertyKey,
+        value: $value,
+      },
+      conter: undefined,
+    }
     // Return: Property
     // Value: Object Literal
     if(typeof $value === 'object') {
@@ -112,6 +123,7 @@ export default function setContentProperty() {
           new ContentEvent('setProperty', {
             path, 
             value: propertyValue,
+            change,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -126,6 +138,7 @@ export default function setContentProperty() {
           new ContentEvent(type, {
             path: _path, 
             value: propertyValue,
+            change,
             detail: {
               value: propertyValue,
             }

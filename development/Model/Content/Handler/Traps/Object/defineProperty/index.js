@@ -1,4 +1,4 @@
-import { typeOf } from '../../../../../../Coutil/index.js'
+import { typeOf, definePropertiesTree } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function defineProperty() {
@@ -9,13 +9,23 @@ export default function defineProperty() {
   const { enableValidation, validationEvents, contentEvents } = $content.options
   const propertyKey = arguments[0]
   const propertyDescriptor = arguments[1]
+  const propertyValue = propertyDescriptor.value
+  const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
+  const sourcePropertyValue = sourcePropertyDescriptor.value
+  const sourcePropertyValueIsContentInstance = (
+    sourcePropertyValue?.classToString === Content.toString()
+  ) ? true : false
+  
   // Validation
   if(schema && enableValidation) {
-    const validSourceProp = schema.validateProperty(propertyKey, propertyDescriptor.value)
+    const flattenedPropertyValue = definePropertiesTree({
+      [propertyKey]: propertyDescriptor
+    })[propertyKey]
+    const validProperty = schema.validateProperty(propertyKey, flattenedPropertyValue)
     if(validationEvents) {
       let type, propertyType
       const _path = [path, '.', propertyKey].join('')
-      if(validSourceProp.valid) {
+      if(validProperty.valid) {
         type = 'validProperty'
         propertyType = ['validProperty', ':', propertyKey].join('')
       }
@@ -27,31 +37,43 @@ export default function defineProperty() {
         $content.dispatchEvent(
           new ValidatorEvent($eventType, {
             path,
-            detail: validSourceProp,
+            detail: validProperty,
           }, $content)
         )
       }
     }
-    if(!validSourceProp.valid) { return proxy }
+    if(!validProperty.valid) { return proxy }
+  }
+  const change = {
+    preter: {
+      key: propertyKey,
+      value: source[propertyKey],
+    },
+    anter: {
+      key: propertyKey,
+      value: undefined,
+      // value: propertyValue,
+    },
+    conter: undefined,
   }
   // Property Descriptor Value: Object Type
-  if(typeof propertyDescriptor.value === 'object') {
+  if(typeof propertyValue === 'object') {
     // Subschema
     let subschema
     if(schema.type === 'array') { subschema = schema.context[0] }
     else if(schema.type === 'object') { subschema = schema.context[propertyKey] }
     else { subschema = undefined}
-    const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
+    // const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
     const _path = (
       path !== null
     ) ? path.concat('.', propertyKey)
       : propertyKey
-    if(sourcePropertyDescriptor.value.classToString === Content.toString()) {
+    if(sourcePropertyValueIsContentInstance) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
-        propertyDescriptor.value = Object.assign(propertyDescriptor.value, { path: _path, parent: proxy })
-        sourcePropertyDescriptor.value.defineProperties(propertyDescriptor.value)
+        propertyValue = Object.assign(propertyValue, { path: _path, parent: proxy })
+        sourcePropertyValue.defineProperties(propertyValue)
       }
       // Descriptor Tree: false
       else {
@@ -61,8 +83,8 @@ export default function defineProperty() {
     // Root Property Descriptor Value: New Content Instance
     else {
       let _source
-      if(typeOf(propertyDescriptor.value) === 'object') { _source = {} }
-      else if (typeOf(propertyDescriptor.value) === 'array') { _source = [] }
+      if(typeOf(propertyValue) === 'object') { _source = {} }
+      else if (typeOf(propertyValue) === 'array') { _source = [] }
       else { _source = {} }
       const contentObject = new Content(
         _source, subschema, {
@@ -72,7 +94,7 @@ export default function defineProperty() {
       )
       // Root Define Properties, Descriptor Tree
       if(descriptorTree === true) {
-        contentObject.defineProperties(propertyDescriptor.value)
+        contentObject.defineProperties(propertyValue)
         source[propertyKey] = contentObject
       } else 
       // Root Define Properties, No Descriptor Tree
@@ -85,13 +107,19 @@ export default function defineProperty() {
   else {
     Object.defineProperty(source, propertyKey, propertyDescriptor)
   }
+  change.anter.value = propertyValue
+  change.conter = (sourcePropertyValueIsContentInstance)
+    ? (sourcePropertyValue.string !== JSON.stringify(propertyValue))
+    : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue))
+  console.log("change", change)
   // Define Property Event
   if(contentEvents) {
     if(events['defineProperty']) {
       $content.dispatchEvent(
         new ContentEvent('defineProperty', {
           path,
-          value: propertyDescriptor.value,
+          value: propertyValue,
+          change, 
           detail: {
             prop: propertyKey,
             descriptor: propertyDescriptor,
@@ -105,7 +133,8 @@ export default function defineProperty() {
       $content.dispatchEvent(
         new ContentEvent(type, {
           path: _path,
-          value: propertyDescriptor.value,
+          value: propertyValue,
+          change, 
           detail: {
             prop: propertyKey,
             descriptor: propertyDescriptor,
