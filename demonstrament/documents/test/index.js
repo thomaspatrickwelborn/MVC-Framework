@@ -1,4 +1,47 @@
-
+import { Model } from "/dependencies/mvc-framework.js"
+const eventLog = ($event) => {
+  const { type, path, value, change, detail } = $event
+  console.log(type, path, value, change, detail)
+}
+const model = new Model({
+  schema: [{ type: {
+    propertyA: { type: {
+      propertyB: { type: String }
+    } }
+  } }],
+  content: [{
+    propertyA: {
+      propertyB: "333"
+    }
+  }, {
+    propertyA: {
+      propertyB: "4444"
+    }
+  }],
+  events: {
+    "content unshiftProp": eventLog,
+    // "change": eventLog
+  }
+}, {
+  changeEvents: true,
+  validationEvents: true,
+  schema: { validationType: 'primitive' },
+  content: { proxyAssignmentMethod: 'assign' },
+})
+model.content.unshift({
+  propertyA: {
+    propertyB: "1"
+  }
+}, {
+  propertyA: {
+    propertyB: "22"
+  }
+}, {
+  propertyA: {
+    propertyB: "333"
+  }
+})
+/*
 import { Model } from "/dependencies/mvc-framework.js"
 const model = new Model({
   schema: {
@@ -47,6 +90,7 @@ model.content.defineProperties({
     } }
   } }
 })
+*/
 
 /*
 const propertyDescriptorTree = {

@@ -114,8 +114,8 @@ export default function assign() {
       }
       change.anter.value = sourcePropVal
       change.conter = (sourcePropValIsContentInstance)
-        ? (sourcePropertyValue.string !== JSON.stringify(sourcePropVal))
-        : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(sourcePropVal))
+        ? (sourcePropVal.string !== JSON.stringify(sourcePropVal))
+        : (JSON.stringify(sourcePropVal) !== JSON.stringify(sourcePropVal))
       change.anter.value = sourcePropVal
       // Content Event: Assign Source Property
       if(contentEvents) {

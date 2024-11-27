@@ -283,8 +283,8 @@ function assign() {
       }
       change.anter.value = sourcePropVal;
       change.conter = (sourcePropValIsContentInstance)
-        ? (sourcePropertyValue.string !== JSON.stringify(sourcePropVal))
-        : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(sourcePropVal));
+        ? (sourcePropVal.string !== JSON.stringify(sourcePropVal))
+        : (JSON.stringify(sourcePropVal) !== JSON.stringify(sourcePropVal));
       change.anter.value = sourcePropVal;
       // Content Event: Assign Source Property
       if(contentEvents) {
@@ -1244,45 +1244,62 @@ function unshift() {
   const $options = Array.prototype.shift.call(arguments);
   const $arguments = [...arguments];
   const { events } = $options;
-  const { source, path, schema } = $content;
+  const { source, path, schema, proxy } = $content;
   const { enableValidation, validationEvents, contentEvents } = $content.options;
   const elements = [];
   const elementsLength = $arguments.length;
   let elementIndex = elementsLength - 1;
+  let elementCoindex = 0;
   while(elementIndex > -1) {
     $arguments.length;
     let $element = $arguments[elementIndex];
+    let element;
+    const sourceElement = source[elementIndex];
+    const sourceElementIsContentInstance = (
+      sourceElement?.classToString === Content.toString()
+    ) ? true : false;
     // Validation
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementIndex, $element);
       if(validationEvents) {
         let type, propertyType;
-        if(validSourceProp.valid) {
+        if(validElement.valid) {
           type = 'validProperty';
-          propertyType = ['validProperty', ':', elementIndex].join('');
+          propertyType = ['validProperty', ':', elementCoindex].join('');
         }
         else {
           type = 'nonvalidProperty';
-          propertyType = ['nonvalidProperty', ':', elementIndex].join('');
+          propertyType = ['nonvalidProperty', ':', elementCoindex].join('');
         }
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
+            new ValidatorEvent$1($eventType, {
               path,
-              detail: validSourceProp,
+              detail: validElement,
             }, $content)
           );
         }
       }
       if(!validElement.valid) { return proxy.length }
     }
+    const change = {
+      preter: {
+        key: elementCoindex,
+        value: source[elementCoindex],
+      },
+      anter: {
+        key: elementCoindex,
+        value: undefined,
+      },
+      conter: undefined,
+    };
     // Element: Object Type
     if(typeof $element === 'object') {
       const subschema = schema?.context[0] || null;
       const _path = (path !== null)
-        ? path.concat('.', elementIndex)
-        : elementIndex;
-      const element = new Content($element, subschema, {
+        ? path.concat('.', elementCoindex)
+        : elementCoindex;
+      element = new Content($element, subschema, {
         path: _path,
         parent: proxy,
       });
@@ -1291,9 +1308,14 @@ function unshift() {
     }
     // Element: Primitive Type
     else {
-      elements.unshift($element);
+      element = $element;
+      elements.unshift(element);
       Array.prototype.unshift.call(source, $element);
     }
+    change.anter.value = element;
+    change.conter = (sourceElementIsContentInstance)
+      ? (sourceElement.string !== JSON.stringify(element))
+      : (JSON.stringify(sourceElement) !== JSON.stringify(element));
     // Array Unshift Prop Event
     if(contentEvents) {
       if(events['unshiftProp']) {
@@ -1301,22 +1323,24 @@ function unshift() {
           new ContentEvent('unshiftProp', {
             path,
             value: element,
+            change,
             detail: {
-              elementIndex, 
+              elementIndex: elementCoindex, 
               element: element,
             },
           }, $content)
         );
       }
       if(events['unshiftProp:$index']) {
-        const type = ['unshiftProp', ':', elementIndex].join('');
-        const _path = [path, '.', elementIndex];
+        const type = ['unshiftProp', ':', elementCoindex].join('');
+        const _path = [path, '.', elementCoindex];
         $content.dispatchEvent(
           new ContentEvent(type, {
             path: _path,
             value: element,
+            change,
             detail: {
-              elementIndex, 
+              elementIndex: elementCoindex, 
               element: element,
             },
           }, $content)
@@ -1325,6 +1349,7 @@ function unshift() {
 
     }
     elementIndex--;
+    elementCoindex++;
   }
   // Array Unshift Event
   if(contentEvents && events['unshift'] && elements.length) {
@@ -3132,7 +3157,6 @@ class Model extends Core {
   }
   #propertyChange($event) {
     this.save();
-    console.log($event);
     const { type, path, value, change } = $event;
     const detail = Object.assign({ type }, $event.detail);
     const originalEvent = $event;
