@@ -52,7 +52,6 @@ export default function defineProperty() {
     anter: {
       key: propertyKey,
       value: undefined,
-      // value: propertyValue,
     },
     conter: undefined,
   }
@@ -111,7 +110,6 @@ export default function defineProperty() {
   change.conter = (sourcePropertyValueIsContentInstance)
     ? (sourcePropertyValue.string !== JSON.stringify(propertyValue))
     : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue))
-  console.log("change", change)
   // Define Property Event
   if(contentEvents) {
     if(events['defineProperty']) {

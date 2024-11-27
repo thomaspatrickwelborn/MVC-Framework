@@ -10,14 +10,11 @@ export default class ContentEvent extends Event {
       $type, 
       ($event) => {
         if(this.#content.parent !== null) {
+          const { path, value, detail, change } = $event
           this.#content.parent.dispatchEvent(
             new ContentEvent(
               this.type, 
-              {
-                path: $event.path,
-                value: $event.value,
-                detail: $event.detail,
-              },
+              { path, value, detail, change },
               this.#content.parent
             )
           )

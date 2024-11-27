@@ -24,14 +24,14 @@ const model = new Model({
     //   console.log($event.type, $event.path)
     // },
     'change': ($event) => {
-      console.log(
-        "\n", "-----",
-        "\n", $event.type,
-        "\n", $event
-        // "\n", $event.path,
-        // "\n", $event.detail,
-        // "\n", $event.change,
-      )
+      // console.log(
+      //   "\n", "-----",
+      //   "\n", $event.type,
+      //   "\n", $event
+      //   // "\n", $event.path,
+      //   // "\n", $event.detail,
+      //   // "\n", $event.change,
+      // )
     }
   }
 }, {

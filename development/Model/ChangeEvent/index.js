@@ -1,4 +1,4 @@
-export default class ChangeEvent extends Event {
+export default class ChangeEvent extends CustomEvent {
   #settings
   #content
   #_key

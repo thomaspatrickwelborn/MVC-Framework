@@ -104,14 +104,11 @@ class ContentEvent extends Event {
       $type, 
       ($event) => {
         if(this.#content.parent !== null) {
+          const { path, value, detail, change } = $event;
           this.#content.parent.dispatchEvent(
             new ContentEvent(
               this.type, 
-              {
-                path: $event.path,
-                value: $event.value,
-                detail: $event.detail,
-              },
+              { path, value, detail, change },
               this.#content.parent
             )
           );
@@ -199,7 +196,6 @@ function assign() {
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal);
-        // console.log("validSourceProp", validSourceProp)
         if(validationEvents) {
           let type, propertyType;
           if(validSourceProp.valid) {
@@ -440,7 +436,6 @@ function defineProperty() {
     anter: {
       key: propertyKey,
       value: undefined,
-      // value: propertyValue,
     },
     conter: undefined,
   };
@@ -499,7 +494,6 @@ function defineProperty() {
   change.conter = (sourcePropertyValueIsContentInstance)
     ? (sourcePropertyValue.string !== JSON.stringify(propertyValue))
     : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue));
-  console.log("change", change);
   // Define Property Event
   if(contentEvents) {
     if(events['defineProperty']) {
@@ -3028,7 +3022,7 @@ var Options$3 = {
   changeEvents: false, // Boolean
 };
 
-class ChangeEvent extends Event {
+class ChangeEvent extends CustomEvent {
   #settings
   #content
   #_key
@@ -3138,6 +3132,7 @@ class Model extends Core {
   }
   #propertyChange($event) {
     this.save();
+    console.log($event);
     const { type, path, value, change } = $event;
     const detail = Object.assign({ type }, $event.detail);
     const originalEvent = $event;

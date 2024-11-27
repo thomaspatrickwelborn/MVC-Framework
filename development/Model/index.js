@@ -95,6 +95,7 @@ export default class Model extends Core {
   }
   #propertyChange($event) {
     this.save()
+    console.log($event)
     const { type, path, value, change } = $event
     const detail = Object.assign({ type }, $event.detail)
     const originalEvent = $event
