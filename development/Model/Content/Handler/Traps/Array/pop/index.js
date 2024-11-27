@@ -8,11 +8,14 @@ export default function pop() {
   const popElementIndex = source.length - 1
   // Array Pop Event
   if(contentEvents && events['pop']) {
+    const contentEventPath = (path)
+      ? [path, popElementIndex].join('.')
+      : String(popElementIndex)
     $content.dispatchEvent(
       new ContentEvent(
         'pop',
         {
-          path, 
+          path: contentEventPath,
           value: popElement,
           detail: {
             elementIndex: popElementIndex,

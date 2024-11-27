@@ -36,12 +36,15 @@ export default function copyWithin() {
     )
     // Array Copy Within Index Event Data
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, copyIndex].join('.')
+        : String(copyIndex)
       if(events['copyWithinIndex']) {
         $content.dispatchEvent(
           new ContentEvent(
             'copyWithinIndex',
             {
-              path,
+              path: contentEventPath,
               value: copyItem,
               detail: {
                 target: targetIndex,
@@ -56,12 +59,12 @@ export default function copyWithin() {
       }
       if(events['copyWithinIndex:$index']) {
         const type  = ['copyWithinIndex', ':', copyIndex].join('')
-        const _path = [path, '.', copyIndex].join('')
         $content.dispatchEvent(
           new ContentEvent(
             type,
             {
-              path: _path,
+              path: contentEventPath,
+              value: copyItem,
               detail: {
                 target: targetIndex,
                 start: copyIndex,

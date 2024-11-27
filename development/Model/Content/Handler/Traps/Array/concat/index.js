@@ -23,7 +23,9 @@ export default function concat() {
       const validValue = schema.validateProperty(valueIndex, $subvalue)
       if(schema &&validationEvents) {
         let type, propertyType
-        const _path = [path, '.', valueIndex].join('')
+        const validatorPath = (path)
+          ? [path, valueIndex].join('.')
+          : String(valueIndex)
         if(validSourceProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', valueIndex].join('')
@@ -35,7 +37,7 @@ export default function concat() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorPath,
               detail: validSourceProp,
             }, $content)
           )
@@ -43,16 +45,16 @@ export default function concat() {
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
-    const _path = (path !== null)
-      ? path.concat('.', valueIndex)
-      : valueIndex
+    const contentPath = (path)
+      ? [path, valueIndex].join('.')
+      : String(valueIndex)
     // Value: Object Type
     if(typeof $value === 'object') {
       // Value: Content
       if($value?.classToString === Content.toString()) { $value = $value.object }
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       })
       values[valueIndex] = value
@@ -63,10 +65,13 @@ export default function concat() {
     }
     sourceConcat = Array.prototype.concat.call(sourceConcat, values[valueIndex])
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, valueIndex].join('.')
+        : String(valueIndex)
       if(events['concatValue']) {
         $content.dispatchEvent(
           new ContentEvent('concatValue', {
-            path,
+            path: contentEventPath,
             value: values[valueIndex],
             detail: {
               valueIndex,
@@ -77,10 +82,9 @@ export default function concat() {
       }
       if(events['concatValue:$index']) {
         const type = ['concatValue', ':', valueIndex].join('')
-        const _path = [path, '.', valueIndex].join('')
         $content.dispatchEvent(
           new ContentEvent('concatValue', {
-            path: _path,
+            path: contentEventPath,
             value: values[valueIndex],
             detail: {
               valueIndex,

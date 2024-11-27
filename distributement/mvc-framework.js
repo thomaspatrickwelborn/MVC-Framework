@@ -198,18 +198,21 @@ function assign() {
         const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal);
         if(validationEvents) {
           let type, propertyType;
+          const validatorEventPath = (path)
+            ? [path, $assignSourcePropKey].join('.')
+            : String($assignSourcePropKey);
           if(validSourceProp.valid) {
             type = 'validProperty';
-            propertyType = ['validProperty', ':', $assignSourcePropKey].join('');
+            propertyType = ['validProperty', $assignSourcePropKey].join(':');
           }
           else {
             type = 'nonvalidProperty';
-            propertyType = ['nonvalidProperty', ':', $assignSourcePropKey].join('');
+            propertyType = ['nonvalidProperty', $assignSourcePropKey].join(':');
           }
           for(const $eventType of [type, propertyType]) {
             $content.dispatchEvent(
               new ValidatorEvent$1($eventType, {
-                path,
+                path: validatorEventPath,
                 detail: validSourceProp,
               }, $content)
             );
@@ -225,7 +228,6 @@ function assign() {
         },
         anter: {
           key: $assignSourcePropKey,
-          // value: $assignSourcePropVal,
           value: undefined,
         },
         conter: undefined
@@ -241,9 +243,9 @@ function assign() {
         else if(schema?.type === 'object') { subschema = schema.context[$assignSourcePropKey]; }
         else { subschema = null; }
         // Content
-        const _path = (path !== null)
-          ? path.concat('.', $assignSourcePropKey)
-          : $assignSourcePropKey;
+        const contentPath = (path)
+          ? [path, $assignSourcePropKey].join('.')
+          : String($assignSourcePropKey);
         // Assignment
         let assignment;
         // Source Tree: False
@@ -260,7 +262,7 @@ function assign() {
           else {
             sourcePropVal = new Content($assignSourcePropVal, subschema, 
               recursiveAssign({}, $content.options, {
-                path: _path,
+                path: contentPath,
                 parent: proxy,
               })
             );
@@ -288,10 +290,11 @@ function assign() {
       change.anter.value = sourcePropVal;
       // Content Event: Assign Source Property
       if(contentEvents) {
+        const contentEventPath = [path, $assignSourcePropKey].join('.');
         if(events['assignSourceProperty']) {
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
-              path,
+              path: contentEventPath,
               value: $assignSourcePropVal,
               change,
               detail: {
@@ -303,11 +306,10 @@ function assign() {
           );
         }
         if(events['assignSourceProperty:$key']) {
-          const type = ['assignSourceProperty', ':', $assignSourcePropKey].join('');
-          const _path = [path, '.', $assignSourcePropKey].join('');
+          const type = ['assignSourceProperty', $assignSourcePropKey].join(':');
           $content.dispatchEvent(
             new ContentEvent(type, {
-              path: _path,
+              path: contentEventPath,
               value: $assignSourcePropVal,
               change,
               detail: {
@@ -400,7 +402,6 @@ function defineProperty() {
   const sourcePropertyValueIsContentInstance = (
     sourcePropertyValue?.classToString === Content.toString()
   ) ? true : false;
-  
   // Validation
   if(schema && enableValidation) {
     const flattenedPropertyValue = definePropertiesTree({
@@ -409,18 +410,21 @@ function defineProperty() {
     const validProperty = schema.validateProperty(propertyKey, flattenedPropertyValue);
     if(validationEvents) {
       let type, propertyType;
+      const validatorPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey);
       if(validProperty.valid) {
         type = 'validProperty';
-        propertyType = ['validProperty', ':', propertyKey].join('');
+        propertyType = ['validProperty', propertyKey].join(':');
       }
       else {
         type = 'nonvalidProperty';
-        propertyType = ['nonvalidProperty', ':', propertyKey].join('');
+        propertyType = ['nonvalidProperty', propertyKey].join(':');
       }
       for(const $eventType of [type, propertyType]) {
         $content.dispatchEvent(
           new ValidatorEvent$1($eventType, {
-            path,
+            path: validatorPath,
             detail: validProperty,
           }, $content)
         );
@@ -448,14 +452,13 @@ function defineProperty() {
     else { subschema = undefined;}
     // const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
-    const _path = (
-      path !== null
-    ) ? path.concat('.', propertyKey)
-      : propertyKey;
+    const contentPath = (path)
+      ? [path, propertyKey].join('.')
+      : String(propertyKey);
     if(sourcePropertyValueIsContentInstance) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
-        propertyValue = Object.assign(propertyValue, { path: _path, parent: proxy });
+        // propertyValue = Object.assign(propertyValue, { path: contentPath, parent: proxy })
         sourcePropertyValue.defineProperties(propertyValue);
       }
       // Descriptor Tree: false
@@ -471,7 +474,7 @@ function defineProperty() {
       else { _source = {}; }
       const contentObject = new Content(
         _source, subschema, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }
       );
@@ -496,10 +499,13 @@ function defineProperty() {
     : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue));
   // Define Property Event
   if(contentEvents) {
+    const contentEventPath = (path)
+      ? [path, propertyKey].join('.')
+      : String(propertyKey);
     if(events['defineProperty']) {
       $content.dispatchEvent(
         new ContentEvent('defineProperty', {
-          path,
+          path: contentEventPath,
           value: propertyValue,
           change, 
           detail: {
@@ -510,11 +516,10 @@ function defineProperty() {
       ));
     }
     if(events['defineProperty:$key']) {
-      const type = ['defineProperty', ':', propertyKey].join('');
-      const _path = [path, '.', propertyKey].join('');
+      const type = ['defineProperty', propertyKey].join(':');
       $content.dispatchEvent(
         new ContentEvent(type, {
-          path: _path,
+          path: contentEventPath,
           value: propertyValue,
           change, 
           detail: {
@@ -617,6 +622,9 @@ function concat() {
       const validValue = schema.validateProperty(valueIndex, $subvalue);
       if(schema &&validationEvents) {
         let type, propertyType;
+        const validatorPath = (path)
+          ? [path, valueIndex].join('.')
+          : String(valueIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', valueIndex].join('');
@@ -628,7 +636,7 @@ function concat() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorPath,
               detail: validSourceProp,
             }, $content)
           );
@@ -636,16 +644,16 @@ function concat() {
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
     }
-    const _path = (path !== null)
-      ? path.concat('.', valueIndex)
-      : valueIndex;
+    const contentPath = (path)
+      ? [path, valueIndex].join('.')
+      : String(valueIndex);
     // Value: Object Type
     if(typeof $value === 'object') {
       // Value: Content
       if($value?.classToString === Content.toString()) { $value = $value.object; }
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       });
       values[valueIndex] = value;
@@ -656,10 +664,13 @@ function concat() {
     }
     sourceConcat = Array.prototype.concat.call(sourceConcat, values[valueIndex]);
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, valueIndex].join('.')
+        : String(valueIndex);
       if(events['concatValue']) {
         $content.dispatchEvent(
           new ContentEvent('concatValue', {
-            path,
+            path: contentEventPath,
             value: values[valueIndex],
             detail: {
               valueIndex,
@@ -669,10 +680,9 @@ function concat() {
         );
       }
       if(events['concatValue:$index']) {
-        const _path = [path, '.', valueIndex].join('');
         $content.dispatchEvent(
           new ContentEvent('concatValue', {
-            path: _path,
+            path: contentEventPath,
             value: values[valueIndex],
             detail: {
               valueIndex,
@@ -733,12 +743,15 @@ function copyWithin() {
     );
     // Array Copy Within Index Event Data
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, copyIndex].join('.')
+        : String(copyIndex);
       if(events['copyWithinIndex']) {
         $content.dispatchEvent(
           new ContentEvent(
             'copyWithinIndex',
             {
-              path,
+              path: contentEventPath,
               value: copyItem,
               detail: {
                 target: targetIndex,
@@ -753,12 +766,12 @@ function copyWithin() {
       }
       if(events['copyWithinIndex:$index']) {
         const type  = ['copyWithinIndex', ':', copyIndex].join('');
-        const _path = [path, '.', copyIndex].join('');
         $content.dispatchEvent(
           new ContentEvent(
             type,
             {
-              path: _path,
+              path: contentEventPath,
+              value: copyItem,
               detail: {
                 target: targetIndex,
                 start: copyIndex,
@@ -826,6 +839,9 @@ function fill() {
       let validValue = schema.validate(validValue);
       if(validationEvents) {
         let type, propertyType;
+        const validatorPath = (path)
+          ? [path, fillIndex].join('.')
+          : String(fillIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', fillIndex].join('');
@@ -837,7 +853,7 @@ function fill() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorPath,
               detail: validSourceProp,
             }, $content)
           );
@@ -845,15 +861,15 @@ function fill() {
       }
       if(!validValue.valid) { continue iterateFillIndexes }
     }
-    const _path = (path !== null)
-      ? path.concat('.', fillIndex)
-      : fillIndex;
+    const contentPath = (path)
+      ? [path, fillIndex].join('.')
+      : String(fillIndex);
     let value = $arguments[0];
     if(typeof value === 'object') {
       if(value?.classToString === Content.toString()) { value = value.object; }
       const subschema = schema?.context[0] || null;
       value = new Content(value, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       });
     }
@@ -862,10 +878,13 @@ function fill() {
     );
     // Array Fill Index Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, fillIndex].join('.')
+        : String(fillIndex);
       if(events['fillIndex']) {
         $content.dispatchEvent(
           new ContentEvent('fillIndex', {
-            path, 
+            path: contentEventPath, 
             value: value,
             detail: {
               start: fillIndex,
@@ -877,10 +896,9 @@ function fill() {
       }
       if(events['fillIndex:$index']) {
         const type = ['fillIndex', ':', fillIndex].join('');
-        const _path = [path, '.', fillIndex].join('');
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path, 
+            path: contentEventPath, 
             detail: {
               start: fillIndex,
               end: fillIndex + 1,
@@ -918,11 +936,14 @@ function pop() {
   const popElementIndex = source.length - 1;
   // Array Pop Event
   if(contentEvents && events['pop']) {
+    const contentEventPath = (path)
+      ? [path, popElementIndex].join('.')
+      : String(popElementIndex);
     $content.dispatchEvent(
       new ContentEvent(
         'pop',
         {
-          path, 
+          path: contentEventPath,
           value: popElement,
           detail: {
             elementIndex: popElementIndex,
@@ -951,6 +972,9 @@ function push() {
       const validElement = schema.validateProperty(elementsIndex, $element);
       if(validationEvents) {
         let type, propertyType;
+        const validatorPath = (path)
+          ? [path, elementsIndex].join('.')
+          : String(elementsIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', elementsIndex].join('');
@@ -962,7 +986,7 @@ function push() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorPath,
               detail: validSourceProp,
             }, $content)
           );
@@ -970,14 +994,14 @@ function push() {
       }
       if(!validElement.valid) { return source.length }
     }
-    const _path = (path !== null)
-      ? path.concat('.', elementsIndex)
-      : elementsIndex;
+    const contentPath = (path)
+      ? [path, elementsIndex].join('.')
+      : String(elementsIndex);
     if(typeof $element === 'object') {
       if($element?.classToString === Content.toString()) { $element = $element.object; }
       const subschema = schema?.context[0] || null;
       $element = new Content($element, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       });
       elements.push($element);
@@ -987,10 +1011,13 @@ function push() {
       Array.prototype.push.call(source, $element);
     }
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, '.', elementsIndex].join('')
+        : String(elementsIndex);
       if(events['pushProp']) {
         $content.dispatchEvent(
           new ContentEvent('pushProp', {
-            path,
+            path: contentEventPath,
             value: elements[elementsIndex],
             detail: {
               elementsIndex,
@@ -1001,10 +1028,9 @@ function push() {
       }
       if(events['pushProp:$index']) {
         const type = ['pushProp', ':', elementsIndex].join('');
-        const _path = [path, '.', elementsIndex].join('');
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: elements[elementsIndex],
             detail: {
               elementsIndex,
@@ -1063,11 +1089,14 @@ function shift() {
   const shiftElementIndex = 0;
   // Array Shift Event
   if(contentEvents && events['shift']) {
+    const contentEventPath = (path)
+      ? [path, shiftElementIndex].join('.')
+      : String(shiftElementIndex);
     $content.dispatchEvent(
       new ContentEvent(
         'shift',
         {
-          path,
+          path: contentEventPath,
           value: shiftElement,
           detail: {
             elementIndex: shiftElementIndex,
@@ -1107,10 +1136,13 @@ function splice() {
     deleteItems.push(deleteItem);
     // Array Splice Delete Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, deleteItemsIndex].join('.')
+        : String(deleteItemsIndex);
       if(events['spliceDelete']) {
         $content.dispatchEvent(
           new ContentEvent('spliceDelete', {
-            path,
+            path: contentEventPath,
             value: deleteItem,
             detail: {
               index: $start + deleteItemsIndex,
@@ -1122,10 +1154,9 @@ function splice() {
       }
       if(events['spliceDelete:$index']) {
         const type = ['spliceDelete', ':', deleteItemsIndex].join('');
-        const _path = [path, '.', deleteItemsIndex].join('');
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: deleteItem,
             detail: {
               index: $start + deleteItemsIndex,
@@ -1147,6 +1178,9 @@ function splice() {
       const validAddItem = schema.validateProperty(elementIndex, element);
       if(validationEvents) {
         let type, propertyType;
+        const validatorEventPath = (path)
+          ? [path, addItemsIndex].join('.')
+          : String(addItemsIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', addItemsIndex].join('');
@@ -1158,7 +1192,7 @@ function splice() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorEventPath,
               detail: validSourceProp,
             }, $content)
           );
@@ -1166,16 +1200,16 @@ function splice() {
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
     }
-    const _path = (path !== null)
-      ? path.concat('.', addItemsIndex)
-      : addItemsIndex;
+    const contentPath = (path)
+      ? [path, addItemsIndex].join('.')
+      : String(addItemsIndex);
     let startIndex = $start + addItemsIndex;
     // Add Item: Object Type
     if(typeof addItem === 'object') {
       if(addItem?.classToString === Content.toString()) { addItem = addItem.object; }
       const subschema = schema?.context[0] || null;
       addItem = new Content(addItem, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       });
       Array.prototype.splice.call(
@@ -1190,10 +1224,13 @@ function splice() {
     }
     // Array Splice Add Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, addItemsIndex].join('.')
+        : String(addItemsIndex);
       if(events['spliceAdd']) {
         $content.dispatchEvent(
           new ContentEvent('spliceAdd', {
-            path,
+            path: contentEventPath,
             value: addItem,
             detail: {
               index: $start + addItemsIndex,
@@ -1205,10 +1242,9 @@ function splice() {
       }
       if(events['spliceAdd:$index']) {
         const type = ['spliceAdd', ':', addItemsIndex].join('');
-        const _path = [path, '.', addItemsIndex].join('');
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: addItem,
             detail: {
               index: $start + addItemsIndex,
@@ -1263,6 +1299,9 @@ function unshift() {
       const validElement = schema.validateProperty(elementIndex, $element);
       if(validationEvents) {
         let type, propertyType;
+        const validatorEventPath = (path)
+          ? [path, '.', elementCoindex].join('')
+          : elementCoindex;
         if(validElement.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', elementCoindex].join('');
@@ -1274,7 +1313,7 @@ function unshift() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent$1($eventType, {
-              path,
+              path: validatorEventPath,
               detail: validElement,
             }, $content)
           );
@@ -1296,11 +1335,11 @@ function unshift() {
     // Element: Object Type
     if(typeof $element === 'object') {
       const subschema = schema?.context[0] || null;
-      const _path = (path !== null)
+      const contentPath = (path)
         ? path.concat('.', elementCoindex)
-        : elementCoindex;
+        : String(elementCoindex);
       element = new Content($element, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       });
       elements.unshift(element);
@@ -1318,10 +1357,14 @@ function unshift() {
       : (JSON.stringify(sourceElement) !== JSON.stringify(element));
     // Array Unshift Prop Event
     if(contentEvents) {
+      const type = ['unshiftProp', elementCoindex].join(':');
+      const contentEventPath = (path)
+        ? [path, elementCoindex].join('.')
+        : String(elementCoindex);
       if(events['unshiftProp']) {
         $content.dispatchEvent(
           new ContentEvent('unshiftProp', {
-            path,
+            path: contentEventPath,
             value: element,
             change,
             detail: {
@@ -1332,11 +1375,9 @@ function unshift() {
         );
       }
       if(events['unshiftProp:$index']) {
-        const type = ['unshiftProp', ':', elementCoindex].join('');
-        const _path = [path, '.', elementCoindex];
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: element,
             change,
             detail: {
@@ -1553,9 +1594,9 @@ function setContentProperty() {
     const propertyKey = subpaths.shift();
     // Property Value
     let propertyValue;
-    const _path = (path !== null)
-      ? String(path).concat('.', propertyKey)
-      : propertyKey;
+    const contentPath = (path)
+      ? (propertyKey).join('.')
+      : String(propertyKey);
     // Return: Subproperty
     if(subpaths.length) {
       if(recursive && source[propertyKey] === undefined) {
@@ -1573,7 +1614,7 @@ function setContentProperty() {
           else { subcontent = {}; }
         }
         propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }));
       }
@@ -1590,6 +1631,9 @@ function setContentProperty() {
       const validSourceProp = schema.validateProperty(propertyKey, $value);
       if(validationEvents) {
         let type, propertyType;
+        const validatorEventPath = (path)
+          ? [path, propertyKey].join('.')
+          : String(propertyKey);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', propertyKey].join('');
@@ -1601,7 +1645,7 @@ function setContentProperty() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent$1($eventType, {
-              path,
+              path: validatorEventPath,
               detail: validSourceProp,
             }, $content)
           );
@@ -1631,7 +1675,7 @@ function setContentProperty() {
       else { subschema = undefined; }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }
       ));
@@ -1644,10 +1688,13 @@ function setContentProperty() {
     source[propertyKey] = propertyValue;
     // Set Property Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey);
       if(events['setProperty']) {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
-            path, 
+            path: contentEventPath, 
             value: propertyValue,
             change,
             detail: {
@@ -1659,10 +1706,9 @@ function setContentProperty() {
       }
       if(events['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('');
-        const _path = [path, '.', propertyKey].join('');
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path, 
+            path: contentEventPath, 
             value: propertyValue,
             change,
             detail: {
@@ -1685,12 +1731,12 @@ function setContentProperty() {
       if(schema?.type === 'array') { subschema = schema.context[0]; }
       if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
       else { subschema = undefined; }
-      const _path = (path !== null)
-        ? path.concat('.', propertyKey)
-        : propertyKey;
+      const contentPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey);
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }
       ));
@@ -1701,10 +1747,13 @@ function setContentProperty() {
     source[propertyKey] = propertyValue;
     // Set Property Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey);
       if(events['setProperty']) {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
-            path, 
+            path: contentEventPath, 
             value: propertyValue,
             detail: {
               key: propertyKey,
@@ -1715,10 +1764,9 @@ function setContentProperty() {
       }
       if(events['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('');
-        const _path = [path, '.', propertyKey].join('');
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path, 
+            path: contentEventPath, 
             value: propertyValue,
             detail: {
               value: propertyValue,

@@ -27,10 +27,13 @@ export default function splice() {
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, deleteItemsIndex].join('.')
+        : String(deleteItemsIndex)
       if(events['spliceDelete']) {
         $content.dispatchEvent(
           new ContentEvent('spliceDelete', {
-            path,
+            path: contentEventPath,
             value: deleteItem,
             detail: {
               index: $start + deleteItemsIndex,
@@ -42,10 +45,9 @@ export default function splice() {
       }
       if(events['spliceDelete:$index']) {
         const type = ['spliceDelete', ':', deleteItemsIndex].join('')
-        const _path = [path, '.', deleteItemsIndex].join('')
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: deleteItem,
             detail: {
               index: $start + deleteItemsIndex,
@@ -67,7 +69,9 @@ export default function splice() {
       const validAddItem = schema.validateProperty(elementIndex, element)
       if(validationEvents) {
         let type, propertyType
-        const _path = [path, '.', addItemsIndex].join('')
+        const validatorEventPath = (path)
+          ? [path, addItemsIndex].join('.')
+          : String(addItemsIndex)
         if(validSourceProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', addItemsIndex].join('')
@@ -79,7 +83,7 @@ export default function splice() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorEventPath,
               detail: validSourceProp,
             }, $content)
           )
@@ -87,16 +91,16 @@ export default function splice() {
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
     }
-    const _path = (path !== null)
-      ? path.concat('.', addItemsIndex)
-      : addItemsIndex
+    const contentPath = (path)
+      ? [path, addItemsIndex].join('.')
+      : String(addItemsIndex)
     let startIndex = $start + addItemsIndex
     // Add Item: Object Type
     if(typeof addItem === 'object') {
       if(addItem?.classToString === Content.toString()) { addItem = addItem.object }
       const subschema = schema?.context[0] || null
       addItem = new Content(addItem, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       })
       Array.prototype.splice.call(
@@ -111,10 +115,13 @@ export default function splice() {
     }
     // Array Splice Add Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, addItemsIndex].join('.')
+        : String(addItemsIndex)
       if(events['spliceAdd']) {
         $content.dispatchEvent(
           new ContentEvent('spliceAdd', {
-            path,
+            path: contentEventPath,
             value: addItem,
             detail: {
               index: $start + addItemsIndex,
@@ -126,10 +133,9 @@ export default function splice() {
       }
       if(events['spliceAdd:$index']) {
         const type = ['spliceAdd', ':', addItemsIndex].join('')
-        const _path = [path, '.', addItemsIndex].join('')
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: addItem,
             detail: {
               index: $start + addItemsIndex,

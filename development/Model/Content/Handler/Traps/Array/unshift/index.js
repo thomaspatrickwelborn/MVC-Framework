@@ -25,7 +25,9 @@ export default function unshift() {
       const validElement = schema.validateProperty(elementIndex, $element)
       if(validationEvents) {
         let type, propertyType
-        const _path = [path, '.', elementCoindex].join('')
+        const validatorEventPath = (path)
+          ? [path, '.', elementCoindex].join('')
+          : elementCoindex
         if(validElement.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', elementCoindex].join('')
@@ -37,7 +39,7 @@ export default function unshift() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorEventPath,
               detail: validElement,
             }, $content)
           )
@@ -59,11 +61,11 @@ export default function unshift() {
     // Element: Object Type
     if(typeof $element === 'object') {
       const subschema = schema?.context[0] || null
-      const _path = (path !== null)
+      const contentPath = (path)
         ? path.concat('.', elementCoindex)
-        : elementCoindex
+        : String(elementCoindex)
       element = new Content($element, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       })
       elements.unshift(element)
@@ -81,10 +83,14 @@ export default function unshift() {
       : (JSON.stringify(sourceElement) !== JSON.stringify(element))
     // Array Unshift Prop Event
     if(contentEvents) {
+      const type = ['unshiftProp', elementCoindex].join(':')
+      const contentEventPath = (path)
+        ? [path, elementCoindex].join('.')
+        : String(elementCoindex)
       if(events['unshiftProp']) {
         $content.dispatchEvent(
           new ContentEvent('unshiftProp', {
-            path,
+            path: contentEventPath,
             value: element,
             change,
             detail: {
@@ -95,11 +101,9 @@ export default function unshift() {
         )
       }
       if(events['unshiftProp:$index']) {
-        const type = ['unshiftProp', ':', elementCoindex].join('')
-        const _path = [path, '.', elementCoindex]
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: element,
             change,
             detail: {

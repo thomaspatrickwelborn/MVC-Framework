@@ -28,19 +28,21 @@ export default function assign() {
         const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal)
         if(validationEvents) {
           let type, propertyType
-          const _path = [path, '.', $assignSourcePropKey].join('')
+          const validatorEventPath = (path)
+            ? [path, $assignSourcePropKey].join('.')
+            : String($assignSourcePropKey)
           if(validSourceProp.valid) {
             type = 'validProperty'
-            propertyType = ['validProperty', ':', $assignSourcePropKey].join('')
+            propertyType = ['validProperty', $assignSourcePropKey].join(':')
           }
           else {
             type = 'nonvalidProperty'
-            propertyType = ['nonvalidProperty', ':', $assignSourcePropKey].join('')
+            propertyType = ['nonvalidProperty', $assignSourcePropKey].join(':')
           }
           for(const $eventType of [type, propertyType]) {
             $content.dispatchEvent(
               new ValidatorEvent($eventType, {
-                path,
+                path: validatorEventPath,
                 detail: validSourceProp,
               }, $content)
             )
@@ -56,7 +58,6 @@ export default function assign() {
         },
         anter: {
           key: $assignSourcePropKey,
-          // value: $assignSourcePropVal,
           value: undefined,
         },
         conter: undefined
@@ -72,9 +73,9 @@ export default function assign() {
         else if(schema?.type === 'object') { subschema = schema.context[$assignSourcePropKey] }
         else { subschema = null }
         // Content
-        const _path = (path !== null)
-          ? path.concat('.', $assignSourcePropKey)
-          : $assignSourcePropKey
+        const contentPath = (path)
+          ? [path, $assignSourcePropKey].join('.')
+          : String($assignSourcePropKey)
         // Assignment
         let assignment
         // Source Tree: False
@@ -91,7 +92,7 @@ export default function assign() {
           else {
             sourcePropVal = new Content($assignSourcePropVal, subschema, 
               recursiveAssign({}, $content.options, {
-                path: _path,
+                path: contentPath,
                 parent: proxy,
               })
             )
@@ -119,10 +120,11 @@ export default function assign() {
       change.anter.value = sourcePropVal
       // Content Event: Assign Source Property
       if(contentEvents) {
+        const contentEventPath = [path, $assignSourcePropKey].join('.')
         if(events['assignSourceProperty']) {
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
-              path,
+              path: contentEventPath,
               value: $assignSourcePropVal,
               change,
               detail: {
@@ -134,11 +136,10 @@ export default function assign() {
           )
         }
         if(events['assignSourceProperty:$key']) {
-          const type = ['assignSourceProperty', ':', $assignSourcePropKey].join('')
-          const _path = [path, '.', $assignSourcePropKey].join('')
+          const type = ['assignSourceProperty', $assignSourcePropKey].join(':')
           $content.dispatchEvent(
             new ContentEvent(type, {
-              path: _path,
+              path: contentEventPath,
               value: $assignSourcePropVal,
               change,
               detail: {

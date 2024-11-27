@@ -16,7 +16,9 @@ export default function push() {
       const validElement = schema.validateProperty(elementsIndex, $element)
       if(validationEvents) {
         let type, propertyType
-        const _path = [path, '.', elementsIndex].join('')
+        const validatorPath = (path)
+          ? [path, elementsIndex].join('.')
+          : String(elementsIndex)
         if(validSourceProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', elementsIndex].join('')
@@ -28,7 +30,7 @@ export default function push() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorPath,
               detail: validSourceProp,
             }, $content)
           )
@@ -36,14 +38,14 @@ export default function push() {
       }
       if(!validElement.valid) { return source.length }
     }
-    const _path = (path !== null)
-      ? path.concat('.', elementsIndex)
-      : elementsIndex
+    const contentPath = (path)
+      ? [path, elementsIndex].join('.')
+      : String(elementsIndex)
     if(typeof $element === 'object') {
       if($element?.classToString === Content.toString()) { $element = $element.object }
       const subschema = schema?.context[0] || null
       $element = new Content($element, subschema, {
-        path: _path,
+        path: contentPath,
         parent: proxy,
       })
       elements.push($element)
@@ -53,10 +55,13 @@ export default function push() {
       Array.prototype.push.call(source, $element)
     }
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, '.', elementsIndex].join('')
+        : String(elementsIndex)
       if(events['pushProp']) {
         $content.dispatchEvent(
           new ContentEvent('pushProp', {
-            path,
+            path: contentEventPath,
             value: elements[elementsIndex],
             detail: {
               elementsIndex,
@@ -67,10 +72,9 @@ export default function push() {
       }
       if(events['pushProp:$index']) {
         const type = ['pushProp', ':', elementsIndex].join('')
-        const _path = [path, '.', elementsIndex].join('')
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path,
+            path: contentEventPath,
             value: elements[elementsIndex],
             detail: {
               elementsIndex,

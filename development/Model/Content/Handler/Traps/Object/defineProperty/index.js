@@ -15,7 +15,6 @@ export default function defineProperty() {
   const sourcePropertyValueIsContentInstance = (
     sourcePropertyValue?.classToString === Content.toString()
   ) ? true : false
-  
   // Validation
   if(schema && enableValidation) {
     const flattenedPropertyValue = definePropertiesTree({
@@ -24,19 +23,21 @@ export default function defineProperty() {
     const validProperty = schema.validateProperty(propertyKey, flattenedPropertyValue)
     if(validationEvents) {
       let type, propertyType
-      const _path = [path, '.', propertyKey].join('')
+      const validatorPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey)
       if(validProperty.valid) {
         type = 'validProperty'
-        propertyType = ['validProperty', ':', propertyKey].join('')
+        propertyType = ['validProperty', propertyKey].join(':')
       }
       else {
         type = 'nonvalidProperty'
-        propertyType = ['nonvalidProperty', ':', propertyKey].join('')
+        propertyType = ['nonvalidProperty', propertyKey].join(':')
       }
       for(const $eventType of [type, propertyType]) {
         $content.dispatchEvent(
           new ValidatorEvent($eventType, {
-            path,
+            path: validatorPath,
             detail: validProperty,
           }, $content)
         )
@@ -64,14 +65,13 @@ export default function defineProperty() {
     else { subschema = undefined}
     // const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
-    const _path = (
-      path !== null
-    ) ? path.concat('.', propertyKey)
-      : propertyKey
+    const contentPath = (path)
+      ? [path, propertyKey].join('.')
+      : String(propertyKey)
     if(sourcePropertyValueIsContentInstance) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
-        propertyValue = Object.assign(propertyValue, { path: _path, parent: proxy })
+        // propertyValue = Object.assign(propertyValue, { path: contentPath, parent: proxy })
         sourcePropertyValue.defineProperties(propertyValue)
       }
       // Descriptor Tree: false
@@ -87,7 +87,7 @@ export default function defineProperty() {
       else { _source = {} }
       const contentObject = new Content(
         _source, subschema, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }
       )
@@ -112,10 +112,13 @@ export default function defineProperty() {
     : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue))
   // Define Property Event
   if(contentEvents) {
+    const contentEventPath = (path)
+      ? [path, propertyKey].join('.')
+      : String(propertyKey)
     if(events['defineProperty']) {
       $content.dispatchEvent(
         new ContentEvent('defineProperty', {
-          path,
+          path: contentEventPath,
           value: propertyValue,
           change, 
           detail: {
@@ -126,11 +129,10 @@ export default function defineProperty() {
       ))
     }
     if(events['defineProperty:$key']) {
-      const type = ['defineProperty', ':', propertyKey].join('')
-      const _path = [path, '.', propertyKey].join('')
+      const type = ['defineProperty', propertyKey].join(':')
       $content.dispatchEvent(
         new ContentEvent(type, {
-          path: _path,
+          path: contentEventPath,
           value: propertyValue,
           change, 
           detail: {

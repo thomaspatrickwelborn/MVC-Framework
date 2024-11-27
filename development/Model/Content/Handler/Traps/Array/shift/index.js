@@ -8,11 +8,14 @@ export default function shift() {
   const shiftElementIndex = 0
   // Array Shift Event
   if(contentEvents && events['shift']) {
+    const contentEventPath = (path)
+      ? [path, shiftElementIndex].join('.')
+      : String(shiftElementIndex)
     $content.dispatchEvent(
       new ContentEvent(
         'shift',
         {
-          path,
+          path: contentEventPath,
           value: shiftElement,
           detail: {
             elementIndex: shiftElementIndex,

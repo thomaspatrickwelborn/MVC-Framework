@@ -26,9 +26,9 @@ export default function setContentProperty() {
     const propertyKey = subpaths.shift()
     // Property Value
     let propertyValue
-    const _path = (path !== null)
-      ? String(path).concat('.', propertyKey)
-      : propertyKey
+    const contentPath = (path)
+      ? (path, propertyKey).join('.')
+      : String(propertyKey)
     // Return: Subproperty
     if(subpaths.length) {
       if(recursive && source[propertyKey] === undefined) {
@@ -46,7 +46,7 @@ export default function setContentProperty() {
           else { subcontent = {} }
         }
         propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }))
       }
@@ -63,7 +63,9 @@ export default function setContentProperty() {
       const validSourceProp = schema.validateProperty(propertyKey, $value)
       if(validationEvents) {
         let type, propertyType
-        const _path = [path, '.', propertyKey].join('')
+        const validatorEventPath = (path)
+          ? [path, propertyKey].join('.')
+          : String(propertyKey)
         if(validSourceProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', propertyKey].join('')
@@ -75,7 +77,7 @@ export default function setContentProperty() {
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
             new ValidatorEvent($eventType, {
-              path,
+              path: validatorEventPath,
               detail: validSourceProp,
             }, $content)
           )
@@ -105,7 +107,7 @@ export default function setContentProperty() {
       else { subschema = undefined }
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }
       ))
@@ -118,10 +120,13 @@ export default function setContentProperty() {
     source[propertyKey] = propertyValue
     // Set Property Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey)
       if(events['setProperty']) {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
-            path, 
+            path: contentEventPath, 
             value: propertyValue,
             change,
             detail: {
@@ -133,10 +138,9 @@ export default function setContentProperty() {
       }
       if(events['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('')
-        const _path = [path, '.', propertyKey].join('')
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path, 
+            path: contentEventPath, 
             value: propertyValue,
             change,
             detail: {
@@ -159,12 +163,12 @@ export default function setContentProperty() {
       if(schema?.type === 'array') { subschema = schema.context[0] }
       if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
       else { subschema = undefined }
-      const _path = (path !== null)
-        ? path.concat('.', propertyKey)
-        : propertyKey
+      const contentPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey)
       propertyValue = new Content($value, subschema, Object.assign(
         {}, contentOptions, {
-          path: _path,
+          path: contentPath,
           parent: proxy,
         }
       ))
@@ -175,10 +179,13 @@ export default function setContentProperty() {
     source[propertyKey] = propertyValue
     // Set Property Event
     if(contentEvents) {
+      const contentEventPath = (path)
+        ? [path, propertyKey].join('.')
+        : String(propertyKey)
       if(events['setProperty']) {
         $content.dispatchEvent(
           new ContentEvent('setProperty', {
-            path, 
+            path: contentEventPath, 
             value: propertyValue,
             detail: {
               key: propertyKey,
@@ -189,10 +196,9 @@ export default function setContentProperty() {
       }
       if(events['setProperty:$key']) {
         const type = ['setProperty', ':', propertyKey].join('')
-        const _path = [path, '.', propertyKey].join('')
         $content.dispatchEvent(
           new ContentEvent(type, {
-            path: _path, 
+            path: contentEventPath, 
             value: propertyValue,
             detail: {
               value: propertyValue,

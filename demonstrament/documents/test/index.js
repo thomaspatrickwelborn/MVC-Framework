@@ -1,8 +1,15 @@
 import { Model } from "/dependencies/mvc-framework.js"
 const eventLog = ($event) => {
   const { type, path, value, change, detail } = $event
-  console.log(type, path, value, change, detail)
+  console.log(
+    "\n", "type", type, 
+    "\n", "path", path,
+    "\n", "value", value,
+    "\n", "change", change,
+    "\n", "detail", detail,
+  )
 }
+/*
 const model = new Model({
   schema: [{ type: {
     propertyA: { type: {
@@ -41,8 +48,8 @@ model.content.unshift({
     propertyB: "333"
   }
 })
-/*
-import { Model } from "/dependencies/mvc-framework.js"
+*/
+
 const model = new Model({
   schema: {
     propertyA: { type: {
@@ -67,14 +74,14 @@ const model = new Model({
     //   console.log($event.type, $event.path)
     // },
     'change': ($event) => {
-      // console.log(
-      //   "\n", "-----",
-      //   "\n", $event.type,
-      //   "\n", $event
-      //   // "\n", $event.path,
-      //   // "\n", $event.detail,
-      //   // "\n", $event.change,
-      // )
+      console.log(
+        "\n", "-----",
+        "\n", $event.type,
+        "\n", $event
+        // "\n", $event.path,
+        // "\n", $event.detail,
+        // "\n", $event.change,
+      )
     }
   }
 }, {
@@ -90,7 +97,7 @@ model.content.defineProperties({
     } }
   } }
 })
-*/
+
 
 /*
 const propertyDescriptorTree = {
