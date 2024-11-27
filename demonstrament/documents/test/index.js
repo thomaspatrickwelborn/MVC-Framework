@@ -1,14 +1,16 @@
-import { Model } from "/dependencies/mvc-framework.js"
-const eventLog = ($event) => {
-  const { type, path, value, change, detail } = $event
-  console.log(
-    "\n", "type", type, 
-    "\n", "path", path,
-    "\n", "value", value,
-    "\n", "change", change,
-    "\n", "detail", detail,
-  )
-}
+import "./pandTree/index.js"
+// import "./defineProperty/index.js"
+// import { Model } from "/dependencies/mvc-framework.js"
+// const eventLog = ($event) => {
+//   const { type, path, value, change, detail } = $event
+//   console.log(
+//     "\n", "type", type, 
+//     "\n", "path", path,
+//     "\n", "value", value,
+//     "\n", "change", change,
+//     "\n", "detail", detail,
+//   )
+// }
 /*
 const model = new Model({
   schema: [{ type: {
@@ -50,53 +52,40 @@ model.content.unshift({
 })
 */
 
-const model = new Model({
-  schema: {
-    propertyA: { type: {
-      propertyB: { type: {
-        propertyC: { type: String }
-      } }
-    } }
-  },
-  content: {
-    // propertyA: {
-    //   propertyB: {
-    //     propertyC: "333333"
-    //   }
-    // }
-  },
-  localStorage: "/model",
-  events: {
-    // 'content validProperty': ($event) => {
-    //   console.log($event.type, $event.path)
-    // },
-    // 'content nonvalidProperty': ($event) => {
-    //   console.log($event.type, $event.path)
-    // },
-    'change': ($event) => {
-      console.log(
-        "\n", "-----",
-        "\n", $event.type,
-        "\n", $event
-        // "\n", $event.path,
-        // "\n", $event.detail,
-        // "\n", $event.change,
-      )
-    }
-  }
-}, {
-  changeEvents: true,
-  validationEvents: true,
-  schema: { validationType: 'primitive' },
-  content: { proxyAssignmentMethod: 'assign' },
-})
-model.content.defineProperties({
-  propertyA: { value: {
-    propertyB: { value: {
-      propertyC: { value: "###" }
-    } }
-  } }
-})
+// const model = new Model({
+//   schema: {
+//     propertyA: { type: {
+//       propertyB: { type: {
+//         propertyC: { type: String }
+//       } }
+//     } }
+//   },
+//   content: {
+//     propertyA: { value: {
+//       propertyB: { value: {
+//         propertyC: { value: "###" }
+//       } }
+//     } }
+//   },
+//   localStorage: "/model",
+//   events: {
+//     // 'content validProperty': eventLog,
+//     // 'content nonvalidProperty': eventLog,
+//     'change': eventLog
+//   }
+// }, {
+//   changeEvents: true,
+//   validationEvents: true,
+//   schema: { validationType: 'primitive' },
+//   content: { proxyAssignmentMethod: 'assign' },
+// })
+// model.content.defineProperties({
+//   propertyA: { value: {
+//     propertyB: { value: {
+//       propertyC: { value: "###" }
+//     } }
+//   } }
+// })
 
 
 /*

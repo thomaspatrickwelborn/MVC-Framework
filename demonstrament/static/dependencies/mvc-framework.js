@@ -3,6 +3,22 @@ const typeOf = ($data) => Object
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
+function impandEvents($propEvents) {
+  if(!Array.isArray($propEvents)) { return $propEvents }
+  const propEvents = {};
+  for(const $propEvent of $propEvents) {
+    const { path, type, listener, options } = $propEvent;
+    const propEventSettings = `${$path} ${$type}`;
+    if(options !== undefined) {
+      propEvents[propEventSettings] = [listener, options];
+    }
+    else {
+      propEvents[propEventSettings] = listener;
+    }
+  }
+  return propEvents
+}
+
 function expandEvents($propEvents) {
   const propEvents = [];
   if(Array.isArray($propEvents)) { return $propEvents }
@@ -35,6 +51,45 @@ function expandEvents($propEvents) {
     propEvents.push(propEvent);
   }
   return propEvents
+}
+
+function typedObjectLiteral($object) {
+  if(typeOf($object) === 'object') { return {} }
+  else if(typeOf($object) === 'array') { return [] }
+  else { return undefined }
+}
+
+function impandTree($tree, $retainKey) {
+  let tree = typedObjectLiteral($tree);
+  for(const [$treeKey, $treeNode] of Object.entries($tree)) {
+    const retainValue = $treeNode[$retainKey];
+    if(typeof retainValue === 'object') {
+      tree[$treeKey] = impandTree(retainValue, $retainKey);
+    }
+    else {
+      tree[$treeKey] = retainValue;
+    }
+  }
+  return tree
+}
+
+function expandTree($tree = {}, $retainKey, $altKeys = {}) {
+  if($retainKey === undefined) return undefined
+  let tree = typedObjectLiteral($tree);
+  for(const [$treeKey, $treeNode] of Object.entries($tree)) {
+    const retainValue = $treeNode;
+    if(typeof retainValue === 'object') {
+      tree[$treeKey] = Object.assign({
+        [$retainKey]: expandTree(retainValue, $retainKey, $altKeys)
+      }, $altKeys);
+    }
+    else {
+      tree[$treeKey] = Object.assign({
+        [$retainKey]: retainValue
+      }, $altKeys);
+    }
+  }
+  return tree
 }
 
 function recursiveAssign() {
@@ -76,21 +131,17 @@ var regularExpressions = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
-const definePropertiesTree = ($descriptorTree) => {
-  let properties;
-  if(Array.isArray($descriptorTree)) { properties = []; }
-  else if(typeof $descriptorTree === 'object') { properties = {}; }
-  for(const [$propertyKey, $propertyDescriptor] of Object.entries($descriptorTree)) {
-    const propertyDescriptorValue = $propertyDescriptor.value;
-    if(typeof propertyDescriptorValue === 'object') {
-      properties[$propertyKey] = definePropertiesTree(propertyDescriptorValue);
-    }
-    else {
-      properties[$propertyKey] = propertyDescriptorValue;
-    }
-  }
-  return properties
-};
+var index = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  expandEvents: expandEvents,
+  expandTree: expandTree,
+  impandEvents: impandEvents,
+  impandTree: impandTree,
+  recursiveAssign: recursiveAssign,
+  regularExpressions: regularExpressions,
+  typeOf: typeOf,
+  typedObjectLiteral: typedObjectLiteral
+});
 
 class ContentEvent extends Event {
   #settings
@@ -404,10 +455,12 @@ function defineProperty() {
   ) ? true : false;
   // Validation
   if(schema && enableValidation) {
-    const flattenedPropertyValue = definePropertiesTree({
+    const impandPropertyValue = impandTree({
       [propertyKey]: propertyDescriptor
-    })[propertyKey];
-    const validProperty = schema.validateProperty(propertyKey, flattenedPropertyValue);
+    }, "value")[propertyKey];
+    console.log("propertyKey", propertyKey);
+    console.log("impandPropertyValue", impandPropertyValue);
+    const validProperty = schema.validateProperty(propertyKey, impandPropertyValue);
     if(validationEvents) {
       let type, propertyType;
       const validatorPath = (path)
@@ -450,7 +503,7 @@ function defineProperty() {
     if(schema.type === 'array') { subschema = schema.context[0]; }
     else if(schema.type === 'object') { subschema = schema.context[propertyKey]; }
     else { subschema = undefined;}
-    // const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
+    // const  = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
     const contentPath = (path)
       ? [path, propertyKey].join('.')
@@ -468,10 +521,7 @@ function defineProperty() {
     }
     // Root Property Descriptor Value: New Content Instance
     else {
-      let _source;
-      if(typeOf(propertyValue) === 'object') { _source = {}; }
-      else if (typeOf(propertyValue) === 'array') { _source = []; }
-      else { _source = {}; }
+      let _source = typedObjectLiteral(propertyValue);
       const contentObject = new Content(
         _source, subschema, {
           path: contentPath,
@@ -1595,7 +1645,7 @@ function setContentProperty() {
     // Property Value
     let propertyValue;
     const contentPath = (path)
-      ? (propertyKey).join('.')
+      ? [path, propertyKey].join('.')
       : String(propertyKey);
     // Return: Subproperty
     if(subpaths.length) {
@@ -2726,11 +2776,6 @@ class Content extends EventTarget {
     this.#_type = typeOf(this.#properties);
     return this.#_type
   }
-  get typedObjectLiteral() {
-    if(this.type === 'object') { return {} }
-    else if(this.type === 'array') { return [] }
-    else { return {} }
-  }
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
     this.#_parent = (this.options.parent)
@@ -2762,7 +2807,7 @@ class Content extends EventTarget {
   }
   get source() {
     if(this.#_source !== undefined) return this.#_source
-    this.#_source = this.typedObjectLiteral;
+    this.#_source = typedObjectLiteral(this.#properties);
     return this.#_source
   }
   get proxy() {
@@ -4395,5 +4440,5 @@ class Control extends Core {
   }
 }
 
-export { Content, Control, Core, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, View };
+export { Content, Control, Core, index as Coutil, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, View };
 //# sourceMappingURL=mvc-framework.js.map

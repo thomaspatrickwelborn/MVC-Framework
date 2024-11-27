@@ -1,4 +1,4 @@
-import { typeOf, definePropertiesTree } from '../../../../../../Coutil/index.js'
+import { typeOf, typedObjectLiteral, impandTree } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function defineProperty() {
@@ -17,10 +17,12 @@ export default function defineProperty() {
   ) ? true : false
   // Validation
   if(schema && enableValidation) {
-    const flattenedPropertyValue = definePropertiesTree({
+    const impandPropertyValue = impandTree({
       [propertyKey]: propertyDescriptor
-    })[propertyKey]
-    const validProperty = schema.validateProperty(propertyKey, flattenedPropertyValue)
+    }, "value")[propertyKey]
+    console.log("propertyKey", propertyKey)
+    console.log("impandPropertyValue", impandPropertyValue)
+    const validProperty = schema.validateProperty(propertyKey, impandPropertyValue)
     if(validationEvents) {
       let type, propertyType
       const validatorPath = (path)
@@ -63,7 +65,7 @@ export default function defineProperty() {
     if(schema.type === 'array') { subschema = schema.context[0] }
     else if(schema.type === 'object') { subschema = schema.context[propertyKey] }
     else { subschema = undefined}
-    // const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
+    // const  = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
     const contentPath = (path)
       ? [path, propertyKey].join('.')
@@ -81,10 +83,7 @@ export default function defineProperty() {
     }
     // Root Property Descriptor Value: New Content Instance
     else {
-      let _source
-      if(typeOf(propertyValue) === 'object') { _source = {} }
-      else if (typeOf(propertyValue) === 'array') { _source = [] }
-      else { _source = {} }
+      let _source = typedObjectLiteral(propertyValue)
       const contentObject = new Content(
         _source, subschema, {
           path: contentPath,

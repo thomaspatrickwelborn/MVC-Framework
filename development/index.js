@@ -1,3 +1,4 @@
+import * as Coutil from './Coutil/index.js'
 // Primary Imports
 import Core from './Core/index.js'
 import Schema from './Model/Schema/index.js'
@@ -13,6 +14,7 @@ import Validator from './Model/Schema/Validator/index.js'
 import Validation from './Model/Schema/Validation/index.js'
 
 export {
+  Coutil, 
   // Primary Exports
   Model, 
   View, 

@@ -27,7 +27,7 @@ export default function setContentProperty() {
     // Property Value
     let propertyValue
     const contentPath = (path)
-      ? (path, propertyKey).join('.')
+      ? [path, propertyKey].join('.')
       : String(propertyKey)
     // Return: Subproperty
     if(subpaths.length) {

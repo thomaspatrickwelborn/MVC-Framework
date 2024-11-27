@@ -1,4 +1,4 @@
-import { typeOf, recursiveAssign } from '../../Coutil/index.js'
+import { typeOf, recursiveAssign, typedObjectLiteral } from '../../Coutil/index.js'
 import Handler from './Handler/index.js'
 import Schema from '../Schema/index.js'
 import Options from './Options/index.js'
@@ -57,11 +57,6 @@ export default class Content extends EventTarget {
     this.#_type = typeOf(this.#properties)
     return this.#_type
   }
-  get typedObjectLiteral() {
-    if(this.type === 'object') { return {} }
-    else if(this.type === 'array') { return [] }
-    else { return {} }
-  }
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
     this.#_parent = (this.options.parent)
@@ -93,7 +88,7 @@ export default class Content extends EventTarget {
   }
   get source() {
     if(this.#_source !== undefined) return this.#_source
-    this.#_source = this.typedObjectLiteral
+    this.#_source = typedObjectLiteral(this.#properties)
     return this.#_source
   }
   get proxy() {
