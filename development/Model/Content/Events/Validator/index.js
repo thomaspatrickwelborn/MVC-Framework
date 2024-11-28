@@ -1,7 +1,7 @@
 export default class ValidatorEvent extends Event {
   #settings
   #content
-  #_basename
+  #_key
   constructor($type, $settings, $content) {
     super($type)
     this.#settings = $settings
@@ -14,10 +14,9 @@ export default class ValidatorEvent extends Event {
             new ValidatorEvent(
               this.type, 
               {
-                basename: $event.basename,
+                key: $event.key,
                 path: $event.path,
                 detail: $event.detail,
-                results: $event.results,
               },
               this.#content.parent
             )
@@ -29,13 +28,12 @@ export default class ValidatorEvent extends Event {
       }
     )
   }
-  get basename() {
-    if(this.#_basename !== undefined) { return this.#_basename }
-    if(this.path) { this.#_basename = this.path.split('.').pop() }
-    else { this.#_basename = null }
-    return this.#_basename
+  get key() {
+    if(this.#_key !== undefined) { return this.#_key }
+    if(this.path) { this.#_key = this.path.split('.').pop() }
+    else { this.#_key = null }
+    return this.#_key
   }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
-  get results() { return this.#settings.results }
 }

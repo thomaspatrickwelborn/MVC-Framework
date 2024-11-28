@@ -36,6 +36,7 @@ export default class TypeValidator extends Validator {
           ) { validation.valid = true }
           else { validation.valid = false }
         }
+        console.log(validation.valid)
         return validation
       },
     }))

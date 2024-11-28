@@ -6,7 +6,7 @@ export default class Core extends EventTarget {
   #_settings
   #_options
   #_events
-  #_basename
+  #_key
   #_path
   #_parent
   constructor($settings, $options) {
@@ -28,12 +28,12 @@ export default class Core extends EventTarget {
     if(this.#_options !== undefined) return
     this.#_options = recursiveAssign(structuredClone(Options), $options)
   }
-  get basename() {
-    if(this.#_basename !== undefined) return this.#_basename
-    this.#_basename = (this.settings.basename !== undefined)
-      ? this.settings.basename
+  get key() {
+    if(this.#_key !== undefined) return this.#_key
+    this.#_key = (this.settings.key !== undefined)
+      ? this.settings.key
       : null
-    return this.#_basename
+    return this.#_key
   }
   get path() {
     if(this.#_path !== undefined) return this.#_path

@@ -10,7 +10,7 @@ export default class Content extends EventTarget {
   #_type
   #_source
   #_parent
-  #_basename
+  #_key
   #_path
   #_proxy
   #_handler
@@ -73,11 +73,11 @@ export default class Content extends EventTarget {
     }
     return root
   }
-  get basename() {
-    if(this.#_basename !== undefined) { return this.#_basename }
-    if(this.path) { this.#_basename = this.path.split('.').pop() }
-    else { this.#_basename = null }
-    return this.#_basename
+  get key() {
+    if(this.#_key !== undefined) { return this.#_key }
+    if(this.path) { this.#_key = this.path.split('.').pop() }
+    else { this.#_key = null }
+    return this.#_key
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path

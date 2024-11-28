@@ -14,3 +14,9 @@ console.log("propertyDescriptorTree", expandTree({
   enumerable: true,
   writable: false,
 }))
+
+console.log("schemaPropertyConfig", expandTree([{
+  propertyA: {
+    propertyB: String
+  }
+}], "value"))

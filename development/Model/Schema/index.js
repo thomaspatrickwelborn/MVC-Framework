@@ -1,4 +1,4 @@
-import { typeOf } from '../../Coutil/index.js'
+import { typeOf, typedObjectLiteral } from '../../Coutil/index.js'
 import Content from '../Content/index.js'
 import Validation from './Validation/index.js'
 import {
@@ -23,8 +23,7 @@ export default class Schema extends EventTarget{
   get validationType() { return this.options.validationType }
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    if(Array.isArray(this.#properties)) { this.#_type = 'array' }
-    else if(typeOf(this.#properties) === 'object') { this.#_type = 'object' }
+    this.#_type = typeOf(typedObjectLiteral(this.#properties))
     return this.#_type
   }
   get context() {
@@ -99,8 +98,10 @@ export default class Schema extends EventTarget{
         $contentKey, $contentVal
       ], $validatorIndex, $contentEntries) => {
         const _validation = this.validateProperty($contentKey, $contentVal)
+        console.log("_validation", _validation)
         if(_validation === null) return $validation
         if($validation.valid !== false) $validation.valid = _validation.valid
+          // if($validation.valid !== false) $validation.valid = _validation.valid
         $validation.properties[$contentKey] = _validation
         return $validation
       }, structuredClone(Validation)
@@ -128,13 +129,15 @@ export default class Schema extends EventTarget{
         contentKey: $key,
         contentVal: $val,
         // type: 'key',
-        valid: null,
+        // valid: null,
       })
       propertyValidation.unadvance.push(validation)
     }
     // Context Val: Object
     else if(contextVal instanceof Schema) {
       validation = contextVal.validate($val)
+      console.log(contextVal)
+      console.log("validation", validation)
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
       if(this.validationType === 'object') {
@@ -158,6 +161,9 @@ export default class Schema extends EventTarget{
         }, propertyValidation
       )
     }
+    console.log("contextVal", contextVal)
+    console.log("validation", validation)
+    console.log("propertyValidation", propertyValidation)
     return propertyValidation
   }
 }

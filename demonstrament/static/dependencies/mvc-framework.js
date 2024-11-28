@@ -185,7 +185,7 @@ class ContentEvent extends Event {
 let ValidatorEvent$1 = class ValidatorEvent extends Event {
   #settings
   #content
-  #_basename
+  #_key
   constructor($type, $settings, $content) {
     super($type);
     this.#settings = $settings;
@@ -198,10 +198,9 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
             new ValidatorEvent(
               this.type, 
               {
-                basename: $event.basename,
+                key: $event.key,
                 path: $event.path,
                 detail: $event.detail,
-                results: $event.results,
               },
               this.#content.parent
             )
@@ -213,15 +212,14 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
       }
     );
   }
-  get basename() {
-    if(this.#_basename !== undefined) { return this.#_basename }
-    if(this.path) { this.#_basename = this.path.split('.').pop(); }
-    else { this.#_basename = null; }
-    return this.#_basename
+  get key() {
+    if(this.#_key !== undefined) { return this.#_key }
+    if(this.path) { this.#_key = this.path.split('.').pop(); }
+    else { this.#_key = null; }
+    return this.#_key
   }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }
-  get results() { return this.#settings.results }
 };
 
 function assign() {
@@ -405,29 +403,27 @@ function defineProperties() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path, schema, proxy } = $content;
-  const contentEvents = $content.options.contentEvents;
+  const { enableValidation, validationEvents, contentEvents } = $content.options;
   const $propertyDescriptors = arguments[0];
-  Object.entries($propertyDescriptors)
-  .reduce(($properties, [
-    $propertyDescriptorKey, $propertyDescriptor
-  ]) => {
-    $properties[$propertyDescriptorKey] = $propertyDescriptor.value;
-    return $properties
-  }, {});
+  const propertyDescriptorEntries = Object.entries($propertyDescriptors);
+  impandTree($propertyDescriptors, 'value');
+  typedObjectLiteral($content.object);
   // Iterate Property Descriptors
   for(const [
     $propertyKey, $propertyDescriptor
-  ] of Object.entries($propertyDescriptors)) {
+  ] of propertyDescriptorEntries) {
     // Property Descriptor Value Is Direct Instance Of Array/Object/Map
     proxy.defineProperty($propertyKey, $propertyDescriptor);
   }
   // Define Properties Event
   if(contentEvents && events['defineProperties']) {
+    // Define Properties Validator Event
     $content.dispatchEvent(
       new ContentEvent(
         'defineProperties',
         {
           path,
+          value: proxy,
           detail: {
             descriptors: $propertyDescriptors,
           },
@@ -458,8 +454,6 @@ function defineProperty() {
     const impandPropertyValue = impandTree({
       [propertyKey]: propertyDescriptor
     }, "value")[propertyKey];
-    console.log("propertyKey", propertyKey);
-    console.log("impandPropertyValue", impandPropertyValue);
     const validProperty = schema.validateProperty(propertyKey, impandPropertyValue);
     if(validationEvents) {
       let type, propertyType;
@@ -2330,6 +2324,7 @@ class TypeValidator extends Validator {
           ) { validation.valid = true; }
           else { validation.valid = false; }
         }
+        console.log(validation.valid);
         return validation
       },
     }));
@@ -2461,8 +2456,7 @@ class Schema extends EventTarget{
   get validationType() { return this.options.validationType }
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    if(Array.isArray(this.#properties)) { this.#_type = 'array'; }
-    else if(typeOf(this.#properties) === 'object') { this.#_type = 'object'; }
+    this.#_type = typeOf(typedObjectLiteral(this.#properties));
     return this.#_type
   }
   get context() {
@@ -2536,8 +2530,10 @@ class Schema extends EventTarget{
         $contentKey, $contentVal
       ], $validatorIndex, $contentEntries) => {
         const _validation = this.validateProperty($contentKey, $contentVal);
+        console.log("_validation", _validation);
         if(_validation === null) return $validation
         if($validation.valid !== false) $validation.valid = _validation.valid;
+          // if($validation.valid !== false) $validation.valid = _validation.valid
         $validation.properties[$contentKey] = _validation;
         return $validation
       }, structuredClone(Validation)
@@ -2565,13 +2561,15 @@ class Schema extends EventTarget{
         contentKey: $key,
         contentVal: $val,
         // type: 'key',
-        valid: null,
+        // valid: null,
       });
       propertyValidation.unadvance.push(validation);
     }
     // Context Val: Object
     else if(contextVal instanceof Schema) {
       validation = contextVal.validate($val);
+      console.log(contextVal);
+      console.log("validation", validation);
       if(validation.valid === true) { propertyValidation.advance.push(validation); }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
       if(this.validationType === 'object') {
@@ -2595,6 +2593,9 @@ class Schema extends EventTarget{
         }, propertyValidation
       );
     }
+    console.log("contextVal", contextVal);
+    console.log("validation", validation);
+    console.log("propertyValidation", propertyValidation);
     return propertyValidation
   }
 }
@@ -2729,7 +2730,7 @@ class Content extends EventTarget {
   #_type
   #_source
   #_parent
-  #_basename
+  #_key
   #_path
   #_proxy
   #_handler
@@ -2792,11 +2793,11 @@ class Content extends EventTarget {
     }
     return root
   }
-  get basename() {
-    if(this.#_basename !== undefined) { return this.#_basename }
-    if(this.path) { this.#_basename = this.path.split('.').pop(); }
-    else { this.#_basename = null; }
-    return this.#_basename
+  get key() {
+    if(this.#_key !== undefined) { return this.#_key }
+    if(this.path) { this.#_key = this.path.split('.').pop(); }
+    else { this.#_key = null; }
+    return this.#_key
   }
   get path() {
     if(this.#_path !== undefined)  return this.#_path
@@ -2935,7 +2936,7 @@ class Core extends EventTarget {
   #_settings
   #_options
   #_events
-  #_basename
+  #_key
   #_path
   #_parent
   constructor($settings, $options) {
@@ -2957,12 +2958,12 @@ class Core extends EventTarget {
     if(this.#_options !== undefined) return
     this.#_options = recursiveAssign(structuredClone(Options$4), $options);
   }
-  get basename() {
-    if(this.#_basename !== undefined) return this.#_basename
-    this.#_basename = (this.settings.basename !== undefined)
-      ? this.settings.basename
+  get key() {
+    if(this.#_key !== undefined) return this.#_key
+    this.#_key = (this.settings.key !== undefined)
+      ? this.settings.key
       : null;
-    return this.#_basename
+    return this.#_key
   }
   get path() {
     if(this.#_path !== undefined) return this.#_path
@@ -3132,12 +3133,13 @@ var Settings$3 = {
 };
 
 var Options$3 = {
-  schema: undefined, // Schema
-  content: undefined, // Content
+  schema: undefined, // Schema Options
+  content: undefined, // Content Options
+  localStorage: undefined, // LocalStorage Options
   enableEvents: true, // Boolean
   autoload: false, // Boolean
   autosave: false, // Boolean
-  changeEvents: false, // Boolean
+  changeEvents: true, // Boolean
 };
 
 class ChangeEvent extends CustomEvent {

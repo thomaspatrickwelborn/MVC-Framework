@@ -1,3 +1,4 @@
+import { impandTree, typedObjectLiteral } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../Events/index.js'
 export default function defineProperties() {
@@ -5,30 +6,28 @@ export default function defineProperties() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { source, path, schema, proxy } = $content
-  const contentEvents = $content.options.contentEvents
+  const { enableValidation, validationEvents, contentEvents } = $content.options
   const $propertyDescriptors = arguments[0]
-  const properties = Object.entries($propertyDescriptors)
-  .reduce(($properties, [
-    $propertyDescriptorKey, $propertyDescriptor
-  ]) => {
-    $properties[$propertyDescriptorKey] = $propertyDescriptor.value
-    return $properties
-  }, {})
+  const propertyDescriptorEntries = Object.entries($propertyDescriptors)
+  const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value')
+  let properties = typedObjectLiteral($content.object)
   // Iterate Property Descriptors
   iteratePropertyDescriptors: 
   for(const [
     $propertyKey, $propertyDescriptor
-  ] of Object.entries($propertyDescriptors)) {
+  ] of propertyDescriptorEntries) {
     // Property Descriptor Value Is Direct Instance Of Array/Object/Map
     proxy.defineProperty($propertyKey, $propertyDescriptor)
   }
   // Define Properties Event
   if(contentEvents && events['defineProperties']) {
+    // Define Properties Validator Event
     $content.dispatchEvent(
       new ContentEvent(
         'defineProperties',
         {
           path,
+          value: proxy,
           detail: {
             descriptors: $propertyDescriptors,
           },

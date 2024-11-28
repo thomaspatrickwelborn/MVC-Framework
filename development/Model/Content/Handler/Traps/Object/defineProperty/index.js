@@ -20,8 +20,6 @@ export default function defineProperty() {
     const impandPropertyValue = impandTree({
       [propertyKey]: propertyDescriptor
     }, "value")[propertyKey]
-    console.log("propertyKey", propertyKey)
-    console.log("impandPropertyValue", impandPropertyValue)
     const validProperty = schema.validateProperty(propertyKey, impandPropertyValue)
     if(validationEvents) {
       let type, propertyType
