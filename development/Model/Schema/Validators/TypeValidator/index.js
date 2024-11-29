@@ -1,6 +1,6 @@
 import { typeOf } from '../../../../Coutil/index.js'
 import Validator from '../../Validator/index.js'
-import Validation from '../../Validation/index.js'
+import Verification from '../../Validation/index.js'
 import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
 
@@ -13,16 +13,16 @@ export default class TypeValidator extends Validator {
         'true': ($validation) => `${$validation.valid}`,
         'false': ($validation) => `${$validation.valid}`,
       },
-      'validate': ($context, $contentKey, $contentVal) => {
-        let validation = new Validation({
+      'validate': ($context, $contentKey, $contentValue) => {
+        let validation = new Verification({
           context: $context,
           contentKey: $contentKey,
-          contentVal: $contentVal,
+          contentValue: $contentValue,
           type: this.type,
           valid: undefined,
           messages: this.messages,
         })
-        const typeOfContentVal = typeOf($contentVal)
+        const typeOfContentVal = typeOf($contentValue)
         const typeOfContextVal = ($context.type === undefined)
           ? $context.type
           : typeOf($context.type())
@@ -36,7 +36,6 @@ export default class TypeValidator extends Validator {
           ) { validation.valid = true }
           else { validation.valid = false }
         }
-        console.log(validation.valid)
         return validation
       },
     }))

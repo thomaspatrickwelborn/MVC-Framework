@@ -1,12 +1,12 @@
 import { typeOf, typedObjectLiteral } from '../../Coutil/index.js'
 import Content from '../Content/index.js'
+import Verification from './Verification/index.js'
 import Validation from './Validation/index.js'
 import {
   TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
 } from './Validators/index.js'
 import { Types, Primitives, Objects } from './Variables/index.js'
 import Options from './Options/index.js' 
-// const Validators = []
 const ValidatorKeys = {
   type: ['type'], range: ['min', 'max'], length: ['minLength', 'maxLength']
 }
@@ -39,22 +39,22 @@ export default class Schema extends EventTarget{
     }
     iterateProperties: 
     for(const [
-      $contextKey, $contextVal
+      $contextKey, $contextValue
     ] of Object.entries(properties)) {
-      let contextVal
+      let contextValue
       // Context Val: Schema
-      if($contextVal instanceof Schema) {
-        this.#_context[$contextKey] = $contextVal
+      if($contextValue instanceof Schema) {
+        this.#_context[$contextKey] = $contextValue
         continue iterateProperties
       }
       // Context Val: Object
-      else if(typeof $contextVal.type === 'object') {
-        this.#_context[$contextKey] = new Schema($contextVal.type, this.options)
+      else if(typeof $contextValue.type === 'object') {
+        this.#_context[$contextKey] = new Schema($contextValue.type, this.options)
         continue iterateProperties
       }
       // Context Val: Primitive
       else {
-        this.#_context[$contextKey] = $contextVal
+        this.#_context[$contextKey] = $contextValue
       }
       // Context Validators
       this.#_context[$contextKey].validators = this.#_context[$contextKey].validators || []
@@ -85,85 +85,78 @@ export default class Schema extends EventTarget{
     return this.#_context
   }
   validate($content) {
-    if($content.classToString === Content.toString()) { $content = $content.object }
-    let validateProperties
-    if(this.type === 'array') { validateProperties = [] }
-    else if(this.type === 'object') { validateProperties = {} }
-    const Validation = {
-      properties: validateProperties,
-      valid: undefined,
-    }
-    const validation = Object.entries($content).reduce(
-      ($validation, [
-        $contentKey, $contentVal
-      ], $validatorIndex, $contentEntries) => {
-        const _validation = this.validateProperty($contentKey, $contentVal)
-        console.log("_validation", _validation)
-        if(_validation === null) return $validation
-        if($validation.valid !== false) $validation.valid = _validation.valid
-          // if($validation.valid !== false) $validation.valid = _validation.valid
-        $validation.properties[$contentKey] = _validation
+    if($content?.classToString === Content.toString()) { $content = $content.object }
+    const validation = new Validation({
+      type: this.validationType,
+      context: this.context,
+      contentValue: $content,
+      properties: typedObjectLiteral(this.type),
+    })
+    // Iterate Content Properties 
+    Object.entries($content).reduce(
+      ($validation, [$contentKey, $contentValue]) => {
+        // Validate Content Property
+        const propertyValidation = this.validateProperty($contentKey, $contentValue)
+        // if($validation.valid !== false) $validation.valid = propertyValidation.valid
+        // console.log(propertyValidation)
+        $validation.properties[$contentKey] = propertyValidation
         return $validation
-      }, structuredClone(Validation)
+      }, validation
     )
     return validation
   }
-  validateProperty($key, $val) {
-    const PropertyValidation = {
-      key: $key,
-      value: $val,
-      advance: [], 
-      deadvance: [], 
-      unadvance: [], 
-      valid: undefined, // Boolean
-    }
-    const propertyValidation = structuredClone(PropertyValidation)
+  validateProperty($key, $value) {
     let validation
-    let contextVal
-    if(this.type === 'array') { contextVal = this.context[0] }
-    else if(this.type === 'object') { contextVal = this.context[$key] }
+    let contextValue
+    if(this.type === 'array') { contextValue = this.context[0] }
+    else if(this.type === 'object') { contextValue = this.context[$key] }
     // Context Val: Undefined
-    if(contextVal === undefined) {
+    if(contextValue === undefined) {
       validation = new Validation({
+        type: this.validationType,
         context: this.context,
         contentKey: $key,
-        contentVal: $val,
-        // type: 'key',
-        // valid: null,
+        contentValue: $value,
       })
-      propertyValidation.unadvance.push(validation)
+      const verification = new Verification({
+        type: null,
+        context: this.context,
+        contentKey: $key,
+        contentValue: $value,
+      }, this)
+      validation.unadvance.push(verification)
     }
     // Context Val: Object
-    else if(contextVal instanceof Schema) {
-      validation = contextVal.validate($val)
-      console.log(contextVal)
-      console.log("validation", validation)
+    else if(contextValue instanceof Schema) {
+      validation = contextValue.validate($value)
+      // -----
+      // if(this.validationType === 'object') {}
+      // else if(this.validationType === 'primitive') {}
+      // -----
+      // if(!propertyValidation.valid) propertyValidation.valid = validation.valid
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
-      if(this.validationType === 'object') {
-        propertyValidation.valid = validation.valid
-      }
-      else if(this.validationType === 'primitive') {
-        propertyValidation.valid = (validation.valid === false)
-          ? !validation.valid
-          : validation.valid
-      }
+      else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
     }
     // Context Val: Primitive
     else {
-      validation = contextVal.validators.reduce(
+      iterateContextValueValidators: 
+      contextValue.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const validation = $validator.validate(contextVal, $key, $val)
+          const validation = $validator.validate(contextValue, $key, $value)
+          // -----
+          // if(this.validationType === 'object') {}
+          // else if(this.validationType === 'primitive') {}
+          // -----
+          if(!propertyValidation.valid) $propertyValidation.valid = validation.valid
           if(validation.valid === true) { $propertyValidation.advance.push(validation) }
           else if(validation.valid === false) { $propertyValidation.deadvance.push(validation) }
-          if($propertyValidation.valid !== false) $propertyValidation.valid = validation.valid
+          else if(validation.valid === undefined) { $propertyValidation.unadvance.push(validation) }
           return $propertyValidation
-        }, propertyValidation
+        }, validation
       )
     }
-    console.log("contextVal", contextVal)
-    console.log("validation", validation)
-    console.log("propertyValidation", propertyValidation)
+    propertyValidation.properties = validation.properties
     return propertyValidation
   }
 }

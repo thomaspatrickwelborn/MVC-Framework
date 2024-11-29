@@ -1,35 +1,19 @@
-export default class Validation extends EventTarget {
-  #settings
-  // #_type
+import Valence from "../Valence/index.js"
+export default class Validation extends Valence {
+  #_advance = []
+  #_deadvance = []
+  #_unadvance = []
   #_valid
-  #_context
-  #_contentKey
-  #_contentVal
-  #_message
-  constructor($settings = {}) {
-    super()
-    this.#settings = Object.freeze($settings)
+  #_properties
+  constructor() {
+    super(...arguments)
   }
-  // get type() { return this.#settings.type }
-  get valid() { return this.#_valid }
-  set valid($valid) {
-    if(this.#_valid === undefined) {
-      this.#_valid = $valid
-    }
+  get advance() { return this.#_advance }
+  get deadvance() { return this.#_deadvance }
+  get unadvance() { return this.#_unadvance }
+  get properties() {
+    if(this.#_properties !== undefined) return this.#_properties
+    this.#_properties = this.settings.properties
+    return this.#_properties
   }
-  get message() {
-    if(this.#_message !== undefined) return this.#_message
-    if(
-      this.valid !== undefined &&
-      this.#_message === undefined
-    ) {
-      this.#_message = this.#settings.messages[this.#_valid](this)
-    }
-    return this.#_message
-  }
-  get context() { return this.#settings.context }
-  get contextKey() { return this.#settings.contentKey }
-  get contextVal() { return this.#settings.context }
-  get contentKey() { return this.#settings.contentKey }
-  get contentVal() { return this.#settings.context[this.contextKey] }
 }
