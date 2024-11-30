@@ -36,7 +36,7 @@ export default class Schema extends EventTarget{
     else if(this.type === 'object') {
       properties = this.#properties 
       this.#_context = {}
-    }
+    }k
     iterateProperties: 
     for(const [
       $contextKey, $contextValue

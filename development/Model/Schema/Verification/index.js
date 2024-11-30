@@ -10,7 +10,7 @@ export default class Verification extends Valence {
       this.valid !== undefined &&
       this.#_message === undefined
     ) {
-      this.#_message = this.settings.messages[this.#_valid](this)
+      this.#_message = this.settings.messages[this.valid](this)
     }
     return this.#_message
   }

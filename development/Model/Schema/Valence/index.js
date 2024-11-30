@@ -5,6 +5,7 @@ export default class Valence extends EventTarget {
   #_contentValue
   #_valid
   constructor($settings) {
+    super()
     this.settings = Object.freeze($settings)
   }
   get type() { return this.settings.type }

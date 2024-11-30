@@ -2236,6 +2236,7 @@ class Valence extends EventTarget {
   #_contentValue
   #_valid
   constructor($settings) {
+    super();
     this.settings = Object.freeze($settings);
   }
   get type() { return this.settings.type }
@@ -2266,7 +2267,7 @@ class Verification extends Valence {
       this.valid !== undefined &&
       this.#_message === undefined
     ) {
-      this.#_message = this.settings.messages[this.#_valid](this);
+      this.#_message = this.settings.messages[this.valid](this);
     }
     return this.#_message
   }
@@ -2501,7 +2502,7 @@ class Schema extends EventTarget{
     else if(this.type === 'object') {
       properties = this.#properties; 
       this.#_context = {};
-    }
+    }k;
     iterateProperties: 
     for(const [
       $contextKey, $contextValue
