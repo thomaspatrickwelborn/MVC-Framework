@@ -1,6 +1,6 @@
 import { typeOf } from '../../../../Coutil/index.js'
 import Validator from '../../Validator/index.js'
-import Verification from '../../Validation/index.js'
+import Verification from '../../Verification/index.js'
 import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
 
@@ -10,19 +10,18 @@ export default class TypeValidator extends Validator {
     super(Object.assign($settings, {
       'type': 'type',
       'messages': {
-        'true': ($validation) => `${$validation.valid}`,
-        'false': ($validation) => `${$validation.valid}`,
+        'true': ($verification) => `${$verification.pass}`,
+        'false': ($verification) => `${$verification.pass}`,
       },
-      'validate': ($context, $contentKey, $contentValue) => {
-        let validation = new Verification({
-          context: $context,
-          contentKey: $contentKey,
-          contentValue: $contentValue,
+      'validate': ($context, $key, $value) => {
+        let verification = new Verification({
           type: this.type,
-          valid: undefined,
+          context: $context,
+          key: $key,
+          value: $value,
           messages: this.messages,
         })
-        const typeOfContentVal = typeOf($contentValue)
+        const typeOfContentVal = typeOf($value)
         const typeOfContextVal = ($context.type === undefined)
           ? $context.type
           : typeOf($context.type())
@@ -33,10 +32,10 @@ export default class TypeValidator extends Validator {
           if(
             typeOfContextVal === typeOfContentVal ||
             typeOfContextVal === undefined
-          ) { validation.valid = true }
-          else { validation.valid = false }
+          ) { verification.pass = true }
+          else { verification.pass = false }
         }
-        return validation
+        return verification
       },
     }))
   }

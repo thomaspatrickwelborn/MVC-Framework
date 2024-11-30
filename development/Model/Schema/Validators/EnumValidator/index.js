@@ -1,5 +1,5 @@
 import Validator from '../../Validator/index.js'
-import Verification from '../../Validation/index.js'
+import Verification from '../../Verification/index.js'
 import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
 
@@ -8,17 +8,16 @@ export default class EnumValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
-      validate: ($context, $contentKey, $contentValue) => {
+      validate: ($context, $key, $value) => {
         const enumeration = $context.enum
-        const validation = new Verification({
+        const verification = new Verification({
           context: $context,
-          contentKey: $contentKey,
-          contentValue: $contentValue,
+          key: $key,
+          value: $value,
           type: this.type,
-          valid: undefined,
         })
-        validation.valid = enumeration.includes($contentValue)
-        return validation
+        verification.valuate = enumeration.includes($value)
+        return verification
       },
     }))
   }

@@ -1,5 +1,5 @@
 import Validator from '../../Validator/index.js'
-import Verification from '../../Validation/index.js'
+import Verification from '../../Verification/index.js'
 import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
 
@@ -8,28 +8,27 @@ export default class RangeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'range',
-      validate: ($context, $contentKey, $contentValue) => {
+      validate: ($context, $key, $value) => {
         const { min, max } = $context
-        const validation = new Verification({
+        const verification = new Verification({
           context: $context,
-          contentKey: $contentKey,
-          contentValue: $contentValue,
+          key: $key,
+          value: $value,
           type: this.type,
-          valid: undefined,
         })
-        let valid = undefined
+        let pass = undefined
         if(min !== undefined) {
-          validation.min = min
-          const validMin = ($contentValue >= min)
-          if(valid !== false) valid = validMin
+          verification.min = min
+          const validMin = ($value >= min)
+          if(pass !== false) pass = validMin
         }
         if(max !== undefined) {
-          validation.max = max
-          const validMax = ($contentValue <= max)
-          if(valid !== false) valid = validMax
+          verification.max = max
+          const validMax = ($value <= max)
+          if(pass !== false) pass = validMax
         }
-        validation.valid = valid
-        return validation
+        verification.pass = pass
+        return verification
       },
     }))
   }

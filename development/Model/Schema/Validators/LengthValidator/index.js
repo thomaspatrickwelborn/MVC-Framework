@@ -1,5 +1,5 @@
 import Validator from '../../Validator/index.js'
-import Verification from '../../Validation/index.js'
+import Verification from '../../Verification/index.js'
 import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
 
@@ -8,28 +8,27 @@ export default class LengthValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
-      validate: ($context, $contentKey, $contentValue) => {
+      validate: ($context, $key, $value) => {
         const { minLength, maxLength } = $context
-        const validation = new Verification({
+        const verification = new Verification({
           context: $context,
-          contentKey: $contentKey,
-          contentValue: $contentValue,
+          key: $key,
+          value: $value,
           type: this.type,
-          valid: undefined,
         })
-        let valid = undefined
+        let pass
         if(minLength !== undefined) {
-          validation.minLength = minLength
-          const validMinLength = (contentValue.length >= minLength)
-          if(valid !== false) valid = validMinLength
+          verification.minLength = minLength
+          const validMinLength = ($value.length >= minLength)
+          if(pass !== false) pass = validMinLength
         }
         if(maxLength !== undefined) {
-          validation.maxLength = maxLength
-          const validMaxLength = (contentValue.length <= maxLength)
-          if(valid !== false) valid = validMaxLength
+          verification.maxLength = maxLength
+          const validMaxLength = ($value.length <= maxLength)
+          if(pass !== false) pass = validMaxLength
         }
-        validation.valid = valid
-        return validation
+        verification.pass = pass
+        return verification
       },
     }))
   }

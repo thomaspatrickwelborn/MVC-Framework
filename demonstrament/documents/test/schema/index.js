@@ -1,15 +1,18 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
-const schemaA = new Schema(expandTree([{
-  propertyA: {
-    propertyB: String
-  }
-}], 'type'), {
-  validationType: 'primitive'
-})
+// const schemaA = new Schema(expandTree([{
+//   propertyA: {
+//     propertyB: String
+//   }
+// }], 'type'), {
+//   validationType: 'primitive'
+// })
 const schemaB = new Schema(expandTree({
   propertyA: String
-}, "type"))
+}, "type", {
+  minLength: 0,
+  maxLength: 100,
+}))
 
 // console.log("-----")
 // const contentA = [{
@@ -47,5 +50,5 @@ const contentD2 = {
 const contentD3 = {
   propertyB: true
 }
-console.log(`schemaB.validateProperty(${"propertyA"}, ${contentD1.propertyA})`)
+console.log(`schemaB.validateProperty(${"propertyA"}, ${JSON.stringify(contentD1.propertyA)})`)
 console.log(schemaB.validateProperty("propertyA", contentD1.propertyA))

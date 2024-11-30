@@ -1,5 +1,5 @@
 import Validator from '../../Validator/index.js'
-import Verification from '../../Validation/index.js'
+import Verification from '../../Verification/index.js'
 import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
 
@@ -8,19 +8,18 @@ export default class MatchValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
-      validate: ($context, $contentKey, $contentValue) => {
+      validate: ($context, $key, $value) => {
         const { match } = $context
-        const validation = new Verification({
+        const verification = new Verification({
           context: $context,
-          contentKey: $contentKey,
-          contentValue: $contentValue,
+          key: $key,
+          value: $value,
           type: this.type,
-          valid: undefined,
         })
-        validation.valid = (match.exec($contentValue) !== null)
+        verification.pass = (match.exec($value) !== null)
           ? true
           : false
-        return validation
+        return verification
       },
     }))
   }
