@@ -5,7 +5,6 @@ import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
 
 export default class TypeValidator extends Validator {
-  #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
       'type': 'type',

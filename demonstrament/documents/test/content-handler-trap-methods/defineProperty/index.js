@@ -13,11 +13,11 @@ const arrayModel = new Model({
   }], "type"),
   content: [],
   events: {
-    // "change": changeEventLog,
-    // "content defineProperties": contentEventLog,
-    // "content defineProperty": contentEventLog,
-    // "content validProperty": validatorEventLog,
-    // "content nonvalidProperty": validatorEventLog,
+    "change": changeEventLog,
+    "content defineProperties": contentEventLog,
+    "content defineProperty": contentEventLog,
+    "content validProperty": validatorEventLog,
+    "content nonvalidProperty": validatorEventLog,
   },
 })
 const arraySchema = arrayModel.schema

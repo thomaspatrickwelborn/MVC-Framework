@@ -1,5 +1,5 @@
-import "./schema/index.js"
-// import "./content-handler-trap-methods/defineProperty/index.js"
+// import "./schema/index.js"
+import "./content-handler-trap-methods/defineProperty/index.js"
 // import "./coutil-methods/pandTree/index.js"
 // import { Model } from "/dependencies/mvc-framework.js"
 // const eventLog = ($event) => {

@@ -2230,22 +2230,24 @@ class Handler {
 }
 
 class Verification extends EventTarget {
+  #settings
   #_message
   #_pass
-  constructor() {
-    super(...arguments);
+  constructor($settings) {
+    super();
+    this.#settings = $settings;
   }
-  get type() { return this.settings.type }
-  get context() { return this.settings.context }
-  get key() { return this.settings.key }
-  get value() { return this.settings.value }
+  get type() { return this.#settings.type }
+  get context() { return this.#settings.context }
+  get key() { return this.#settings.key }
+  get value() { return this.#settings.value }
   get message() {
     if(this.#_message !== undefined) return this.#_message
     if(
       this.valid !== undefined &&
       this.#_message === undefined
     ) {
-      this.#_message = this.settings.messages[this.valid](this);
+      this.#_message = this.#settings.messages[this.valid](this);
     }
     return this.#_message
   }
@@ -2258,39 +2260,25 @@ class Verification extends EventTarget {
 }
 
 class Validation extends EventTarget {
+  #settings
   #_properties
   #_valid
-  constructor() {
-    super(...arguments);
-  }
-  get type() { return this.settings.type }
-  get context() { return this.settings.context }
-  get value() { return this.settings.value }
-  get properties() {
-    if(this.#_properties !== undefined) return this.#_properties
-    this.#_properties = this.settings.properties;
-    return this.#_properties
-  }
-  get valid() { return this.#_valid }
-  set valid($valid) {
-    if(this.#_valid === undefined) {
-      this.#_valid = $valid;
-    }
-  }
-}
-
-class PropertyValidation extends EventTarget {
   #_advance = []
   #_deadvance = []
   #_unadvance = []
-  #_valid
-  constructor() {
-    super(...arguments);
+  constructor($settings) {
+    super();
+    this.#settings = $settings;
   }
-  get type() { return this.settings.type }
-  get context() { return this.settings.context }
-  get key() { return this.settings.key }
-  get value() { return this.settings.value }
+  get type() { return this.#settings.type }
+  get context() { return this.#settings.context }
+  get key() { return this.#settings.key }
+  get value() { return this.#settings.value }
+  get properties() {
+    if(this.#_properties !== undefined) return this.#_properties
+    this.#_properties = this.#settings.properties;
+    return this.#_properties
+  }
   get advance() { return this.#_advance }
   get deadvance() { return this.#_deadvance }
   get unadvance() { return this.#_unadvance }
@@ -2303,14 +2291,16 @@ class PropertyValidation extends EventTarget {
 }
 
 class Validator extends EventTarget {
-  #settings
+  #_settings
   constructor($settings = {}) {
     super();
-    this.#settings = Object.freeze($settings);
+    this.settings = Object.freeze($settings);
   }
-  get type() { return this.#settings.type }
-  get messages() { return this.#settings.messages }
-  get validate() { return this.#settings.validate }
+  get settings() { return this.#_settings }
+  set settings($settings) { this.#_settings = $settings; }
+  get type() { return this.settings.type }
+  get messages() { return this.settings.messages }
+  get validate() { return this.settings.validate }
 }
 
 const Primitives = {
@@ -2327,7 +2317,6 @@ const Objects = {
 Object.assign({}, Primitives, Objects);
 
 class TypeValidator extends Validator {
-  #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
       'type': 'type',
@@ -2364,7 +2353,6 @@ class TypeValidator extends Validator {
 }
 
 class RangeValidator extends Validator {
-  #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'range',
@@ -2395,7 +2383,6 @@ class RangeValidator extends Validator {
 }
 
 class LengthValidator extends Validator {
-  #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
@@ -2426,7 +2413,6 @@ class LengthValidator extends Validator {
 }
 
 class EnumValidator extends Validator {
-  #settings
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
@@ -2526,7 +2512,7 @@ class Schema extends EventTarget{
       if(
         typeof this.#_context[$contextKey].min === 'number' || 
         typeof this.#_context[$contextKey].max === 'number'
-      ) { addValidators.push(new RangeValidator()); }
+      ) { addValidators.push(new RangeValidator({})); }
       // Context Validator: Add Length
       if(
         typeof this.#_context[$contextKey].minLength === 'number' ||
@@ -2546,33 +2532,48 @@ class Schema extends EventTarget{
     }
     return this.#_context
   }
-  validate($content) {
+  validate() {
+    let $arguments = [...arguments];
+    let $contentName, $content;
+    if($arguments.length === 1) { $contentName = null; $content = $arguments.shift(); }
+    if($arguments.length === 2) { $contentName = $arguments.shift(); $content = $arguments.shift(); }
     if($content?.classToString === Content.toString()) { $content = $content.object; }
     const validation = new Validation({
       type: this.validationType,
       context: this.context,
+      key: $contentName, 
       value: $content,
       properties: typedObjectLiteral(this.type),
     });
+    const contentProperties = Object.entries($content);
+    let contentPropertyIndex = 0;
     // Iterate Content Properties 
-    Object.entries($content).reduce(
-      ($validation, [$contentKey, $contentValue]) => {
-        // Validate Content Property
-        const propertyValidation = this.validateProperty($contentKey, $contentValue);
-        $validation.properties[$contentKey] = propertyValidation;
-        if(this.validationType === 'object') {
-          if(!$validation.valid) $validation.valid = propertyValidation.valid;
-        }
-        return $validationx
-      }, validation
-    );
+    while(contentPropertyIndex < contentProperties.length) {
+      const [$contentKey, $contentValue] = contentProperties[contentPropertyIndex];
+      const propertyValidation = this.validateProperty($contentKey, $contentValue);
+      validation.properties[$contentKey] = propertyValidation;
+      if(propertyValidation.valid === true) { validation.advance.push(propertyValidation); } 
+      else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation); } 
+      else if(propertyValidation.valid === undefined) { validation.unadvance.push(propertyValidation );}
+      contentPropertyIndex++;
+    }
+    if(this.validationType === 'object') {
+      if(validation.deadvance.length) { validation.valid = false; }
+      else if(validation.advance.length) { validation.valid = true; }
+      else if(validation.unadvance.length) { validation.valid = undefined; }
+    }
+    else if(this.validationType === 'primitive') {
+      if(validation.advance.length) { validation.valid = true; }
+      else if(validation.deadvance.length) { validation.valid = false; }
+      else if(validation.unadvance.length) { validation.valid = undefined; }
+    }
     return validation
   }
   validateProperty($key, $value) {
     let contextValue;
     if(this.type === 'array') { contextValue = this.context[0]; }
     else if(this.type === 'object') { contextValue = this.context[$key]; }
-    let propertyValidation = new PropertyValidation({
+    let propertyValidation = new Validation({
       type: this.validationType,
       context: contextValue,
       key: $key,
@@ -2588,14 +2589,16 @@ class Schema extends EventTarget{
       }, this);
       verification.pass = false;
       propertyValidation.unadvance.push(verification);
+      propertyValidation.valid = undefined;
       
     }
     // Context Val: Object
     else if(contextValue instanceof Schema) {
-      const propertyValidation = contextValue.validate($value);
-      if(propertyValidation.valid === true) { propertyValidation.advance.push(propertyValidation); }
-      else if(propertyValidation.valid === false) { propertyValidation.deadvance.push(propertyValidation); }
-      // else if(propertyValidation.valid === undefined) { propertyValidation.unadvance.push(propertyValidation) }
+      const validation = contextValue.validate($key, $value);
+      if(validation.valid === true) { propertyValidation.advance.push(validation); }
+      else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
+      else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation); }
+      propertyValidation.valid = validation.valid;
     }
     // Context Val: Primitive
     else {
@@ -2604,13 +2607,12 @@ class Schema extends EventTarget{
           const verification = $validator.validate(contextValue, $key, $value);
           if(verification.pass === true) { $propertyValidation.advance.push(verification); }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification); }
-          // else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }
-          if(!$propertyValidation.valid) $propertyValidation.valid = verification.pass;
+          else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification); }
+          if($propertyValidation.valid !== false) { $propertyValidation.valid = verification.pass; }
           return $propertyValidation
         }, propertyValidation
       );
     }
-    console.log("propertyValidation", propertyValidation);
     return propertyValidation
   }
 }

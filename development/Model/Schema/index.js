@@ -2,7 +2,6 @@ import { typeOf, typedObjectLiteral } from '../../Coutil/index.js'
 import Content from '../Content/index.js'
 import Verification from './Verification/index.js'
 import Validation from './Validation/index.js'
-import PropertyValidation from './PropertyValidation/index.js'
 import {
   TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
 } from './Validators/index.js'
@@ -67,7 +66,7 @@ export default class Schema extends EventTarget{
       if(
         typeof this.#_context[$contextKey].min === 'number' || 
         typeof this.#_context[$contextKey].max === 'number'
-      ) { addValidators.push(new RangeValidator()) }
+      ) { addValidators.push(new RangeValidator({})) }
       // Context Validator: Add Length
       if(
         typeof this.#_context[$contextKey].minLength === 'number' ||
@@ -87,33 +86,48 @@ export default class Schema extends EventTarget{
     }
     return this.#_context
   }
-  validate($content) {
+  validate() {
+    let $arguments = [...arguments]
+    let $contentName, $content
+    if($arguments.length === 1) { $contentName = null; $content = $arguments.shift() }
+    if($arguments.length === 2) { $contentName = $arguments.shift(); $content = $arguments.shift() }
     if($content?.classToString === Content.toString()) { $content = $content.object }
     const validation = new Validation({
       type: this.validationType,
       context: this.context,
+      key: $contentName, 
       value: $content,
       properties: typedObjectLiteral(this.type),
     })
+    const contentProperties = Object.entries($content)
+    let contentPropertyIndex = 0
     // Iterate Content Properties 
-    Object.entries($content).reduce(
-      ($validation, [$contentKey, $contentValue]) => {
-        // Validate Content Property
-        const propertyValidation = this.validateProperty($contentKey, $contentValue)
-        $validation.properties[$contentKey] = propertyValidation
-        if(this.validationType === 'object') {
-          if(!$validation.valid) $validation.valid = propertyValidation.valid
-        }
-        return $validationx
-      }, validation
-    )
+    while(contentPropertyIndex < contentProperties.length) {
+      const [$contentKey, $contentValue] = contentProperties[contentPropertyIndex]
+      const propertyValidation = this.validateProperty($contentKey, $contentValue)
+      validation.properties[$contentKey] = propertyValidation
+      if(propertyValidation.valid === true) { validation.advance.push(propertyValidation) } 
+      else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation) } 
+      else if(propertyValidation.valid === undefined) { validation.unadvance.push(propertyValidation )}
+      contentPropertyIndex++
+    }
+    if(this.validationType === 'object') {
+      if(validation.deadvance.length) { validation.valid = false }
+      else if(validation.advance.length) { validation.valid = true }
+      else if(validation.unadvance.length) { validation.valid = undefined }
+    }
+    else if(this.validationType === 'primitive') {
+      if(validation.advance.length) { validation.valid = true }
+      else if(validation.deadvance.length) { validation.valid = false }
+      else if(validation.unadvance.length) { validation.valid = undefined }
+    }
     return validation
   }
   validateProperty($key, $value) {
     let contextValue
     if(this.type === 'array') { contextValue = this.context[0] }
     else if(this.type === 'object') { contextValue = this.context[$key] }
-    let propertyValidation = new PropertyValidation({
+    let propertyValidation = new Validation({
       type: this.validationType,
       context: contextValue,
       key: $key,
@@ -129,14 +143,16 @@ export default class Schema extends EventTarget{
       }, this)
       verification.pass = false
       propertyValidation.unadvance.push(verification)
+      propertyValidation.valid = undefined
       
     }
     // Context Val: Object
     else if(contextValue instanceof Schema) {
-      const propertyValidation = contextValue.validate($value)
-      if(propertyValidation.valid === true) { propertyValidation.advance.push(propertyValidation) }
-      else if(propertyValidation.valid === false) { propertyValidation.deadvance.push(propertyValidation) }
-      // else if(propertyValidation.valid === undefined) { propertyValidation.unadvance.push(propertyValidation) }
+      const validation = contextValue.validate($key, $value)
+      if(validation.valid === true) { propertyValidation.advance.push(validation) }
+      else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
+      else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
+      propertyValidation.valid = validation.valid
     }
     // Context Val: Primitive
     else {
@@ -146,13 +162,12 @@ export default class Schema extends EventTarget{
           const verification = $validator.validate(contextValue, $key, $value)
           if(verification.pass === true) { $propertyValidation.advance.push(verification) }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification) }
-          // else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }
-          if(!$propertyValidation.valid) $propertyValidation.valid = verification.pass
+          else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }
+          if($propertyValidation.valid !== false) { $propertyValidation.valid = verification.pass }
           return $propertyValidation
         }, propertyValidation
       )
     }
-    console.log("propertyValidation", propertyValidation)
     return propertyValidation
   }
 }
