@@ -10,13 +10,14 @@ export default class Verification extends EventTarget {
   get context() { return this.#settings.context }
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
+  get messages() { return this.#settings.messages }
   get message() {
     if(this.#_message !== undefined) return this.#_message
     if(
       this.valid !== undefined &&
       this.#_message === undefined
     ) {
-      this.#_message = this.#settings.messages[this.valid](this)
+      this.#_message = this.messages[this.valid](this)
     }
     return this.#_message
   }

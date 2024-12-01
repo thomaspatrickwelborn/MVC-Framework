@@ -12,6 +12,7 @@ import {
 // Secondary Imports
 import Validator from './Model/Schema/Validator/index.js'
 import Validation from './Model/Schema/Validation/index.js'
+import Verification from './Model/Schema/Verification/index.js'
 
 export {
   Coutil, 
@@ -24,5 +25,5 @@ export {
   Core, 
   Schema, Content,
   // Tertiary Exports
-  Validator, Validation,
+  Validator, Validation, Verification
 }

@@ -42,17 +42,17 @@ export default class Schema extends EventTarget{
       $contextKey, $contextValue
     ] of Object.entries(properties)) {
       let contextValue
-      // Context Val: Schema
+      // Context Value: Schema
       if($contextValue instanceof Schema) {
         this.#_context[$contextKey] = $contextValue
         continue iterateProperties
       }
-      // Context Val: Object
+      // Context Value: Object
       else if(typeof $contextValue.type === 'object') {
         this.#_context[$contextKey] = new Schema($contextValue.type, this.options)
         continue iterateProperties
       }
-      // Context Val: Primitive
+      // Context Value: Primitive
       else {
         this.#_context[$contextKey] = $contextValue
       }
@@ -118,7 +118,7 @@ export default class Schema extends EventTarget{
     }
     else if(this.validationType === 'primitive') {
       if(validation.advance.length) { validation.valid = true }
-      else if(validation.deadvance.length) { validation.valid = false }
+      else if(validation.deadvance.length) { validation.valid = true }
       else if(validation.unadvance.length) { validation.valid = undefined }
     }
     return validation
@@ -133,7 +133,7 @@ export default class Schema extends EventTarget{
       key: $key,
       value: $value,
     })
-    // Context Val: Undefined
+    // Context Value: Undefined
     if(contextValue === undefined) {
       const verification = new Verification({
         type: null,
@@ -146,7 +146,7 @@ export default class Schema extends EventTarget{
       propertyValidation.valid = undefined
       
     }
-    // Context Val: Object
+    // Context Value: Object
     else if(contextValue instanceof Schema) {
       const validation = contextValue.validate($key, $value)
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
@@ -154,7 +154,7 @@ export default class Schema extends EventTarget{
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
       propertyValidation.valid = validation.valid
     }
-    // Context Val: Primitive
+    // Context Value: Primitive
     else {
       iterateContextValueValidators: 
       contextValue.validators.reduce(

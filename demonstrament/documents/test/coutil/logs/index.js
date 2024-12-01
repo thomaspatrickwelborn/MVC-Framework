@@ -1,3 +1,13 @@
+const testResultsLog = ($test) => {
+  console.log(
+    "\n", "-----",
+    "\n", `Group: ${$test.group}`,
+    "\n", `Name: ${$test.name}`,
+    "\n", `Descript: ${$test.descript}`,
+    "\n", `PASS: ${$test.results.pass}`,
+    "\n", 'detail:', $test.results.detail,
+  )
+}
 const validatorEventLog = ($event) => {
   console.log(
     "\n", "-----",
@@ -30,6 +40,7 @@ const changeEventLog = ($event) => {
   )
 }
 export {
+  testResultsLog,
   validatorEventLog, 
   contentEventLog, 
   changeEventLog,

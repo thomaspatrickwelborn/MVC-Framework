@@ -2241,13 +2241,14 @@ class Verification extends EventTarget {
   get context() { return this.#settings.context }
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
+  get messages() { return this.#settings.messages }
   get message() {
     if(this.#_message !== undefined) return this.#_message
     if(
       this.valid !== undefined &&
       this.#_message === undefined
     ) {
-      this.#_message = this.#settings.messages[this.valid](this);
+      this.#_message = this.messages[this.valid](this);
     }
     return this.#_message
   }
@@ -2488,17 +2489,17 @@ class Schema extends EventTarget{
     for(const [
       $contextKey, $contextValue
     ] of Object.entries(properties)) {
-      // Context Val: Schema
+      // Context Value: Schema
       if($contextValue instanceof Schema) {
         this.#_context[$contextKey] = $contextValue;
         continue iterateProperties
       }
-      // Context Val: Object
+      // Context Value: Object
       else if(typeof $contextValue.type === 'object') {
         this.#_context[$contextKey] = new Schema($contextValue.type, this.options);
         continue iterateProperties
       }
-      // Context Val: Primitive
+      // Context Value: Primitive
       else {
         this.#_context[$contextKey] = $contextValue;
       }
@@ -2564,7 +2565,7 @@ class Schema extends EventTarget{
     }
     else if(this.validationType === 'primitive') {
       if(validation.advance.length) { validation.valid = true; }
-      else if(validation.deadvance.length) { validation.valid = false; }
+      else if(validation.deadvance.length) { validation.valid = true; }
       else if(validation.unadvance.length) { validation.valid = undefined; }
     }
     return validation
@@ -2579,7 +2580,7 @@ class Schema extends EventTarget{
       key: $key,
       value: $value,
     });
-    // Context Val: Undefined
+    // Context Value: Undefined
     if(contextValue === undefined) {
       const verification = new Verification({
         type: null,
@@ -2592,7 +2593,7 @@ class Schema extends EventTarget{
       propertyValidation.valid = undefined;
       
     }
-    // Context Val: Object
+    // Context Value: Object
     else if(contextValue instanceof Schema) {
       const validation = contextValue.validate($key, $value);
       if(validation.valid === true) { propertyValidation.advance.push(validation); }
@@ -2600,7 +2601,7 @@ class Schema extends EventTarget{
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation); }
       propertyValidation.valid = validation.valid;
     }
-    // Context Val: Primitive
+    // Context Value: Primitive
     else {
       contextValue.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
@@ -4459,5 +4460,5 @@ class Control extends Core {
   }
 }
 
-export { Content, Control, Core, index as Coutil, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, View };
+export { Content, Control, Core, index as Coutil, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, Verification, View };
 //# sourceMappingURL=mvc-framework.js.map
