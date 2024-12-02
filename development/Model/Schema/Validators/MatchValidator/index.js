@@ -1,21 +1,24 @@
 import Validator from '../../Validator/index.js'
 import Verification from '../../Verification/index.js'
-import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
-
 export default class MatchValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
       validate: ($context, $key, $value) => {
-        const { match } = $context
         const verification = new Verification({
           context: $context,
           key: $key,
           value: $value,
           type: this.type,
         })
-        verification.pass = (match.exec($value) !== null)
+        let pass
+        if(!['string', 'number', 'boolean'].includes(typeof $value)) { pass = false}
+        else {
+          const { match } = $context
+          const valueMatch = (match.exec($value) !== null)
+        }
+        verification.pass = pass
           ? true
           : false
         return verification

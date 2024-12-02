@@ -4,7 +4,7 @@ export default {
   id: "testD",
   group: "Validate Property: Literals",
   name: "Property Value Type: Enum Validator",
-  descript: `When schema property type is number validate only content property values that are numbers.`,
+  descript: `When schema property enum defined validate any boolean, number, or string value against array of enumerated values.`,
   method: function() {
     const schemaA = new Schema({
       propertyA: {

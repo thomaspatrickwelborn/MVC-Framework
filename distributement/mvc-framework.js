@@ -2309,11 +2309,11 @@ const Primitives = {
   'number': Number, 
   'boolean': Boolean, 
   'undefined': undefined,
-  'null': null,
 };
 const Objects = {
   'object': Object,
   'array': Array,
+  'null': null,
 };
 Object.assign({}, Primitives, Objects);
 
@@ -2333,20 +2333,23 @@ class TypeValidator extends Validator {
           value: $value,
           messages: this.messages,
         });
-        const typeOfContentVal = typeOf($value);
+        let pass;
         const typeOfContextVal = ($context.type === undefined)
-          ? $context.type
+          ? typeof $context.type
           : typeOf($context.type());
-        if(
-          Object.values(Primitives).includes($context.type) &&
-          Object.keys(Primitives).includes(typeOfContentVal)
-        ) {
+        const typeOfContentVal = typeOf($value);
+        if(typeOfContentVal === 'undefined') { pass = false;}
+        else if(typeOfContextVal === 'undefined') { pass = true; }
+        else {
           if(
-            typeOfContextVal === typeOfContentVal ||
-            typeOfContextVal === undefined
-          ) { verification.pass = true; }
-          else { verification.pass = false; }
+            Object.values(Primitives).includes($context.type) &&
+            Object.keys(Primitives).includes(typeOfContentVal)
+          ) {
+            if(typeOfContextVal === typeOfContentVal) { pass = true; }
+            else { pass = false; }
+          }
         }
+        verification.pass = pass;
         return verification
       },
     }));
@@ -2418,14 +2421,19 @@ class EnumValidator extends Validator {
     super(Object.assign($settings, {
       type: 'length',
       validate: ($context, $key, $value) => {
-        const enumeration = $context.enum;
         const verification = new Verification({
           context: $context,
           key: $key,
           value: $value,
           type: this.type,
         });
-        verification.pass = enumeration.includes($value);
+        let pass;
+        if(!['string', 'number', 'boolean'].includes(typeof $value)) { pass = false;}
+        else {
+          const enumeration = $context.enum;
+          pass = enumeration.includes($value);
+          }
+        verification.pass = pass;
         return verification
       },
     }));
@@ -2437,14 +2445,19 @@ class MatchValidator extends Validator {
     super(Object.assign($settings, {
       type: 'length',
       validate: ($context, $key, $value) => {
-        const { match } = $context;
         const verification = new Verification({
           context: $context,
           key: $key,
           value: $value,
           type: this.type,
         });
-        verification.pass = (match.exec($value) !== null)
+        let pass;
+        if(!['string', 'number', 'boolean'].includes(typeof $value)) { pass = false;}
+        else {
+          const { match } = $context;
+          (match.exec($value) !== null);
+        }
+        verification.pass = pass
           ? true
           : false;
         return verification

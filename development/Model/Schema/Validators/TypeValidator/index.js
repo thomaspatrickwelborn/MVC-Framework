@@ -20,20 +20,23 @@ export default class TypeValidator extends Validator {
           value: $value,
           messages: this.messages,
         })
-        const typeOfContentVal = typeOf($value)
+        let pass
         const typeOfContextVal = ($context.type === undefined)
-          ? $context.type
+          ? typeof $context.type
           : typeOf($context.type())
-        if(
-          Object.values(Primitives).includes($context.type) &&
-          Object.keys(Primitives).includes(typeOfContentVal)
-        ) {
+        const typeOfContentVal = typeOf($value)
+        if(typeOfContentVal === 'undefined') { pass = false}
+        else if(typeOfContextVal === 'undefined') { pass = true }
+        else {
           if(
-            typeOfContextVal === typeOfContentVal ||
-            typeOfContextVal === undefined
-          ) { verification.pass = true }
-          else { verification.pass = false }
+            Object.values(Primitives).includes($context.type) &&
+            Object.keys(Primitives).includes(typeOfContentVal)
+          ) {
+            if(typeOfContextVal === typeOfContentVal) { pass = true }
+            else { pass = false }
+          }
         }
+        verification.pass = pass
         return verification
       },
     }))
