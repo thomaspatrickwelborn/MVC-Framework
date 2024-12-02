@@ -2,9 +2,10 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: "testD",
+  groupID: "groupA",
   group: "Validate Property: Literals",
   name: "Property Value Type: Enum Validator",
-  descript: `When schema property enum defined validate any boolean, number, or string value against array of enumerated values.`,
+  descript: `When schema property enum defined validate any boolean, number, or string content property value against array of enumerated values.`,
   method: function() {
     const schemaA = new Schema({
       propertyA: {

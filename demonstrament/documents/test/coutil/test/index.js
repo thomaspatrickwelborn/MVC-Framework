@@ -8,6 +8,7 @@ export default class Test extends EventTarget {
     this.#settings = $settings
   }
   get id() { return this.#settings.id }
+  get groupID() { return this.#settings.groupID }
   get name() { return this.#settings.name }
   get group() { return this.#settings.group }
   get descript() { return this.#settings.descript }

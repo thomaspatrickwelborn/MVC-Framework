@@ -2,6 +2,7 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: "testC",
+  groupID: "groupA",
   group: "Validate Property: Literals",
   name: "Property Value Type: String - Length Validator",
   descript: `
