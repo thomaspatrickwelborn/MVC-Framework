@@ -3,7 +3,7 @@ const { expandTree } = Coutil
 export default {
   id: "testB",
   group: "Validate Property: Literals",
-  name: "Property Value Type: Number",
+  name: "Property Value Type: Number - Range Validator",
   descript: `When schema property type is number validate only content property values that are numbers.`,
   method: function() {
     const schema = new Schema({

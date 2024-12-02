@@ -8,7 +8,6 @@ export default class LengthValidator extends Validator {
     super(Object.assign($settings, {
       type: 'length',
       validate: ($context, $key, $value) => {
-        const { minLength, maxLength } = $context
         const verification = new Verification({
           context: $context,
           key: $key,
@@ -16,15 +15,16 @@ export default class LengthValidator extends Validator {
           type: this.type,
         })
         let pass
-        if(minLength !== undefined) {
-          verification.minLength = minLength
-          const validMinLength = ($value.length >= minLength)
-          if(pass !== false) pass = validMinLength
-        }
-        if(maxLength !== undefined) {
-          verification.maxLength = maxLength
-          const validMaxLength = ($value.length <= maxLength)
-          if(pass !== false) pass = validMaxLength
+        if(typeof $value !== 'string') { pass = false }
+        else {
+          const { minLength, maxLength } = $context
+          let validMin, validMax
+          if(minLength !== undefined) { validMin = ($value.length >= minLength) }
+          else { validMin = true }
+          if(maxLength !== undefined) { validMax = ($value.length <= maxLength) }
+          else { validMax = true }
+          if(validMin && validMax) { pass = true }          
+          else { pass = false}
         }
         verification.pass = pass
         return verification

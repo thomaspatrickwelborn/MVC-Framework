@@ -6,20 +6,17 @@ const { expandTree } = Coutil
 
 /*
 Validate Property: Literals
-  Property Value Type: Boolean
-  Property Value Type: Number
-    - Range Validator
-  Property Value Type: String
-    - Enum Validator
-    - Length Validator
-  Property Value Type: undefined
+  Property Value Type: Boolean (Test A)
+  Property Value Type: Number - Range Validator (Test B)
+  Property Value Type: String - Length Validator (Test C)
+  Property Value Type: Enum Validator (Test D)
+  Property Value Type: undefined (Test E)
 */
 const validation = {}
 const tests = {}
 for(const [$testName, $testSettings] of Object.entries(Tests)) {
   tests[$testName] = new Test($testSettings).execute()
   console.log($testName, tests[$testName])
-  // Logs.testResultsLog($test.execute())
 }
 
 /*

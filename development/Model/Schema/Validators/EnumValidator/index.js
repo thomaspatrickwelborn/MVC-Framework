@@ -15,7 +15,7 @@ export default class EnumValidator extends Validator {
           value: $value,
           type: this.type,
         })
-        verification.valuate = enumeration.includes($value)
+        verification.pass = enumeration.includes($value)
         return verification
       },
     }))
