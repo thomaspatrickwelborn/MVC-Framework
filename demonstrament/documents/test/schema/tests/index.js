@@ -1,2 +1,6 @@
 import testA from './testA.js'
-export { testA }
+import testB from './testB.js'
+export {
+  testA,
+  testB,
+}

@@ -143,8 +143,6 @@ export default class Schema extends EventTarget{
       }, this)
       verification.pass = false
       propertyValidation.unadvance.push(verification)
-      propertyValidation.valid = undefined
-      
     }
     // Context Value: Object
     else if(contextValue instanceof Schema) {
@@ -152,7 +150,6 @@ export default class Schema extends EventTarget{
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
-      propertyValidation.valid = validation.valid
     }
     // Context Value: Primitive
     else {
@@ -163,11 +160,13 @@ export default class Schema extends EventTarget{
           if(verification.pass === true) { $propertyValidation.advance.push(verification) }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification) }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }
-          if($propertyValidation.valid !== false) { $propertyValidation.valid = verification.pass }
           return $propertyValidation
         }, propertyValidation
       )
     }
+    if(propertyValidation.deadvance.length) { propertyValidation.valid = false }
+    else if(propertyValidation.advance.length) { propertyValidation.valid = true }
+    else if(propertyValidation.unadvance.length) { propertyValidation.valid = false }
     return propertyValidation
   }
 }

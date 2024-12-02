@@ -8,27 +8,27 @@ export default class RangeValidator extends Validator {
     super(Object.assign($settings, {
       type: 'range',
       validate: ($context, $key, $value) => {
-        const { min, max } = $context
         const verification = new Verification({
           context: $context,
           key: $key,
           value: $value,
           type: this.type,
         })
-        let pass = undefined
-        if(min !== undefined) {
-          verification.min = min
-          const validMin = ($value >= min)
-          if(pass !== false) pass = validMin
-        }
-        if(max !== undefined) {
-          verification.max = max
-          const validMax = ($value <= max)
-          if(pass !== false) pass = validMax
+        let pass
+        if(typeof $value !== 'number') { pass = false }
+        else {
+          const { min, max } = $context
+          let validMin, validMax
+          if(min !== undefined) { validMin = ($value >= min) }
+          else { validMin = true }
+          if(max !== undefined) { validMax = ($value <= max) }
+          else { validMax = true }
+          if(validMin && validMax) { pass = true }          
+          else { pass = false}
         }
         verification.pass = pass
         return verification
-      },
+      }
     }))
   }
 }

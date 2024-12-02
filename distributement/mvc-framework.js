@@ -2358,27 +2358,27 @@ class RangeValidator extends Validator {
     super(Object.assign($settings, {
       type: 'range',
       validate: ($context, $key, $value) => {
-        const { min, max } = $context;
         const verification = new Verification({
           context: $context,
           key: $key,
           value: $value,
           type: this.type,
         });
-        let pass = undefined;
-        if(min !== undefined) {
-          verification.min = min;
-          const validMin = ($value >= min);
-          if(pass !== false) pass = validMin;
-        }
-        if(max !== undefined) {
-          verification.max = max;
-          const validMax = ($value <= max);
-          if(pass !== false) pass = validMax;
+        let pass;
+        if(typeof $value !== 'number') { pass = false; }
+        else {
+          const { min, max } = $context;
+          let validMin, validMax;
+          if(min !== undefined) { validMin = ($value >= min); }
+          else { validMin = true; }
+          if(max !== undefined) { validMax = ($value <= max); }
+          else { validMax = true; }
+          if(validMin && validMax) { pass = true; }          
+          else { pass = false;}
         }
         verification.pass = pass;
         return verification
-      },
+      }
     }));
   }
 }
@@ -2590,8 +2590,6 @@ class Schema extends EventTarget{
       }, this);
       verification.pass = false;
       propertyValidation.unadvance.push(verification);
-      propertyValidation.valid = undefined;
-      
     }
     // Context Value: Object
     else if(contextValue instanceof Schema) {
@@ -2599,7 +2597,6 @@ class Schema extends EventTarget{
       if(validation.valid === true) { propertyValidation.advance.push(validation); }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation); }
-      propertyValidation.valid = validation.valid;
     }
     // Context Value: Primitive
     else {
@@ -2609,11 +2606,13 @@ class Schema extends EventTarget{
           if(verification.pass === true) { $propertyValidation.advance.push(verification); }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification); }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification); }
-          if($propertyValidation.valid !== false) { $propertyValidation.valid = verification.pass; }
           return $propertyValidation
         }, propertyValidation
       );
     }
+    if(propertyValidation.deadvance.length) { propertyValidation.valid = false; }
+    else if(propertyValidation.advance.length) { propertyValidation.valid = true; }
+    else if(propertyValidation.unadvance.length) { propertyValidation.valid = false; }
     return propertyValidation
   }
 }
