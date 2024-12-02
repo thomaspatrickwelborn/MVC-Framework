@@ -70,7 +70,7 @@ function impandTree($tree, $retainKey) {
   let tree = typedObjectLiteral($tree);
   for(const [$treeKey, $treeNode] of Object.entries($tree)) {
     const retainValue = $treeNode[$retainKey];
-    if(typeof retainValue === 'object') {
+    if(retainValue && typeof retainValue === 'object') {
       tree[$treeKey] = impandTree(retainValue, $retainKey);
     }
     else {
@@ -85,7 +85,7 @@ function expandTree($tree = {}, $retainKey, $altKeys = {}) {
   let tree = typedObjectLiteral($tree);
   for(const [$treeKey, $treeNode] of Object.entries($tree)) {
     const retainValue = $treeNode;
-    if(typeof retainValue === 'object') {
+    if(retainValue && typeof retainValue === 'object') {
       tree[$treeKey] = Object.assign({
         [$retainKey]: expandTree(retainValue, $retainKey, $altKeys)
       }, $altKeys);
@@ -2309,11 +2309,11 @@ const Primitives = {
   'number': Number, 
   'boolean': Boolean, 
   'undefined': undefined,
+  'null': null,
 };
 const Objects = {
   'object': Object,
   'array': Array,
-  'null': null,
 };
 Object.assign({}, Primitives, Objects);
 
@@ -2334,11 +2334,12 @@ class TypeValidator extends Validator {
           messages: this.messages,
         });
         let pass;
-        const typeOfContextVal = ($context.type === undefined)
-          ? typeof $context.type
+        const typeOfContextVal = (
+          $context.type === undefined || $context.type === null
+        ) ? typeOf($context.type)
           : typeOf($context.type());
         const typeOfContentVal = typeOf($value);
-        if(typeOfContentVal === 'undefined') { pass = false;}
+        if(typeOfContentVal === 'undefined') { pass = false; }
         else if(typeOfContextVal === 'undefined') { pass = true; }
         else {
           if(
@@ -2507,11 +2508,13 @@ class Schema extends EventTarget{
         continue iterateProperties
       }
       // Context Value: Object
-      else if(typeof $contextValue.type === 'object') {
+      else if(
+        typeof $contextValue.type === 'object' && $contextValue.type
+      ) {
         this.#_context[$contextKey] = new Schema($contextValue.type, this.options);
         continue iterateProperties
       }
-      // Context Value: Primitive
+      // Context Value: Primitive, Null
       else {
         this.#_context[$contextKey] = $contextValue;
       }

@@ -3,7 +3,7 @@ function impandTree($tree, $retainKey) {
   let tree = typedObjectLiteral($tree)
   for(const [$treeKey, $treeNode] of Object.entries($tree)) {
     const retainValue = $treeNode[$retainKey]
-    if(typeof retainValue === 'object') {
+    if(retainValue && typeof retainValue === 'object') {
       tree[$treeKey] = impandTree(retainValue, $retainKey)
     }
     else {
@@ -18,7 +18,7 @@ function expandTree($tree = {}, $retainKey, $altKeys = {}) {
   let tree = typedObjectLiteral($tree)
   for(const [$treeKey, $treeNode] of Object.entries($tree)) {
     const retainValue = $treeNode
-    if(typeof retainValue === 'object') {
+    if(retainValue && typeof retainValue === 'object') {
       tree[$treeKey] = Object.assign({
         [$retainKey]: expandTree(retainValue, $retainKey, $altKeys)
       }, $altKeys)

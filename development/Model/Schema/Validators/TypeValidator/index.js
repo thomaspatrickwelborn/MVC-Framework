@@ -21,11 +21,12 @@ export default class TypeValidator extends Validator {
           messages: this.messages,
         })
         let pass
-        const typeOfContextVal = ($context.type === undefined)
-          ? typeof $context.type
+        const typeOfContextVal = (
+          $context.type === undefined || $context.type === null
+        ) ? typeOf($context.type)
           : typeOf($context.type())
         const typeOfContentVal = typeOf($value)
-        if(typeOfContentVal === 'undefined') { pass = false}
+        if(typeOfContentVal === 'undefined') { pass = false }
         else if(typeOfContextVal === 'undefined') { pass = true }
         else {
           if(

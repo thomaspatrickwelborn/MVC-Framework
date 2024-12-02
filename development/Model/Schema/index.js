@@ -5,7 +5,6 @@ import Validation from './Validation/index.js'
 import {
   TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
 } from './Validators/index.js'
-import { Types, Primitives, Objects } from './Variables/index.js'
 import Options from './Options/index.js' 
 const ValidatorKeys = {
   type: ['type'], range: ['min', 'max'], length: ['minLength', 'maxLength']
@@ -48,11 +47,13 @@ export default class Schema extends EventTarget{
         continue iterateProperties
       }
       // Context Value: Object
-      else if(typeof $contextValue.type === 'object') {
+      else if(
+        typeof $contextValue.type === 'object' && $contextValue.type
+      ) {
         this.#_context[$contextKey] = new Schema($contextValue.type, this.options)
         continue iterateProperties
       }
-      // Context Value: Primitive
+      // Context Value: Primitive, Null
       else {
         this.#_context[$contextKey] = $contextValue
       }

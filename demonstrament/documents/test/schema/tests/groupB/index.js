@@ -1,9 +1,6 @@
 import testA from './testA.js'
+import testB from './testB.js'
 export {
-  testA
+  testA,
+  // testB,
 }
-/*
-Validation: Monodimensional Properties
-  Validation Type: Object
-  Validation Type: Primitive
-*/
