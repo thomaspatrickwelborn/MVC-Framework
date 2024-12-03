@@ -2,6 +2,7 @@ import { typeOf, typedObjectLiteral } from '../../Coutil/index.js'
 import Content from '../Content/index.js'
 import Verification from './Verification/index.js'
 import Validation from './Validation/index.js'
+import * as Variables from './Variables/index.js'
 import {
   TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
 } from './Validators/index.js'
@@ -36,8 +37,9 @@ export default class Schema extends EventTarget{
       properties = this.#properties 
       this.#_context = {}
     }
+    const Types = Object.values(Variables.Types)
     iterateProperties: 
-    for(const [
+    for(let [
       $contextKey, $contextValue
     ] of Object.entries(properties)) {
       let contextValue
@@ -57,33 +59,50 @@ export default class Schema extends EventTarget{
       else {
         this.#_context[$contextKey] = $contextValue
       }
+      contextValue = this.#_context[$contextKey]
       // Context Validators
-      this.#_context[$contextKey].validators = (this.#_context[$contextKey].validators)
-        ? this.#_context[$contextKey].validators
+      contextValue.validators = (contextValue.validators)
+        ? contextValue.validators
         : [new TypeValidator()]
-      // this.#_context[$contextKey].validators.unshift()
+      // contextValue.validators.unshift()
       const addValidators = []
       // Context Validator: Add Range
       if(
-        typeof this.#_context[$contextKey].min === 'number' || 
-        typeof this.#_context[$contextKey].max === 'number'
-      ) { addValidators.push(new RangeValidator({})) }
+        typeof contextValue.min === 'number' || 
+        typeof contextValue.max === 'number'
+      ) { addValidators.push(new RangeValidator({
+        min: { value: contextValue.min },
+        max: { value: contextValue.max },
+      })) }
+      else if(
+        (
+          typeof contextValue.min === 'object' &&
+          typeof contextValue.min[0] === 'number'
+        ) || (
+          typeof contextValue.max === 'object' &&
+          typeof contextValue.max[0] === 'number'
+        ) {
+          addValidators.push(new RangeValidator({
+            min
+          }))
+        }
+      )
       // Context Validator: Add Length
       if(
-        typeof this.#_context[$contextKey].minLength === 'number' ||
-        typeof this.#_context[$contextKey].maxLength === 'number'
+        typeof contextValue.minLength === 'number' ||
+        typeof contextValue.maxLength === 'number'
       ) { addValidators.push(new LengthValidator()) }
       // Context Validator: Add Enum
       if(
-        Array.isArray(this.#_context[$contextKey].enum) &&
-        this.#_context[$contextKey].enum.length > 0
+        Array.isArray(contextValue.enum) &&
+        contextValue.enum.length > 0
       ) { addValidators.push(new EnumValidator()) }
       // Context Validator: Add Match
       if(
-        Array.isArray(this.#_context[$contextKey].match) &&
-        this.#_context[$contextKey].match.length > 0
+        Array.isArray(contextValue.match) &&
+        contextValue.match.length > 0
       ) { addValidators.push(new MatchValidator()) }
-      this.#_context[$contextKey].validators = this.#_context[$contextKey].validators.concat(addValidators)
+      contextValue.validators = contextValue.validators.concat(addValidators)
     }
     return this.#_context
   }

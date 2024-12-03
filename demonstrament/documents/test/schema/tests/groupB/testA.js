@@ -5,7 +5,7 @@ export default {
   groupID: "groupB",
   group: "Validation: Monodimensional Properties",
   name: "Validation Type: Object",
-  descript: ``,
+  descript: `When validation type is "object" all properties must pass validation to assign values.`,
   method: function() {
     const schema = new Schema(expandTree({
       propertyA: String,

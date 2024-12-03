@@ -1,3 +1,7 @@
+const Messages = {
+  'true': ($validation) => `${$validation.valid}`,
+  'false': ($validation) => `${$validation.valid}`,
+}
 export default class Validation extends EventTarget {
   #settings
   #_properties
@@ -5,9 +9,9 @@ export default class Validation extends EventTarget {
   #_advance = []
   #_deadvance = []
   #_unadvance = []
-  constructor($settings) {
+  constructor($settings = {}) {
     super()
-    this.#settings = $settings
+    this.#settings = Object.assign({ messages: Messages }, $settings)
   }
   get type() { return this.#settings.type }
   get context() { return this.#settings.context }

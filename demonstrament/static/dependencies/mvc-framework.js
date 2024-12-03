@@ -2241,14 +2241,13 @@ class Verification extends EventTarget {
   get context() { return this.#settings.context }
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
-  get messages() { return this.#settings.messages }
   get message() {
     if(this.#_message !== undefined) return this.#_message
     if(
-      this.valid !== undefined &&
+      this.pass !== undefined &&
       this.#_message === undefined
     ) {
-      this.#_message = this.messages[this.valid](this);
+      this.#_message = this.#settings.messages[String(this.pass)](this);
     }
     return this.#_message
   }
@@ -2260,6 +2259,10 @@ class Verification extends EventTarget {
   }
 }
 
+const Messages$1 = {
+  'true': ($validation) => `${$validation.valid}`,
+  'false': ($validation) => `${$validation.valid}`,
+};
 class Validation extends EventTarget {
   #settings
   #_properties
@@ -2267,9 +2270,9 @@ class Validation extends EventTarget {
   #_advance = []
   #_deadvance = []
   #_unadvance = []
-  constructor($settings) {
+  constructor($settings = {}) {
     super();
-    this.#settings = $settings;
+    this.#settings = Object.assign({ messages: Messages$1 }, $settings);
   }
   get type() { return this.#settings.type }
   get context() { return this.#settings.context }
@@ -2291,19 +2294,6 @@ class Validation extends EventTarget {
   }
 }
 
-class Validator extends EventTarget {
-  #_settings
-  constructor($settings = {}) {
-    super();
-    this.settings = Object.freeze($settings);
-  }
-  get settings() { return this.#_settings }
-  set settings($settings) { this.#_settings = $settings; }
-  get type() { return this.settings.type }
-  get messages() { return this.settings.messages }
-  get validate() { return this.settings.validate }
-}
-
 const Primitives = {
   'string': String, 
   'number': Number, 
@@ -2315,16 +2305,31 @@ const Objects = {
   'object': Object,
   'array': Array,
 };
-Object.assign({}, Primitives, Objects);
+const Types = Object.assign({}, Primitives, Objects);
+
+const Messages = {
+  'true': ($verification) => `${$verification.pass}`,
+  'false': ($verification) => `${$verification.pass}`,
+};
+class Validator extends EventTarget {
+  #_settings
+  constructor($settings = {}) {
+    super();
+    this.settings = Object.freeze(
+      Object.assign({ messages: Messages }, $settings)
+    );
+  }
+  get settings() { return this.#_settings }
+  set settings($settings) { this.#_settings = $settings; }
+  get type() { return this.settings.type }
+  get messages() { return this.settings.messages }
+  get validate() { return this.settings.validate }
+}
 
 class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       'type': 'type',
-      'messages': {
-        'true': ($verification) => `${$verification.pass}`,
-        'false': ($verification) => `${$verification.pass}`,
-      },
       'validate': ($context, $key, $value) => {
         let verification = new Verification({
           type: this.type,
@@ -2498,8 +2503,9 @@ class Schema extends EventTarget{
       properties = this.#properties; 
       this.#_context = {};
     }
+    Object.values(Types);
     iterateProperties: 
-    for(const [
+    for(let [
       $contextKey, $contextValue
     ] of Object.entries(properties)) {
       // Context Value: Schema

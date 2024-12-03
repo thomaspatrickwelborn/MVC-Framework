@@ -6,13 +6,13 @@ const { expandTree } = Coutil
 const validation = {}
 const tests = {}
 iterateTestGroups: 
-for(const [$testGroupID, $testGroup] of Object.entries(Tests)) {
+for(const [$testGroupID, $testGroup] of Object.entries(Tests).reverse()) {
   console.log(
     "\n", "-----",
   )
   tests[$testGroupID] = {}
   iterateTests: 
-  for(const [$testID, $testSettings] of Object.entries($testGroup)) {
+  for(const [$testID, $testSettings] of Object.entries($testGroup).reverse()) {
     const test = new Test($testSettings).execute()
     tests[$testGroupID][$testID] = test
     console.log(

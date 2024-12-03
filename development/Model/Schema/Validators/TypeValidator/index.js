@@ -8,10 +8,6 @@ export default class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       'type': 'type',
-      'messages': {
-        'true': ($verification) => `${$verification.pass}`,
-        'false': ($verification) => `${$verification.pass}`,
-      },
       'validate': ($context, $key, $value) => {
         let verification = new Verification({
           type: this.type,

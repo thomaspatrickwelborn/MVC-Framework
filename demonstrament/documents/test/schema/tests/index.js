@@ -18,6 +18,6 @@ Validation: Property Validity
 */
 
 export {
-  // groupA,
+  groupA,
   groupB
 }
