@@ -1,8 +1,3 @@
-const typeOf = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
-
 function impandEvents($propEvents) {
   if(!Array.isArray($propEvents)) { return $propEvents }
   const propEvents = {};
@@ -53,6 +48,74 @@ function expandEvents($propEvents) {
   return propEvents
 }
 
+const Primitives$1 = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'undefined': undefined,
+  'null': null,
+};
+const Objects$1 = {
+  'object': Object,
+  'array': Array,
+};
+const Types = Object.assign({}, Primitives$1, Objects$1);
+const TypeKeys = Object.keys(Types);
+const TypeValues = Object.values(Types);
+const TypeMethods = [
+ Primitives$1.String, Primitives$1.Number, Primitives$1.Boolean, 
+ Objects$1.Object, Objects$1.Array
+];
+
+var Variables = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  Objects: Objects$1,
+  Primitives: Primitives$1,
+  TypeKeys: TypeKeys,
+  TypeMethods: TypeMethods,
+  TypeValues: TypeValues,
+  Types: Types
+});
+
+var regularExpressions = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
+function subpaths($path) {
+  return $path.split(new RegExp(regularExpressions.quotationEscape))
+}
+function key($path) {
+  return subpaths($path).pop()
+}
+function root($path) {
+  return subpaths($path).shift()
+}
+function typeofRoot($path) {
+  return (Number(root($path))) ? 'array' : 'object'
+}
+function parse($path) {
+  return {
+    subpaths: subpaths($path),
+    key: key($path),
+    root: root($path),
+    typeofRoot: typeofRoot($path),
+  }
+}
+
+var index$2 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  key: key,
+  parse: parse,
+  root: root,
+  subpaths: subpaths,
+  typeofRoot: typeofRoot
+});
+
+const typeOf = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
 function typedObjectLiteral($object) {
   if(typeOf($object) === 'object') { return {} }
   else if(typeOf($object) === 'array') { return [] }
@@ -66,34 +129,64 @@ function typedObjectLiteral($object) {
   else { return undefined }
 }
 
-function impandTree($tree, $retainKey) {
-  let tree = typedObjectLiteral($tree);
-  for(const [$treeKey, $treeNode] of Object.entries($tree)) {
-    const retainValue = $treeNode[$retainKey];
-    if(retainValue && typeof retainValue === 'object') {
-      tree[$treeKey] = impandTree(retainValue, $retainKey);
-    }
-    else {
-      tree[$treeKey] = retainValue;
+function get($path, $value) {
+  const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+  const key = subpaths.pop();
+  const tree = $value;
+  let treeNode = tree;
+  for(const $subpath of subpaths) {
+    treeNode = treeNode[$subpath];
+  }
+  return treeNode[key]
+}
+function set($path, $value) {
+  const { subpaths, key, typeofRoot } = parse($path);
+  const tree = typedObjectLiteral(typeofRoot);
+  let treeNode = tree;
+  for(const $subpath of subpaths) {
+    if(Number($subpath)) { treeNode[$subpath] = []; }
+    else { treeNode[$subpath] = {}; }
+    treeNode = treeNode[$subpath];
+  }
+  treeNode[key] = $value;
+  return tree
+}
+
+var index$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  get: get,
+  set: set
+});
+
+function impandTree($root, $tree) {
+  const typeofTree = typeof $tree;
+  const typeofRoot = typeof $root;
+  if(
+    !['string', 'function'].includes(typeofTree) ||
+    typeofRoot && typeofRoot !== 'object'
+  ) { return undefined /*$root*/ }
+  let tree = typedObjectLiteral($root);
+  if(typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
     }
   }
   return tree
 }
 
-function expandTree($tree = {}, $retainKey, $altKeys = {}) {
-  if($retainKey === undefined) return undefined
-  let tree = typedObjectLiteral($tree);
-  for(const [$treeKey, $treeNode] of Object.entries($tree)) {
-    const retainValue = $treeNode;
-    if(retainValue && typeof retainValue === 'object') {
-      tree[$treeKey] = Object.assign({
-        [$retainKey]: expandTree(retainValue, $retainKey, $altKeys)
-      }, $altKeys);
-    }
-    else {
-      tree[$treeKey] = Object.assign({
-        [$retainKey]: retainValue
-      }, $altKeys);
+function expandTree($root, $tree) {
+  const typeofTree = typeof $tree;
+  const typeofRoot = typeof $root;
+  if(
+    !['string', 'function'].includes(typeofTree) ||
+    typeofRoot && typeofRoot !== 'object'
+  ) { return undefined /*$root*/ }
+  let tree;
+  if(typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
     }
   }
   return tree
@@ -134,9 +227,11 @@ function recursiveAssign() {
   return $target
 }
 
-var regularExpressions = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
+function typedObjectLiteralFromPath($path) {
+  subpaths($path);
+  let tree = (Number($path[0])) ?  [] : {};
+  return tree
+}
 
 var index = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -144,10 +239,14 @@ var index = /*#__PURE__*/Object.freeze({
   expandTree: expandTree,
   impandEvents: impandEvents,
   impandTree: impandTree,
+  path: index$2,
   recursiveAssign: recursiveAssign,
   regularExpressions: regularExpressions,
+  tree: index$1,
   typeOf: typeOf,
-  typedObjectLiteral: typedObjectLiteral
+  typedObjectLiteral: typedObjectLiteral,
+  typedObjectLiteralFromPath: typedObjectLiteralFromPath,
+  variables: Variables
 });
 
 class ContentEvent extends Event {
@@ -2294,19 +2393,6 @@ class Validation extends EventTarget {
   }
 }
 
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'undefined': undefined,
-  'null': null,
-};
-const Objects = {
-  'object': Object,
-  'array': Array,
-};
-const Types = Object.assign({}, Primitives, Objects);
-
 const Messages = {
   'true': ($verification) => `${$verification.pass}`,
   'false': ($verification) => `${$verification.pass}`,
@@ -2326,6 +2412,8 @@ class Validator extends EventTarget {
   get validate() { return this.settings.validate }
 }
 
+const { Primitives, Objects } = Variables;
+
 class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
@@ -2339,6 +2427,7 @@ class TypeValidator extends Validator {
           messages: this.messages,
         });
         let pass;
+        console.log("$context", $context);
         const typeOfContextVal = (
           $context.type === undefined || $context.type === null
         ) ? typeOf($context.type)
@@ -2503,54 +2592,93 @@ class Schema extends EventTarget{
       properties = this.#properties; 
       this.#_context = {};
     }
-    Object.values(Types);
-    iterateProperties: 
-    for(let [
-      $contextKey, $contextValue
-    ] of Object.entries(properties)) {
-      // Context Value: Schema
-      if($contextValue instanceof Schema) {
-        this.#_context[$contextKey] = $contextValue;
-        continue iterateProperties
+    for(const [
+      $propertyKey, $propertyDefinition
+    ] of Object.entries(properties)) { 
+      const propertyDefinitionSettings = {
+        value: undefined,
+        messages: undefined,
+      };
+      const propertyDefinition = {
+        type: propertyDefinitionSettings
+      };
+      typeOf($propertyDefinition);
+      // Property Definition: Schema
+      if($propertyDefinition instanceof Schema) {
+        propertyDefinition.type = $propertyDefinition;
       }
-      // Context Value: Object
+      // Property Definition: String, Number, Boolean, Object, Array, null, undefined
+      else if(TypeValues.includes($propertyDefinition)) {
+        propertyDefinition.type = $propertyDefinition;
+      }
+      // Property Definition: 'string', 'number', 'boolean', 'object', 'array', 'null', 'undefined'
+      else if(TypeKeys.includes($propertyDefinition)) {
+        propertyDefinition.type = TypeValues[
+          TypeKeys.indexOf($typeKey)
+        ];
+      }
+      // Property Definition: Object Literal
       else if(
-        typeof $contextValue.type === 'object' && $contextValue.type
+        typeof $propertyDefinition === 'object'
       ) {
-        this.#_context[$contextKey] = new Schema($contextValue.type, this.options);
-        continue iterateProperties
+        // Property Definition: Property Definition
+        if(TypeValues.includes($propertyDefinition.type)) {
+          Object.assign(propertyDefinition, $propertyDefinition);
+        }
       }
       // Context Value: Primitive, Null
       else {
-        this.#_context[$contextKey] = $contextValue;
+        propertyDefinition.type = $propertyDefinition;
       }
+      this.#_context[$propertyKey] = propertyDefinition;
       // Context Validators
-      this.#_context[$contextKey].validators = (this.#_context[$contextKey].validators)
-        ? this.#_context[$contextKey].validators
+      propertyDefinition.validators = (propertyDefinition.validators)
+        ? propertyDefinition.validators
         : [new TypeValidator()];
-      // this.#_context[$contextKey].validators.unshift()
+      // propertyDefinition.validators.unshift()
       const addValidators = [];
       // Context Validator: Add Range
+      const rangeValidator = {};
+      const { min, max } = propertyDefinition;
+      if(min !== undefined || max !== undefined) {
+        for(const [
+          $rangePropertyName, $rangeProperty
+        ] of [['min', min], 'max', max]) {
+        }
+      }
       if(
-        typeof this.#_context[$contextKey].min === 'number' || 
-        typeof this.#_context[$contextKey].max === 'number'
-      ) { addValidators.push(new RangeValidator({})); }
+        typeof propertyDefinition.min === 'number' || 
+        typeof propertyDefinition.max === 'number'
+      ) { addValidators.push(new RangeValidator(rangeValidator)); }
+      else if(
+        (
+          typeof propertyDefinition.min === 'object' &&
+          typeof propertyDefinition.min[0] === 'number'
+        ) || (
+          typeof propertyDefinition.max === 'object' &&
+          typeof propertyDefinition.max[0] === 'number'
+        )
+      ) {
+        addValidators.push(new RangeValidator({
+          min
+        }));
+      }
       // Context Validator: Add Length
       if(
-        typeof this.#_context[$contextKey].minLength === 'number' ||
-        typeof this.#_context[$contextKey].maxLength === 'number'
+        typeof propertyDefinition.minLength === 'number' ||
+        typeof propertyDefinition.maxLength === 'number'
       ) { addValidators.push(new LengthValidator()); }
       // Context Validator: Add Enum
       if(
-        Array.isArray(this.#_context[$contextKey].enum) &&
-        this.#_context[$contextKey].enum.length > 0
+        Array.isArray(propertyDefinition.enum) &&
+        propertyDefinition.enum.length > 0
       ) { addValidators.push(new EnumValidator()); }
       // Context Validator: Add Match
       if(
-        Array.isArray(this.#_context[$contextKey].match) &&
-        this.#_context[$contextKey].match.length > 0
+        Array.isArray(propertyDefinition.match) &&
+        propertyDefinition.match.length > 0
       ) { addValidators.push(new MatchValidator()); }
-      this.#_context[$contextKey].validators = this.#_context[$contextKey].validators.concat(addValidators);
+      propertyDefinition.validators = propertyDefinition.validators.concat(addValidators);
     }
     return this.#_context
   }

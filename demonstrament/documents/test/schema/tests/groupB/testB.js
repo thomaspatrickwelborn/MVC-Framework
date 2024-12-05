@@ -7,7 +7,16 @@ export default {
   name: "Validation Type: Primitive",
   descript: `When validation type is "primitive" only valid properties values assigned.`,
   method: function() {
-    const schema = new Schema(expandTree({
+    const schema = new Schema(/*expandTree(*/{
+      propertyA: String,
+      propertyB: Boolean,
+      propertyC: Number,
+      propertyD: null,
+      propertyE: undefined,
+    }/*, "type")*/, {
+      validationType: "primitive"
+    })
+    const schemaA = new Schema(expandTree({
       propertyA: String,
       propertyB: Boolean,
       propertyC: Number,
@@ -61,7 +70,8 @@ export default {
     ]
     const validations = []
     for(const $content of contents) {
-      const contentValidation = schema.validate($content)
+      // const contentValidation = schema.validate($content)
+      const contentValidation = schemaA.validate($content)
       validations.push(contentValidation)
       quest.push(contentValidation.valid)
     }

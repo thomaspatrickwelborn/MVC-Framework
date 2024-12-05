@@ -1,17 +1,26 @@
-import typeOf from './typeOf/index.js'
-import { impandEvents, expandEvents } from './pandEvents/index.js'
-import { impandTree, expandTree } from './pandTree/index.js'
+import { expandEvents, impandEvents } from './pandEvents/index.js'
+import { expandTree, impandTree } from './pandTree/index.js'
+import * as path from './path/index.js'
 import recursiveAssign from './recursiveAssign/index.js'
 import regularExpressions from './regularExpressions/index.js'
+import * as tree from './tree/index.js'
+import typeOf from './typeOf/index.js'
 import typedObjectLiteral from './typedObjectLiteral/index.js'
+import typedObjectLiteralFromPath from './typedObjectLiteralFromPath/index.js'
+import * as variables from './variables/index.js'
+
 
 export {
-  typeOf, 
   // Pand Events
-  impandEvents, expandEvents, 
+  expandEvents, impandEvents, 
   // Pand Tree
-  impandTree, expandTree, 
+  expandTree, impandTree, 
+  path, 
   recursiveAssign, 
   regularExpressions, 
+  tree, 
+  typeOf, 
   typedObjectLiteral, 
+  typedObjectLiteralFromPath, 
+  variables, 
 }

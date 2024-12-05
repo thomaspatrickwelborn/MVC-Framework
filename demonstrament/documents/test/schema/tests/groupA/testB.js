@@ -14,6 +14,25 @@ export default {
         max: 1000,
       }
     })
+    const schemaB = new Schema({
+      propertyA: {
+        type: Number,
+        min: -{
+          value: 1000,
+          messages: {
+            'true': ($verification) => `${verification.pass}`,
+            'false': ($verification) => `${verification.pass}`,
+          }
+        },
+        max: {
+          value: 1000,
+          messages: {
+            'true': ($verification) => `${verification.pass}`,
+            'false': ($verification) => `${verification.pass}`,
+          },
+        }
+      }
+    })
     const contentA = { propertyA: 500 } // true
     const contentB = { propertyA: -500 } // true
     const contentC = { propertyA: "500" } // false

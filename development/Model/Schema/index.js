@@ -1,8 +1,7 @@
-import { typeOf, typedObjectLiteral } from '../../Coutil/index.js'
+import { typeOf, typedObjectLiteral, variables as Variables } from '../../Coutil/index.js'
 import Content from '../Content/index.js'
 import Verification from './Verification/index.js'
 import Validation from './Validation/index.js'
-import * as Variables from './Variables/index.js'
 import {
   TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
 } from './Validators/index.js'
@@ -37,72 +36,103 @@ export default class Schema extends EventTarget{
       properties = this.#properties 
       this.#_context = {}
     }
-    const Types = Object.values(Variables.Types)
     iterateProperties: 
-    for(let [
-      $contextKey, $contextValue
-    ] of Object.entries(properties)) {
-      let contextValue
-      // Context Value: Schema
-      if($contextValue instanceof Schema) {
-        this.#_context[$contextKey] = $contextValue
-        continue iterateProperties
+    for(const [
+      $propertyKey, $propertyDefinition
+    ] of Object.entries(properties)) { 
+      const propertyDefinitionSettings = {
+        value: undefined,
+        messages: undefined,
       }
-      // Context Value: Object
+      const propertyDefinition = {
+        type: propertyDefinitionSettings
+      }
+      const typeOfPropertyDefinition = typeOf($propertyDefinition)
+      // Property Definition: Schema
+      if($propertyDefinition instanceof Schema) {
+        propertyDefinition.type = $propertyDefinition
+      }
+      // Property Definition: String, Number, Boolean, Object, Array, null, undefined
+      else if(Variables.TypeValues.includes($propertyDefinition)) {
+        propertyDefinition.type = $propertyDefinition
+      }
+      // Property Definition: 'string', 'number', 'boolean', 'object', 'array', 'null', 'undefined'
+      else if(Variables.TypeKeys.includes($propertyDefinition)) {
+        propertyDefinition.type = Variables.TypeValues[
+          Variables.TypeKeys.indexOf($typeKey)
+        ]
+      }
+      // Property Definition: Object Literal
       else if(
-        typeof $contextValue.type === 'object' && $contextValue.type
+        typeof $propertyDefinition === 'object'
       ) {
-        this.#_context[$contextKey] = new Schema($contextValue.type, this.options)
-        continue iterateProperties
+        // Property Definition: Property Definition
+        if(Variables.TypeValues.includes($propertyDefinition.type)) {
+          Object.assign(propertyDefinition, $propertyDefinition)
+        }
       }
       // Context Value: Primitive, Null
       else {
-        this.#_context[$contextKey] = $contextValue
+        propertyDefinition.type = $propertyDefinition
       }
-      contextValue = this.#_context[$contextKey]
+      this.#_context[$propertyKey] = propertyDefinition
       // Context Validators
-      contextValue.validators = (contextValue.validators)
-        ? contextValue.validators
+      propertyDefinition.validators = (propertyDefinition.validators)
+        ? propertyDefinition.validators
         : [new TypeValidator()]
-      // contextValue.validators.unshift()
+      // propertyDefinition.validators.unshift()
       const addValidators = []
       // Context Validator: Add Range
+      const rangeValidator = {}
+      const { min, max } = propertyDefinition
+      if(min !== undefined || max !== undefined) {
+        for(const [
+          $rangePropertyName, $rangeProperty
+        ] of [['min', min], 'max', max]) {
+          let rangeProperty = {}
+          if(typeof $rangeProperty === 'number') {
+            rangeProperty[$rangePropertyName] = {
+              value: $rangeProperty
+            }
+          }
+          else if($rangeProperty === 'object') {
+            rangeProperty[$rangePropertyName] = $rangeProperty
+          }
+        }
+      }
       if(
-        typeof contextValue.min === 'number' || 
-        typeof contextValue.max === 'number'
-      ) { addValidators.push(new RangeValidator({
-        min: { value: contextValue.min },
-        max: { value: contextValue.max },
-      })) }
+        typeof propertyDefinition.min === 'number' || 
+        typeof propertyDefinition.max === 'number'
+      ) { addValidators.push(new RangeValidator(rangeValidator)) }
       else if(
         (
-          typeof contextValue.min === 'object' &&
-          typeof contextValue.min[0] === 'number'
+          typeof propertyDefinition.min === 'object' &&
+          typeof propertyDefinition.min[0] === 'number'
         ) || (
-          typeof contextValue.max === 'object' &&
-          typeof contextValue.max[0] === 'number'
-        ) {
-          addValidators.push(new RangeValidator({
-            min
-          }))
-        }
-      )
+          typeof propertyDefinition.max === 'object' &&
+          typeof propertyDefinition.max[0] === 'number'
+        )
+      ) {
+        addValidators.push(new RangeValidator({
+          min
+        }))
+      }
       // Context Validator: Add Length
       if(
-        typeof contextValue.minLength === 'number' ||
-        typeof contextValue.maxLength === 'number'
+        typeof propertyDefinition.minLength === 'number' ||
+        typeof propertyDefinition.maxLength === 'number'
       ) { addValidators.push(new LengthValidator()) }
       // Context Validator: Add Enum
       if(
-        Array.isArray(contextValue.enum) &&
-        contextValue.enum.length > 0
+        Array.isArray(propertyDefinition.enum) &&
+        propertyDefinition.enum.length > 0
       ) { addValidators.push(new EnumValidator()) }
       // Context Validator: Add Match
       if(
-        Array.isArray(contextValue.match) &&
-        contextValue.match.length > 0
+        Array.isArray(propertyDefinition.match) &&
+        propertyDefinition.match.length > 0
       ) { addValidators.push(new MatchValidator()) }
-      contextValue.validators = contextValue.validators.concat(addValidators)
+      propertyDefinition.validators = propertyDefinition.validators.concat(addValidators)
     }
     return this.#_context
   }

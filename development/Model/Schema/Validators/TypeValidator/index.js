@@ -1,8 +1,8 @@
-import { typeOf } from '../../../../Coutil/index.js'
+import { typeOf, variables as Variables } from '../../../../Coutil/index.js'
 import Validator from '../../Validator/index.js'
 import Verification from '../../Verification/index.js'
-import { Primitives, Objects } from '../../Variables/index.js'
 import Schema from '../../index.js'
+const { Primitives, Objects } = Variables
 
 export default class TypeValidator extends Validator {
   constructor($settings = {}) {
@@ -17,6 +17,7 @@ export default class TypeValidator extends Validator {
           messages: this.messages,
         })
         let pass
+        console.log("$context", $context)
         const typeOfContextVal = (
           $context.type === undefined || $context.type === null
         ) ? typeOf($context.type)
