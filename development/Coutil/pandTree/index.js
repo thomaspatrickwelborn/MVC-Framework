@@ -21,19 +21,23 @@ function impandTree($root, $tree) {
 }
 
 function expandTree($root, $tree) {
-  const typeofTree = typeof $tree
   const typeofRoot = typeof $root
+  const typeofTree = typeof $tree
   if(
-    !['string', 'function'].includes(typeofTree) ||
-    typeofRoot && typeofRoot !== 'object'
+    !['string', 'function'].includes(typeofTree) // ||
+    // (typeofRoot && typeofRoot !== 'object')
   ) { return undefined /*$root*/ }
   let tree
-  if(typeofRoot === 'object') {
+  if($root && typeofRoot === 'object') {
     iterateRootEntries: 
     for(const [$rootKey, $rootValue] of Object.entries($root)) {
       if(typeofTree === 'string') { tree = Tree.set($tree, $rootValue) }
       else if(typeofTree === 'function') { tree = $tree($rootValue) }
     }
+  }
+  else {
+    if(typeofTree === 'string') { tree = Tree.set($tree, $root) }
+    else if(typeofTree === 'function') { tree = $tree($root) }
   }
   return tree
 }

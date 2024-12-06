@@ -12,10 +12,12 @@ function get($path, $value) {
   return treeNode[key]
 }
 function set($path, $value) {
-  const { subpaths, key, typeofRoot } = path.parse($path)
+  const {
+    keypaths, key, typeofRoot
+  } = path.parse($path)
   const tree = typedObjectLiteral(typeofRoot)
   let treeNode = tree
-  for(const $subpath of subpaths) {
+  for(const $subpath of keypaths) {
     if(Number($subpath)) { treeNode[$subpath] = [] }
     else { treeNode[$subpath] = {} }
     treeNode = treeNode[$subpath]

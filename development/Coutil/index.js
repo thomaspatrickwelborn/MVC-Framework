@@ -1,5 +1,7 @@
 import { expandEvents, impandEvents } from './pandEvents/index.js'
 import { expandTree, impandTree } from './pandTree/index.js'
+import isPropertyDefinition from './isPropertyDefinition/index.js'
+import isPropertyValidator from './isPropertyValidator/index.js'
 import * as path from './path/index.js'
 import recursiveAssign from './recursiveAssign/index.js'
 import regularExpressions from './regularExpressions/index.js'
@@ -15,6 +17,8 @@ export {
   expandEvents, impandEvents, 
   // Pand Tree
   expandTree, impandTree, 
+  isPropertyDefinition,
+  isPropertyValidator,
   path, 
   recursiveAssign, 
   regularExpressions, 

@@ -1,8 +1,9 @@
-import { typeOf, variables as Variables } from '../../../../Coutil/index.js'
+import {
+  typeOf, variables as Variables, recursiveAssign
+} from '../../../../Coutil/index.js'
 import Validator from '../../Validator/index.js'
 import Verification from '../../Verification/index.js'
-import Schema from '../../index.js'
-const { Primitives, Objects } = Variables
+const { PrimitiveKeys, PrimitiveValues } = Variables
 
 export default class TypeValidator extends Validator {
   constructor($settings = {}) {
@@ -14,21 +15,20 @@ export default class TypeValidator extends Validator {
           context: $context,
           key: $key,
           value: $value,
-          messages: this.messages,
+          messages: recursiveAssign(this.messages, $context.type.messages),
         })
         let pass
-        console.log("$context", $context)
         const typeOfContextVal = (
-          $context.type === undefined || $context.type === null
-        ) ? typeOf($context.type)
-          : typeOf($context.type())
+          $context.type.value === undefined || $context.type.value === null
+        ) ? typeOf($context.type.value)
+          : typeOf($context.type.value())
         const typeOfContentVal = typeOf($value)
         if(typeOfContentVal === 'undefined') { pass = false }
         else if(typeOfContextVal === 'undefined') { pass = true }
         else {
           if(
-            Object.values(Primitives).includes($context.type) &&
-            Object.keys(Primitives).includes(typeOfContentVal)
+            PrimitiveValues.includes($context.type.value) &&
+            PrimitiveKeys.includes(typeOfContentVal)
           ) {
             if(typeOfContextVal === typeOfContentVal) { pass = true }
             else { pass = false }

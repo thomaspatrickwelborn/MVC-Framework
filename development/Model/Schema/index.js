@@ -1,4 +1,6 @@
-import { typeOf, typedObjectLiteral, variables as Variables } from '../../Coutil/index.js'
+import {
+  expandTree, isPropertyDefinition, typedObjectLiteral, typeOf, variables as Variables
+} from '../../Coutil/index.js'
 import Content from '../Content/index.js'
 import Verification from './Verification/index.js'
 import Validation from './Validation/index.js'
@@ -9,6 +11,7 @@ import Options from './Options/index.js'
 const ValidatorKeys = {
   type: ['type'], range: ['min', 'max'], length: ['minLength', 'maxLength']
 }
+
 export default class Schema extends EventTarget{
   options
   #properties
@@ -39,100 +42,76 @@ export default class Schema extends EventTarget{
     iterateProperties: 
     for(const [
       $propertyKey, $propertyDefinition
-    ] of Object.entries(properties)) { 
-      const propertyDefinitionSettings = {
-        value: undefined,
-        messages: undefined,
-      }
-      const propertyDefinition = {
-        type: propertyDefinitionSettings
-      }
+    ] of Object.entries(properties)) {
       const typeOfPropertyDefinition = typeOf($propertyDefinition)
+      let propertyDefinition
       // Property Definition: Schema
       if($propertyDefinition instanceof Schema) {
-        propertyDefinition.type = $propertyDefinition
+        propertyDefinition = expandTree($propertyDefinition, 'type.value')
       }
       // Property Definition: String, Number, Boolean, Object, Array, null, undefined
       else if(Variables.TypeValues.includes($propertyDefinition)) {
-        propertyDefinition.type = $propertyDefinition
+        propertyDefinition = expandTree($propertyDefinition, 'type.value')
       }
       // Property Definition: 'string', 'number', 'boolean', 'object', 'array', 'null', 'undefined'
       else if(Variables.TypeKeys.includes($propertyDefinition)) {
-        propertyDefinition.type = Variables.TypeValues[
-          Variables.TypeKeys.indexOf($typeKey)
-        ]
+        propertyDefinition = expandTree(Variables.TypeValues[
+          Variables.TypeKeys.indexOf($propertyDefinition)
+        ], 'type.value')
       }
       // Property Definition: Object Literal
-      else if(
-        typeof $propertyDefinition === 'object'
-      ) {
-        // Property Definition: Property Definition
-        if(Variables.TypeValues.includes($propertyDefinition.type)) {
-          Object.assign(propertyDefinition, $propertyDefinition)
-        }
-      }
-      // Context Value: Primitive, Null
-      else {
-        propertyDefinition.type = $propertyDefinition
-      }
-      this.#_context[$propertyKey] = propertyDefinition
-      // Context Validators
-      propertyDefinition.validators = (propertyDefinition.validators)
-        ? propertyDefinition.validators
-        : [new TypeValidator()]
-      // propertyDefinition.validators.unshift()
-      const addValidators = []
-      // Context Validator: Add Range
-      const rangeValidator = {}
-      const { min, max } = propertyDefinition
-      if(min !== undefined || max !== undefined) {
-        for(const [
-          $rangePropertyName, $rangeProperty
-        ] of [['min', min], 'max', max]) {
-          let rangeProperty = {}
-          if(typeof $rangeProperty === 'number') {
-            rangeProperty[$rangePropertyName] = {
-              value: $rangeProperty
+      else if(typeOfPropertyDefinition === 'object') {
+        let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition)
+        if(propertyDefinitionIsPropertyDefinition === false) {
+          propertyDefinition = {
+            type: {
+              value: new Schema($propertyDefinition, this.options)
             }
           }
-          else if($rangeProperty === 'object') {
-            rangeProperty[$rangePropertyName] = $rangeProperty
+        }
+        else if(propertyDefinitionIsPropertyDefinition === true) {
+          propertyDefinition = {}
+          // Property Definition: 
+          iteratePropertyValidators: 
+          for(const [
+            $propertyValidatorName, $propertyValidator
+          ] of Object.entries($propertyDefinition)) {
+            if($propertyValidatorName === 'validators') { continue iteratePropertyValidators }
+            const typeofPropertyValidator = typeof $propertyValidator
+            let propertyValidator
+            if(typeofPropertyValidator && typeofPropertyValidator === 'object') {
+              propertyValidator = $propertyValidator
+            }
+            else {
+              propertyValidator = {
+                value: $propertyValidator
+              }
+            }
+            propertyDefinition[$propertyValidatorName] = propertyValidator
           }
         }
       }
-      if(
-        typeof propertyDefinition.min === 'number' || 
-        typeof propertyDefinition.max === 'number'
-      ) { addValidators.push(new RangeValidator(rangeValidator)) }
-      else if(
-        (
-          typeof propertyDefinition.min === 'object' &&
-          typeof propertyDefinition.min[0] === 'number'
-        ) || (
-          typeof propertyDefinition.max === 'object' &&
-          typeof propertyDefinition.max[0] === 'number'
-        )
-      ) {
-        addValidators.push(new RangeValidator({
-          min
-        }))
+      propertyDefinition.validators = []
+      const validators = {}
+      const {
+        type,
+        min, max, 
+        minLength, maxLength, 
+        match,
+      } = propertyDefinition
+      if(type) validators.type = { properties: { type }, validator: TypeValidator } 
+      if(min || max) validators.range = { properties: { min, max }, validator: RangeValidator } 
+      if(minLength || maxLength) validators.length = { properties: { minLength, maxLength }, validator: LengthValidator }
+      if(propertyDefinition.enum) validators.enum = { properties: { enum: propertyDefinition.enum }, validator: EnumValidator }
+      if(match) validators.match = { properties: { match }, validator: MatchValidator }
+      for(const [
+        $validatorName, $validatorSettings
+      ] of Object.entries(validators)) {
+        const { properties, validator } = $validatorSettings
+        propertyDefinition.validators.push(new validator(properties))
       }
-      // Context Validator: Add Length
-      if(
-        typeof propertyDefinition.minLength === 'number' ||
-        typeof propertyDefinition.maxLength === 'number'
-      ) { addValidators.push(new LengthValidator()) }
-      // Context Validator: Add Enum
-      if(
-        Array.isArray(propertyDefinition.enum) &&
-        propertyDefinition.enum.length > 0
-      ) { addValidators.push(new EnumValidator()) }
-      // Context Validator: Add Match
-      if(
-        Array.isArray(propertyDefinition.match) &&
-        propertyDefinition.match.length > 0
-      ) { addValidators.push(new MatchValidator()) }
-      propertyDefinition.validators = propertyDefinition.validators.concat(addValidators)
+      this.#_context[$propertyKey] = propertyDefinition
+    
     }
     return this.#_context
   }

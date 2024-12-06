@@ -48,29 +48,37 @@ function expandEvents($propEvents) {
   return propEvents
 }
 
-const Primitives$1 = {
+const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
   'undefined': undefined,
   'null': null,
 };
-const Objects$1 = {
+const PrimitiveKeys$1 = Object.keys(Primitives);
+const PrimitiveValues$1 = Object.values(Primitives);
+const Objects = {
   'object': Object,
   'array': Array,
 };
-const Types = Object.assign({}, Primitives$1, Objects$1);
+const ObjectKeys = Object.keys(Objects);
+const ObjectValues = Object.values(Objects);
+const Types = Object.assign({}, Primitives, Objects);
 const TypeKeys = Object.keys(Types);
 const TypeValues = Object.values(Types);
 const TypeMethods = [
- Primitives$1.String, Primitives$1.Number, Primitives$1.Boolean, 
- Objects$1.Object, Objects$1.Array
+ Primitives.String, Primitives.Number, Primitives.Boolean, 
+ Objects.Object, Objects.Array
 ];
 
 var Variables = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  Objects: Objects$1,
-  Primitives: Primitives$1,
+  ObjectKeys: ObjectKeys,
+  ObjectValues: ObjectValues,
+  Objects: Objects,
+  PrimitiveKeys: PrimitiveKeys$1,
+  PrimitiveValues: PrimitiveValues$1,
+  Primitives: Primitives,
   TypeKeys: TypeKeys,
   TypeMethods: TypeMethods,
   TypeValues: TypeValues,
@@ -82,7 +90,14 @@ var regularExpressions = {
 };
 
 function subpaths($path) {
-  return $path.split(new RegExp(regularExpressions.quotationEscape))
+  return $path.split(
+    new RegExp(regularExpressions.quotationEscape)
+  )
+}
+function keypaths($path) {
+  const _subpaths = subpaths($path);
+  _subpaths.pop();
+  return _subpaths
 }
 function key($path) {
   return subpaths($path).pop()
@@ -96,6 +111,7 @@ function typeofRoot($path) {
 function parse($path) {
   return {
     subpaths: subpaths($path),
+    keypaths: keypaths($path),
     key: key($path),
     root: root($path),
     typeofRoot: typeofRoot($path),
@@ -105,6 +121,7 @@ function parse($path) {
 var index$2 = /*#__PURE__*/Object.freeze({
   __proto__: null,
   key: key,
+  keypaths: keypaths,
   parse: parse,
   root: root,
   subpaths: subpaths,
@@ -140,10 +157,12 @@ function get($path, $value) {
   return treeNode[key]
 }
 function set($path, $value) {
-  const { subpaths, key, typeofRoot } = parse($path);
+  const {
+    keypaths, key, typeofRoot
+  } = parse($path);
   const tree = typedObjectLiteral(typeofRoot);
   let treeNode = tree;
-  for(const $subpath of subpaths) {
+  for(const $subpath of keypaths) {
     if(Number($subpath)) { treeNode[$subpath] = []; }
     else { treeNode[$subpath] = {}; }
     treeNode = treeNode[$subpath];
@@ -176,20 +195,60 @@ function impandTree($root, $tree) {
 }
 
 function expandTree($root, $tree) {
-  const typeofTree = typeof $tree;
   const typeofRoot = typeof $root;
+  const typeofTree = typeof $tree;
   if(
-    !['string', 'function'].includes(typeofTree) ||
-    typeofRoot && typeofRoot !== 'object'
+    !['string', 'function'].includes(typeofTree) // ||
+    // (typeofRoot && typeofRoot !== 'object')
   ) { return undefined /*$root*/ }
   let tree;
-  if(typeofRoot === 'object') {
+  if($root && typeofRoot === 'object') {
     for(const [$rootKey, $rootValue] of Object.entries($root)) {
       if(typeofTree === 'string') { tree = set($tree, $rootValue); }
       else if(typeofTree === 'function') { tree = $tree($rootValue); }
     }
   }
+  else {
+    if(typeofTree === 'string') { tree = set($tree, $root); }
+    else if(typeofTree === 'function') { tree = $tree($root); }
+  }
   return tree
+}
+
+function isPropertyDefinition($propertyDefinition) {
+  if(
+    Object.getOwnPropertyDescriptor($propertyDefinition, 'type') &&
+    (
+      TypeValues.includes($propertyDefinition.type) ||
+      TypeKeys.includes($propertyDefinition.type)
+    ) || (
+      typeof $propertyDefinition.type === 'object' &&
+      Object.getOwnPropertyDescriptor($propertyDefinition.type, 'value') &&
+      (
+        TypeValues.includes($propertyDefinition.type.value) ||
+        TypeKeys.includes($propertyDefinition.type.value)
+      )
+    )
+  ) { return true } 
+  else { return false }
+}
+
+function isPropertyValidator($propertyValidator) {
+  if(
+    Object.getOwnPropertyDescriptor($propertyValidator, 'value') &&
+    (
+      TypeValues.includes($propertyValidator.type) ||
+      TypeKeys.includes($propertyValidator.type)
+    ) || (
+      typeof $propertyValidator.type === 'object' &&
+      Object.getOwnPropertyDescriptor($propertyValidator.type, 'value') &&
+      (
+        TypeValues.includes($propertyValidator.type.value) ||
+        TypeKeys.includes($propertyValidator.type.value)
+      )
+    )
+  ) { return true } 
+  else { return false }
 }
 
 function recursiveAssign() {
@@ -239,6 +298,8 @@ var index = /*#__PURE__*/Object.freeze({
   expandTree: expandTree,
   impandEvents: impandEvents,
   impandTree: impandTree,
+  isPropertyDefinition: isPropertyDefinition,
+  isPropertyValidator: isPropertyValidator,
   path: index$2,
   recursiveAssign: recursiveAssign,
   regularExpressions: regularExpressions,
@@ -2412,7 +2473,7 @@ class Validator extends EventTarget {
   get validate() { return this.settings.validate }
 }
 
-const { Primitives, Objects } = Variables;
+const { PrimitiveKeys, PrimitiveValues } = Variables;
 
 class TypeValidator extends Validator {
   constructor($settings = {}) {
@@ -2424,21 +2485,20 @@ class TypeValidator extends Validator {
           context: $context,
           key: $key,
           value: $value,
-          messages: this.messages,
+          messages: recursiveAssign(this.messages, $context.type.messages),
         });
         let pass;
-        console.log("$context", $context);
         const typeOfContextVal = (
-          $context.type === undefined || $context.type === null
-        ) ? typeOf($context.type)
-          : typeOf($context.type());
+          $context.type.value === undefined || $context.type.value === null
+        ) ? typeOf($context.type.value)
+          : typeOf($context.type.value());
         const typeOfContentVal = typeOf($value);
         if(typeOfContentVal === 'undefined') { pass = false; }
         else if(typeOfContextVal === 'undefined') { pass = true; }
         else {
           if(
-            Object.values(Primitives).includes($context.type) &&
-            Object.keys(Primitives).includes(typeOfContentVal)
+            PrimitiveValues.includes($context.type.value) &&
+            PrimitiveKeys.includes(typeOfContentVal)
           ) {
             if(typeOfContextVal === typeOfContentVal) { pass = true; }
             else { pass = false; }
@@ -2457,19 +2517,20 @@ class RangeValidator extends Validator {
       type: 'range',
       validate: ($context, $key, $value) => {
         const verification = new Verification({
+          type: this.type,
           context: $context,
           key: $key,
           value: $value,
-          type: this.type,
+          messages: recursiveAssign(this.messages, $context.type.messages),
         });
         let pass;
         if(typeof $value !== 'number') { pass = false; }
         else {
           const { min, max } = $context;
           let validMin, validMax;
-          if(min !== undefined) { validMin = ($value >= min); }
+          if(min.value !== undefined) { validMin = ($value >= min.value); }
           else { validMin = true; }
-          if(max !== undefined) { validMax = ($value <= max); }
+          if(max.value !== undefined) { validMax = ($value <= max.value); }
           else { validMax = true; }
           if(validMin && validMax) { pass = true; }          
           else { pass = false;}
@@ -2487,19 +2548,24 @@ class LengthValidator extends Validator {
       type: 'length',
       validate: ($context, $key, $value) => {
         const verification = new Verification({
+          type: this.type,
           context: $context,
           key: $key,
           value: $value,
-          type: this.type,
+          messages: recursiveAssign(this.messages, $context.type.messages),
         });
         let pass;
         if(typeof $value !== 'string') { pass = false; }
         else {
           const { minLength, maxLength } = $context;
           let validMin, validMax;
-          if(minLength !== undefined) { validMin = ($value.length >= minLength); }
+          if(minLength.value !== undefined) {
+            validMin = ($value.length >= minLength.value);
+          }
           else { validMin = true; }
-          if(maxLength !== undefined) { validMax = ($value.length <= maxLength); }
+          if(maxLength.value !== undefined) {
+            validMax = ($value.length <= maxLength.value);
+          }
           else { validMax = true; }
           if(validMin && validMax) { pass = true; }          
           else { pass = false;}
@@ -2517,15 +2583,18 @@ class EnumValidator extends Validator {
       type: 'length',
       validate: ($context, $key, $value) => {
         const verification = new Verification({
+          type: this.type,
           context: $context,
           key: $key,
           value: $value,
-          type: this.type,
+          messages: recursiveAssign(this.messages, $context.type.messages),
         });
         let pass;
-        if(!['string', 'number', 'boolean'].includes(typeof $value)) { pass = false;}
+        if(![
+          'string', 'number', 'boolean'
+        ].includes(typeof $value)) { pass = false;}
         else {
-          const enumeration = $context.enum;
+          const enumeration = $context.enum.value;
           pass = enumeration.includes($value);
           }
         verification.pass = pass;
@@ -2541,16 +2610,19 @@ class MatchValidator extends Validator {
       type: 'length',
       validate: ($context, $key, $value) => {
         const verification = new Verification({
+          type: this.type,
           context: $context,
           key: $key,
           value: $value,
-          type: this.type,
+          messages: recursiveAssign(this.messages, $context.type.messages),
         });
         let pass;
-        if(!['string', 'number', 'boolean'].includes(typeof $value)) { pass = false;}
+        if(![
+          'string', 'number', 'boolean'
+        ].includes(typeof $value)) { pass = false;}
         else {
           const { match } = $context;
-          (match.exec($value) !== null);
+          (match.value.exec($value) !== null);
         }
         verification.pass = pass
           ? true
@@ -2594,91 +2666,76 @@ class Schema extends EventTarget{
     }
     for(const [
       $propertyKey, $propertyDefinition
-    ] of Object.entries(properties)) { 
-      const propertyDefinitionSettings = {
-        value: undefined,
-        messages: undefined,
-      };
-      const propertyDefinition = {
-        type: propertyDefinitionSettings
-      };
-      typeOf($propertyDefinition);
+    ] of Object.entries(properties)) {
+      const typeOfPropertyDefinition = typeOf($propertyDefinition);
+      let propertyDefinition;
       // Property Definition: Schema
       if($propertyDefinition instanceof Schema) {
-        propertyDefinition.type = $propertyDefinition;
+        propertyDefinition = expandTree($propertyDefinition, 'type.value');
       }
       // Property Definition: String, Number, Boolean, Object, Array, null, undefined
       else if(TypeValues.includes($propertyDefinition)) {
-        propertyDefinition.type = $propertyDefinition;
+        propertyDefinition = expandTree($propertyDefinition, 'type.value');
       }
       // Property Definition: 'string', 'number', 'boolean', 'object', 'array', 'null', 'undefined'
       else if(TypeKeys.includes($propertyDefinition)) {
-        propertyDefinition.type = TypeValues[
-          TypeKeys.indexOf($typeKey)
-        ];
+        propertyDefinition = expandTree(TypeValues[
+          TypeKeys.indexOf($propertyDefinition)
+        ], 'type.value');
       }
       // Property Definition: Object Literal
-      else if(
-        typeof $propertyDefinition === 'object'
-      ) {
-        // Property Definition: Property Definition
-        if(TypeValues.includes($propertyDefinition.type)) {
-          Object.assign(propertyDefinition, $propertyDefinition);
+      else if(typeOfPropertyDefinition === 'object') {
+        let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition);
+        if(propertyDefinitionIsPropertyDefinition === false) {
+          propertyDefinition = {
+            type: {
+              value: new Schema($propertyDefinition, this.options)
+            }
+          };
+        }
+        else if(propertyDefinitionIsPropertyDefinition === true) {
+          propertyDefinition = {};
+          // Property Definition: 
+          iteratePropertyValidators: 
+          for(const [
+            $propertyValidatorName, $propertyValidator
+          ] of Object.entries($propertyDefinition)) {
+            if($propertyValidatorName === 'validators') { continue iteratePropertyValidators }
+            const typeofPropertyValidator = typeof $propertyValidator;
+            let propertyValidator;
+            if(typeofPropertyValidator && typeofPropertyValidator === 'object') {
+              propertyValidator = $propertyValidator;
+            }
+            else {
+              propertyValidator = {
+                value: $propertyValidator
+              };
+            }
+            propertyDefinition[$propertyValidatorName] = propertyValidator;
+          }
         }
       }
-      // Context Value: Primitive, Null
-      else {
-        propertyDefinition.type = $propertyDefinition;
+      propertyDefinition.validators = [];
+      const validators = {};
+      const {
+        type,
+        min, max, 
+        minLength, maxLength, 
+        match,
+      } = propertyDefinition;
+      if(type) validators.type = { properties: { type }, validator: TypeValidator }; 
+      if(min || max) validators.range = { properties: { min, max }, validator: RangeValidator }; 
+      if(minLength || maxLength) validators.length = { properties: { minLength, maxLength }, validator: LengthValidator };
+      if(propertyDefinition.enum) validators.enum = { properties: { enum: propertyDefinition.enum }, validator: EnumValidator };
+      if(match) validators.match = { properties: { match }, validator: MatchValidator };
+      for(const [
+        $validatorName, $validatorSettings
+      ] of Object.entries(validators)) {
+        const { properties, validator } = $validatorSettings;
+        propertyDefinition.validators.push(new validator(properties));
       }
       this.#_context[$propertyKey] = propertyDefinition;
-      // Context Validators
-      propertyDefinition.validators = (propertyDefinition.validators)
-        ? propertyDefinition.validators
-        : [new TypeValidator()];
-      // propertyDefinition.validators.unshift()
-      const addValidators = [];
-      // Context Validator: Add Range
-      const rangeValidator = {};
-      const { min, max } = propertyDefinition;
-      if(min !== undefined || max !== undefined) {
-        for(const [
-          $rangePropertyName, $rangeProperty
-        ] of [['min', min], 'max', max]) {
-        }
-      }
-      if(
-        typeof propertyDefinition.min === 'number' || 
-        typeof propertyDefinition.max === 'number'
-      ) { addValidators.push(new RangeValidator(rangeValidator)); }
-      else if(
-        (
-          typeof propertyDefinition.min === 'object' &&
-          typeof propertyDefinition.min[0] === 'number'
-        ) || (
-          typeof propertyDefinition.max === 'object' &&
-          typeof propertyDefinition.max[0] === 'number'
-        )
-      ) {
-        addValidators.push(new RangeValidator({
-          min
-        }));
-      }
-      // Context Validator: Add Length
-      if(
-        typeof propertyDefinition.minLength === 'number' ||
-        typeof propertyDefinition.maxLength === 'number'
-      ) { addValidators.push(new LengthValidator()); }
-      // Context Validator: Add Enum
-      if(
-        Array.isArray(propertyDefinition.enum) &&
-        propertyDefinition.enum.length > 0
-      ) { addValidators.push(new EnumValidator()); }
-      // Context Validator: Add Match
-      if(
-        Array.isArray(propertyDefinition.match) &&
-        propertyDefinition.match.length > 0
-      ) { addValidators.push(new MatchValidator()); }
-      propertyDefinition.validators = propertyDefinition.validators.concat(addValidators);
+    
     }
     return this.#_context
   }

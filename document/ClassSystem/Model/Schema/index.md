@@ -1,6 +1,38 @@
 # Schema Class
 **MVC Framework \| Class System \| Model \| *Schema***  
 
+
+```
+{
+  type: String
+}
+
+{
+  type: {
+    value: String
+  }
+}
+
+{
+  type: {
+    type: String
+  }
+}
+
+{
+  type: {
+    type: {
+      value: String
+    }
+  }
+}
+```
+Object.get
+$propertyDefinition?.type.type.value
+$propertyDefinition?.type.type
+
+Variables.TypeValues.includes()
+
 ### Expand Tree Statements
 #### Statement 1
 *statement*  
@@ -57,6 +89,70 @@ expandTree({
       value: String
     }
   }
+}
+```
+
+#### Statement 5
+```
+impandTree({})
+```
+
+### Impand Tree Statements
+#### Statement 1
+*statement*  
+```
+impandTree([String], "0")
+```
+*returns*  
+```
+String
+```
+
+#### Statement 2
+*statement*  
+```
+impandTree({
+  value: Number
+}, "value")
+```
+*returns*  
+```
+Number
+```
+
+#### Statement 3
+```
+impandTree({
+  propertyA: {
+    type: {
+      value: String
+    }
+  }
+}, ":$property.type.value")
+```
+*returns*  
+```
+{
+  propertyA: String
+}
+```
+
+#### Statement 4
+```
+impandTree({
+  propertyA: {
+    type: {
+      value: String
+    }
+  }
+}, ($value) => {
+  type: { value: $value }
+})
+```
+*returns*  
+```
+{
+  propertyA: String
 }
 ```
 
