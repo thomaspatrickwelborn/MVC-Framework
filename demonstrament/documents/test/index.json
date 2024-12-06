@@ -9,6 +9,25 @@
 		},
 		"selfClose": true
 	}],
+	"structure": [{
+		"tag": "index",
+		"structure": [{
+			"tag": "header",
+			"structure": [{
+				"tag": "h1",
+				"textContent": "MVC Framework | Test"
+			}]
+		}, {
+			"tag": "navigation",
+			"structure": [{
+				"tag": "a",
+				"attributes": {
+					"href": "./schema"
+				},
+				"textContent": "Schema Test"
+			}]
+		}]
+	}],
 	"scripts": [{
 		"tag": "script",
 		"attributes": {

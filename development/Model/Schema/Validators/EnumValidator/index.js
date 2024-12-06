@@ -21,7 +21,7 @@ export default class EnumValidator extends Validator {
         else {
           const enumeration = $context.enum.value
           pass = enumeration.includes($value)
-          }
+        }
         verification.pass = pass
         return verification
       },

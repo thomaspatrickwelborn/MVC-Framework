@@ -10,7 +10,7 @@ export default function watchPath(
     if($watchPath.charAt(0) === '!') {
       watchPath = '!'.concat(
         path.join(
-          $route.source, $watchPath.replace(new RegExp(/^\!/), '')
+          $route.source, $watchPath.replace(new RegExp(/^\!*/), '')
         )
       )
     } else {
@@ -20,4 +20,5 @@ export default function watchPath(
     }
     $documentPath[$watchPathIndex] = watchPath
   }
+  $documentPath.unshift(...$route.ignore)
 }

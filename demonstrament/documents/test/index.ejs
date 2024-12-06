@@ -10,12 +10,13 @@
     }
   ) -%>
 </head>
-<body data-brightness="MIN">
-  <header>
-    <h1><%= $content.title %></h1>
-  </header>
-  <main></main>
-  <footer></footer>
+<body>
+  <%- await include(
+    '/html5/structure.ejs', 
+    { structure: $content.structure }, {
+      async: true,
+    }
+  ) -%>
   <%- await include(
     '/html5/structure.ejs', 
     { structure: $content.scripts }, {

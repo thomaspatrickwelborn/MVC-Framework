@@ -77,9 +77,9 @@ export default class Schema extends EventTarget{
             $propertyValidatorName, $propertyValidator
           ] of Object.entries($propertyDefinition)) {
             if($propertyValidatorName === 'validators') { continue iteratePropertyValidators }
-            const typeofPropertyValidator = typeof $propertyValidator
+            const typeOfPropertyValidator = typeOf($propertyValidator)
             let propertyValidator
-            if(typeofPropertyValidator && typeofPropertyValidator === 'object') {
+            if(typeOfPropertyValidator && typeOfPropertyValidator === 'object') {
               propertyValidator = $propertyValidator
             }
             else {

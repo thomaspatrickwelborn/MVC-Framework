@@ -22,7 +22,7 @@ export default function anonymous($content, escapeFn, include, rethrow) {
     function __append(s) {
         if (s !== undefined && s !== null) __output += s
     };
-    console.log($content)
+    console.log("hello all dogs")
     return __output;
 
 }

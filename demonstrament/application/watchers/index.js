@@ -15,46 +15,52 @@ export default class Watchers extends EventTarget {
     this.#settings = $settings
     this.#clear()
     .then(() => {
-      this.scripts
-      this.simules
       this.structs
       this.styles
+      this.scripts
+      this.simules
     })
   }
   get #settings() { return this.#_settings }
   set #settings($settings) {
     this.#_settings = $settings
     for(const $route of this.#_settings) {
+      // Ignore
+      for(const [
+        $ignorePathIndex, $ignorePath
+      ] of Object.entries($route.ignore)) {
+        $route.ignore[$ignorePathIndex] = path.join(
+          '!'.concat($route.target), $ignorePath.replace(/^\!/, '')
+        )
+      }
       // Clear Target
-      let clearTargetIndex = 0
-      for(const $clearTarget of $route.clear.target) {
+      for(const [
+        $clearTargetIndex, $clearTarget
+      ] of Object.entries($route.clear.target)) {
         if($clearTarget.charAt(0) === '!') {
-          $route.clear.target[clearTargetIndex] = path.join(
-            '!'.concat($route.target), $clearTarget
-            .replace(/^\!/, '')
+          $route.clear.target[$clearTargetIndex] = path.join(
+            '!'.concat($route.target), $clearTarget.replace(/^\!/, '')
           )
         } else {
-          $route.clear.target[clearTargetIndex] = path.join(
+          $route.clear.target[$clearTargetIndex] = path.join(
             $route.target, $clearTarget
           )
         }
-        // $route.target, $clearTarget
-        clearTargetIndex++
+        $route.clear.target.unshift(...$route.ignore)
       }
       // Clear Source
-      let clearSourceIndex = 0
-      for(const $clearSource of $route.clear.source) {
+      for(const [
+        $clearSourceIndex, $clearSource
+      ] of Object.entries($route.clear.source)) {
         if($clearSource.charAt(0) === '!') {
-          $route.clear.target[clearSourceIndex] = path.join(
-            '!'.concat($route.source.replace), $clearSource
-            .replace(/^\!/, '')
+          $route.clear.target[$clearSourceIndex] = path.join(
+            '!'.concat($route.source.replace), $clearSource.replace(/^\!/, '')
           )
         } else {
-          $route.clear.target[clearSourceIndex] = path.join(
+          $route.clear.target[$clearSourceIndex] = path.join(
             $route.source, $clearSource
           )
         }
-        clearSourceIndex++
       }
       // Documents
       for(const [
@@ -73,6 +79,7 @@ export default class Watchers extends EventTarget {
         }
       }
     }
+    console.log(this)
   }
   #clear() {
     const clear = []
@@ -103,7 +110,9 @@ export default class Watchers extends EventTarget {
     for(const $route of this.#settings) {
       for(const $document of $route.documents.scripts) {
         const watcher = watch($document.watch, {
+          // ignore: this.#settings.ignore,
           ignoreInitial: false,
+          awaitWriteFinish: true,
         })
         watcher.on('add', ($path, $stats) => Pilers.RollupPiler($document))
         watcher.on('change', ($path, $stats) => Pilers.RollupPiler($document))
@@ -118,7 +127,9 @@ export default class Watchers extends EventTarget {
     for(const $route of this.#settings) {
       for(const $document of $route.documents.simules) {
         const watcher = watch($document.watch, {
+          // ignore: this.#settings.ignore,
           ignoreInitial: false,
+          awaitWriteFinish: true,
         })
         watcher.on('add', ($path, $stats) => Pilers.SimulePiler($document, $route, $path))
         watcher.on('change', ($path, $stats) => Pilers.SimulePiler($document, $route, $path))
@@ -133,7 +144,9 @@ export default class Watchers extends EventTarget {
     for(const $route of this.#settings) {
       for(const $document of $route.documents.structs) {
         const watcher = watch($document.watch, {
+          // ignore: this.#settings.ignore,
           ignoreInitial: false,
+          awaitWriteFinish: true,
         })
         watcher.on('add', ($path, $stats) => Pilers.EJSPiler($document, $route, $path))
         watcher.on('change', ($path, $stats) => Pilers.EJSPiler($document, $route, $path))
@@ -148,7 +161,9 @@ export default class Watchers extends EventTarget {
     for(const $route of this.#settings) {
       for(const $document of $route.documents.styles) {
         const watcher = watch($document.watch, {
+          // ignore: this.#settings.ignore,
           ignoreInitial: false,
+          awaitWriteFinish: true,
         })
         watcher.on('add', ($path, $stats) => Pilers.SASSPiler($document))
         watcher.on('change', ($path, $stats) => Pilers.SASSPiler($document))

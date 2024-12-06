@@ -7,6 +7,7 @@ import { writeFile } from 'node:fs'
 export default async function EJSPiler($settings, $route, $path) {
   await createDir(path.dirname($path))
   // Server
+  const localsName = $settings.localsName || '$content'
   if($settings.outputType === 'server') {
     try {
       const model = JSON.parse(
@@ -14,7 +15,7 @@ export default async function EJSPiler($settings, $route, $path) {
       )
       const viewPile = await ejs.renderFile($settings.input, model, {
         async: true,
-        localsName: '$content',
+        localsName,
         root: [
           path.join(
             process.env.PWD, 'application/templates', 
@@ -37,7 +38,7 @@ export default async function EJSPiler($settings, $route, $path) {
       .then(($viewTemplate) => $viewTemplate.toString())
       const viewPile = ejs.compile(viewTemplate, {
         _with: false,
-        localsName: '$content',
+        localsName,
         client: true,
         compileDebug: false,
       })

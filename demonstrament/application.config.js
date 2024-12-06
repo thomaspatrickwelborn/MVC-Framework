@@ -39,10 +39,11 @@ export default {
       source: 'documents',
       target: 'localhost',
       main: 'index.html',
+      ignore: ['static-cms', 'test'],
       clear: {
         target: [
           '*.{html,css,js,md,map}',
-          '!static-cms',
+          // '!static-cms', '!test',
         ],
         source: [
           '**/*template.js'
@@ -60,28 +61,30 @@ export default {
           type: 'style',
           input: 'index.scss',
           output: 'index.css',
-          watch: ['**/*.scss', '!static-cms'],
+          watch: ['**/*.scss'],
         }],
         scripts: [{
           type: 'script',
           input: 'index.js',
           output: 'index.js',
-          watch: ['**/*.js', '!static-cms'],
+          watch: ['**/*.js'],
           external: ['/dependencies/mvc-framework.js']
         }],
         structs: [{
           type: 'struct',
+          localsName: '$content',
           outputType: 'server',
           model: 'index.json',
           input: 'index.ejs',
           output: 'index.html',
-          watch: ['**/*.{ejs,json}', '!**/\$.ejs', '!static-cms'],
+          watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
         }, {
           type: 'struct',
+          localsName: '$content',
           outputType: 'client',
           input: '**/*.ejs',
           output: '',
-          watch: ['**/\$*.ejs', '!index.ejs', '!static-cms'],
+          watch: ['**/\$*.ejs', '!index.ejs'],
         }],
       }
     },
@@ -91,6 +94,7 @@ export default {
       source: 'documents/static-cms',
       target: 'localhost/static-cms',
       main: 'index.html',
+      ignore: [],
       clear: {
         target: [
           '/**/*.{html,css,js,md}',
@@ -116,6 +120,7 @@ export default {
         }],
         structs: [{
           type: 'struct',
+          localsName: '$content',
           outputType: 'server',
           model: 'index.json',
           input: 'index.ejs',
@@ -123,6 +128,7 @@ export default {
           watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
         }, {
           type: 'struct',
+          localsName: '$content',
           outputType: 'client',
           input: '**/*.ejs',
           output: '',
@@ -136,6 +142,55 @@ export default {
       source: 'documents/test',
       target: 'localhost/test',
       main: 'index.html',
+      ignore: ['schema'],
+      clear: {
+        target: [
+          '/**/*.{html,css,js,md}'
+        ],
+        source: [
+          '**/template.js'
+        ],
+      },
+      documents: {
+        simules: [],
+        styles: [{
+          type: 'style',
+          input: 'index.scss',
+          output: 'index.css',
+          watch: ['**/*.scss'],
+        }],
+        scripts: [{
+          type: 'script',
+          input: 'index.js',
+          output: 'index.js',
+          watch: ['**/*.js'],
+          external: ['/dependencies/mvc-framework.js']
+        }],
+        structs: [{
+          type: 'struct',
+          localsName: '$content',
+          outputType: 'server',
+          model: 'index.json',
+          input: 'index.ejs',
+          output: 'index.html',
+          watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+        }, {
+          type: 'struct',
+          localsName: '$content',
+          outputType: 'client',
+          input: '**/*.ejs',
+          output: '',
+          watch: ['**/\$*.ejs', '!index.ejs'],
+        }],
+      }
+    },
+    {
+      name: 'Test | Schema',
+      url: '/test/schema',
+      source: 'documents/test/schema',
+      target: 'localhost/test/schema',
+      main: 'index.html',
+      ignore: [],
       clear: {
         target: [
           '/**/*.{html,css,js,md}',
@@ -161,6 +216,7 @@ export default {
         }],
         structs: [{
           type: 'struct',
+          localsName: '$content',
           outputType: 'server',
           model: 'index.json',
           input: 'index.ejs',
@@ -168,10 +224,11 @@ export default {
           watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
         }, {
           type: 'struct',
+          localsName: '$content',
           outputType: 'client',
           input: '**/*.ejs',
           output: '',
-          watch: ['**/\$*.ejs', '!index.ejs'],
+          watch: ['**/\$*.ejs'],
         }],
       }
     }
