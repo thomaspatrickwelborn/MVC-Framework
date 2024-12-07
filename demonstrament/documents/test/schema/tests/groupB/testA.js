@@ -7,13 +7,13 @@ export default {
   name: "Validation Type: Object",
   descript: `When validation type is "object" all properties must pass validation to assign values.`,
   method: function() {
-    const schema = new Schema(expandTree({
+    const schema = new Schema({
       propertyA: String,
       propertyB: Boolean,
       propertyC: Number,
       propertyD: null,
       propertyE: undefined,
-    }, "type"), {
+    }, {
       validationType: "object"
     })
     const contentA = {
@@ -60,6 +60,7 @@ export default {
     ]
     const validations = []
     for(const $content of contents) {
+      // const contentValidation = schema.validate($content)
       const contentValidation = schema.validate($content)
       validations.push(contentValidation)
       quest.push(contentValidation.valid)

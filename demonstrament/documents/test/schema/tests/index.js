@@ -1,4 +1,4 @@
-// import * as groupA from './groupA/index.js'
+import * as groupA from './groupA/index.js'
 import * as groupB from './groupB/index.js'
 
 /*
@@ -18,6 +18,6 @@ Validation: Property Validity
 */
 
 export {
-  // groupA,
+  groupA,
   groupB
 }

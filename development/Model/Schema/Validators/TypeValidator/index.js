@@ -18,19 +18,19 @@ export default class TypeValidator extends Validator {
           messages: recursiveAssign(this.messages, $context.type.messages),
         })
         let pass
-        const typeOfContextVal = (
-          $context.type.value === undefined || $context.type.value === null
-        ) ? typeOf($context.type.value)
-          : typeOf($context.type.value())
-        const typeOfContentVal = typeOf($value)
-        if(typeOfContentVal === 'undefined') { pass = false }
-        else if(typeOfContextVal === 'undefined') { pass = true }
+        let typeOfContextValue = typeOf($context.type.value)
+        typeOfContextValue = (typeOfContextValue === 'function')
+          ? typeOf($context.type.value())
+          : typeOfContextValue
+        const typeOfContentValue = typeOf($value)
+        if(typeOfContentValue === 'undefined') { pass = false }
+        else if(typeOfContextValue === 'undefined') { pass = true }
         else {
           if(
             PrimitiveValues.includes($context.type.value) &&
-            PrimitiveKeys.includes(typeOfContentVal)
+            PrimitiveKeys.includes(typeOfContentValue)
           ) {
-            if(typeOfContextVal === typeOfContentVal) { pass = true }
+            if(typeOfContextValue === typeOfContentValue) { pass = true }
             else { pass = false }
           }
         }

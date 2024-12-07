@@ -77,7 +77,6 @@ export default class Demonstrament extends EventTarget {
       host: this.#settings.browserSync.host,
       port: this.#settings.browserSync.port,
       files: this.#settings.browserSync.files,
-      reloadDebounce: 500,
       // logLevel: 'silent',
       proxy: {
         target: [

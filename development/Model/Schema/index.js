@@ -166,7 +166,7 @@ export default class Schema extends EventTarget{
     if(contextValue === undefined) {
       const verification = new Verification({
         type: null,
-        context: contextValue,
+        context: null,
         key: $key,
         value: $value,
       }, this)
