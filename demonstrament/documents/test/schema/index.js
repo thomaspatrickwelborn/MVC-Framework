@@ -14,5 +14,4 @@ for(const [$testGroupID, $testGroup] of Object.entries(Tests).reverse()) {
     tests[$testGroupID][$testID] = test
   }
   const testResults = new TestResults(tests)
-  console.log("testResults", testResults)
 }

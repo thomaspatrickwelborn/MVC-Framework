@@ -1,0 +1,77 @@
+@mixin test-results {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+@mixin test-group {
+  display: flex;
+  flex-direction: column;
+}
+@mixin test-result {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  // grid-template-rows: repeat(3, 1fr);
+  margin: 0.2em 0;
+  &[data-pass="true"] {
+    background: {
+      color: mediumaquamarine;
+    }
+  }
+  &[data-pass="false"] {
+    background: {
+      color: lightcoral;
+    }
+  }
+  & > pass {
+    grid-row: span 2 / span 2;
+    &[data-pass="true"] {
+      &:before {
+        content: "☑";
+      }
+      &:after {
+        content: "pass";
+      }
+    }
+    &[data-pass="false"] {
+      &:before {
+        content: "☒";
+      }
+      &:after {
+        content: "FAIL"
+      }
+    }
+  }
+  & > test-result-group {
+    grid-column-start: 2;
+    grid-row-start: 1; 
+    display: flex;
+    flex-direction: column;
+    & > id {
+      font-size: 0.8em;
+    }
+  }
+  & > test-result-name {
+    grid-column-start: 2;
+    grid-row-start: 2;
+    display: flex;
+    flex-direction: column;
+    & > id {
+      font-size: 0.8em;
+    }
+  }
+  & > test-result-detail {
+    grid-column: span 2 / span 2;
+    grid-row-start: 3;
+  }
+}
+@mixin test-result-group {}
+@mixin test-result-name {}
+test-results {
+  @include test-results;
+  & > test-group {
+    @include test-group;
+    & > test-result {
+      @include test-result;
+    }   
+  }   
+}

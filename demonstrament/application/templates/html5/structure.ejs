@@ -11,9 +11,9 @@
     <%= $structure.textContent %>
   <% } -%>
   <% if($structure.structure) { -%>
-	  <%- await include('./structure.ejs', {
-	    structure: $structure.structure
-	  }) -%>
+    <%- await include('./structure.ejs', {
+      structure: $structure.structure
+    }) -%>
   <% } -%>
   <% if($structure.selfClose !== true) { -%>
     </<%= $structure.tag -%>>
