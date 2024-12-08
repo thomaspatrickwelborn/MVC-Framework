@@ -30,7 +30,7 @@ export default class Watchers extends EventTarget {
         $ignorePathIndex, $ignorePath
       ] of Object.entries($route.ignore)) {
         $route.ignore[$ignorePathIndex] = path.join(
-          '!'.concat($route.target), $ignorePath.replace(/^\!/, '')
+          '!'.concat($route.source), $ignorePath.replace(/^\!/, '')
         )
       }
       // Clear Target
@@ -79,7 +79,6 @@ export default class Watchers extends EventTarget {
         }
       }
     }
-    console.log(this)
   }
   #clear() {
     const clear = []
@@ -114,8 +113,12 @@ export default class Watchers extends EventTarget {
           ignoreInitial: false,
           awaitWriteFinish: true,
         })
-        watcher.on('add', ($path, $stats) => Pilers.RollupPiler($document))
-        watcher.on('change', ($path, $stats) => Pilers.RollupPiler($document))
+        watcher.on('add', ($path, $stats) => {
+          Pilers.RollupPiler($document)
+        })
+        watcher.on('change', ($path, $stats) => {
+          Pilers.RollupPiler($document)
+        })
         this.#_scripts.push(watcher)
       }
     }
@@ -131,8 +134,12 @@ export default class Watchers extends EventTarget {
           ignoreInitial: false,
           awaitWriteFinish: true,
         })
-        watcher.on('add', ($path, $stats) => Pilers.SimulePiler($document, $route, $path))
-        watcher.on('change', ($path, $stats) => Pilers.SimulePiler($document, $route, $path))
+        watcher.on('add', ($path, $stats) => {
+          Pilers.SimulePiler($document, $route, $path)
+        })
+        watcher.on('change', ($path, $stats) => {
+          Pilers.SimulePiler($document, $route, $path)
+        })
         this.#_simules.push(watcher)
       }
     }
@@ -148,8 +155,12 @@ export default class Watchers extends EventTarget {
           ignoreInitial: false,
           awaitWriteFinish: true,
         })
-        watcher.on('add', ($path, $stats) => Pilers.EJSPiler($document, $route, $path))
-        watcher.on('change', ($path, $stats) => Pilers.EJSPiler($document, $route, $path))
+        watcher.on('add', ($path, $stats) => {
+          Pilers.EJSPiler($document, $route, $path)
+        })
+        watcher.on('change', ($path, $stats) => {
+          Pilers.EJSPiler($document, $route, $path)
+        })
         this.#_structs.push(watcher)
       }
     }
@@ -165,8 +176,12 @@ export default class Watchers extends EventTarget {
           ignoreInitial: false,
           awaitWriteFinish: true,
         })
-        watcher.on('add', ($path, $stats) => Pilers.SASSPiler($document))
-        watcher.on('change', ($path, $stats) => Pilers.SASSPiler($document))
+        watcher.on('add', ($path, $stats) => {
+          Pilers.SASSPiler($document)
+        })
+        watcher.on('change', ($path, $stats) => {
+          Pilers.SASSPiler($document)
+        })
         this.#_styles.push(watcher)
       }
     }

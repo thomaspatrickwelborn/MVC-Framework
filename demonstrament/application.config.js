@@ -25,8 +25,8 @@ export default {
       cert: certificates.cert.path,
     },
     files: [
-      'localhost/**/*',
-      'static/**/*'
+      'localhost',
+      'static'
     ]
   },
   express: {
@@ -41,13 +41,8 @@ export default {
       main: 'index.html',
       ignore: ['static-cms', 'test'],
       clear: {
-        target: [
-          '*.{html,css,js,md,map}',
-          // '!static-cms', '!test',
-        ],
-        source: [
-          '**/*template.js'
-        ],
+        target: ['*.{html,css,js,md,map}'],
+        source: ['**/*template.js'],
       },
       documents: {
         simules: [{
@@ -77,14 +72,14 @@ export default {
           model: 'index.json',
           input: 'index.ejs',
           output: 'index.html',
-          watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+          watch: ['**/*.{ejs,json}', '!**/\$*.ejs'],
         }, {
           type: 'struct',
           localsName: '$content',
           outputType: 'client',
           input: '**/*.ejs',
           output: '',
-          watch: ['**/\$*.ejs', '!index.ejs'],
+          watch: ['**/\$*.ejs'],
         }],
       }
     },
@@ -132,7 +127,7 @@ export default {
           outputType: 'client',
           input: '**/*.ejs',
           output: '',
-          watch: ['**/\$*.ejs', '!index.ejs'],
+          watch: ['**/\$*.ejs'],
         }],
       }
     },
@@ -173,14 +168,14 @@ export default {
           model: 'index.json',
           input: 'index.ejs',
           output: 'index.html',
-          watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+          watch: ['**/*.{ejs,json}', '!**/\$*.ejs'],
         }, {
           type: 'struct',
           localsName: '$content',
           outputType: 'client',
           input: '**/*.ejs',
           output: '',
-          watch: ['**/\$*.ejs', '!index.ejs'],
+          watch: ['**/\$*.ejs'],
         }],
       }
     },
@@ -211,7 +206,11 @@ export default {
           type: 'script',
           input: 'index.js',
           output: 'index.js',
-          watch: ['**/*.js'],
+          watch: [
+            '**/*.js',
+            '../classes/**',
+            '../coutil/**'
+          ],
           external: ['/dependencies/mvc-framework.js']
         }],
         structs: [{
@@ -221,7 +220,7 @@ export default {
           model: 'index.json',
           input: 'index.ejs',
           output: 'index.html',
-          watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+          watch: ['**/*.{ejs,json}', '!**/\$*.ejs'],
         }, {
           type: 'struct',
           localsName: '$content',

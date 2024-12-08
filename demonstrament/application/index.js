@@ -77,7 +77,6 @@ export default class Demonstrament extends EventTarget {
       host: this.#settings.browserSync.host,
       port: this.#settings.browserSync.port,
       files: this.#settings.browserSync.files,
-      // logLevel: 'silent',
       proxy: {
         target: [
           "https://",

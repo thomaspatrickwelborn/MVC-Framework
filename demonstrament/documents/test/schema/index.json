@@ -17,6 +17,8 @@
 				"tag": "h1",
 				"textContent": "MVC Framework | Test | Schema"
 			}]
+		}, {
+			"tag": "main"
 		}]
 	}],
 	"scripts": [{

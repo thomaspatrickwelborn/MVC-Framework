@@ -1,27 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title><%= $content.title %></title>
-  <%- await include(
-    '/html5/structure.ejs', 
-    { structure: $content.styles }, {
-      async: true,
-    }
-  ) -%>
-</head>
-<body>
-  <%- await include(
-    '/html5/structure.ejs', 
-    { structure: $content.structure }, {
-      async: true,
-    }
-  ) -%>
-  <%- await include(
-    '/html5/structure.ejs', 
-    { structure: $content.scripts }, {
-      async: true,
-    }
-  ) -%>
-</body>
-</html>
+<%- await include(
+  '/html5/index.ejs', 
+  $content, { async: true }
+) -%>
