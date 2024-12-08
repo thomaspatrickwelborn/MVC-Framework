@@ -1,0 +1,11 @@
+@use "../pand-tree/index.scss" as pandTree;
+@mixin default {
+  @include pandTree.default((
+    "collectName": "detail",
+    "passBackgroundColor": lightgreen,
+    "passFontSize": 1.6em,
+    "nopassBackgroundColor": lightcoral,
+    "idFontSize": 0.8em,
+    "nameFontSize": 1em,
+  ));
+}

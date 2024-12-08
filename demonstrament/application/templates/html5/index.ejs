@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <% if($content.metas) { %>
+    <%- await include('./structure.ejs', {
+      structure: $content.metas
+    }, { async: true }) %>
+  <% } %>
   <title><%= $content.title %></title>
   <% if($content.styles) { %>
     <%- await include('./structure.ejs', {

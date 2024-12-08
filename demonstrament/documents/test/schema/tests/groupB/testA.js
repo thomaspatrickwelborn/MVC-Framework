@@ -2,8 +2,6 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: "testA",
-  groupID: "groupB",
-  group: "Validation: Monodimensional Properties",
   name: "Validation Type: Object",
   descript: `When validation type is "object" all properties must pass validation to assign values.`,
   method: function() {

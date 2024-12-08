@@ -2,9 +2,7 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: "testE",
-  groupID: "groupA",
-  group: "Validate Property: Literals",
-  name: "Property Value Type: Undefined",
+  name: "Type: Undefined",
   descript: `When schema property type is undefined validate content property values that are numbers, strings, booleans.`,
   method: function() {
     const schema = new Schema({

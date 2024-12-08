@@ -1,0 +1,44 @@
+@use "sass:map" as map;
+@use "./pass/index.scss" as pass;
+/*
+$settings
+  collectName
+  passBackgroundColor
+  passFontSize
+  nopassBackgroundColor
+  idFontSize
+  nameFontSize
+*/
+@mixin default($settings) {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  &[data-pass="true"] {
+    background-color: map.get($settings, "passBackgroundColor");
+  }
+  &[data-pass="false"] {
+    background-color: map.get($settings, "nopassBackgroundColor");
+  }
+  & > pass {
+    grid-row: span 2 / span 2;
+    $passSettings: (
+      "fontSize": map.get($settings, "passFontSize")
+    );
+    @include pass.default($passSettings);
+  }
+  & > id {
+    grid-column-start: 2;
+    grid-row-start: 1; 
+    font-size: map.get($settings, "idFontSize");
+  }
+  & > name {
+    grid-column-start: 2;
+    grid-row-start: 2;
+    font-size: map.get($settings, "nameFontSize");
+  }
+  & > #{
+    map.get($settings, "collectName")
+  } {
+    grid-column: span 2 / span 2;
+    grid-row-start: 3;
+  }
+}

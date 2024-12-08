@@ -200,7 +200,11 @@ export default {
           type: 'style',
           input: 'index.scss',
           output: 'index.css',
-          watch: ['**/*.scss'],
+          watch: [
+            '**/*.scss', ,
+            '../classes/**',
+            '../coutil/**'
+          ],
         }],
         scripts: [{
           type: 'script',

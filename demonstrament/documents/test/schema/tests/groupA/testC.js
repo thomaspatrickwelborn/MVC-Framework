@@ -2,9 +2,7 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: "testC",
-  groupID: "groupA",
-  group: "Validate Property: Literals",
-  name: "Property Value Type: String - Length Validator",
+  name: "Type: String: Length Validator",
   descript: `
  - When schema property type is string validate only content property values that are strings. 
  - When schema property minimum and/or maximum length (minLength, maxLength) defined validate only content property values with length inside range.

@@ -1,0 +1,23 @@
+@use "sass:map";
+@use "./pand-tree/index.scss" as pandTree;
+@use "./test-group/index.scss" as testGroup;
+@use "./test-result/index.scss" as testResult;
+@mixin testResults() {
+  @include pandTree.default((
+    "collectName": "test-groups",
+    "passBackgroundColor": lightblue,
+    "passFontSize": 2.4em,
+    "nopassBackgroundColor": lightpink,
+    "idFontSize": 0.8em,
+    "nameFontSize": 1.2em
+  ));
+}
+test-results {
+  @include testResults();
+  & > test-groups > test-group {
+    @include testGroup.default();
+    & > tests > test-result {
+      @include testResult.default();
+    }   
+  }
+}

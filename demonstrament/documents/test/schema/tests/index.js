@@ -1,5 +1,5 @@
-import * as groupA from './groupA/index.js'
-import * as groupB from './groupB/index.js'
+import groupA from './groupA/index.js'
+import groupB from './groupB/index.js'
 
 /*
 Validation Multidimensional Properties
@@ -17,7 +17,10 @@ Validation: Property Validity
   Defined Properties: Incomplete Properties
 */
 
-export {
-  groupA,
-  groupB
+export default {
+  name: "MVC Framework | Schema",
+  groups: new Map([
+    ['groupA', groupA],
+    ['groupB', groupB],
+  ])
 }

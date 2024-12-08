@@ -1,3 +1,11 @@
-body {
-	background-color: mediumaquamarine;
+@use "../coutil/styles/reset/index.scss" as StyleReset;
+@use "../classes/test-results/index.scss" as TestResults;
+index {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 0.75em;
+  background-color: lightcyan;
+  font-size: 16px;
 }
