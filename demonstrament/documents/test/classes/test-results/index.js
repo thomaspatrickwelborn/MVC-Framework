@@ -25,12 +25,18 @@ const View = Object.defineProperties({}, {
     ` },
     TestResultTemplate: function ($model) { return `
       <test-result>
-        <id>${$model.id}</id>
-        <group-id>${$model.groupID}</group-id>
-        <group>${$model.group}</group>
-        <descript>${$model.descript}</descript>
-        <name>${$model.name}</name>
         <pass>${$model.pass}</pass>
+        <test-result-group>
+          <name>${$model.group}</name>
+          <id>${$model.groupID}</id>
+        </test-result-group>
+        <test-result-name>
+          <name>${$model.name}</name>
+          <id>${$model.id}</id>
+        </test-result-name>
+        <test-result-detail>
+          <descript>${$model.descript}</descript>
+        </test-result-detail>
       </test-result>
     ` },
   },
@@ -48,11 +54,6 @@ export default class TestResults extends EventTarget {
     const model = this.#model
     const view = this.#view
     const innerHTML = view.templates.TestResultsTemplate(model)
-    console.log("-----")
-    console.log("model", model)
-    console.log("view", view)
-    // console.log("model", JSON.stringify(model, null, 2))
-    console.log("innerHTML", innerHTML)
     view.template.innerHTML = innerHTML
     view.element = view.template.content.childNodes
     view.parent.append(...view.element)

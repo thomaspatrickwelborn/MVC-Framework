@@ -1,0 +1,32 @@
+@mixin test-results {
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+}
+@mixin test-group {
+	display: flex;
+	flex-direction: column;
+}
+@mixin test-result {
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+	background: {
+		color: lightcoral;
+	}
+	& > * {
+		display: flex;
+		width: 100%;
+	}
+}
+@mixin test-result-group {}
+@mixin test-result-name {}
+test-results {
+	@include test-results;
+	& > test-group {
+		@include test-group;
+		& > test-result {
+			@include test-result;
+		} 	
+	} 	
+}
