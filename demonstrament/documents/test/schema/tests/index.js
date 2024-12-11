@@ -18,6 +18,7 @@ Validation: Property Validity
 */
 
 export default {
+  id: "schema",
   name: "MVC Framework | Schema",
   groups: new Map([
     ['groupA', groupA],

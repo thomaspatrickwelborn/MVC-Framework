@@ -5,19 +5,15 @@
 @mixin testResults() {
   @include pandTree.default((
     "collectName": "test-groups",
-    "passBackgroundColor": lightblue,
+    "passBackgroundColor": #00B3F5,
     "passFontSize": 2.4em,
-    "nopassBackgroundColor": lightpink,
+    "nopassBackgroundColor": #F57F00,
     "idFontSize": 0.8em,
     "nameFontSize": 1.2em
   ));
 }
 test-results {
   @include testResults();
-  & > test-groups > test-group {
-    @include testGroup.default();
-    & > tests > test-result {
-      @include testResult.default();
-    }   
-  }
+  @include testResult.default();
+  @include testGroup.default();
 }

@@ -1,0 +1,62 @@
+@use "sass:color" as color;
+@use "sass:map" as map;
+/*
+$settings
+  fontSize
+  passBackgroundColor
+  nopassBackgroundColor
+*/
+$pass: (
+  "contentTrue": "✔", // "☑",
+  "contentFalse": "✘", // "☒"
+);
+@mixin default($settings) {
+  $passBackgroundColor: map.get($settings, "passBackgroundColor");
+  $nopassBackgroundColor: map.get($settings, "nopassBackgroundColor");
+  $contentTrue: map.get($pass, "contentTrue");
+  $contentFalse: map.get($pass, "contentFalse");
+  $fontSize: map.get($settings, "fontSize");
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  &:before {
+    font: {
+      size: $fontSize;
+    }
+  }
+  &[data-pass="true"] {
+    color: color.scale(
+      $passBackgroundColor,
+      $saturation: 65%,
+      $lightness: -75%,
+    );
+    background: {
+      color: color.scale(
+        $passBackgroundColor,
+        $saturation: 65%,
+        $lightness: 65%,
+      ); 
+    };
+    &:before {
+      content: $contentTrue;
+    }
+  }
+  &[data-pass="false"] {
+    color: color.scale(
+      $nopassBackgroundColor,
+      $saturation: 65%,
+      $lightness: -75%,
+    );
+    background: {
+      color: color.scale(
+        $nopassBackgroundColor,
+        $saturation: 65%,
+        $lightness: 65%,
+      ); 
+    };
+    &:before {
+      content: $contentFalse;
+    }
+  }
+}

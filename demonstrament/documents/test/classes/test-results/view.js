@@ -1,3 +1,4 @@
+import TestResultsTemplate from './$template.js'
 export default function View($view) {
   const View = Object.defineProperties({}, {
     _parent: { writable: true, enumerable: false, value: undefined },
@@ -9,49 +10,11 @@ export default function View($view) {
     } },
     element: { writable: true, value: undefined },
     template: { writable: true, value: document.createElement('template') },
-    templates: { writable: true, value: {
-      // Test Results
-      TestResultsTemplate: function ($model) { return `
-        <test-results data-pass="${$model.pass}">
-          <pass data-pass="${$model.pass}"></pass>
-          <id>___</id>
-          <name>${$model.name}</name>
-          <test-groups>
-            ${Array.from($model.groups.entries()).map(([
-              $groupName, $group
-            ]) => {
-              return this.TestGroupTemplate($group)
-            }).join("\n")}
-          </test-groups>
-        </test-results>
-      ` },
-      // Test Group
-      TestGroupTemplate: function ($model) { return `
-        <test-group data-pass="${$model.pass}">
-          <pass data-pass="${$model.pass}"></pass>
-          <id>${$model.id}</id>
-          <name>${$model.name}</name>
-          <tests>
-            ${Array.from($model.tests.entries()).map(([
-              $testName, $test
-              ]) => {
-              return this.TestResultTemplate($test)
-            }).join("\n")}
-          </tests>
-        </test-group>
-      ` },
-      // Test Result
-      TestResultTemplate: function ($model) { return `
-        <test-result data-pass="${$model.pass}">
-          <pass data-pass="${$model.pass}"></pass>
-          <id>${$model.id}</id>
-          <name>${$model.name}</name>
-          <detail>
-            <descript>${$model.descript}</descript>
-          </detail>
-        </test-result>
-      ` },
-    }},
+    templates: { writable: true, value: { TestResultsTemplate }},
+    querySelectors: {
+      testResults: ':scope > test-results',
+      testGroup: ':scope > test-results test-group',
+    },
     // Render
     render: { writable: false, value: function ($model) {
       const innerHTML = this.templates.TestResultsTemplate($model)

@@ -42,7 +42,7 @@ export default {
       ignore: ['static-cms', 'test'],
       clear: {
         target: ['*.{html,css,js,md,map}'],
-        source: ['**/*template.js'],
+        source: ['**/[^$template].js'],
       },
       documents: {
         simules: [{
@@ -143,7 +143,8 @@ export default {
           '/**/*.{html,css,js,md}'
         ],
         source: [
-          '**/template.js'
+          '**/template.js',
+          '!**/$template.js'
         ],
       },
       documents: {
@@ -191,7 +192,8 @@ export default {
           '/**/*.{html,css,js,md}',
         ],
         source: [
-          '**/template.js'
+          '**/template.js',
+          '!**/$template.js'
         ],
       },
       documents: {

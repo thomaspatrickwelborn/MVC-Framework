@@ -1,44 +1,159 @@
 @use "sass:map" as map;
-@use "./pass/index.scss" as pass;
+@use "sass:color" as color;
+@use "../pass/index.scss" as pass;
 /*
 $settings
   collectName
   passBackgroundColor
   passFontSize
+  passGraphicBackgroundColor
   nopassBackgroundColor
   idFontSize
   nameFontSize
 */
 @mixin default($settings) {
-  display: grid;
-  grid-template-columns: 3em 1fr;
+  $passBackgroundColor: map.get($settings, "passBackgroundColor");
+  $passFontSize: map.get($settings, "passFontSize");
+  $nopassBackgroundColor: map.get($settings, "nopassBackgroundColor");
+  $idFontSize: map.get($settings, "idFontSize");
+  $nameFontSize: map.get($settings, "nameFontSize");
+  $collectName: map.get($settings, "collectName");
   &[data-pass="true"] {
-    background-color: map.get($settings, "passBackgroundColor");
+    border: {
+      top: {
+        width: 0.1em;
+        style: solid; 
+        color: color.scale(
+          $passBackgroundColor, 
+          $lightness: 50%,
+          $saturation: 25%,
+        );
+      };
+      bottom: {
+        width: 0.1em;
+        style: solid; 
+        color: color.scale(
+          $passBackgroundColor, 
+          $lightness: 25%,
+          $saturation: -50%,
+        );
+      };
+    };
+    background: {
+      color: $passBackgroundColor;
+    }
+    & > :nth-child(4) {
+      border: {
+        top: {
+          width: 0.1em;
+          style: solid;
+          color: color.scale(
+            $passBackgroundColor,
+            $saturation: -35%,
+            $lightness: 35%,
+          );
+        };
+      }
+      background: {
+        color: color.scale(
+          $passBackgroundColor,
+          $lightness: 85%,
+        );
+      };
+    }
   }
   &[data-pass="false"] {
-    background-color: map.get($settings, "nopassBackgroundColor");
+    border: {
+      top: {
+        width: 0.1em;
+        style: solid; 
+        color: color.scale(
+          $nopassBackgroundColor, 
+          $lightness: 50%,
+          $saturation: 25%,
+        );
+      }
+      bottom: {
+        width: 0.1em;
+        style: solid;
+        color: color.scale(
+          $nopassBackgroundColor, 
+          $lightness: 25%,
+          $saturation: -50%,
+        );
+      }
+    }
+    background: {
+      color: $nopassBackgroundColor;
+    }
+    & > :nth-child(4) {
+      border: {
+        top: {
+          width: 0.1em;
+          style: solid;
+          color: color.scale(
+            $nopassBackgroundColor,
+            $saturation: -35%,
+            $lightness: 35%,
+          );
+        };
+      };
+      background: {
+        color: color.scale(
+          $passBackgroundColor,
+          $lightness: 85%,
+        );
+      };
+    }
   }
   & > pass {
-    grid-row: span 2 / span 2;
     $passSettings: (
-      "fontSize": map.get($settings, "passFontSize")
+      "fontSize": $passFontSize,
+      "passBackgroundColor": $passBackgroundColor,
+      "nopassBackgroundColor": $nopassBackgroundColor,
     );
     @include pass.default($passSettings);
   }
   & > id {
-    grid-column-start: 2;
-    grid-row-start: 1; 
-    font-size: map.get($settings, "idFontSize");
+    font-size: $idFontSize;
   }
   & > name {
+    font-size:$nameFontSize;
+  }
+  & > #{ $collectName } {}
+  &:last-child {
+    border: {
+      bottom: none;
+    }
+  }
+}
+
+.pand-tree {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  & > pass {
+    grid-row: span 2 / span 2;
+  }
+  & > id {
+    display: flex;
+    grid-column-start: 2;
+    grid-row-start: 1; 
+    padding: 0 0.5em 0 0.5em;
+    margin: 0.125em 0 0.125em 0;
+  }
+  & > name {
+    display: flex;
     grid-column-start: 2;
     grid-row-start: 2;
-    font-size: map.get($settings, "nameFontSize");
+    padding: 0 0.5em 0 0.5em;
+    margin: 0.125em 0 0.125em 0;
   }
-  & > #{
-    map.get($settings, "collectName")
-  } {
+  & > :nth-child(4) {
     grid-column: span 2 / span 2;
     grid-row-start: 3;
+    & > descript {
+      margin: 0.25em 0 0.25em 0;
+      padding: 0 0.5em 0 0.5em;
+    }
   }
 }
