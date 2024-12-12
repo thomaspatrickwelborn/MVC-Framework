@@ -1,9 +1,9 @@
-import Test from './test/index.js'
-export default function Model($model) {
+import Test from '../test/index.js'
+export default function TestResultsModel($model) {
   const model = $model
   let testGroupIndex = 0
   const testGroupResults = {
-    result: undefined,
+    // path: $model.id,
     pass: 0,
     nonpass: 0,
     sumpass: 0,
@@ -11,43 +11,55 @@ export default function Model($model) {
   iterateTestGroups: 
   for(const [
     $testGroupID, $testGroup
-  ] of Array.from(model.groups).reverse()) {
-    const testGroup = model.groups
+  ] of Array.from(model.collect).reverse()) {
+    const testGroup = model.collect
       .set($testGroupID, $testGroup)
       .get($testGroupID)
-    const { tests } = testGroup
     let testIndex = 0
     const testResults = {
-      result: undefined,
+      path: [/*$model.id, */ $testGroupID].join('/'),
       pass: 0,
       nonpass: 0,
       sumpass: 0,
     }
-    iterateTests: 
+    // iterateTests: 
     for(const [
       $testID, $testSettings
-    ] of Array.from(tests).reverse()) {
+    ] of Array.from(testGroup.collect).reverse()) {
       const testSettings = Object.assign({}, $testSettings, {
         groupID: testGroup.id,
         group: testGroup.name,
       })
-      const test = tests
+      const test = testGroup.collect
         .set($testID, new Test($testSettings).execute())
         .get($testID)
+      const testResult = {
+        path: [/*$model.id, */ $testGroupID, $testID].join('/'),
+        pass: test.detail.solve.reduce(($pass, $solute, $soluteIndex) => {
+          if(test.detail.quest[$soluteIndex] === $solute) $pass++
+          return $pass
+        }, 0),
+        nonpass: test.detail.solve.reduce(($nonpass, $solute, $soluteIndex) => {
+          if(test.detail.quest[$soluteIndex] !== $solute) $nonpass++
+          return $nonpass
+        }, 0),
+        sumpass: test.detail.solve.length,
+      }
+      test.result = testResult
       if(test.pass === true) { testResults.pass++ }
       else if(test.pass === false) { testResults.nonpass++ }
-      if(testResults.result !== false) testResults.result = test.pass
+      if(testGroup.pass !== false) testGroup.pass = test.pass
       testIndex++
     }
-    testGroup.sumpass = testIndex
-    testGroup.pass = testResults
-    if(testGroup.pass.result === true) { testGroupResults.pass++ }
-    else if(testGroup.pass.result === false) { testGroupResults.nonpass++ }
-    if(testGroupResults.result !== false) testGroupResults.result = testGroup.pass.result
+    testResults.sumpass = testIndex
+    testGroup.result = testResults
+    if(testGroup.pass === true) { testGroupResults.pass++ }
+    else if(testGroup.pass === false) { testGroupResults.nonpass++ }
+    if(model.pass !== false) model.pass = testGroup.pass
     testGroupIndex++
   }
   testGroupResults.sumpass = testGroupIndex
-  model.pass = testGroupResults
+  model.result = testGroupResults
   console.log("model", model)
   return model
 }

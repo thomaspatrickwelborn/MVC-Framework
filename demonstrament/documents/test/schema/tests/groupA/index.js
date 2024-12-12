@@ -6,7 +6,9 @@ import testE from './testE.js'
 export default {
   id: "groupA",
   name: "Validate Property: Literals",
-  tests: new Map([
+  type: 'test-group',
+  collectName: 'tests',
+  collect: new Map([
     ['testA', testA],
     ['testB', testB],
     ['testC', testC],

@@ -1,9 +1,7 @@
-@use "sass:map";
-@use "./pand-tree/index.scss" as pandTree;
-@use "./test-group/index.scss" as testGroup;
-@use "./test-result/index.scss" as testResult;
-@mixin testResults() {
-  @include pandTree.default((
+@use "../pand-tree/index.scss" as pandTree;
+test-results {
+  @include pandTree.layout();
+  @include pandTree.style((
     "collectName": "test-groups",
     "passBackgroundColor": #00B3F5,
     "passFontSize": 2.4em,
@@ -11,9 +9,26 @@
     "idFontSize": 0.8em,
     "nameFontSize": 1.2em
   ));
-}
-test-results {
-  @include testResults();
-  @include testResult.default();
-  @include testGroup.default();
+  & > test-groups > test-group {
+    @include pandTree.layout();
+    @include pandTree.style((
+      "collectName": "tests",
+      "passBackgroundColor": #00F5F3,
+      "passFontSize": 2em,
+      "nopassBackgroundColor": #F55A00,
+      "idFontSize": 0.8em,
+      "nameFontSize": 1.2em,
+    ));
+    & > tests > test-result {
+      @include pandTree.layout();
+      @include pandTree.style((
+        "collectName": "detail",
+        "passBackgroundColor": #00F58E,
+        "passFontSize": 1.6em,
+        "nopassBackgroundColor": #F52600,
+        "idFontSize": 0.8em,
+        "nameFontSize": 1em,
+      ));
+    }
+  }
 }

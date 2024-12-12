@@ -3,10 +3,12 @@ const { expandTree } = Coutil
 export default {
   id: "testC",
   name: "Type: String: Length Validator",
-  descript: `
- - When schema property type is string validate only content property values that are strings. 
- - When schema property minimum and/or maximum length (minLength, maxLength) defined validate only content property values with length inside range.
-`.trim(),
+  type: "test-result",
+  collectName: 'detail',
+  collect: new Map([
+    [0, ` - When schema property type is string validate only content property values that are strings. `],
+    [1, ` - When schema property minimum and/or maximum length (minLength, maxLength) defined validate only content property values with length inside range.`],
+  ]),
   method: function() {
     const schema = new Schema({
       propertyA: {

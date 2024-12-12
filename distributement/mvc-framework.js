@@ -3548,6 +3548,7 @@ var Options$2 = {
 class View extends Core {
   #_parent
   #_template
+  #_element
   #_querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
@@ -3556,6 +3557,8 @@ class View extends Core {
     );
     this.addQuerySelectors(this.settings.querySelectors);
   }
+  get element() { return this.#_element }
+  set element($element) { this.#_element = $element;}
   get parent() { return this.settings.parent }
   get template() {
     if(this.#_template !== undefined) return this.#_template

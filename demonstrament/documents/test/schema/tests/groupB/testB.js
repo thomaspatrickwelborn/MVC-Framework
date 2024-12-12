@@ -3,7 +3,11 @@ const { expandTree } = Coutil
 export default {
   id: "testB",
   name: "Validation Type: Primitive",
-  descript: `When validation type is "primitive" only valid properties values assigned.`,
+  type: 'test-result',
+  collectName: 'detail',
+  collect: new Map([
+    [0, `When validation type is "primitive" only valid properties values assigned.`],
+  ]),
   method: function() {
     const schema = new Schema({
       propertyA: String,

@@ -1,14 +1,10 @@
+import PandTree from '../pand-tree/index.js'
 import Model from './model.js'
-import View from './view.js'
-export default class TestResults extends EventTarget {
-  model
-  view
+export default class TestResults extends PandTree {
   constructor($settings) {
-    super()
-    this.model = Model($settings.model)
-    this.view = View({})
-  }
-  render() {
-    this.view.render(this.model)
+    super({
+      parent: $settings.parent,
+      model: Model($settings.model), 
+    })
   }
 }

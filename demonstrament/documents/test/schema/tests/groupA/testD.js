@@ -3,7 +3,11 @@ const { expandTree } = Coutil
 export default {
   id: "testD",
   name: "Type: Enum Validator",
-  descript: `When schema property enum defined validate any boolean, number, or string content property value against array of enumerated values.`,
+  type: "test-result",
+  collectName: 'detail',
+  collect: new Map([
+    [0, `When schema property enum defined validate any boolean, number, or string content property value against array of enumerated values.`],
+  ]),
   method: function() {
     const schemaA = new Schema({
       propertyA: {

@@ -3,7 +3,11 @@ const { expandTree } = Coutil
 export default {
   id: "testA",
   name: "Type: Boolean",
-  descript: `When schema property type is boolean validate only content property values that are booleans.`,
+  type: "test-result",
+  collectName: 'detail',
+  collect: new Map([
+    [0, `When schema property type is boolean validate only content property values that are booleans.`],
+  ]),
   method: function() {
     const schema = new Schema({
       propertyA: Boolean

@@ -9,9 +9,9 @@ export default class Test extends EventTarget {
   }
   get id() { return this.#settings.id }
   get name() { return this.#settings.name }
-  get groupID() { return this.#settings.groupID }
-  get group() { return this.#settings.group }
-  get descript() { return this.#settings.descript }
+  get type() { return this.#settings.type }
+  get collectName() { return this.#settings.collectName }
+  get collect() { return this.#settings.collect }
   get detail() { return this.#_detail }
   set detail($detail) {
     if(this.#_detail !== undefined) return

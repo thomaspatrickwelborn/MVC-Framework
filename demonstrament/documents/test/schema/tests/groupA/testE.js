@@ -3,7 +3,11 @@ const { expandTree } = Coutil
 export default {
   id: "testE",
   name: "Type: Undefined",
-  descript: `When schema property type is undefined validate content property values that are numbers, strings, booleans.`,
+  type: 'test-result', 
+  collectName: 'detail',
+  collect: new Map([
+    [0, `When schema property type is undefined validate content property values that are numbers, strings, booleans.`,]
+  ]),
   method: function() {
     const schema = new Schema({
       propertyA: {

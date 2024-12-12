@@ -20,7 +20,9 @@ Validation: Property Validity
 export default {
   id: "schema",
   name: "MVC Framework | Schema",
-  groups: new Map([
+  type: 'test-results', 
+  collectName: 'test-groups',
+  collect: new Map([
     ['groupA', groupA],
     ['groupB', groupB],
   ])

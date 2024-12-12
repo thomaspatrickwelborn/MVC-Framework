@@ -1,9 +1,13 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: "testA",
-  name: "Validation Type: Object",
-  descript: `When validation type is "object" all properties must pass validation to assign values.`,
+  id: 'testA',
+  name: 'Validation Type: Object',
+  type: 'test-result',
+  collectName: 'detail',
+  collect: new Map([
+    [0, `When validation type is 'object' all properties must pass validation to assign values.`],
+  ]),
   method: function() {
     const schema = new Schema({
       propertyA: String,
@@ -12,41 +16,41 @@ export default {
       propertyD: null,
       propertyE: undefined,
     }, {
-      validationType: "object"
+      validationType: 'object'
     })
     const contentA = {
-      propertyA: "11111",
+      propertyA: '11111',
       propertyB: false,
       propertyC: 33333,
       propertyD: null,
-      propertyE: "55555",
+      propertyE: '55555',
     } // true
     const contentB = {
       propertyA: 11111,
       propertyB: false,
-      propertyC: "33333",
+      propertyC: '33333',
       propertyD: null,
       propertyE: 55555,
     } // false
     const contentC = {
-      propertyA: "11111",
-      propertyB: "false",
+      propertyA: '11111',
+      propertyB: 'false',
       propertyC: 33333,
-      propertyD: "null",
-      propertyE: "55555"
+      propertyD: 'null',
+      propertyE: '55555'
     } // false
     const contentD = {
       propertyA: false,
-      propertyB: "true",
-      propertyC: "33333",
+      propertyB: 'true',
+      propertyC: '33333',
       propertyD: 44444,
       propertyE: undefined,
     } // false
     const contentE = {
-      propertyA: "111111",
-      propertyB: "true",
-      propertyC: "33333",
-      propertyD: "44444",
+      propertyA: '111111',
+      propertyB: 'true',
+      propertyC: '33333',
+      propertyD: '44444',
       propertyE: undefined,
     } // false
     const solve = [

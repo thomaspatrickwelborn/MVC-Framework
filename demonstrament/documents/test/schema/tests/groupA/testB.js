@@ -3,7 +3,11 @@ const { expandTree } = Coutil
 export default {
   id: "testB",
   name: "Type: Number - Range Validator",
-  descript: `When schema property type is number validate only content property values that are numbers.`,
+  type: "test-result",
+  collectName: 'detail',
+  collect: new Map([
+    [0, `When schema property type is number validate only content property values that are numbers.`],
+  ]),
   method: function() {
     const schema = new Schema({
       propertyA: {
