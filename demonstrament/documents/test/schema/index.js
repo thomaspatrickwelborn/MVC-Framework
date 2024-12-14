@@ -1,4 +1,4 @@
-import { TestResults } from "../classes/index.js"
+import TestResults from "../classes/views/test-results/index.js"
 import Tests from "./tests/index.js"
 
 const testResults = new TestResults({

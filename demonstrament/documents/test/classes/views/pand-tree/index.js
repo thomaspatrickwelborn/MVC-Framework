@@ -1,4 +1,4 @@
-import View from '../view/index.js'
+import View from '../../core/view/index.js'
 export default class PandTree extends View {
   #_model
   #_collect
@@ -30,13 +30,13 @@ export default class PandTree extends View {
       } },
       events: {
         'pass click': function passClick($event) {
-          console.log($event.type)
+          console.log($event.type, $event.currentTarget.tagName)
         },
         'id click': function idClick($event) {
-          console.log($event.type)
+          console.log($event.type, $event.currentTarget.tagName)
         },
         'name click': function nameClick($event) {
-          console.log($event.type)
+          console.log($event.type, $event.currentTarget.tagName)
         },
       },
       model: $settings.model,
@@ -73,7 +73,6 @@ export default class PandTree extends View {
     this.template.innerHTML = this.templates.default(this.model)
     this.element = this.template.content
     this.renderCollect()
-    console.log(this)
     return this
   }
   renderCollect() {

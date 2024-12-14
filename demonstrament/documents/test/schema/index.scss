@@ -1,5 +1,5 @@
 @use "../coutil/styles/reset/index.scss" as StyleReset;
-@use "../classes/test-results/index.scss" as TestResults;
+@use "../classes/views/test-results/index.scss" as TestResults;
 index {
   display: flex;
   flex-direction: column;

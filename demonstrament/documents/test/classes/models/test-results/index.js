@@ -1,4 +1,4 @@
-import Test from '../test/index.js'
+import Test from '../../test/index.js'
 export default function TestResultsModel($model) {
   const model = $model
   let testGroupIndex = 0
