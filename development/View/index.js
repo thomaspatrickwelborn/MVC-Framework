@@ -24,25 +24,27 @@ export default class View extends Core {
   set element($documentFragment) {
     this.disableEvents()
     this.disableQuerySelectors()
-    this.children = $documentFragment.childNodes
     this.#_querySelectors = undefined
+    this.children = $documentFragment.children
     this.element.replaceChildren(...this.children)
+    this.querySelectors
+    this.parent.append(...this.children)
     this.enableQuerySelectors()
     this.enableEvents()
-    this.parent.append(...this.children)
   }
   get children() { return this.#_children }
   set children($children) {
     const children = this.#_children
-    children.forEach(($child) => $child.parent.removeChild($child))
+    children.forEach(($child) => $child?.parent.removeChild($child))
     children.length = 0
-    children.push(...$children)
+    children.push($children)
   }
   get template() {
     if(this.#_template !== undefined) return this.#_template
     this.#_template = document.createElement('template')
     return this.#_template
   }
+  get templates() { return this.settings.templates }
   get querySelectors() { return this.#_querySelectors }
   get qs() { return this.querySelectors }
   addQuerySelectors($queryMethods) {
@@ -96,8 +98,8 @@ export default class View extends Core {
     }
     return this
   }
-  render($model, $template = 'default') {
-    this.template.innerHTML = this.settings.templates[$template]($model)
+  render($model = {}, $template = 'default') {
+    this.template.innerHTML = this.templates[$template]($model)
     this.element = this.template.content
     return this
   }

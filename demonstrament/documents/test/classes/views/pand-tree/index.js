@@ -72,10 +72,11 @@ export default class PandTree extends View {
   render() {
     this.template.innerHTML = this.templates.default(this.model)
     this.element = this.template.content
-    this.renderCollect()
-    return this
+    return this.renderCollect()
   }
   renderCollect() {
+    this.#_collect = undefined
+    const collect = this.collect
     for(const $collectItem of this.collect) {
       if(typeof $collectItem === 'object') {
         $collectItem.render()

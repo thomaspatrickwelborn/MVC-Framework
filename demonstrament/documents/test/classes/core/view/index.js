@@ -18,16 +18,17 @@ export default class View extends EventTarget {
   }
   set element($documentFragment) {
     this.disableEvents()
-    this.children = $documentFragment.childNodes
     this.#_querySelectors = undefined
+    this.children = $documentFragment.children
     this.element.replaceChildren(...this.children)
-    this.enableEvents()
+    this.querySelectors
     this.parent.append(...this.children)
+    this.enableEvents()
   }
   get children() { return this.#_children }
   set children($children) {
     const children = this.#_children
-    children.forEach(($child) => $child.parent.removeChild($child))
+    children.forEach(($child) => $child?.parentElement.removeChild($child))
     children.length = 0
     children.push(...$children)
   }
