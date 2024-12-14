@@ -59,7 +59,6 @@ export default class PandTree extends View {
         collectItem = $collectItem
       }
       else {
-        console.log(this.querySelectors)
         collectItem = new PandTree({
           parent: this.querySelectors[this.collectName],
           model: $collectItem,
@@ -74,6 +73,7 @@ export default class PandTree extends View {
     this.template.innerHTML = this.templates.default(this.model)
     this.element = this.template.content
     this.renderCollect()
+    console.log(this)
     return this
   }
   renderCollect() {

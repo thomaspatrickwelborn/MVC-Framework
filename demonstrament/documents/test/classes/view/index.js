@@ -11,13 +11,6 @@ export default class View extends EventTarget {
     this.settings = $settings
   }
   get parent() { return this.settings.parent }
-  get children() { return this.#_children }
-  set children($children) {
-    const children = this.#_children
-    children.forEach(($child) => $child.parent.removeChild($child))
-    children.length = 0
-    children.push(...$children)
-  }
   get element() {
     if(this.#_element !== undefined) { return this.#_element }
     this.#_element = document.createElement('element')
@@ -30,6 +23,13 @@ export default class View extends EventTarget {
     this.element.replaceChildren(...this.children)
     this.enableEvents()
     this.parent.append(...this.children)
+  }
+  get children() { return this.#_children }
+  set children($children) {
+    const children = this.#_children
+    children.forEach(($child) => $child.parent.removeChild($child))
+    children.length = 0
+    children.push(...$children)
   }
   get template() {
     if(this.#_template !== undefined) return this.#_template
@@ -106,7 +106,7 @@ export default class View extends EventTarget {
     for(const $event of this.events) { $event.enable = false }
     return this
   }
-  render($model, $template) {
+  render($model = {}, $template = 'default') {
     this.template.innerHTML = this.templates[$template]($model)
     this.element = this.template.content
     return this

@@ -4,8 +4,9 @@ import Settings from './Settings/index.js'
 import Options from './Options/index.js'
 export default class View extends Core {
   #_parent
-  #_template
   #_element
+  #_children = []
+  #_template
   #_querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
@@ -14,9 +15,29 @@ export default class View extends Core {
     )
     this.addQuerySelectors(this.settings.querySelectors)
   }
-  get element() { return this.#_element }
-  set element($element) { this.#_element = $element}
   get parent() { return this.settings.parent }
+  get element() {
+    if(this.#_element !== undefined) { return this.#_element }
+    this.#_element = document.createElement('element')
+    return this.#_element
+  }
+  set element($documentFragment) {
+    this.disableEvents()
+    this.disableQuerySelectors()
+    this.children = $documentFragment.childNodes
+    this.#_querySelectors = undefined
+    this.element.replaceChildren(...this.children)
+    this.enableQuerySelectors()
+    this.enableEvents()
+    this.parent.append(...this.children)
+  }
+  get children() { return this.#_children }
+  set children($children) {
+    const children = this.#_children
+    children.forEach(($child) => $child.parent.removeChild($child))
+    children.length = 0
+    children.push(...$children)
+  }
   get template() {
     if(this.#_template !== undefined) return this.#_template
     this.#_template = document.createElement('template')
@@ -76,17 +97,8 @@ export default class View extends Core {
     return this
   }
   render($model, $template = 'default') {
-    this.disableEvents()
-    this.disableQuerySelectors()
-    const preelement = this.element
     this.template.innerHTML = this.settings.templates[$template]($model)
-    this.element = this.template.content.childNodes
-    if(preelement?.length) {
-      for(const $preelement of preelement) { $preelement.remove() }
-    }
-    this.parent.append(...this.element)
-    this.enableQuerySelectors()
-    this.enableEvents()
+    this.element = this.template.content
     return this
   }
 }
