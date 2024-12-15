@@ -41,6 +41,7 @@ export default class PandTree extends View {
       },
       model: $settings.model,
     })
+    this.addEventListener('render', ($event) => { console.log($event.type, $event.detail.view); this.renderCollect() })
   }
   get model() {
     if(this.#_model !== undefined) return this.#_model
@@ -69,20 +70,15 @@ export default class PandTree extends View {
     this.#_collect = collect
     return this.#_collect
   }
-  render() {
-    this.template.innerHTML = this.templates.default(this.model)
-    this.element = this.template.content
-    return this.renderCollect()
-  }
   renderCollect() {
     this.#_collect = undefined
     const collect = this.collect
     for(const $collectItem of this.collect) {
       if(typeof $collectItem === 'object') {
-        $collectItem.render()
+        $collectItem.render($collectItem.model, 'default')
       }
       else {
-        this.querySelectors[this.collectName].append($collectItem)
+        this.querySelectors[this.collectName]?.append($collectItem)
       }
     }
     return this

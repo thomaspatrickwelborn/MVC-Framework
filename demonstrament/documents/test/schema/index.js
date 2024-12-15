@@ -4,4 +4,5 @@ import Tests from "./tests/index.js"
 const testResults = new TestResults({
   parent: document.querySelector('index'),
   model: Tests,
-}).render()
+})
+testResults.render(testResults.model, 'default')
