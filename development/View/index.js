@@ -3,10 +3,13 @@ import QuerySelector from './QuerySelector/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
 export default class View extends Core {
+  #_templates
+  #_scopeType
+  #_scope
   #_parent
   #_element
-  #_children = []
-  #_template
+  #_children
+  // #_template
   #_querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
@@ -15,34 +18,56 @@ export default class View extends Core {
     )
     this.addQuerySelectors(this.settings.querySelectors)
   }
-  get parent() { return this.settings.parent }
-  get element() {
+  get templates() {
+    if(this.#_templates !== undefined) return this.#_templates
+    this.#_templates = this.settings.templates
+    return this.#_templates
+  }
+  get scopeType() {
+    if(this.#_scopeType !== undefined) return this.#_scopeType
+    this.#_scopeType = this.settings.scope
+    return this.#_scopeType
+  }
+  get scope() {
+    if(this.#_scope !== undefined) return this.#_scope
+    const scopeType = this.scopeType
+    if(scopeType === 'template') { this.#_scope = this.#element }
+    else if(scopeType === 'parent') { this.#_scope = this.parent }
+    return this.#_scope
+  }
+  get parent() {
+    if(this.#_parent !== undefined) return this.#_parent
+    this.#_parent = this.settings.parent
+    return this.#_parent
+  }
+  get #element() {
     if(this.#_element !== undefined) { return this.#_element }
     this.#_element = document.createElement('element')
     return this.#_element
   }
-  set element($documentFragment) {
+  set #element($templateString) {
     this.disableEvents()
     this.disableQuerySelectors()
-    this.#_querySelectors = undefined
-    this.children = $documentFragment.children
-    this.element.replaceChildren(...this.children)
+    this.#_querySelectors = {}
+    this.#element.innerHTML = $templateString
+    this.#children = this.#element.children
     this.querySelectors
-    this.parent.append(...this.children)
     this.enableQuerySelectors()
     this.enableEvents()
+    this.parent.append(...this.#children)
   }
-  get children() { return this.#_children }
-  set children($children) {
-    const children = this.#_children
-    children.forEach(($child) => $child?.parent.removeChild($child))
-    children.length = 0
-    children.push($children)
+  get #children() {
+    if(this.#_children !== undefined) return this.#_children
+    this.#_children = new Map()
+    return this.#_children
   }
-  get template() {
-    if(this.#_template !== undefined) return this.#_template
-    this.#_template = document.createElement('template')
-    return this.#_template
+  set #children($children) {
+    const children = this.#children
+    children.forEach(($child, $childIndex) => $child?.parentElement.removeChild($child))
+    children.clear()
+    Array.from($children).forEach(($child, $childIndex) => {
+      children.set($childIndex, $child)
+    })
   }
   get templates() { return this.settings.templates }
   get querySelectors() { return this.#_querySelectors }
@@ -99,8 +124,7 @@ export default class View extends Core {
     return this
   }
   render($model = {}, $template = 'default') {
-    this.template.innerHTML = this.templates[$template]($model)
-    this.element = this.template.content
+    this.#element = this.templates[$template]($model)
     return this
   }
 }
