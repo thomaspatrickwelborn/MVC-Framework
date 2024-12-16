@@ -41,7 +41,7 @@ export default class PandTree extends View {
       },
       model: $settings.model,
     })
-    this.addEventListener('render', ($event) => { console.log($event.type, $event.detail.view); this.renderCollect() })
+    this.addEventListener('render', ($event) => { this.renderCollect() })
   }
   get model() {
     if(this.#_model !== undefined) return this.#_model

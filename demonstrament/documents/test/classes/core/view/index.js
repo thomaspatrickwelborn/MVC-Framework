@@ -1,3 +1,11 @@
+import * as parsel from '../../../../../../node_modules/parsel-js/dist/parsel.js'
+const Combinators = {
+  descendant: " ",
+  child: ">",
+  nextSibling: "+",
+  subsequentSibling: "~",
+
+}
 export default class View extends EventTarget {
   settings = {
     scope: 'template', // 'parent'
@@ -7,9 +15,8 @@ export default class View extends EventTarget {
   #_scopeType
   #_scope
   #_parent
-  #_element
-  #_children
   #_template
+  #_children
   #_querySelectors
   #_events
   constructor($settings) {
@@ -26,27 +33,20 @@ export default class View extends EventTarget {
     this.#_scopeType = this.settings.scope
     return this.#_scopeType
   }
-  get scope() {
-    if(this.#_scope !== undefined) return this.#_scope
-    const scopeType = this.scopeType
-    if(scopeType === 'template') { this.#_scope = this.#element }
-    else if(scopeType === 'parent') { this.#_scope = this.parent }
-    return this.#_scope
-  }
   get parent() {
     if(this.#_parent !== undefined) return this.#_parent
     this.#_parent = this.settings.parent
     return this.#_parent
   }
-  get #element() {
-    if(this.#_element !== undefined) return this.#_element
-    this.#_element = document.createElement('element')
-    return this.#_element
+  get #template() {
+    if(this.#_template !== undefined) return this.#_template
+    this.#_template = document.createElement('template')
+    return this.#_template
   }
-  set #element($templateString) {
+  set #template($templateString) {
     this.disable()
-    this.#element.innerHTML = $templateString
-    this.#children = [...this.#element.children]
+    this.#template.innerHTML = $templateString
+    this.#children = [...this.#template.content.children]
     this.enable()
     this.parent.append(...this.#children.values())
   }
@@ -75,9 +75,9 @@ export default class View extends EventTarget {
       for(const [
         $querySelectorName, $querySelector
       ] of Object.entries($querySelectors)) {
-        if(new RegExp(/^\s/))
         Object.defineProperty(querySelectors, $querySelectorName, {
-          value: this.scope[$querySelectorType]($querySelector)
+          // value: this.query($querySelectorType, $querySelector)
+          get() { return $this.query($querySelectorType, $querySelector) }
         })
       }
     }
@@ -123,6 +123,66 @@ export default class View extends EventTarget {
     this.#_events = events
     return this.#_events
   }
+  query($queryMethod, $queryString) {
+    // Scope Type: Template
+    if(this.scopeType === 'template') {
+      const children = this.#children.values()
+      let query = []
+      let queryTokens = parsel.tokenize($queryString)
+      let queryString
+      const queryToken0 = queryTokens[0]
+      if(queryToken0.content !== ':scope') {
+        queryString = [':scope', $queryString].join(' ')
+        queryTokens = parsel.tokenize(queryString)
+      }
+      else { queryString = $queryString }
+      iterateChildren: 
+      for(const $child of this.#children.values()) {
+        if(queryTokens.length === 3) {
+          if(queryTokens[1] === '>') {
+            if($child.matches(queryTokens[2].content)) {
+              // -----
+              if($child instanceof NodeList) { query.push(...$child) }
+              else { query.push($child) }
+            }
+          }
+          else if(queryTokens[1] === ' ') {
+            if($child.matches(queryTokens[2].content)) {
+              // -----
+              if($child instanceof NodeList) { query.push(...$child) }
+              else { query.push($child) }
+            }
+            const childQuery = $child[$queryMethod](queryTokens[2].content)
+            if(childQuery) {
+              // -----
+              if(childQuery instanceof NodeList) { query.push(...childQuery) }
+              else { query.push(childQuery) }
+            }
+          }
+        }
+        else if(queryTokens.length > 3) {
+          const childMatch = $child.matches(queryTokens[2].content)
+          const childQueryString = [':scope', parsel.stringify(queryTokens.slice(3))].join(' ')
+          const childQuery = $child[$queryMethod](childQueryString)
+          if(childMatch && childQuery) {
+            // -----
+            if(childQuery instanceof NodeList) { query.push(...childQuery) }
+            else { query.push(childQuery) }
+          }
+        }
+        if($queryMethod === 'querySelector' && query.length === 1) {
+          query = query[0]
+          break iterateChildren
+        }
+      }
+      if($queryMethod === 'querySelector' && query.length === 0) { query = null }
+      return query
+    }
+    // Scope Type: Parent
+    else if(this.scopeType === 'parent') {
+      return this.parent[$queryMethod]($queryString)
+    }
+  }
   enableQuerySelectors() {
     this.querySelectors
     return this
@@ -147,7 +207,7 @@ export default class View extends EventTarget {
     else if($arguments.length === 2) {
       const $model = $arguments[0]
       const $template = $arguments[1]
-      this.#element = this.templates[$template]($model)
+      this.#template = this.templates[$template]($model)
     }
     this.dispatchEvent(new CustomEvent('render', { detail: { view: this } }))
     return this
