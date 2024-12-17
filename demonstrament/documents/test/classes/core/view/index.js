@@ -125,63 +125,68 @@ export default class View extends EventTarget {
   }
   query($queryMethod, $queryString) {
     // Scope Type: Template
-    if(this.scopeType === 'template') {
-      const children = this.#children.values()
-      let query = []
-      let queryTokens = parsel.tokenize($queryString)
-      let queryString
-      const queryToken0 = queryTokens[0]
-      if(queryToken0.content !== ':scope') {
-        queryString = [':scope', $queryString].join(' ')
-        queryTokens = parsel.tokenize(queryString)
-      }
-      else { queryString = $queryString }
-      iterateChildren: 
-      for(const $child of this.#children.values()) {
-        if(queryTokens.length === 3) {
-          if(queryTokens[1] === '>') {
-            if($child.matches(queryTokens[2].content)) {
-              // -----
-              if($child instanceof NodeList) { query.push(...$child) }
-              else { query.push($child) }
-            }
-          }
-          else if(queryTokens[1] === ' ') {
-            if($child.matches(queryTokens[2].content)) {
-              // -----
-              if($child instanceof NodeList) { query.push(...$child) }
-              else { query.push($child) }
-            }
-            const childQuery = $child[$queryMethod](queryTokens[2].content)
-            if(childQuery) {
-              // -----
-              if(childQuery instanceof NodeList) { query.push(...childQuery) }
-              else { query.push(childQuery) }
-            }
-          }
+    const query = []
+    let queryTokens = parsel.tokenize($queryString)
+    let queryString
+    // Orient Query Tokens To Scope
+    if(queryTokens[0].content !== ':scope') {
+      queryString = [':scope', $queryString].join(' ')
+      queryTokens = parsel.tokenize(queryString)
+    }
+    else {
+      queryString = parsel.stringify(queryTokens)
+      queryTokens = parsel.tokenize(queryString)
+    }
+    // Scope
+    // Query Scope
+    const scope = queryTokens[0]
+    // Query Scope Combinator (Descendent/Child)
+    const scopeCombinator = queryTokens[1]
+    // Query Scope String 
+    const scopeQueryString = parsel.stringify(queryTokens.slice(2))
+    // Query Scope Tokens 
+    const scopeQueryTokens = parsel.tokenize(scopeQueryString)
+    const scopeQueryParse = parsel.parse(scopeQueryString)
+    // Iterate Children
+    iterateChildren: 
+    for(const $child of this.#children.values()) {
+      // Complex
+      if(scopeQueryParse.type === 'complex') {
+        const firstChildQueryString = parsel.stringify(scopeQueryParse.left)
+        const anterChildQueryString = [
+          ':scope', scopeQueryParse.combinator, parsel.stringify(scopeQueryParse.right)
+        ].join('')
+        const childMatches = $child.matches(firstChildQueryString)
+        const childQuery = $child[$queryMethod](anterChildQueryString)
+        if(childMatches && childQuery) {
+          if(childQuery instanceof NodeList) { query.push(...childQuery) }
+          else { query.push(childQuery) }
         }
-        else if(queryTokens.length > 3) {
-          const childMatch = $child.matches(queryTokens[2].content)
-          const childQueryString = [':scope', parsel.stringify(queryTokens.slice(3))].join(' ')
-          const childQuery = $child[$queryMethod](childQueryString)
-          if(childMatch && childQuery) {
-            // -----
-            if(childQuery instanceof NodeList) { query.push(...childQuery) }
-            else { query.push(childQuery) }
+        if(scopeCombinator !== '>') {
+          const descendentQuery = $child[$queryMethod](scopeQueryString)
+          if(descendentQuery) {
+            if(descendentQuery instanceof NodeList) { query.push(...descendentQuery) }
+            else { query.push(descendentQuery) }
           }
-        }
-        if($queryMethod === 'querySelector' && query.length === 1) {
-          query = query[0]
-          break iterateChildren
         }
       }
-      if($queryMethod === 'querySelector' && query.length === 0) { query = null }
-      return query
+      else {
+        const childMatches = $child.matches(scopeQueryString)
+        if(childMatches) {
+          query.push($child)
+        }
+        if(scopeCombinator !== '>') {
+          const descendentQuery = $child[$queryMethod](scopeQueryString)
+          if(descendentQuery) {
+            if(descendentQuery instanceof NodeList) { query.push(...descendentQuery) }
+            else { query.push(descendentQuery) }
+          }
+        }
+      }
+      if($queryMethod === 'querySelector' && query.length > 1) { break iterateChildren }
     }
-    // Scope Type: Parent
-    else if(this.scopeType === 'parent') {
-      return this.parent[$queryMethod]($queryString)
-    }
+    if($queryMethod === 'querySelector' && query.length) { return query[0] }
+    else if($queryMethod === 'querySelectorAll') { return query }
   }
   enableQuerySelectors() {
     this.querySelectors
