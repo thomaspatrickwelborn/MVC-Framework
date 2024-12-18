@@ -108,7 +108,7 @@ function root($path) {
 function typeofRoot($path) {
   return (Number(root($path))) ? 'array' : 'object'
 }
-function parse($path) {
+function parse$1($path) {
   return {
     subpaths: subpaths($path),
     keypaths: keypaths($path),
@@ -122,7 +122,7 @@ var index$2 = /*#__PURE__*/Object.freeze({
   __proto__: null,
   key: key,
   keypaths: keypaths,
-  parse: parse,
+  parse: parse$1,
   root: root,
   subpaths: subpaths,
   typeofRoot: typeofRoot
@@ -159,7 +159,7 @@ function get($path, $value) {
 function set($path, $value) {
   const {
     keypaths, key, typeofRoot
-  } = parse($path);
+  } = parse$1($path);
   const tree = typedObjectLiteral(typeofRoot);
   let treeNode = tree;
   for(const $subpath of keypaths) {
@@ -3504,6 +3504,338 @@ class Model extends Core {
   }
 }
 
+const TOKENS = {
+    attribute: /\[\s*(?:(?<namespace>\*|[-\w\P{ASCII}]*)\|)?(?<name>[-\w\P{ASCII}]+)\s*(?:(?<operator>\W?=)\s*(?<value>.+?)\s*(\s(?<caseSensitive>[iIsS]))?\s*)?\]/gu,
+    id: /#(?<name>[-\w\P{ASCII}]+)/gu,
+    class: /\.(?<name>[-\w\P{ASCII}]+)/gu,
+    comma: /\s*,\s*/g,
+    combinator: /\s*[\s>+~]\s*/g,
+    'pseudo-element': /::(?<name>[-\w\P{ASCII}]+)(?:\((?<argument>¶*)\))?/gu,
+    'pseudo-class': /:(?<name>[-\w\P{ASCII}]+)(?:\((?<argument>¶*)\))?/gu,
+    universal: /(?:(?<namespace>\*|[-\w\P{ASCII}]*)\|)?\*/gu,
+    type: /(?:(?<namespace>\*|[-\w\P{ASCII}]*)\|)?(?<name>[-\w\P{ASCII}]+)/gu, // this must be last
+};
+const TRIM_TOKENS = new Set(['combinator', 'comma']);
+const RECURSIVE_PSEUDO_CLASSES = new Set([
+    'not',
+    'is',
+    'where',
+    'has',
+    'matches',
+    '-moz-any',
+    '-webkit-any',
+    'nth-child',
+    'nth-last-child',
+]);
+const nthChildRegExp = /(?<index>[\dn+-]+)\s+of\s+(?<subtree>.+)/;
+const RECURSIVE_PSEUDO_CLASSES_ARGS = {
+    'nth-child': nthChildRegExp,
+    'nth-last-child': nthChildRegExp,
+};
+const getArgumentPatternByType = (type) => {
+    switch (type) {
+        case 'pseudo-element':
+        case 'pseudo-class':
+            return new RegExp(TOKENS[type].source.replace('(?<argument>¶*)', '(?<argument>.*)'), 'gu');
+        default:
+            return TOKENS[type];
+    }
+};
+function gobbleParens(text, offset) {
+    let nesting = 0;
+    let result = '';
+    for (; offset < text.length; offset++) {
+        const char = text[offset];
+        switch (char) {
+            case '(':
+                ++nesting;
+                break;
+            case ')':
+                --nesting;
+                break;
+        }
+        result += char;
+        if (nesting === 0) {
+            return result;
+        }
+    }
+    return result;
+}
+function tokenizeBy(text, grammar = TOKENS) {
+    if (!text) {
+        return [];
+    }
+    const tokens = [text];
+    for (const [type, pattern] of Object.entries(grammar)) {
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+            if (typeof token !== 'string') {
+                continue;
+            }
+            pattern.lastIndex = 0;
+            const match = pattern.exec(token);
+            if (!match) {
+                continue;
+            }
+            const from = match.index - 1;
+            const args = [];
+            const content = match[0];
+            const before = token.slice(0, from + 1);
+            if (before) {
+                args.push(before);
+            }
+            args.push({
+                ...match.groups,
+                type,
+                content,
+            });
+            const after = token.slice(from + content.length + 1);
+            if (after) {
+                args.push(after);
+            }
+            tokens.splice(i, 1, ...args);
+        }
+    }
+    let offset = 0;
+    for (const token of tokens) {
+        switch (typeof token) {
+            case 'string':
+                throw new Error(`Unexpected sequence ${token} found at index ${offset}`);
+            case 'object':
+                offset += token.content.length;
+                token.pos = [offset - token.content.length, offset];
+                if (TRIM_TOKENS.has(token.type)) {
+                    token.content = token.content.trim() || ' ';
+                }
+                break;
+        }
+    }
+    return tokens;
+}
+const STRING_PATTERN = /(['"])([^\\\n]+?)\1/g;
+const ESCAPE_PATTERN = /\\./g;
+function tokenize(selector, grammar = TOKENS) {
+    // Prevent leading/trailing whitespaces from being interpreted as combinators
+    selector = selector.trim();
+    if (selector === '') {
+        return [];
+    }
+    const replacements = [];
+    // Replace escapes with placeholders.
+    selector = selector.replace(ESCAPE_PATTERN, (value, offset) => {
+        replacements.push({ value, offset });
+        return '\uE000'.repeat(value.length);
+    });
+    // Replace strings with placeholders.
+    selector = selector.replace(STRING_PATTERN, (value, quote, content, offset) => {
+        replacements.push({ value, offset });
+        return `${quote}${'\uE001'.repeat(content.length)}${quote}`;
+    });
+    // Replace parentheses with placeholders.
+    {
+        let pos = 0;
+        let offset;
+        while ((offset = selector.indexOf('(', pos)) > -1) {
+            const value = gobbleParens(selector, offset);
+            replacements.push({ value, offset });
+            selector = `${selector.substring(0, offset)}(${'¶'.repeat(value.length - 2)})${selector.substring(offset + value.length)}`;
+            pos = offset + value.length;
+        }
+    }
+    // Now we have no nested structures and we can parse with regexes
+    const tokens = tokenizeBy(selector, grammar);
+    // Replace placeholders in reverse order.
+    const changedTokens = new Set();
+    for (const replacement of replacements.reverse()) {
+        for (const token of tokens) {
+            const { offset, value } = replacement;
+            if (!(token.pos[0] <= offset &&
+                offset + value.length <= token.pos[1])) {
+                continue;
+            }
+            const { content } = token;
+            const tokenOffset = offset - token.pos[0];
+            token.content =
+                content.slice(0, tokenOffset) +
+                    value +
+                    content.slice(tokenOffset + value.length);
+            if (token.content !== content) {
+                changedTokens.add(token);
+            }
+        }
+    }
+    // Update changed tokens.
+    for (const token of changedTokens) {
+        const pattern = getArgumentPatternByType(token.type);
+        if (!pattern) {
+            throw new Error(`Unknown token type: ${token.type}`);
+        }
+        pattern.lastIndex = 0;
+        const match = pattern.exec(token.content);
+        if (!match) {
+            throw new Error(`Unable to parse content for ${token.type}: ${token.content}`);
+        }
+        Object.assign(token, match.groups);
+    }
+    return tokens;
+}
+/**
+ *  Convert a flat list of tokens into a tree of complex & compound selectors
+ */
+function nestTokens(tokens, { list = true } = {}) {
+    if (list && tokens.find((t) => t.type === 'comma')) {
+        const selectors = [];
+        const temp = [];
+        for (let i = 0; i < tokens.length; i++) {
+            if (tokens[i].type === 'comma') {
+                if (temp.length === 0) {
+                    throw new Error('Incorrect comma at ' + i);
+                }
+                selectors.push(nestTokens(temp, { list: false }));
+                temp.length = 0;
+            }
+            else {
+                temp.push(tokens[i]);
+            }
+        }
+        if (temp.length === 0) {
+            throw new Error('Trailing comma');
+        }
+        else {
+            selectors.push(nestTokens(temp, { list: false }));
+        }
+        return { type: 'list', list: selectors };
+    }
+    for (let i = tokens.length - 1; i >= 0; i--) {
+        let token = tokens[i];
+        if (token.type === 'combinator') {
+            let left = tokens.slice(0, i);
+            let right = tokens.slice(i + 1);
+            if (left.length === 0) {
+                return {
+                    type: 'relative',
+                    combinator: token.content,
+                    right: nestTokens(right),
+                };
+            }
+            return {
+                type: 'complex',
+                combinator: token.content,
+                left: nestTokens(left),
+                right: nestTokens(right),
+            };
+        }
+    }
+    switch (tokens.length) {
+        case 0:
+            throw new Error('Could not build AST.');
+        case 1:
+            // If we're here, there are no combinators, so it's just a list.
+            return tokens[0];
+        default:
+            return {
+                type: 'compound',
+                list: [...tokens], // clone to avoid pointers messing up the AST
+            };
+    }
+}
+/**
+ * Traverse an AST in depth-first order
+ */
+function* flatten(node, 
+/**
+ * @internal
+ */
+parent) {
+    switch (node.type) {
+        case 'list':
+            for (let child of node.list) {
+                yield* flatten(child, node);
+            }
+            break;
+        case 'complex':
+            yield* flatten(node.left, node);
+            yield* flatten(node.right, node);
+            break;
+        case 'relative':
+            yield* flatten(node.right, node);
+            break;
+        case 'compound':
+            yield* node.list.map((token) => [token, node]);
+            break;
+        default:
+            yield [node, parent];
+    }
+}
+/**
+ * Parse a CSS selector
+ *
+ * @param selector - The selector to parse
+ * @param options.recursive - Whether to parse the arguments of pseudo-classes like :is(), :has() etc. Defaults to true.
+ * @param options.list - Whether this can be a selector list (A, B, C etc). Defaults to true.
+ */
+function parse(selector, { recursive = true, list = true } = {}) {
+    const tokens = tokenize(selector);
+    if (!tokens) {
+        return;
+    }
+    const ast = nestTokens(tokens, { list });
+    if (!recursive) {
+        return ast;
+    }
+    for (const [token] of flatten(ast)) {
+        if (token.type !== 'pseudo-class' || !token.argument) {
+            continue;
+        }
+        if (!RECURSIVE_PSEUDO_CLASSES.has(token.name)) {
+            continue;
+        }
+        let argument = token.argument;
+        const childArg = RECURSIVE_PSEUDO_CLASSES_ARGS[token.name];
+        if (childArg) {
+            const match = childArg.exec(argument);
+            if (!match) {
+                continue;
+            }
+            Object.assign(token, match.groups);
+            argument = match.groups['subtree'];
+        }
+        if (!argument) {
+            continue;
+        }
+        Object.assign(token, {
+            subtree: parse(argument, {
+                recursive: true,
+                list: true,
+            }),
+        });
+    }
+    return ast;
+}
+/**
+ * Converts the given list or (sub)tree to a string.
+ */
+function stringify(listOrNode) {
+    if (Array.isArray(listOrNode)) {
+        return listOrNode.map((token) => token.content).join("");
+    }
+    switch (listOrNode.type) {
+        case "list":
+            return listOrNode.list.map(stringify).join(",");
+        case "relative":
+            return (listOrNode.combinator +
+                stringify(listOrNode.right));
+        case "complex":
+            return (stringify(listOrNode.left) +
+                listOrNode.combinator +
+                stringify(listOrNode.right));
+        case "compound":
+            return listOrNode.list.map(stringify).join("");
+        default:
+            return listOrNode.content;
+    }
+}
+
 class QuerySelector {
   #settings
   #_enable
@@ -3521,12 +3853,8 @@ class QuerySelector {
     // Enable
     if($enable === true) {
       const { context, name, method, selector } = this;
-      console.log(context.querySelectors);
       Object.defineProperty(context.querySelectors, name, {
-        enumerable: true,
-        configurable: true,
-        // get() { return context.scope[method](selector) }
-        value: context.scope[method](selector)
+        get() { return context[method](selector) }
       });
     }
     // Disable
@@ -3550,12 +3878,10 @@ var Options$2 = {
 
 class View extends Core {
   #_templates
-  #_scopeType
   #_scope
   #_parent
-  #_element
+  #_template
   #_children
-  // #_template
   #_querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
@@ -3569,16 +3895,9 @@ class View extends Core {
     this.#_templates = this.settings.templates;
     return this.#_templates
   }
-  get scopeType() {
-    if(this.#_scopeType !== undefined) return this.#_scopeType
-    this.#_scopeType = this.settings.scope;
-    return this.#_scopeType
-  }
   get scope() {
     if(this.#_scope !== undefined) return this.#_scope
-    const scopeType = this.scopeType;
-    if(scopeType === 'template') { this.#_scope = this.#element; }
-    else if(scopeType === 'parent') { this.#_scope = this.parent; }
+    this.#_scope = this.settings.scope;
     return this.#_scope
   }
   get parent() {
@@ -3586,21 +3905,21 @@ class View extends Core {
     this.#_parent = this.settings.parent;
     return this.#_parent
   }
-  get #element() {
-    if(this.#_element !== undefined) { return this.#_element }
-    this.#_element = document.createElement('element');
-    return this.#_element
+  get #template() {
+    if(this.#_template !== undefined) { return this.#_template }
+    this.#_template = document.createElement('template');
+    return this.#_template
   }
-  set #element($templateString) {
+  set #template($templateString) {
     this.disableEvents();
     this.disableQuerySelectors();
-    this.#_querySelectors = {};
-    this.#element.innerHTML = $templateString;
-    this.#children = this.#element.children;
-    this.querySelectors;
+    // this.#_querySelectors = {}
+    this.#template.innerHTML = $templateString;
+    this.#children = this.#template.content.children;
+    // this.querySelectors
     this.enableQuerySelectors();
     this.enableEvents();
-    this.parent.append(...this.#children);
+    this.parent.append(...this.#children.values());
   }
   get #children() {
     if(this.#_children !== undefined) return this.#_children
@@ -3615,9 +3934,47 @@ class View extends Core {
       children.set($childIndex, $child);
     });
   }
-  get templates() { return this.settings.templates }
   get querySelectors() { return this.#_querySelectors }
   get qs() { return this.querySelectors }
+  querySelector($queryString, $queryScope) {
+    return this.#query('querySelector', $queryString, $queryScope)
+  }
+  querySelectorAll(queryString, $queryScope) {
+    return this.#query('querySelectorAll', $queryString, $queryScope)
+  }
+  #query($queryMethod, $queryString, $queryScope) {
+    $queryScope = $queryScope || this.scope;
+    // Scope Type: Template
+    const query = [];
+    let queryTokens = tokenize($queryString);
+    let queryString;
+    // Orient Query Tokens To Scope
+    if(queryTokens[0].content !== ':scope') {
+      queryString = [':scope', $queryString].join(' ');
+      queryTokens = tokenize(queryString);
+    }
+    else {
+      queryString = stringify(queryTokens);
+      queryTokens = tokenize(queryString);
+    }
+    queryTokens[0];
+    queryTokens[1];
+    const scopeQueryString = stringify(queryTokens.slice(2));
+    tokenize(scopeQueryString);
+    const scopeQueryParse = parse(scopeQueryString);
+    console.log(
+      "\n", "-----------",
+      "\n", "view.#query",
+      "\n", "-----------",
+      "\n", scopeQueryString,
+      "\n", scopeQueryParse,
+    );
+    const { type, left, combinator, right } = scopeQueryParse;
+    if(type === 'complex') {
+      if(left.type === 'complex') ;
+    }
+    return query
+  }
   addQuerySelectors($queryMethods) {
     if($queryMethods === undefined) return this
     const { querySelectors } = this.settings;
@@ -3669,7 +4026,7 @@ class View extends Core {
     return this
   }
   render($model = {}, $template = 'default') {
-    this.#element = this.templates[$template]($model);
+    this.#template = this.templates[$template]($model);
     return this
   }
 }

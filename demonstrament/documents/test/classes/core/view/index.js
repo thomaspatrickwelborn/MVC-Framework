@@ -76,8 +76,7 @@ export default class View extends EventTarget {
         $querySelectorName, $querySelector
       ] of Object.entries($querySelectors)) {
         Object.defineProperty(querySelectors, $querySelectorName, {
-          // value: this.query($querySelectorType, $querySelector)
-          get() { return $this.query($querySelectorType, $querySelector) }
+          get() { return $this[$querySelectorType]($querySelector) }
         })
       }
     }

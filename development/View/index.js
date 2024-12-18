@@ -1,15 +1,21 @@
+import * as parsel from '../../node_modules/parsel-js/dist/parsel.js'
 import Core from '../Core/index.js'
 import QuerySelector from './QuerySelector/index.js'
+import Query from './Query/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
+const Combinators = {
+  descendant: " ",
+  child: ">",
+  subsequentSibling: "~",
+  nextSibling: "+",
+}
 export default class View extends Core {
   #_templates
-  #_scopeType
   #_scope
   #_parent
-  #_element
+  #_template
   #_children
-  // #_template
   #_querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
@@ -23,16 +29,9 @@ export default class View extends Core {
     this.#_templates = this.settings.templates
     return this.#_templates
   }
-  get scopeType() {
-    if(this.#_scopeType !== undefined) return this.#_scopeType
-    this.#_scopeType = this.settings.scope
-    return this.#_scopeType
-  }
   get scope() {
     if(this.#_scope !== undefined) return this.#_scope
-    const scopeType = this.scopeType
-    if(scopeType === 'template') { this.#_scope = this.#element }
-    else if(scopeType === 'parent') { this.#_scope = this.parent }
+    this.#_scope = this.settings.scope
     return this.#_scope
   }
   get parent() {
@@ -40,21 +39,21 @@ export default class View extends Core {
     this.#_parent = this.settings.parent
     return this.#_parent
   }
-  get #element() {
-    if(this.#_element !== undefined) { return this.#_element }
-    this.#_element = document.createElement('element')
-    return this.#_element
+  get #template() {
+    if(this.#_template !== undefined) { return this.#_template }
+    this.#_template = document.createElement('template')
+    return this.#_template
   }
-  set #element($templateString) {
+  set #template($templateString) {
     this.disableEvents()
     this.disableQuerySelectors()
-    this.#_querySelectors = {}
-    this.#element.innerHTML = $templateString
-    this.#children = this.#element.children
-    this.querySelectors
+    // this.#_querySelectors = {}
+    this.#template.innerHTML = $templateString
+    this.#children = this.#template.content.children
+    // this.querySelectors
     this.enableQuerySelectors()
     this.enableEvents()
-    this.parent.append(...this.#children)
+    this.parent.append(...this.#children.values())
   }
   get #children() {
     if(this.#_children !== undefined) return this.#_children
@@ -69,9 +68,49 @@ export default class View extends Core {
       children.set($childIndex, $child)
     })
   }
-  get templates() { return this.settings.templates }
   get querySelectors() { return this.#_querySelectors }
   get qs() { return this.querySelectors }
+  querySelector($queryString, $queryScope) {
+    return this.#query('querySelector', $queryString, $queryScope)
+  }
+  querySelectorAll(queryString, $queryScope) {
+    return this.#query('querySelectorAll', $queryString, $queryScope)
+  }
+  #query($queryMethod, $queryString, $queryScope) {
+    $queryScope = $queryScope || this.scope
+    // Scope Type: Template
+    const query = []
+    let queryTokens = parsel.tokenize($queryString)
+    let queryString
+    // Orient Query Tokens To Scope
+    if(queryTokens[0].content !== ':scope') {
+      queryString = [':scope', $queryString].join(' ')
+      queryTokens = parsel.tokenize(queryString)
+    }
+    else {
+      queryString = parsel.stringify(queryTokens)
+      queryTokens = parsel.tokenize(queryString)
+    }
+    const scope = queryTokens[0]
+    const scopeCombinator = queryTokens[1]
+    const scopeQueryString = parsel.stringify(queryTokens.slice(2))
+    const scopeQueryTokens = parsel.tokenize(scopeQueryString)
+    const scopeQueryParse = parsel.parse(scopeQueryString)
+    console.log(
+      "\n", "-----------",
+      "\n", "view.#query",
+      "\n", "-----------",
+      "\n", scopeQueryString,
+      "\n", scopeQueryParse,
+    )
+    const { type, left, combinator, right } = scopeQueryParse
+    if(type === 'complex') {
+      if(left.type === 'complex') {
+        // 
+      }
+    }
+    return query
+  }
   addQuerySelectors($queryMethods) {
     if($queryMethods === undefined) return this
     const { querySelectors } = this.settings
@@ -124,7 +163,7 @@ export default class View extends Core {
     return this
   }
   render($model = {}, $template = 'default') {
-    this.#element = this.templates[$template]($model)
+    this.#template = this.templates[$template]($model)
     return this
   }
 }
