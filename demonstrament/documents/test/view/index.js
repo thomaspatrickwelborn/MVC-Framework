@@ -1,13 +1,16 @@
 import { View } from '/dependencies/mvc-framework.js'
 const QuerySelectors = {
   querySelector: {
-    ':scope > div#_1 ~ div#_3 > subdiv#_3_2': ':scope > div#_1 ~ div#_3 > subdiv#_3_2',
+    // ':scope > div#_1 ~ div#_3 > subdiv#_3_2': ':scope > div#_1 ~ div#_3 > subdiv#_3_2',
+    // 'div#_1 ~ div#_3 > subdiv#_3_2': 'div#_1 ~ div#_3 > subdiv#_3_2',
+    ':scope > div#_1 ~ div#_3': ':scope > div#_1 ~ div#_3',
+    // 'div#_1 ~ div#_3': 'div#_1 ~ div#_3',
   }
 }
+
 const index = document.querySelector('index')
 const view = new View({
   scope: 'template',
-  // parent: document.querySelector('index'),
   parent: index,
   templates: { default: () => `
     <div id="_1">DIV[ID="_1"]</div>
@@ -21,6 +24,7 @@ const view = new View({
   querySelectors: QuerySelectors
 })
 view.render()
+
 // Query Selector
 console.log(Object.entries(QuerySelectors))
 Object.entries(QuerySelectors)
@@ -33,12 +37,14 @@ Object.entries(QuerySelectors)
         console.log(
           "\n", "-------------",
           "\n", "Element Query",
+          "\n", $query.selector,
           "\n", "-------------",
           "\n", index[$query.method]($query.selector)
         )
         console.log(
           "\n", "-------------",
           "\n", "View Query",
+          "\n", $query.selector,
           "\n", "-------------",
           "\n", view[$query.method]($query.selector)
         )

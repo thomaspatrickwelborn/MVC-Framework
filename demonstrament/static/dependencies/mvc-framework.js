@@ -3865,6 +3865,78 @@ class QuerySelector {
   }
 }
 
+const Combinators = {
+  descendant: " ",
+  child: ">",
+  subsequentSibling: "~",
+  nextSibling: "+",
+};
+function Query($element, $queryMethod, $queryString) {
+  let query = [];
+  let queryString = $queryString;
+  let queryTokens = tokenize(queryString);
+  // Orient Query Tokens To Scope
+  if(queryTokens[0].content !== ':scope') {
+    queryString = [':scope', queryString].join(' ');
+    queryTokens = tokenize(queryString);
+  }
+  // Define Scope
+  queryTokens[0];
+  const scopeCombinator = queryTokens[1];
+  // Define Scope Query
+  const scopeQueryString = stringify(queryTokens.slice(2));
+  tokenize(scopeQueryString);
+  const scopeQueryParse = parse(scopeQueryString);
+  for(const [$childIndex, $child] of Object.entries(Array.from($element.children))) {
+    // Scope Query Type: Complex
+    if(scopeQueryParse.type === 'complex') {
+      const { left, combinator, right } = scopeQueryParse;
+      // Lexter
+      const lexter = Query($element, $queryMethod, stringify(left));
+      // Dextre
+      let dexter;
+      if(lexter.length) {
+        // Combinator: Subsequent Descendent
+        if(combinator === Combinators.descendent) {
+          dexter = Query($child, $queryMethod, [':scope', stringify(right)].join(Combinators.descendent));
+        }
+        // Combinator: Subsequent Child
+        else if(combinator === Combinators.child) {
+          dexter = Query($child, $queryMethod, [':scope', stringify(right)].join(Combinators.child));
+        }
+        // Combinator: Subsequent Sibling
+        else if(combinator === Combinators.subsequentSibling) {
+          for(const $subsequentChild of $element.children.slice($childIndex + 1)) {
+            dexter = Query($subsequentChild, $queryMethod, stringify(right));
+          }
+        }
+        // Combinator: Next Sibling
+        else if(combinator === Combinators.nextSibling) {
+          iterateSubsequentChildren: 
+          for(const $subsequentChild of $element.children.slice($childIndex + 1)) {
+            dexter = Query($subsequentChild, $queryMethod, stringify(right));
+            if(dexter.length) break iterateSubsequentChildren
+          }
+        }
+        query = query.concat(dexter);
+      }
+    }
+    // Scope Query Type: Not Complex
+    else {
+      const childMatchesScopeQueryString = $child.matches(scopeQueryString);
+      // Child: Matches Query String
+      if(childMatchesScopeQueryString) query = query.concat($child);
+      // Descendent: Query Selector String
+      if(scopeCombinator === ' ') {
+        const childQuery = $child[$queryMethod](scopeQueryString);
+        if(childQuery) query = query.concat(childQuery);
+      }
+    }
+    if($queryMethod === 'querySelector' && query.length > 0) return query.slice(0, 1)
+  }
+  return query
+}
+
 var Settings$2 = {
   scope: 'template', // 'parent',
   templates: { default: () => `` },
@@ -3915,19 +3987,19 @@ class View extends Core {
     this.disableQuerySelectors();
     // this.#_querySelectors = {}
     this.#template.innerHTML = $templateString;
-    this.#children = this.#template.content.children;
+    this.children = this.#template.content.children;
     // this.querySelectors
     this.enableQuerySelectors();
     this.enableEvents();
-    this.parent.append(...this.#children.values());
+    this.parent.append(...this.children.values());
   }
-  get #children() {
+  get children() {
     if(this.#_children !== undefined) return this.#_children
     this.#_children = new Map();
     return this.#_children
   }
-  set #children($children) {
-    const children = this.#children;
+  set children($children) {
+    const children = this.children;
     children.forEach(($child, $childIndex) => $child?.parentElement.removeChild($child));
     children.clear();
     Array.from($children).forEach(($child, $childIndex) => {
@@ -3937,43 +4009,18 @@ class View extends Core {
   get querySelectors() { return this.#_querySelectors }
   get qs() { return this.querySelectors }
   querySelector($queryString, $queryScope) {
-    return this.#query('querySelector', $queryString, $queryScope)
+    const query = this.#query('querySelector', $queryString, $queryScope);
+    return query[0] || null
   }
   querySelectorAll(queryString, $queryScope) {
-    return this.#query('querySelectorAll', $queryString, $queryScope)
-  }
-  #query($queryMethod, $queryString, $queryScope) {
-    $queryScope = $queryScope || this.scope;
-    // Scope Type: Template
-    const query = [];
-    let queryTokens = tokenize($queryString);
-    let queryString;
-    // Orient Query Tokens To Scope
-    if(queryTokens[0].content !== ':scope') {
-      queryString = [':scope', $queryString].join(' ');
-      queryTokens = tokenize(queryString);
-    }
-    else {
-      queryString = stringify(queryTokens);
-      queryTokens = tokenize(queryString);
-    }
-    queryTokens[0];
-    queryTokens[1];
-    const scopeQueryString = stringify(queryTokens.slice(2));
-    tokenize(scopeQueryString);
-    const scopeQueryParse = parse(scopeQueryString);
-    console.log(
-      "\n", "-----------",
-      "\n", "view.#query",
-      "\n", "-----------",
-      "\n", scopeQueryString,
-      "\n", scopeQueryParse,
-    );
-    const { type, left, combinator, right } = scopeQueryParse;
-    if(type === 'complex') {
-      if(left.type === 'complex') ;
-    }
+    const query = this.#query('querySelectorAll', $queryString, $queryScope);
     return query
+  }
+  #query($queryMethod, $queryString) {
+    const queryElement = (this.scope === 'template')
+      ? { children: Array.from(this.children.values()) }
+      : { children: Array.from(this.parent.children) };
+    return Query(queryElement, $queryMethod, $queryString)
   }
   addQuerySelectors($queryMethods) {
     if($queryMethods === undefined) return this
