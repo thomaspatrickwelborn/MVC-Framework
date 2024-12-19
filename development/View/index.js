@@ -4,12 +4,6 @@ import QuerySelector from './QuerySelector/index.js'
 import Query from './Query/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
-const Combinators = {
-  descendant: " ",
-  child: ">",
-  subsequentSibling: "~",
-  nextSibling: "+",
-}
 export default class View extends Core {
   #_templates
   #_scope
@@ -49,19 +43,19 @@ export default class View extends Core {
     this.disableQuerySelectors()
     // this.#_querySelectors = {}
     this.#template.innerHTML = $templateString
-    this.#children = this.#template.content.children
+    this.children = this.#template.content.children
     // this.querySelectors
     this.enableQuerySelectors()
     this.enableEvents()
-    this.parent.append(...this.#children.values())
+    this.parent.append(...this.children.values())
   }
-  get #children() {
+  get children() {
     if(this.#_children !== undefined) return this.#_children
     this.#_children = new Map()
     return this.#_children
   }
-  set #children($children) {
-    const children = this.#children
+  set children($children) {
+    const children = this.children
     children.forEach(($child, $childIndex) => $child?.parentElement.removeChild($child))
     children.clear()
     Array.from($children).forEach(($child, $childIndex) => {
@@ -71,45 +65,18 @@ export default class View extends Core {
   get querySelectors() { return this.#_querySelectors }
   get qs() { return this.querySelectors }
   querySelector($queryString, $queryScope) {
-    return this.#query('querySelector', $queryString, $queryScope)
+    const query = this.#query('querySelector', $queryString, $queryScope)
+    return query[0] || null
   }
-  querySelectorAll(queryString, $queryScope) {
-    return this.#query('querySelectorAll', $queryString, $queryScope)
-  }
-  #query($queryMethod, $queryString, $queryScope) {
-    $queryScope = $queryScope || this.scope
-    // Scope Type: Template
-    const query = []
-    let queryTokens = parsel.tokenize($queryString)
-    let queryString
-    // Orient Query Tokens To Scope
-    if(queryTokens[0].content !== ':scope') {
-      queryString = [':scope', $queryString].join(' ')
-      queryTokens = parsel.tokenize(queryString)
-    }
-    else {
-      queryString = parsel.stringify(queryTokens)
-      queryTokens = parsel.tokenize(queryString)
-    }
-    const scope = queryTokens[0]
-    const scopeCombinator = queryTokens[1]
-    const scopeQueryString = parsel.stringify(queryTokens.slice(2))
-    const scopeQueryTokens = parsel.tokenize(scopeQueryString)
-    const scopeQueryParse = parsel.parse(scopeQueryString)
-    console.log(
-      "\n", "-----------",
-      "\n", "view.#query",
-      "\n", "-----------",
-      "\n", scopeQueryString,
-      "\n", scopeQueryParse,
-    )
-    const { type, left, combinator, right } = scopeQueryParse
-    if(type === 'complex') {
-      if(left.type === 'complex') {
-        // 
-      }
-    }
+  querySelectorAll($queryString, $queryScope) {
+    const query = this.#query('querySelectorAll', $queryString, $queryScope)
     return query
+  }
+  #query($queryMethod, $queryString) {
+    const queryElement = (this.scope === 'template')
+      ? { children: Array.from(this.children.values()) }
+      : { children: Array.from(this.parent.children) }
+    return Query(queryElement, $queryMethod, $queryString)
   }
   addQuerySelectors($queryMethods) {
     if($queryMethods === undefined) return this
