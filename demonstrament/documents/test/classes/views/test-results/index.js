@@ -1,10 +1,11 @@
-import PandTree from '../pand-tree/index.js'
-import Model from '../../models/test-results/index.js'
-export default class TestResults extends PandTree {
+import PandTreeView from '../pand-tree/index.js'
+import TestResultsModels from '../../models/test-results/index.js'
+export default class TestResultsView extends PandTreeView {
   constructor($settings) {
     super({
-      parent: $settings.parent,
-      model: Model($settings.model), 
+      get Class() { return TestResultsView },
+      parentElement: $settings.parentElement,
+      models: TestResultsModels($settings.tests),
     })
   }
 }

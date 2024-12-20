@@ -1,8 +1,16 @@
-import TestResults from "../classes/views/test-results/index.js"
 import Tests from "./tests/index.js"
+import TestResultsView from "../classes/views/test-results/index.js"
 
-const testResults = new TestResults({
-  parent: document.querySelector('index'),
-  model: Tests,
+const testResults = new TestResultsView({
+  parentElement: document.querySelector('index'),
+  tests: Tests,
 })
-testResults.render(testResults.model, 'default')
+testResults.render(testResults.models, 'default')
+
+/*
+const testResults = new TestResultsView({
+  parentElement: document.querySelector('index'),
+  models: {
+  },
+})
+*/

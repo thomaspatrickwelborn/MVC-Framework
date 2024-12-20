@@ -5,7 +5,8 @@ import testD from './testD.js'
 import testE from './testE.js'
 export default {
   id: "groupA",
-  name: "Validate Property: Literals",
+  name: "schema.validate: Literals",
+  descript: "",
   type: 'test-group',
   collectName: 'tests',
   collect: new Map([

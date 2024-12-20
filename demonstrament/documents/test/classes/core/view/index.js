@@ -1,4 +1,5 @@
 import * as parsel from '../../../../../../node_modules/parsel-js/dist/parsel.js'
+import Query from './query.js'
 const Combinators = {
   descendant: " ",
   child: ">",
@@ -12,9 +13,8 @@ export default class View extends EventTarget {
     templates: { default: ($model) => `` },
   }
   #_templates
-  #_scopeType
   #_scope
-  #_parent
+  #_parentElement
   #_template
   #_children
   #_querySelectors
@@ -28,15 +28,15 @@ export default class View extends EventTarget {
     this.#_templates = this.settings.templates
     return this.#_templates
   }
-  get scopeType() {
-    if(this.#_scopeType !== undefined) return this.#_scopeType
-    this.#_scopeType = this.settings.scope
-    return this.#_scopeType
+  get scope() {
+    if(this.#_scope !== undefined) return this.#_scope
+    this.#_scope = this.settings.scope
+    return this.#_scope
   }
-  get parent() {
-    if(this.#_parent !== undefined) return this.#_parent
-    this.#_parent = this.settings.parent
-    return this.#_parent
+  get parentElement() {
+    if(this.#_parentElement !== undefined) return this.#_parentElement
+    this.#_parentElement = this.settings.parentElement
+    return this.#_parentElement
   }
   get #template() {
     if(this.#_template !== undefined) return this.#_template
@@ -48,7 +48,7 @@ export default class View extends EventTarget {
     this.#template.innerHTML = $templateString
     this.#children = [...this.#template.content.children]
     this.enable()
-    this.parent.append(...this.#children.values())
+    this.parentElement.append(...this.#children.values())
   }
   get #children() {
     if(this.#_children !== undefined) return this.#_children
@@ -122,70 +122,19 @@ export default class View extends EventTarget {
     this.#_events = events
     return this.#_events
   }
-  query($queryMethod, $queryString) {
-    // Scope Type: Template
-    const query = []
-    let queryTokens = parsel.tokenize($queryString)
-    let queryString
-    // Orient Query Tokens To Scope
-    if(queryTokens[0].content !== ':scope') {
-      queryString = [':scope', $queryString].join(' ')
-      queryTokens = parsel.tokenize(queryString)
-    }
-    else {
-      queryString = parsel.stringify(queryTokens)
-      queryTokens = parsel.tokenize(queryString)
-    }
-    // Scope
-    // Query Scope
-    const scope = queryTokens[0]
-    // Query Scope Combinator (Descendent/Child)
-    const scopeCombinator = queryTokens[1]
-    // Query Scope String 
-    const scopeQueryString = parsel.stringify(queryTokens.slice(2))
-    // Query Scope Tokens 
-    const scopeQueryTokens = parsel.tokenize(scopeQueryString)
-    const scopeQueryParse = parsel.parse(scopeQueryString)
-    // Iterate Children
-    iterateChildren: 
-    for(const $child of this.#children.values()) {
-      // Complex
-      if(scopeQueryParse.type === 'complex') {
-        const firstChildQueryString = parsel.stringify(scopeQueryParse.left)
-        const anterChildQueryString = [
-          ':scope', scopeQueryParse.combinator, parsel.stringify(scopeQueryParse.right)
-        ].join('')
-        const childMatches = $child.matches(firstChildQueryString)
-        const childQuery = $child[$queryMethod](anterChildQueryString)
-        if(childMatches && childQuery) {
-          if(childQuery instanceof NodeList) { query.push(...childQuery) }
-          else { query.push(childQuery) }
-        }
-        if(scopeCombinator !== '>') {
-          const descendentQuery = $child[$queryMethod](scopeQueryString)
-          if(descendentQuery) {
-            if(descendentQuery instanceof NodeList) { query.push(...descendentQuery) }
-            else { query.push(descendentQuery) }
-          }
-        }
-      }
-      else {
-        const childMatches = $child.matches(scopeQueryString)
-        if(childMatches) {
-          query.push($child)
-        }
-        if(scopeCombinator !== '>') {
-          const descendentQuery = $child[$queryMethod](scopeQueryString)
-          if(descendentQuery) {
-            if(descendentQuery instanceof NodeList) { query.push(...descendentQuery) }
-            else { query.push(descendentQuery) }
-          }
-        }
-      }
-      if($queryMethod === 'querySelector' && query.length > 1) { break iterateChildren }
-    }
-    if($queryMethod === 'querySelector' && query.length) { return query[0] }
-    else if($queryMethod === 'querySelectorAll') { return query }
+  querySelector($queryString, $queryScope) {
+    const query = this.#query('querySelector', $queryString, $queryScope)
+    return query[0] || null
+  }
+  querySelectorAll($queryString, $queryScope) {
+    const query = this.#query('querySelectorAll', $queryString, $queryScope)
+    return query
+  }
+  #query($queryMethod, $queryString) {
+    const queryElement = (this.scope === 'template')
+      ? { children: Array.from(this.#children.values()) }
+      : { children: Array.from(this.parentElement.children) }
+    return Query(queryElement, $queryMethod, $queryString)
   }
   enableQuerySelectors() {
     this.querySelectors

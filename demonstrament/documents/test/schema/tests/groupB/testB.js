@@ -6,7 +6,7 @@ export default {
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
-    [0, `When validation type is "primitive" only valid properties values assigned.`],
+    [0, `When validation type is 'primitive' individual properties must pass validation to assign values.`],
   ]),
   method: function() {
     const schema = new Schema({
