@@ -24,7 +24,6 @@ function Query($element, $queryMethod, $queryString) {
   const children = Array.from($element.children)
   iterateChildren: 
   for(const [$childIndex, $child] of Object.entries(children)) {
-
     // Scope Query Type: Complex
     if(scopeQueryParse.type === 'complex') {
       const { left, combinator, right } = scopeQueryParse
@@ -65,12 +64,8 @@ function Query($element, $queryMethod, $queryString) {
         if(childQuery instanceof NodeList) query = query.concat(...childQuery)
         else if(childQuery instanceof Node) query = query.concat(childQuery) 
       }
-      /*
-      */
     }
-    /*
     if($queryMethod === 'querySelector' && query.length > 0) return query.slice(0, 1)
-    */
   }
   return query
 }

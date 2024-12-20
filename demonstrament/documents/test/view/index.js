@@ -1,18 +1,21 @@
 import { View } from '/dependencies/mvc-framework.js'
 const QuerySelectors = {
-  querySelectorAll: {
-    // 'div#_1 ~ div': 'div#_1 ~ div',
-    // 'div#_1 + div': 'div#_1 + div',
-    // 'div': 'div',
-    // 'subdiv': 'subdiv',
-    // ':scope > div#_1': ':scope > div#_1',
+  // querySelectorAll: {
+  querySelector: {
+    'div#_1 ~ div': 'div#_1 ~ div',
+    'div#_1 + div': 'div#_1 + div',
+    'div': 'div',
+    'subdiv': 'subdiv',
+    ':scope > div#_1': ':scope > div#_1',
     ':scope > div#_1 ~ div#_3': ':scope > div#_1 ~ div#_3',
-    //
-    // ':scope > div#_1 ~ div#_3 > subdiv#_3_2': ':scope > div#_1 ~ div#_3 > subdiv#_3_2',
-    // 'div#_1 ~ div#_3 > subdiv#_3_2': 'div#_1 ~ div#_3 > subdiv#_3_2',
-    // ':scope > div#_1 ~ div#_3': ':scope > div#_1 ~ div#_3',
-    // 'div#_1 ~ div#_3': 'div#_1 ~ div#_3',
-  }
+    ':scope > div#_1 ~ div#_3 > subdiv#_3_2': ':scope > div#_1 ~ div#_3 > subdiv#_3_2',
+    'div#_1 ~ div#_3 > subdiv#_3_2': 'div#_1 ~ div#_3 > subdiv#_3_2',
+    ':scope > div#_1 ~ div#_3': ':scope > div#_1 ~ div#_3',
+    
+    'div#_1 ~ div#_3 > subdiv': 'div#_1 ~ div#_3 > subdiv',
+    ':scope > subdiv': ':scope > subdiv',
+    ':scope > div > subdiv': ':scope > div > subdiv',
+  },
 }
 
 const index = document.querySelector('index')
