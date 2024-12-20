@@ -7,7 +7,7 @@ import Options from './Options/index.js'
 export default class View extends Core {
   #_templates
   #_scope
-  #_parent
+  #_parentElement
   #_template
   #_children
   #_querySelectors = {}
@@ -17,6 +17,10 @@ export default class View extends Core {
       Object.assign({}, Options, $options),
     )
     this.addQuerySelectors(this.settings.querySelectors)
+    const { enableQuerySelectors, enableEvents } = this.settings
+    if(enableQuerySelectors) this.enableQuerySelectors()
+    if(enableEvents) this.enableEvents()
+
   }
   get templates() {
     if(this.#_templates !== undefined) return this.#_templates
@@ -28,10 +32,10 @@ export default class View extends Core {
     this.#_scope = this.settings.scope
     return this.#_scope
   }
-  get parent() {
-    if(this.#_parent !== undefined) return this.#_parent
-    this.#_parent = this.settings.parent
-    return this.#_parent
+  get parentElement() {
+    if(this.#_parentElement !== undefined) return this.#_parentElement
+    this.#_parentElement = this.settings.parentElement
+    return this.#_parentElement
   }
   get #template() {
     if(this.#_template !== undefined) { return this.#_template }
@@ -41,13 +45,11 @@ export default class View extends Core {
   set #template($templateString) {
     this.disableEvents()
     this.disableQuerySelectors()
-    // this.#_querySelectors = {}
     this.#template.innerHTML = $templateString
     this.children = this.#template.content.children
-    // this.querySelectors
+    this.parentElement.append(...this.children.values())
     this.enableQuerySelectors()
     this.enableEvents()
-    this.parent.append(...this.children.values())
   }
   get children() {
     if(this.#_children !== undefined) return this.#_children
@@ -75,7 +77,7 @@ export default class View extends Core {
   #query($queryMethod, $queryString) {
     const queryElement = (this.scope === 'template')
       ? { children: Array.from(this.children.values()) }
-      : { children: Array.from(this.parent.children) }
+      : { children: Array.from(this.parentElement.children) }
     return Query(queryElement, $queryMethod, $queryString)
   }
   addQuerySelectors($queryMethods) {

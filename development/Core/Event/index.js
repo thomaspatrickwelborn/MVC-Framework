@@ -41,7 +41,10 @@ export default class CoreEvent {
       $enable === true
     ) ? 'addEventListener'
       : 'removeEventListener'
-    if(this.target instanceof NodeList) {
+    if(
+      this.target instanceof NodeList ||
+      Array.isArray(this.target)
+    ) {
       for(const $target of this.target) {
         $target[eventAbility](this.type, this.#boundListener, this.options)
       }

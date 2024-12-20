@@ -3121,7 +3121,10 @@ class CoreEvent {
       $enable === true
     ) ? 'addEventListener'
       : 'removeEventListener';
-    if(this.target instanceof NodeList) {
+    if(
+      this.target instanceof NodeList ||
+      Array.isArray(this.target)
+    ) {
       for(const $target of this.target) {
         $target[eventAbility](this.type, this.#boundListener, this.options);
       }
@@ -3321,31 +3324,19 @@ class LocalStorage extends EventTarget {
     this.#_path = $path;
   }
   get() {
-    try{
-      return JSON.parse(this.#db.getItem(this.path))
-    }
-    catch($err) {
-      console.log($err);
-      return
-    }
+    try{ return JSON.parse(this.#db.getItem(this.path)) }
+    catch($err) { console.log($err); }
+    return
   }
   set($content) {
-    try {
-      return this.#db.setItem(this.path, JSON.stringify($content))
-    }
-    catch($err) {
-      console.log($err);
-      return
-    }
+    try { return this.#db.setItem(this.path, JSON.stringify($content)) }
+    catch($err) { console.log($err); }
+    return
   }
   remove() {
-    try {
-      return this.#db.removeItem(this.path)
-    }
-    catch($err) {
-      console.log($err);
-      return
-    }
+    try { return this.#db.removeItem(this.path) }
+    catch($err) { console.log($err); }
+    return
   }
 }
 
@@ -3936,6 +3927,7 @@ function Query($element, $queryMethod, $queryString) {
 }
 
 var Settings$2 = {
+  parentElement: undefined, // HTML Element
   scope: 'template', // 'parent',
   templates: { default: () => `` },
   querySelectors: {},
@@ -3943,13 +3935,14 @@ var Settings$2 = {
 };
 
 var Options$2 = {
+  enableEvents: true,
   enableQuerySelectors: true
 };
 
 class View extends Core {
   #_templates
   #_scope
-  #_parent
+  #_parentElement
   #_template
   #_children
   #_querySelectors = {}
@@ -3959,6 +3952,10 @@ class View extends Core {
       Object.assign({}, Options$2, $options),
     );
     this.addQuerySelectors(this.settings.querySelectors);
+    const { enableQuerySelectors, enableEvents } = this.settings;
+    if(enableQuerySelectors) this.enableQuerySelectors();
+    if(enableEvents) this.enableEvents();
+
   }
   get templates() {
     if(this.#_templates !== undefined) return this.#_templates
@@ -3970,10 +3967,10 @@ class View extends Core {
     this.#_scope = this.settings.scope;
     return this.#_scope
   }
-  get parent() {
-    if(this.#_parent !== undefined) return this.#_parent
-    this.#_parent = this.settings.parent;
-    return this.#_parent
+  get parentElement() {
+    if(this.#_parentElement !== undefined) return this.#_parentElement
+    this.#_parentElement = this.settings.parentElement;
+    return this.#_parentElement
   }
   get #template() {
     if(this.#_template !== undefined) { return this.#_template }
@@ -3983,13 +3980,11 @@ class View extends Core {
   set #template($templateString) {
     this.disableEvents();
     this.disableQuerySelectors();
-    // this.#_querySelectors = {}
     this.#template.innerHTML = $templateString;
     this.children = this.#template.content.children;
-    // this.querySelectors
+    this.parentElement.append(...this.children.values());
     this.enableQuerySelectors();
     this.enableEvents();
-    this.parent.append(...this.children.values());
   }
   get children() {
     if(this.#_children !== undefined) return this.#_children
@@ -4017,7 +4012,7 @@ class View extends Core {
   #query($queryMethod, $queryString) {
     const queryElement = (this.scope === 'template')
       ? { children: Array.from(this.children.values()) }
-      : { children: Array.from(this.parent.children) };
+      : { children: Array.from(this.parentElement.children) };
     return Query(queryElement, $queryMethod, $queryString)
   }
   addQuerySelectors($queryMethods) {

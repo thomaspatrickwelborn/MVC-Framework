@@ -1,7 +1,7 @@
 import { View } from '/dependencies/mvc-framework.js'
 const QuerySelectors = {
-  // querySelectorAll: {
-  querySelector: {
+  // querySelector: {
+  querySelectorAll: {
     'div#_1 ~ div': 'div#_1 ~ div',
     'div#_1 + div': 'div#_1 + div',
     'div': 'div',
@@ -21,7 +21,7 @@ const QuerySelectors = {
 const index = document.querySelector('index')
 const view = new View({
   scope: 'template',
-  parent: index,
+  parentElement: index,
   templates: { default: () => `
     <div id="_1" class="div">DIV[ID="_1"]</div>
     <div id="_2" class="div">DIV[ID="_2"]</div>
@@ -31,12 +31,18 @@ const view = new View({
       <subdiv id="_3_3" class="subdiv">SUBDIV[ID="_3_3"]</subdiv>
     </div>
   ` },
-  querySelectors: QuerySelectors
+  querySelectors: QuerySelectors,
+  events: {
+    'qs.div click': function divClick($event) { console.log($event.type, $event) },
+    'qs.subdiv click': function subdivClick($event) { console.log($event.type, $event) },
+  }
 })
 view.render()
+console.log(view)
 
 // Query Selector
 // console.log(Object.entries(QuerySelectors))
+/*
 Object.entries(QuerySelectors)
 .forEach(
   ([$queryMethod, $queries]) => {
@@ -62,3 +68,4 @@ Object.entries(QuerySelectors)
     )
   }
 )
+*/
