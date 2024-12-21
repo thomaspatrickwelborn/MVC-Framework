@@ -7,7 +7,6 @@ export default class PandTreeView extends View {
   #_collect
   constructor($settings) {
     super({
-      // templates
       parentElement: $settings.parentElement,
       templates: {
         default: function PandTreeTemplate($models) {
@@ -50,7 +49,6 @@ export default class PandTreeView extends View {
       },
       models: $settings.models,
     })
-    console.log("$settings", $settings)
     this.addEventListener('render', ($event) => { this.renderCollect() })
   }
   togglePand() {

@@ -1,62 +1,15 @@
 import Test from '../../test/index.js'
-function Face($face) {
-  let { pand, path } = $face
-  const face = Object.defineProperties({}, {
-    location: { value: window.location.pathname, enumerable: false, writable: false },
-    parse: { value: function parse() {
-      return Object.entries(
-        Object.getOwnPropertyDescriptors(this)
-      ).reduce(($parse, [
-        $propertyDescriptorName, $propertyDescriptor
-      ]) => {
-        if($propertyDescriptor.enumerable === true) {
-          $parse[$propertyDescriptorName] = this[$propertyDescriptorName]
-        }
-        return $parse
-      }, {})
-    }, enumerable: false, writable: false }, 
-    read: { value: function read() {
-      return JSON.parse(localStorage.getItem(this.path))
-    }, enumerable: false, writable: false },
-    load: { value: function load() {
-      Object.assign(this, this.read())
-      return this
-    }, enumerable: false, writable: false },
-    save: { value: function save() {
-      localStorage.setItem(this.path, JSON.stringify(this.parse()))
-      return this
-    }, enumerable: false, writable: false },
-    remove: { value: function remove() {
-      localStorage.removeItem(this.path)
-      return this
-    } },
-    _path: { value: path, enumerable: false, writable: true },
-    _pand: { value: pand, enumerable: false, writable: true },
-    collect: { value: new Map(), enumerable: false, writable: false },
-    path: {
-      get() {
-        if(this._path !== undefined) return this._path
-        this._path = [window.location.pathname, path].join('')
-        return this._path
-      }, enumerable: false },
-    pand: {
-      get() { return this._pand },
-      set($pand) {
-        this._pand = $pand
-        this.save()
-      },
-      enumerable: true,
-    },
-  })
-  return face.save()
-}
+import TestResultsFace from '../test-results-face/index.js'
+// import Model from '../../core/model/index.js'
 export default function TestResultsModels($tests) {
   const data = $tests
   const dataPath = data.id
   data.path = dataPath
-  const face = Face({
-    path: dataPath,
-    pand: "ex",
+  const face = new TestResultsFace({
+    content: {
+      path: dataPath,
+      pand: "ex",
+    }
   })
   let testGroupIndex = 0
   const testGroupResults = {
@@ -75,9 +28,11 @@ export default function TestResultsModels($tests) {
     const testGroupPath = [dataPath,  $testGroupID].join('.')
     testGroup.path = testGroupPath
     const testGroupFace = face.collect
-      .set($testGroupID, Face({
+      .set($testGroupID, new TestResultsFace({
         path: testGroupPath,
-        pand: "ex",
+        content: {
+          pand: "ex",
+        }
       }))
       .get($testGroupID)
     let testIndex = 0
@@ -100,9 +55,11 @@ export default function TestResultsModels($tests) {
       const testPath = [testGroupPath, $testID].join('.')
       test.path = testPath
       const testFace = testGroupFace.collect
-        .set($testID, Face({
-          path: testPath,
-          pand: "ex",
+        .set($testID, new TestResultsFace({
+          content: {
+            path: testPath,
+            pand: "ex",
+          }
         }))
         .get($testID)
       const testResult = {
