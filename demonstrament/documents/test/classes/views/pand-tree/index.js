@@ -7,39 +7,37 @@ export default class PandTreeView extends View {
   #_collect
   constructor($settings) {
     super({
-      // templates
       parentElement: $settings.parentElement,
       templates: {
         default: function PandTreeTemplate($models) {
           const $data = $models.data
           const $face = $models.face
           return `
-            <${$data.type}
+            <${$data.get('type')}
               class="pand-tree"
-              data-pand="${$face.pand}"
-              data-pass="${$data.pass}"
+              data-pand="${$face.get('pand')}"
+              data-pass="${$data.get('pass')}"
             >
               <pass
-                data-pass="${$data.pass}"
+                data-pass="${$data.get('pass')}"
               ></pass>
-              <id>${$data.id}</id>
-              <name>${$data.name}</name>
-              <${$data.collectName}></${$data.collectName}>
-            </${$data.type}>
+              <id>${$data.get('id')}</id>
+              <name>${$data.get('name')}</name>
+              <${$data.get('collectName')}></${$data.get('collectName')}>
+            </${$data.get('type')}>
           `
         },
       },
       querySelectors: { querySelector: {
-        pandTree: `:scope > ${$settings.models.data.type}`,
-        collect: `:scope > ${$settings.models.data.type} > ${$settings.models.data.collectName}`,
-        pass: `:scope > ${$settings.models.data.type} > pass`,
-        id: `:scope > ${$settings.models.data.type} > id`,
-        name: `:scope > ${$settings.models.data.type} > name`,
-        [$settings.models.data.collectName]: `:scope > ${$settings.models.data.type} > ${$settings.models.data.collectName}`,
+        pandTree: `:scope > ${$settings.models.data.get('type')}`,
+        collect: `:scope > ${$settings.models.data.get('type')} > ${$settings.models.data.get('collectName')}`,
+        pass: `:scope > ${$settings.models.data.get('type')} > pass`,
+        id: `:scope > ${$settings.models.data.get('type')} > id`,
+        name: `:scope > ${$settings.models.data.get('type')} > name`,
+        [$settings.models.data.get('collectName')]: `:scope > ${$settings.models.data.get('type')} > ${$settings.models.data.get('collectName')}`,
       } },
       events: {
         'pass click': function passClick($event) {
-          console.log($event.type, $event.currentTarget.tagName)
         },
         'id click': function idClick($event) {
           this.togglePand()
@@ -50,7 +48,6 @@ export default class PandTreeView extends View {
       },
       models: $settings.models,
     })
-    console.log("$settings", $settings)
     this.addEventListener('render', ($event) => { this.renderCollect() })
   }
   togglePand() {
@@ -68,22 +65,22 @@ export default class PandTreeView extends View {
     )
     return this.#_models
   }
-  get collectName() { return this.models.data.collectName }
+  get collectName() { return this.models.data.get('collectName') }
   get collect() {
     if(this.#_collect !== undefined) return this.#_collect
     const collect = []
     for(const [
       $collectItemName, $collectItem
-    ] of this.models.data.collect.entries()) {
-      let collectFaceItem = this.models.face.collect.get($collectItemName)
+    ] of this.models.data.get('collect').entries()) {
+      let collectFaceItem = this.models.face.get('collect').get($collectItemName)
       let collectItem
-      if(this.models.data.type === 'test-result') {
+      if(this.models.data.get('type') === 'test-result') {
         collectItem = $collectItem
       }
       else {
+        const collectName = this.models.data.get('collectName')
         collectItem = new PandTreeView({
-        // collectItem = new this.Class({
-          parentElement: this.querySelectors[this.collectName],
+          parentElement: this.querySelectors[collectName],
           models: {
             data: $collectItem, 
             face: collectFaceItem,
@@ -103,7 +100,8 @@ export default class PandTreeView extends View {
         $collectItem.render($collectItem.models, 'default')
       }
       else {
-        this.querySelectors[this.collectName]?.append($collectItem)
+        const collectName = this.models.data.get('collectName')
+        this.querySelectors[collectName]?.append($collectItem)
       }
     }
     return this

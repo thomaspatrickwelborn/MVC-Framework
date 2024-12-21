@@ -1,62 +1,17 @@
 import Test from '../../test/index.js'
-function Face($face) {
-  let { pand, path } = $face
-  const face = Object.defineProperties({}, {
-    location: { value: window.location.pathname, enumerable: false, writable: false },
-    parse: { value: function parse() {
-      return Object.entries(
-        Object.getOwnPropertyDescriptors(this)
-      ).reduce(($parse, [
-        $propertyDescriptorName, $propertyDescriptor
-      ]) => {
-        if($propertyDescriptor.enumerable === true) {
-          $parse[$propertyDescriptorName] = this[$propertyDescriptorName]
-        }
-        return $parse
-      }, {})
-    }, enumerable: false, writable: false }, 
-    read: { value: function read() {
-      return JSON.parse(localStorage.getItem(this.path))
-    }, enumerable: false, writable: false },
-    load: { value: function load() {
-      Object.assign(this, this.read())
-      return this
-    }, enumerable: false, writable: false },
-    save: { value: function save() {
-      localStorage.setItem(this.path, JSON.stringify(this.parse()))
-      return this
-    }, enumerable: false, writable: false },
-    remove: { value: function remove() {
-      localStorage.removeItem(this.path)
-      return this
-    } },
-    _path: { value: path, enumerable: false, writable: true },
-    _pand: { value: pand, enumerable: false, writable: true },
-    collect: { value: new Map(), enumerable: false, writable: false },
-    path: {
-      get() {
-        if(this._path !== undefined) return this._path
-        this._path = [window.location.pathname, path].join('')
-        return this._path
-      }, enumerable: false },
-    pand: {
-      get() { return this._pand },
-      set($pand) {
-        this._pand = $pand
-        this.save()
-      },
-      enumerable: true,
-    },
-  })
-  return face.save()
-}
+import Model from '../../core/model/index.js'
 export default function TestResultsModels($tests) {
-  const data = $tests
-  const dataPath = data.id
-  data.path = dataPath
-  const face = Face({
+  const dataPath = [$tests.id].join('.')
+  const data = new Model({
     path: dataPath,
-    pand: "ex",
+    content: $tests,
+  })
+  const face = new Model({
+    path: $tests.id,
+    content: {
+      pand: "ex",
+      collect: new Map(),
+    }
   })
   let testGroupIndex = 0
   const testGroupResults = {
@@ -68,16 +23,21 @@ export default function TestResultsModels($tests) {
   iterateTestGroups: 
   for(const [
     $testGroupID, $testGroup
-  ] of Array.from(data.collect)/*.reverse()*/) {
-    const testGroup = data.collect
-      .set($testGroupID, $testGroup)
-      .get($testGroupID)
-    const testGroupPath = [dataPath,  $testGroupID].join('.')
-    testGroup.path = testGroupPath
-    const testGroupFace = face.collect
-      .set($testGroupID, Face({
+  ] of Array.from(data.get('collect'))/*.reverse()*/) {
+    const testGroupPath = [data.path,  $testGroupID].join('.')
+    const testGroup = data.get('collect')
+      .set($testGroupID, new Model({
         path: testGroupPath,
-        pand: "ex",
+        content: $testGroup,
+      }))
+      .get($testGroupID)
+    const testGroupFace = face.get('collect')
+      .set($testGroupID, new Model({
+        path: testGroupPath,
+        content: {
+          pand: "ex",
+          collect: new Map(),
+        }
       }))
       .get($testGroupID)
     let testIndex = 0
@@ -86,51 +46,67 @@ export default function TestResultsModels($tests) {
       nonpass: 0,
       sumpass: 0,
     }
-    // iterateTests: 
+    iterateTests: 
     for(const [
       $testID, $testSettings
-    ] of Array.from(testGroup.collect)/*.reverse()*/) {
+    ] of Array.from(testGroup.get('collect'))) {
       const testSettings = Object.assign({}, $testSettings, {
-        groupID: testGroup.id,
-        group: testGroup.name,
+        groupID: testGroup.get('id'),
+        group: testGroup.get('name'),
       })
-      const test = testGroup.collect
-        .set($testID, new Test($testSettings).execute())
-        .get($testID)
-      const testPath = [testGroupPath, $testID].join('.')
-      test.path = testPath
-      const testFace = testGroupFace.collect
-        .set($testID, Face({
+      const testPath = [testGroup.path, $testID].join('.')
+      const testVerification = new Test($testSettings).execute()
+      const test = testGroup.get('collect')
+        .set($testID, new Model({
           path: testPath,
-          pand: "ex",
+          content: {
+            collect: testVerification.collect,
+            collectName: testVerification.collectName,
+            detail: testVerification.detail,
+            id: testVerification.id,
+            name: testVerification.name,
+            pass: testVerification.pass,
+            type: testVerification.type,
+          },
         }))
         .get($testID)
+      // throw "MVC Framework"
+      const testFace = testGroupFace.get('collect')
+        .set($testID, new Model({
+          path: testPath,
+          content: {
+            pand: "ex",
+            collect: new Map()
+          }
+        }))
+        .get($testID)
+      const solve = Array.from(Object.values(test.get('detail').solve))
       const testResult = {
         path: testPath,
-        pass: test.detail.solve.reduce(($pass, $solute, $soluteIndex) => {
-          if(test.detail.quest[$soluteIndex] === $solute) $pass++
+        pass: solve.reduce(($pass, $solute, $soluteIndex) => {
+          if(test.get('detail').quest[$soluteIndex] === $solute) $pass++
           return $pass
         }, 0),
-        nonpass: test.detail.solve.reduce(($nonpass, $solute, $soluteIndex) => {
-          if(test.detail.quest[$soluteIndex] !== $solute) $nonpass++
+        nonpass: solve.reduce(($nonpass, $solute, $soluteIndex) => {
+          if(test.get('detail').quest[$soluteIndex] !== $solute) $nonpass++
           return $nonpass
         }, 0),
-        sumpass: test.detail.solve.length,
+        sumpass: solve.length,
       }
-      test.result = testResult
-      if(test.pass === true) { testResults.pass++ }
-      else if(test.pass === false) { testResults.nonpass++ }
-      if(testGroup.pass !== false) testGroup.pass = test.pass
+      test.set('result', testResult)
+      if(test.get('pass') === true) { testResults.pass++ }
+      else if(test.get('pass') === false) { testResults.nonpass++ }
+      if(testGroup.get('pass') !== false) testGroup.set('pass', test.get('pass'))
       testIndex++
     }
     testResults.sumpass = testIndex
     testGroup.result = testResults
     if(testGroup.pass === true) { testGroupResults.pass++ }
     else if(testGroup.pass === false) { testGroupResults.nonpass++ }
-    if(data.pass !== false) data.pass = testGroup.pass
+    if(data.get('pass') !== false) data.set('pass', testGroup.get('pass'))
     testGroupIndex++
   }
   testGroupResults.sumpass = testGroupIndex
-  data.result = testGroupResults
+  data.set('result', testGroupResults)
   return { data, face }
 }

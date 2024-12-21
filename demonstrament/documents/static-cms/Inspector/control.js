@@ -119,8 +119,8 @@ export default ($viewParent) => [{
 }, { defineProperties: {
   start: { value: function () {
     this.views.default.render({
-      device: this.models.device.parse(),
-      database: this.models.database.parse(),
+      device: this.models.device.content,
+      database: this.models.database.content,
     }, 'default')
     this.enableEvents()
     return this
