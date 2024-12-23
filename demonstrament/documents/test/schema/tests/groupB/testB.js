@@ -2,7 +2,7 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: "testB",
-  name: "Validation Type: Primitive",
+  name: "<div><code>Schema.options.validationType</code> | <code>\"primitive\"</code></div>",
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
@@ -69,6 +69,7 @@ export default {
     }
     this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
+      method: this.method.toString(),
       schema,
       contents,
       quest,

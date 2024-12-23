@@ -19,7 +19,7 @@ Validation: Property Validity
 
 export default {
   id: "schema",
-  name: "MVC Framework | Schema",
+  name: "<div>MVC Framework | <code>Schema</code></div>",
   type: 'test-results', 
   collectName: 'test-groups',
   collect: new Map([

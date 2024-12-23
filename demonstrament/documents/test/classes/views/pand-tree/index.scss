@@ -68,6 +68,7 @@ $settings
   $nopassBackgroundColor: map.get($settings, "nopassBackgroundColor");
   $idFontSize: map.get($settings, "idFontSize");
   $nameFontSize: map.get($settings, "nameFontSize");
+  $nameCodeFontSize: map.get($settings, "nameCodeFontSize");
   $collectName: map.get($settings, "collectName");
   &[data-pass="true"] {
     border: {
@@ -174,7 +175,10 @@ $settings
     font-size: $idFontSize;
   }
   & > name {
-    font-size:$nameFontSize;
+    font-size: $nameFontSize;
+    code {
+      font-size: $nameCodeFontSize;
+    }
   }
   & > #{ $collectName } {}
   &:last-child {

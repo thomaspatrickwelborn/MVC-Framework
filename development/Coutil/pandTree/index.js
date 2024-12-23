@@ -24,9 +24,8 @@ function expandTree($root, $tree) {
   const typeofRoot = typeof $root
   const typeofTree = typeof $tree
   if(
-    !['string', 'function'].includes(typeofTree) // ||
-    // (typeofRoot && typeofRoot !== 'object')
-  ) { return undefined /*$root*/ }
+    !['string', 'function'].includes(typeofTree)
+  ) { return undefined }
   let tree
   if($root && typeofRoot === 'object') {
     iterateRootEntries: 

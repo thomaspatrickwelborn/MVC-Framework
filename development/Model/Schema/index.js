@@ -5,7 +5,7 @@ import Content from '../Content/index.js'
 import Verification from './Verification/index.js'
 import Validation from './Validation/index.js'
 import {
-  TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
+  RequiredValidator, TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
 } from './Validators/index.js'
 import Options from './Options/index.js' 
 const ValidatorKeys = {
@@ -92,26 +92,27 @@ export default class Schema extends EventTarget{
         }
       }
       propertyDefinition.validators = []
-      const validators = {}
+      const validators = new Map()
       const {
+        required,
         type,
         min, max, 
         minLength, maxLength, 
         match,
       } = propertyDefinition
-      if(type) validators.type = { properties: { type }, validator: TypeValidator } 
-      if(min || max) validators.range = { properties: { min, max }, validator: RangeValidator } 
-      if(minLength || maxLength) validators.length = { properties: { minLength, maxLength }, validator: LengthValidator }
-      if(propertyDefinition.enum) validators.enum = { properties: { enum: propertyDefinition.enum }, validator: EnumValidator }
-      if(match) validators.match = { properties: { match }, validator: MatchValidator }
+      if(required) validators.set('required', { properties: { required }, validator: RequiredValidator })
+      if(type) validators.set('type', { properties: { type }, validator: TypeValidator } )
+      if(min || max) validators.set('range', { properties: { min, max }, validator: RangeValidator } )
+      if(minLength || maxLength) validators.set('length', { properties: { minLength, maxLength }, validator: LengthValidator })
+      if(propertyDefinition.enum) validators.set('enum', { properties: { enum: propertyDefinition.enum }, validator: EnumValidator })
+      if(match) validators.set('match', { properties: { match }, validator: MatchValidator })
       for(const [
         $validatorName, $validatorSettings
-      ] of Object.entries(validators)) {
+      ] of validators.entries()) {
         const { properties, validator } = $validatorSettings
         propertyDefinition.validators.push(new validator(properties))
       }
       this.#_context[$propertyKey] = propertyDefinition
-    
     }
     return this.#_context
   }

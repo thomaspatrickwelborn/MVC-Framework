@@ -198,9 +198,8 @@ function expandTree($root, $tree) {
   const typeofRoot = typeof $root;
   const typeofTree = typeof $tree;
   if(
-    !['string', 'function'].includes(typeofTree) // ||
-    // (typeofRoot && typeofRoot !== 'object')
-  ) { return undefined /*$root*/ }
+    !['string', 'function'].includes(typeofTree)
+  ) { return undefined }
   let tree;
   if($root && typeofRoot === 'object') {
     for(const [$rootKey, $rootValue] of Object.entries($root)) {
@@ -2473,6 +2472,26 @@ class Validator extends EventTarget {
   get validate() { return this.settings.validate }
 }
 
+class RequiredValidator extends Validator {
+  constructor($settings = {}) {
+    super(Object.assign($settings, {
+      type: 'range',
+      validate: ($context, $key, $value) => {
+        const verification = new Verification({
+          type: this.type,
+          context: $context,
+          key: $key,
+          value: $value,
+          messages: recursiveAssign(this.messages, $context.type.messages),
+        });
+        let pass;
+        verification.pass = pass;
+        return verification
+      }
+    }));
+  }
+}
+
 const { PrimitiveKeys, PrimitiveValues } = Variables;
 
 class TypeValidator extends Validator {
@@ -2716,26 +2735,27 @@ class Schema extends EventTarget{
         }
       }
       propertyDefinition.validators = [];
-      const validators = {};
+      const validators = new Map();
       const {
+        required,
         type,
         min, max, 
         minLength, maxLength, 
         match,
       } = propertyDefinition;
-      if(type) validators.type = { properties: { type }, validator: TypeValidator }; 
-      if(min || max) validators.range = { properties: { min, max }, validator: RangeValidator }; 
-      if(minLength || maxLength) validators.length = { properties: { minLength, maxLength }, validator: LengthValidator };
-      if(propertyDefinition.enum) validators.enum = { properties: { enum: propertyDefinition.enum }, validator: EnumValidator };
-      if(match) validators.match = { properties: { match }, validator: MatchValidator };
+      if(required) validators.set('required', { properties: { required }, validator: RequiredValidator });
+      if(type) validators.set('type', { properties: { type }, validator: TypeValidator } );
+      if(min || max) validators.set('range', { properties: { min, max }, validator: RangeValidator } );
+      if(minLength || maxLength) validators.set('length', { properties: { minLength, maxLength }, validator: LengthValidator });
+      if(propertyDefinition.enum) validators.set('enum', { properties: { enum: propertyDefinition.enum }, validator: EnumValidator });
+      if(match) validators.set('match', { properties: { match }, validator: MatchValidator });
       for(const [
         $validatorName, $validatorSettings
-      ] of Object.entries(validators)) {
+      ] of validators.entries()) {
         const { properties, validator } = $validatorSettings;
         propertyDefinition.validators.push(new validator(properties));
       }
       this.#_context[$propertyKey] = propertyDefinition;
-    
     }
     return this.#_context
   }

@@ -7,7 +7,8 @@ test-results {
     "passFontSize": 2.4em,
     "nopassBackgroundColor": #F57F00,
     "idFontSize": 0.8em,
-    "nameFontSize": 1.2em
+    "nameFontSize": 1.2em,
+    "nameCodeFontSize": 0.9em,
   ));
   & > test-groups > test-group {
     @include pandTree.layout();
@@ -17,7 +18,8 @@ test-results {
       "passFontSize": 2em,
       "nopassBackgroundColor": #F55A00,
       "idFontSize": 0.8em,
-      "nameFontSize": 1.2em,
+      "nameFontSize": 1.1em,
+      "nameCodeFontSize": 0.825em,
     ));
     & > tests > test-result {
       @include pandTree.layout();
@@ -28,6 +30,7 @@ test-results {
         "nopassBackgroundColor": #F52600,
         "idFontSize": 0.8em,
         "nameFontSize": 1em,
+        "nameCodeFontSize": 0.75em,
       ));
     }
   }

@@ -2,7 +2,7 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: 'testA',
-  name: "<div><code>Schema.options.validationType</code> | <code>\"object\"</code></div>",
+  name: 'Validation Type: Object',
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([

@@ -37,6 +37,7 @@ export default {
     }
     this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
+      method: this.method.toString(),
       schema,
       contents,
       quest,
