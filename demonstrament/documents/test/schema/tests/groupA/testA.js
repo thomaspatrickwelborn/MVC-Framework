@@ -30,8 +30,10 @@ export default {
       validations.push(contentValidation)
       quest.push(contentValidation.valid)
     }
+    const method = this.method.toString()
     this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
+      method,
       schema,
       contents,
       quest,

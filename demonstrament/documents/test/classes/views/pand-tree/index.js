@@ -9,6 +9,11 @@ export default class PandTreeView extends View {
     super({
       parentElement: $settings.parentElement,
       templates: {
+        testResultsNavigation: function TestResultsNavigationTemplate($models) {
+          const $data = $models.data
+          console.log($data)
+          return ''
+        },
         default: function PandTreeTemplate($models) {
           const $data = $models.data
           const $face = $models.face
@@ -23,6 +28,10 @@ export default class PandTreeView extends View {
               ></pass>
               <id>${$data.get('id')}</id>
               <name>${$data.get('name')}</name>
+              ${(
+                $data.get('type') === 'test-result'
+              ) ? this.testResultsNavigation({ data: $data.get('detail') })
+                : '' }
               <${$data.get('collectName')}></${$data.get('collectName')}>
             </${$data.get('type')}>
           `
@@ -36,16 +45,12 @@ export default class PandTreeView extends View {
         name: `:scope > ${$settings.models.data.get('type')} > name`,
         [$settings.models.data.get('collectName')]: `:scope > ${$settings.models.data.get('type')} > ${$settings.models.data.get('collectName')}`,
       } },
-      events: {
-        'pass click': function passClick($event) {
-        },
-        'id click': function idClick($event) {
-          this.togglePand()
-        },
-        'name click': function nameClick($event) {
-          this.togglePand()
-        },
-      },
+      events: {},
+      // events: {
+      //   'pass click': function passClick($event) {},
+      //   'id click': function idClick($event) { this.togglePand() },
+      //   'name click': function nameClick($event) { this.togglePand() },
+      // },
       models: $settings.models,
     })
     this.addEventListener('render', ($event) => { this.renderCollect() })
@@ -53,8 +58,8 @@ export default class PandTreeView extends View {
   togglePand() {
     const preterpand = this.querySelectors.pandTree.getAttribute('data-pand')
     const anterpand = (preterpand === 'ex') ? 'im' : 'ex'
-    this.models.face.pand = anterpand
-    this.querySelectors.pandTree.setAttribute('data-pan', this.models.face.pand)
+    this.models.face.set('pand', anterpand)
+    this.querySelectors.pandTree.setAttribute('data-pand', this.models.face.get('pand'))
   }
   get models() {
     if(Object.values(this.#_models).every(

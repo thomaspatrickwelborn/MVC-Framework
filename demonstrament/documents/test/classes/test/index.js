@@ -1,5 +1,6 @@
 export default class Test extends EventTarget {
   #settings
+  #_method
   #_boundMethod
   #_detail
   #_pass
@@ -22,9 +23,14 @@ export default class Test extends EventTarget {
     if(this.#_pass !== undefined) return
     this.#_pass = $pass
   }
+  get method() {
+    if(this.#_method !== undefined) return this.#_method
+    this.#_method = this.#settings.method
+    return this.#_method
+  }
   get #boundMethod() {
     if(this.#_boundMethod !== undefined) return this.#_boundMethod
-    this.#_boundMethod = this.#settings.method.bind(this)
+    this.#_boundMethod = this.method.bind(this)
     return this.#_boundMethod
   }
   execute() {

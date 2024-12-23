@@ -13,12 +13,34 @@ export default class Model extends EventTarget {
   get path() {
     if(this.#_path !== undefined) return this.#_path
     let { pathname } = window.location
-    this.#_path = [
-      window.location.pathname, this.#_settings.path
-    ].join('')
+    this.#_path = this.#_settings.path
     return this.#_path
   }
-  // Map Methods
+  parse($content) {
+    $content = $content || this.content
+    let content
+    let contentEntries
+    if($content instanceof Map) {
+      content = []
+      contentEntries = Array.from($content.entries($content))
+      for(const $contentEntry of contentEntries) {
+        content.push($contentEntry)
+      }
+    }
+    else if(typeof $content === 'object') {
+      contentEntries = Object.entries($content)
+      const isArray = contentEntries.every(([$key, $value]) => !Number.isNaN(Number($key)) )
+      if(isArray) { content = [] }
+      else { content = {} }
+      for(const [$key, $value] of contentEntries) {
+        if($value && typeof $value === 'object') { content[$key] = this.parse($value) }
+        else { content[$key] = $value }
+      }
+    }
+    else { content[$key] = $value }
+    console.log("content", content)
+    return content
+  }
   get() {
     const $arguments = Array.from(arguments)
     if($arguments.length === 1) { return this.#_content.get($arguments[0]) }
@@ -35,7 +57,7 @@ export default class Model extends EventTarget {
       const [$key, $value] = $arguments
       this.#_content.set($key, $value)
     }
-    this.save()
+    if(this.autosave) this.save()
     return this
   }
   delete() {
@@ -50,9 +72,4 @@ export default class Model extends EventTarget {
     this.#_content.clear()
     return this
   }
-  // Local Storage Methods
-  read() { return JSON.parse(localStorage.getItem(this.path)) }
-  load() { return Object.assign(this.content, this.read()) }
-  save() { return localStorage.setItem(this.path, this.string) }
-  remove() { return localStorage.removeItem(this.path) }
 }

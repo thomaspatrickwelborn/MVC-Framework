@@ -1,13 +1,18 @@
 import Test from '../../test/index.js'
 import Model from '../../core/model/index.js'
 export default function TestResultsModels($tests) {
-  const dataPath = [$tests.id].join('.')
+  const dataPath = [$tests.id, 'data'].join('/')
   const data = new Model({
+    autosave: false,
+    autoload: false,
     path: dataPath,
     content: $tests,
   })
+  const facePath = [$tests.id, 'face'].join('/')
   const face = new Model({
-    path: $tests.id,
+    autosave: true,
+    autoload: true,
+    path: facePath,
     content: {
       pand: "ex",
       collect: new Map(),
@@ -24,16 +29,21 @@ export default function TestResultsModels($tests) {
   for(const [
     $testGroupID, $testGroup
   ] of Array.from(data.get('collect'))/*.reverse()*/) {
-    const testGroupPath = [data.path,  $testGroupID].join('.')
+    const testGroupPath = [data.path,  $testGroupID, 'data'].join('/')
     const testGroup = data.get('collect')
       .set($testGroupID, new Model({
+        autosave: false,
+        autoload: false,
         path: testGroupPath,
         content: $testGroup,
       }))
       .get($testGroupID)
+    const testGroupFacePath = [data.path,  $testGroupID, 'face'].join('/')
     const testGroupFace = face.get('collect')
       .set($testGroupID, new Model({
-        path: testGroupPath,
+        autosave: true,
+        autoload: true,
+        path: testGroupFacePath,
         content: {
           pand: "ex",
           collect: new Map(),
@@ -54,10 +64,12 @@ export default function TestResultsModels($tests) {
         groupID: testGroup.get('id'),
         group: testGroup.get('name'),
       })
-      const testPath = [testGroup.path, $testID].join('.')
+      const testPath = [testGroup.path, $testID, 'data'].join('/')
       const testVerification = new Test($testSettings).execute()
       const test = testGroup.get('collect')
         .set($testID, new Model({
+          autosave: false,
+          autoload: false,
           path: testPath,
           content: {
             collect: testVerification.collect,
@@ -70,10 +82,10 @@ export default function TestResultsModels($tests) {
           },
         }))
         .get($testID)
-      // throw "MVC Framework"
+      const testFacePath = [testGroup.path, $testID, 'face'].join('/')
       const testFace = testGroupFace.get('collect')
         .set($testID, new Model({
-          path: testPath,
+          path: testFacePath,
           content: {
             pand: "ex",
             collect: new Map()
@@ -100,9 +112,9 @@ export default function TestResultsModels($tests) {
       testIndex++
     }
     testResults.sumpass = testIndex
-    testGroup.result = testResults
-    if(testGroup.pass === true) { testGroupResults.pass++ }
-    else if(testGroup.pass === false) { testGroupResults.nonpass++ }
+    testGroup.set('result', testResults)
+    if(testGroup.get('pass') === true) { testGroupResults.pass++ }
+    else if(testGroup.get('pass') === false) { testGroupResults.nonpass++ }
     if(data.get('pass') !== false) data.set('pass', testGroup.get('pass'))
     testGroupIndex++
   }
