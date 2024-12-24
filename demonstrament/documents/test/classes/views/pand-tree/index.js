@@ -28,10 +28,6 @@ export default class PandTreeView extends View {
               ></pass>
               <id>${$data.get('id')}</id>
               <name>${$data.get('name')}</name>
-              ${(
-                $data.get('type') === 'test-result'
-              ) ? this.testResultsNavigation({ data: $data.get('detail') })
-                : '' }
               <${$data.get('collectName')}></${$data.get('collectName')}>
             </${$data.get('type')}>
           `
@@ -106,7 +102,8 @@ export default class PandTreeView extends View {
       }
       else {
         const collectName = this.models.data.get('collectName')
-        this.querySelectors[collectName]?.append($collectItem)
+        console.log(collectName, $collectItem)
+        this.querySelectors[collectName]?.insertAdjacentHTML('beforeEnd', $collectItem)
       }
     }
     return this
