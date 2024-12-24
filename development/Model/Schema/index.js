@@ -28,6 +28,16 @@ export default class Schema extends EventTarget{
     this.#_type = typeOf(typedObjectLiteral(this.#properties))
     return this.#_type
   }
+  get requiredProperties() {
+    let requiredProperties
+    if(this.type === 'array') { requiredProperties = [] }
+    else if(this.type === 'object') { requiredProperties = {} }
+    for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
+      if($propertyDefinition.required.value === true) { requiredProperties[$propertyKey] = $propertyDefinition }
+    }
+    return requiredProperties
+  }
+  get requiredPropertiesSize() { return Object.keys(this.requiredProperties).length }
   get context() {
     if(this.#_context !== undefined) return this.#_context
     let properties
@@ -110,18 +120,30 @@ export default class Schema extends EventTarget{
         $validatorName, $validatorSettings
       ] of validators.entries()) {
         const { properties, validator } = $validatorSettings
-        propertyDefinition.validators.push(new validator(properties))
+        propertyDefinition.validators.push(new validator(properties, this))
       }
       this.#_context[$propertyKey] = propertyDefinition
-    }
+    } 
     return this.#_context
   }
   validate() {
     let $arguments = [...arguments]
-    let $contentName, $content
-    if($arguments.length === 1) { $contentName = null; $content = $arguments.shift() }
-    if($arguments.length === 2) { $contentName = $arguments.shift(); $content = $arguments.shift() }
+    let $contentName, $content, $target
+    if($arguments.length === 1) { $contentName = null; $content = $arguments.shift(); $target = null }
+    else if(
+      $arguments.length === 2 &&
+      typeof $arguments[0] === 'string'
+    ) { $contentName = $arguments.shift(); $content = $arguments.shift(); $target = null }
+    else if(
+      $arguments.length === 2 &&
+      typeof $arguments[0] === 'object'
+    ) { $contentName = null; $content = $arguments.shift(); $target = $arguments.shift() }
+    else if(
+      $arguments.length === 3 &&
+      typeof $arguments[0] === 'string'
+    ) { $contentName = $arguments.shift(); $content = $arguments.shift(); $target = $arguments.shift() }
     if($content?.classToString === Content.toString()) { $content = $content.object }
+    if($target?.classToString === Content.toString()) { $target = $target.object }
     const validation = new Validation({
       type: this.validationType,
       context: this.context,
@@ -134,7 +156,7 @@ export default class Schema extends EventTarget{
     // Iterate Content Properties 
     while(contentPropertyIndex < contentProperties.length) {
       const [$contentKey, $contentValue] = contentProperties[contentPropertyIndex]
-      const propertyValidation = this.validateProperty($contentKey, $contentValue)
+      const propertyValidation = this.validateProperty($contentKey, $contentValue, $content, $target)
       validation.properties[$contentKey] = propertyValidation
       if(propertyValidation.valid === true) { validation.advance.push(propertyValidation) } 
       else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation) } 
@@ -153,7 +175,7 @@ export default class Schema extends EventTarget{
     }
     return validation
   }
-  validateProperty($key, $value) {
+  validateProperty($key, $value, $source, $target) {
     let contextValue
     if(this.type === 'array') { contextValue = this.context[0] }
     else if(this.type === 'object') { contextValue = this.context[$key] }
@@ -176,7 +198,7 @@ export default class Schema extends EventTarget{
     }
     // Context Value: Object
     else if(contextValue instanceof Schema) {
-      const validation = contextValue.validate($key, $value)
+      const validation = contextValue.validate($key, $value, $source, $target)
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
@@ -186,7 +208,7 @@ export default class Schema extends EventTarget{
       iterateContextValueValidators: 
       contextValue.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const verification = $validator.validate(contextValue, $key, $value)
+          const verification = $validator.validate(contextValue, $key, $value, $source, $target)
           if(verification.pass === true) { $propertyValidation.advance.push(verification) }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification) }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }

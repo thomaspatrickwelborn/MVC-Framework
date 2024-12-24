@@ -20,7 +20,7 @@ export default function defineProperty() {
     const impandPropertyValue = impandTree({
       [propertyKey]: propertyDescriptor
     }, "value")[propertyKey]
-    const validProperty = schema.validateProperty(propertyKey, impandPropertyValue)
+    const validProperty = schema.validateProperty(propertyKey, impandPropertyValue, $content, proxy)
     if(validationEvents) {
       let type, propertyType
       const validatorPath = (path)

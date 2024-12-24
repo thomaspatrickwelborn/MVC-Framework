@@ -22,7 +22,7 @@ export default function unshift() {
     ) ? true : false
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementIndex, $element)
+      const validElement = schema.validateProperty(elementIndex, $element, $content, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

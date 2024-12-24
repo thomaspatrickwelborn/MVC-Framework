@@ -20,7 +20,7 @@ export default function concat() {
   for(const $value of $arguments) {
     // Validation: Value
     if(schema && enableValidation) {
-      const validValue = schema.validateProperty(valueIndex, $subvalue)
+      const validValue = schema.validateProperty(valueIndex, $subvalue, $content, proxy)
       if(schema &&validationEvents) {
         let type, propertyType
         const validatorPath = (path)

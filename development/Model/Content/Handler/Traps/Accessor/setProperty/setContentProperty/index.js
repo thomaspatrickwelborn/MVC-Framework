@@ -60,7 +60,7 @@ export default function setContentProperty() {
     }
     // Validation
     if(schema && enableValidation) {
-      const validSourceProp = schema.validateProperty(propertyKey, $value)
+      const validSourceProp = schema.validateProperty(propertyKey, $value, $content, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

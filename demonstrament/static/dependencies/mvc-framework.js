@@ -410,7 +410,7 @@ function assign() {
       ) ? true : false;
       // Validation
       if(schema && enableValidation) {
-        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal);
+        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $content, proxy);
         if(validationEvents) {
           let type, propertyType;
           const validatorEventPath = (path)
@@ -620,7 +620,7 @@ function defineProperty() {
     const impandPropertyValue = impandTree({
       [propertyKey]: propertyDescriptor
     }, "value")[propertyKey];
-    const validProperty = schema.validateProperty(propertyKey, impandPropertyValue);
+    const validProperty = schema.validateProperty(propertyKey, impandPropertyValue, $content, proxy);
     if(validationEvents) {
       let type, propertyType;
       const validatorPath = (path)
@@ -829,7 +829,7 @@ function concat() {
   for(const $value of $arguments) {
     // Validation: Value
     if(schema && enableValidation) {
-      const validValue = schema.validateProperty(valueIndex, $subvalue);
+      const validValue = schema.validateProperty(valueIndex, $subvalue, $content, proxy);
       if(schema &&validationEvents) {
         let type, propertyType;
         const validatorPath = (path)
@@ -1179,7 +1179,7 @@ function push() {
   for(let $element of arguments) {
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementsIndex, $element);
+      const validElement = schema.validateProperty(elementsIndex, $element, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
         const validatorPath = (path)
@@ -1385,7 +1385,7 @@ function splice() {
     let addItem = $addItems[addItemsIndex];
     // Validation
     if(schema && enableValidation) {
-      const validAddItem = schema.validateProperty(elementIndex, element);
+      const validAddItem = schema.validateProperty(elementIndex, element, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
         const validatorEventPath = (path)
@@ -1506,7 +1506,7 @@ function unshift() {
     ) ? true : false;
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementIndex, $element);
+      const validElement = schema.validateProperty(elementIndex, $element, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
         const validatorEventPath = (path)
@@ -1838,7 +1838,7 @@ function setContentProperty() {
     }
     // Validation
     if(schema && enableValidation) {
-      const validSourceProp = schema.validateProperty(propertyKey, $value);
+      const validSourceProp = schema.validateProperty(propertyKey, $value, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
         const validatorEventPath = (path)
@@ -2459,11 +2459,19 @@ const Messages = {
 };
 class Validator extends EventTarget {
   #_settings
-  constructor($settings = {}) {
+  #_schema
+  constructor($settings = {}, $schema) {
     super();
     this.settings = Object.freeze(
       Object.assign({ messages: Messages }, $settings)
     );
+    this.schema = $schema;
+  }
+  get schema() { return this.#_schema }
+  set schema($schema) {
+    if(this.#_schema !== undefined) { return this.#_schema }
+    this.#_schema = $schema;
+    return this.#_schema
   }
   get settings() { return this.#_settings }
   set settings($settings) { this.#_settings = $settings; }
@@ -2473,10 +2481,10 @@ class Validator extends EventTarget {
 }
 
 class RequiredValidator extends Validator {
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
-      type: 'range',
-      validate: ($context, $key, $value) => {
+  constructor() {
+    super(Object.assign(arguments[0], {
+      type: 'required',
+      validate: ($context, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,
           context: $context,
@@ -2484,11 +2492,24 @@ class RequiredValidator extends Validator {
           value: $value,
           messages: recursiveAssign(this.messages, $context.type.messages),
         });
-        let pass;
-        verification.pass = pass;
+        const content = $target || $source;
+        const { requiredProperties } = this.schema;
+        delete requiredProperties[$key];
+        const requiredContent = typedObjectLiteral(this.schema.type);
+        Object.keys(requiredProperties).forEach(($requiredProperty) => {
+          delete requiredProperties[$requiredProperty]?.required;
+          requiredProperties[$requiredProperty].validators.splice(
+            requiredProperties[$requiredProperty].validators.findIndex(
+              ($validator) => $validator.type === 'required'
+            ), 1
+          );
+          requiredContent[$requiredProperty] = content[$requiredProperty];
+        });
+        const requiredSchemaValidation = this.schema.validate(requiredContent);
+        verification.pass = requiredSchemaValidation.valid;
         return verification
       }
-    }));
+    }), arguments[1]);
   }
 }
 
@@ -2497,8 +2518,8 @@ const { PrimitiveKeys, PrimitiveValues } = Variables;
 class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
-      'type': 'type',
-      'validate': ($context, $key, $value) => {
+      type: 'type',
+      validate: ($context, $key, $value) => {
         let verification = new Verification({
           type: this.type,
           context: $context,
@@ -2672,6 +2693,16 @@ class Schema extends EventTarget{
     this.#_type = typeOf(typedObjectLiteral(this.#properties));
     return this.#_type
   }
+  get requiredProperties() {
+    let requiredProperties;
+    if(this.type === 'array') { requiredProperties = []; }
+    else if(this.type === 'object') { requiredProperties = {}; }
+    for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
+      if($propertyDefinition.required.value === true) { requiredProperties[$propertyKey] = $propertyDefinition; }
+    }
+    return requiredProperties
+  }
+  get requiredPropertiesSize() { return Object.keys(this.requiredProperties).length }
   get context() {
     if(this.#_context !== undefined) return this.#_context
     let properties;
@@ -2753,18 +2784,30 @@ class Schema extends EventTarget{
         $validatorName, $validatorSettings
       ] of validators.entries()) {
         const { properties, validator } = $validatorSettings;
-        propertyDefinition.validators.push(new validator(properties));
+        propertyDefinition.validators.push(new validator(properties, this));
       }
       this.#_context[$propertyKey] = propertyDefinition;
-    }
+    } 
     return this.#_context
   }
   validate() {
     let $arguments = [...arguments];
-    let $contentName, $content;
-    if($arguments.length === 1) { $contentName = null; $content = $arguments.shift(); }
-    if($arguments.length === 2) { $contentName = $arguments.shift(); $content = $arguments.shift(); }
+    let $contentName, $content, $target;
+    if($arguments.length === 1) { $contentName = null; $content = $arguments.shift(); $target = null; }
+    else if(
+      $arguments.length === 2 &&
+      typeof $arguments[0] === 'string'
+    ) { $contentName = $arguments.shift(); $content = $arguments.shift(); $target = null; }
+    else if(
+      $arguments.length === 2 &&
+      typeof $arguments[0] === 'object'
+    ) { $contentName = null; $content = $arguments.shift(); $target = $arguments.shift(); }
+    else if(
+      $arguments.length === 3 &&
+      typeof $arguments[0] === 'string'
+    ) { $contentName = $arguments.shift(); $content = $arguments.shift(); $target = $arguments.shift(); }
     if($content?.classToString === Content.toString()) { $content = $content.object; }
+    if($target?.classToString === Content.toString()) { $target = $target.object; }
     const validation = new Validation({
       type: this.validationType,
       context: this.context,
@@ -2777,7 +2820,7 @@ class Schema extends EventTarget{
     // Iterate Content Properties 
     while(contentPropertyIndex < contentProperties.length) {
       const [$contentKey, $contentValue] = contentProperties[contentPropertyIndex];
-      const propertyValidation = this.validateProperty($contentKey, $contentValue);
+      const propertyValidation = this.validateProperty($contentKey, $contentValue, $content, $target);
       validation.properties[$contentKey] = propertyValidation;
       if(propertyValidation.valid === true) { validation.advance.push(propertyValidation); } 
       else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation); } 
@@ -2796,7 +2839,7 @@ class Schema extends EventTarget{
     }
     return validation
   }
-  validateProperty($key, $value) {
+  validateProperty($key, $value, $source, $target) {
     let contextValue;
     if(this.type === 'array') { contextValue = this.context[0]; }
     else if(this.type === 'object') { contextValue = this.context[$key]; }
@@ -2819,7 +2862,7 @@ class Schema extends EventTarget{
     }
     // Context Value: Object
     else if(contextValue instanceof Schema) {
-      const validation = contextValue.validate($key, $value);
+      const validation = contextValue.validate($key, $value, $source, $target);
       if(validation.valid === true) { propertyValidation.advance.push(validation); }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation); }
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation); }
@@ -2828,7 +2871,7 @@ class Schema extends EventTarget{
     else {
       contextValue.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const verification = $validator.validate(contextValue, $key, $value);
+          const verification = $validator.validate(contextValue, $key, $value, $source, $target);
           if(verification.pass === true) { $propertyValidation.advance.push(verification); }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification); }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification); }

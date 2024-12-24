@@ -8,8 +8,8 @@ const { PrimitiveKeys, PrimitiveValues } = Variables
 export default class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
-      'type': 'type',
-      'validate': ($context, $key, $value) => {
+      type: 'type',
+      validate: ($context, $key, $value) => {
         let verification = new Verification({
           type: this.type,
           context: $context,
