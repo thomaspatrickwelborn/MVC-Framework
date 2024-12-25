@@ -5,18 +5,18 @@ export default class RangeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'range',
-      validate: ($context, $key, $value) => {
+      validate: ($definition, $key, $value) => {
         const verification = new Verification({
           type: this.type,
-          context: $context,
+          definition: $definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $context.type.messages),
+          messages: recursiveAssign(this.messages, $definition.type.messages),
         })
         let pass
         if(typeof $value !== 'number') { pass = false }
         else {
-          const { min, max } = $context
+          const { min, max } = $definition
           let validMin, validMax
           if(min.value !== undefined) { validMin = ($value >= min.value) }
           else { validMin = true }

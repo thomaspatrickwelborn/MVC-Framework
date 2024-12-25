@@ -176,20 +176,21 @@ export default class Schema extends EventTarget{
     return validation
   }
   validateProperty($key, $value, $source, $target) {
-    let contextValue
-    if(this.type === 'array') { contextValue = this.context[0] }
-    else if(this.type === 'object') { contextValue = this.context[$key] }
+    let propertyDefinition
+    if(this.type === 'array') { propertyDefinition = this.context[0] }
+    else if(this.type === 'object') { propertyDefinition = this.context[$key] }
     let propertyValidation = new Validation({
       type: this.validationType,
-      context: contextValue,
+      context: this.context,
+      definition: propertyDefinition,
       key: $key,
       value: $value,
     })
     // Context Value: Undefined
-    if(contextValue === undefined) {
+    if(propertyDefinition === undefined) {
       const verification = new Verification({
         type: null,
-        context: null,
+        definition: null,
         key: $key,
         value: $value,
       }, this)
@@ -197,8 +198,8 @@ export default class Schema extends EventTarget{
       propertyValidation.unadvance.push(verification)
     }
     // Context Value: Object
-    else if(contextValue instanceof Schema) {
-      const validation = contextValue.validate($key, $value, $source, $target)
+    else if(propertyDefinition instanceof Schema) {
+      const validation = propertyDefinition.validate($key, $value, $source, $target)
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }
@@ -206,9 +207,9 @@ export default class Schema extends EventTarget{
     // Context Value: Primitive
     else {
       iterateContextValueValidators: 
-      contextValue.validators.reduce(
+      propertyDefinition.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const verification = $validator.validate(contextValue, $key, $value, $source, $target)
+          const verification = $validator.validate(propertyDefinition, $key, $value, $source, $target)
           if(verification.pass === true) { $propertyValidation.advance.push(verification) }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification) }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }

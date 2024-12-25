@@ -5,13 +5,13 @@ export default class RequiredValidator extends Validator {
   constructor() {
     super(Object.assign(arguments[0], {
       type: 'required',
-      validate: ($context, $key, $value, $source, $target) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,
-          context: $context,
+          definition: $definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $context.type.messages),
+          messages: recursiveAssign(this.messages, $definition.type.messages),
         })
         let pass
         const content = $target || $source

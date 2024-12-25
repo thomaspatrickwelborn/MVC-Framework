@@ -9,28 +9,28 @@ export default class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'type',
-      validate: ($context, $key, $value) => {
+      validate: ($definition, $key, $value) => {
         let verification = new Verification({
           type: this.type,
-          context: $context,
+          definition: $definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $context.type.messages),
+          messages: recursiveAssign(this.messages, $definition.type.messages),
         })
         let pass
-        let typeOfContextValue = typeOf($context.type.value)
-        typeOfContextValue = (typeOfContextValue === 'function')
-          ? typeOf($context.type.value())
-          : typeOfContextValue
+        let typeOfDefinitionValue = typeOf($definition.type.value)
+        typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
+          ? typeOf($definition.type.value())
+          : typeOfDefinitionValue
         const typeOfContentValue = typeOf($value)
         if(typeOfContentValue === 'undefined') { pass = false }
-        else if(typeOfContextValue === 'undefined') { pass = true }
+        else if(typeOfDefinitionValue === 'undefined') { pass = true }
         else {
           if(
-            PrimitiveValues.includes($context.type.value) &&
+            PrimitiveValues.includes($definition.type.value) &&
             PrimitiveKeys.includes(typeOfContentValue)
           ) {
-            if(typeOfContextValue === typeOfContentValue) { pass = true }
+            if(typeOfDefinitionValue === typeOfContentValue) { pass = true }
             else { pass = false }
           }
         }
