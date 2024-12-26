@@ -1,4 +1,4 @@
-// import groupA from './groupA/index.js'
+import groupA from './groupA/index.js'
 import groupB from './groupB/index.js'
 
 /*
@@ -24,7 +24,7 @@ export default {
   type: 'test-results', 
   collectName: 'test-groups',
   collect: new Map([
-    // ['groupA', groupA],
+    ['groupA', groupA],
     ['groupB', groupB],
   ])
 }

@@ -1,69 +1,82 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: 'testA',
-  name: "<div><code>Schema.options.validationType</code> | <code>\"object\"</code></div>",
+  id: "testA",
+  name: `<div style="display: flex; flex-wrap: wrap;">
+    <div>Required: All Properties</div>
+  </div>
+  `,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
-    [0, `When validation type is 'object' all properties must pass validation to assign values.`],
+    [0, `<div>When Schema context property definitions are <code>required</code> valid complementary content property values must be present on target or source object to pass.</div>`],
   ]),
   method: function() {
     const schema = new Schema({
-      propertyA: String,
-      propertyB: Boolean,
-      propertyC: Number,
-      propertyD: null,
-      propertyE: undefined,
+      propertyA: {
+        required: true,
+        type: String,
+      },
+      propertyB: {
+        required: true,
+        type: Boolean,
+      },
+      propertyC: {
+        required: true,
+        type: Number,
+      },
+      propertyD: {
+        required: true,
+        type: null,
+      },
+      propertyE: {
+        required: true,
+        type: undefined,
+      },
     }, {
-      validationType: 'object'
+      validationType: "primitive"
     })
+    // All Properties Present
+    // All Properties Valid
     const contentA = {
-      propertyA: '11111',
+      propertyA: "11111",
       propertyB: false,
       propertyC: 33333,
       propertyD: null,
-      propertyE: '55555',
+      propertyE: "55555",
     } // true
+    // Some Properties Present
+    // All Properties Valid
     const contentB = {
+      propertyB: false,
+      propertyC: 33333,
+      propertyD: null,
+      propertyE: "55555",
+    } // false
+    // All Properties Presetn
+    // Some Properties Valid
+    const contentC = {
       propertyA: 11111,
       propertyB: false,
-      propertyC: '33333',
+      propertyC: "33333",
       propertyD: null,
-      propertyE: 55555,
-    } // false
-    const contentC = {
-      propertyA: '11111',
-      propertyB: 'false',
-      propertyC: 33333,
-      propertyD: 'null',
-      propertyE: '55555'
-    } // false
-    const contentD = {
-      propertyA: false,
-      propertyB: 'true',
-      propertyC: '33333',
-      propertyD: 44444,
-      propertyE: undefined,
-    } // false
-    const contentE = {
-      propertyA: '111111',
-      propertyB: 'true',
-      propertyC: '33333',
-      propertyD: '44444',
-      propertyE: undefined,
-    } // false
+      propertyE: "55555",
+    } // true
     const solve = [
-      true, false, false, false, false
+      true,
+      false,
+      true,
     ]
     const quest = []
     const contents = [
-      contentA, contentB, contentC, contentD, contentE
+      contentA,
+      contentB,
+      contentC,
     ]
     const validations = []
     for(const $content of contents) {
-      // const contentValidation = schema.validate($content)
       const contentValidation = schema.validate($content)
+      console.log(contentValidation)
       validations.push(contentValidation)
       quest.push(contentValidation.valid)
     }

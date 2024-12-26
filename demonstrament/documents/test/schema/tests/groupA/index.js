@@ -5,7 +5,7 @@ import testD from './testD.js'
 import testE from './testE.js'
 export default {
   id: "groupA",
-  name: "<div><code>Schema.validateProperty</code> | Literals</div>",
+  name: "<div><code>Schema.validateProperty</code> | Type Validator</div>",
   descript: "Validate literal property values",
   type: 'test-group',
   collectName: 'tests',

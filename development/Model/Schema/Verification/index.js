@@ -7,7 +7,7 @@ export default class Verification extends EventTarget {
     this.#settings = $settings
   }
   get type() { return this.#settings.type }
-  // get context() { return this.#settings.context }
+  get definition() { return this.#settings.definition }
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
   get message() {

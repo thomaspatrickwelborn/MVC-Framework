@@ -153,7 +153,7 @@ $settings
       };
       background: {
         color: color.scale(
-          $passBackgroundColor,
+          $nopassBackgroundColor,
           $lightness: 85%,
         );
       };

@@ -2397,7 +2397,7 @@ class Verification extends EventTarget {
     this.#settings = $settings;
   }
   get type() { return this.#settings.type }
-  // get context() { return this.#settings.context }
+  get definition() { return this.#settings.definition }
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
   get message() {
@@ -2467,14 +2467,14 @@ class Validator extends EventTarget {
     );
     this.schema = $schema;
   }
+  get settings() { return this.#_settings }
+  set settings($settings) { this.#_settings = $settings; }
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined) { return this.#_schema }
     this.#_schema = $schema;
     return this.#_schema
   }
-  get settings() { return this.#_settings }
-  set settings($settings) { this.#_settings = $settings; }
   get type() { return this.settings.type }
   get messages() { return this.settings.messages }
   get validate() { return this.settings.validate }
@@ -2492,21 +2492,49 @@ class RequiredValidator extends Validator {
           value: $value,
           messages: recursiveAssign(this.messages, $definition.type.messages),
         });
+        let pass;
         const content = $target || $source;
-        const { requiredProperties } = this.schema;
-        delete requiredProperties[$key];
-        const requiredContent = typedObjectLiteral(this.schema.type);
-        Object.keys(requiredProperties).forEach(($requiredProperty) => {
-          delete requiredProperties[$requiredProperty]?.required;
-          requiredProperties[$requiredProperty].validators.splice(
-            requiredProperties[$requiredProperty].validators.findIndex(
-              ($validator) => $validator.type === 'required'
-            ), 1
-          );
-          requiredContent[$requiredProperty] = content[$requiredProperty];
-        });
-        const requiredSchemaValidation = this.schema.validate(requiredContent);
-        verification.pass = requiredSchemaValidation.valid;
+        const { requiredProperties, requiredPropertiesSize } = this.schema;
+        // Corequirements
+        const corequiredContext = typedObjectLiteral(this.schema.type);
+        const corequiredContent = typedObjectLiteral(this.schema.type);
+        iterateRequiredProperties: 
+        for(const [
+          $requiredPropertyName, $requiredProperty
+        ] of Object.entries(requiredProperties)) {
+          const contentPropertyDescriptor = Object.getOwnPropertyDescriptor(content, $requiredPropertyName);
+          if($requiredPropertyName === $key) continue iterateRequiredProperties
+          const corequiredProperty = {};
+          iterateRequiredPropertyValidators: 
+          for(const [
+            $validationType, $validationSettings
+          ] of Object.entries($requiredProperty)) {
+            if($validationType === 'required') continue iterateRequiredPropertyValidators
+            if($validationType === 'validators') {
+              corequiredProperty[$validationType] =  $validationSettings.filter(
+                ($Validator) => $Validator instanceof RequiredValidator === false
+              );
+            }
+            else {
+              try { corequiredProperty[$validationType] = structuredClone($validationSettings); }
+              catch($err) { corequiredProperty[$validationType] = $validationSettings; }
+            }
+          }
+          corequiredContext[$requiredPropertyName] = corequiredProperty;
+          if(contentPropertyDescriptor === undefined) { continue iterateRequiredProperties }
+          else { corequiredContent[$requiredPropertyName] = content[$requiredPropertyName]; }
+        }
+        const corequiredContextSize = Object.keys(corequiredContext).length;
+        const corequiredContentSize = Object.keys(corequiredContent).length;
+        let coschema, coschemaValidation;
+        if(corequiredContextSize !== corequiredContentSize) { pass = false; }
+        else if(corequiredContextSize === corequiredContentSize) { pass = true; }
+        else {
+          coschema = new Schema(corequiredContext, this.schema.options);
+          coschemaValidation = coschema.validate(corequiredContent);
+          pass = coschemaValidation.valid;
+        }
+        verification.pass = pass;
         return verification
       }
     }), arguments[1]);
@@ -2698,7 +2726,7 @@ class Schema extends EventTarget{
     if(this.type === 'array') { requiredProperties = []; }
     else if(this.type === 'object') { requiredProperties = {}; }
     for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
-      if($propertyDefinition.required.value === true) { requiredProperties[$propertyKey] = $propertyDefinition; }
+      if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition; }
     }
     return requiredProperties
   }
@@ -2774,7 +2802,7 @@ class Schema extends EventTarget{
         minLength, maxLength, 
         match,
       } = propertyDefinition;
-      if(required) validators.set('required', { properties: { required }, validator: RequiredValidator });
+      if(required && required.value === true) validators.set('required', { properties: { required }, validator: RequiredValidator });
       if(type) validators.set('type', { properties: { type }, validator: TypeValidator } );
       if(min || max) validators.set('range', { properties: { min, max }, validator: RangeValidator } );
       if(minLength || maxLength) validators.set('length', { properties: { minLength, maxLength }, validator: LengthValidator });
@@ -2810,17 +2838,22 @@ class Schema extends EventTarget{
     if($target?.classToString === Content.toString()) { $target = $target.object; }
     const validation = new Validation({
       type: this.validationType,
-      context: this.context,
+      definition: this.context,
       key: $contentName, 
       value: $content,
       properties: typedObjectLiteral(this.type),
     });
     const contentProperties = Object.entries($content);
     let contentPropertyIndex = 0;
+    let deadvancedRequiredProperties;
     // Iterate Content Properties 
     while(contentPropertyIndex < contentProperties.length) {
       const [$contentKey, $contentValue] = contentProperties[contentPropertyIndex];
       const propertyValidation = this.validateProperty($contentKey, $contentValue, $content, $target);
+      deadvancedRequiredProperties = propertyValidation.deadvance.map(
+        ($verification) => $verification.type === 'required'
+      ).includes(true);
+      console.log("deadvancedRequiredProperties", deadvancedRequiredProperties);
       validation.properties[$contentKey] = propertyValidation;
       if(propertyValidation.valid === true) { validation.advance.push(propertyValidation); } 
       else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation); } 
@@ -2833,6 +2866,7 @@ class Schema extends EventTarget{
       else if(validation.unadvance.length) { validation.valid = undefined; }
     }
     else if(this.validationType === 'primitive') {
+      if(deadvancedRequiredProperties) { validation.valid = false; }
       if(validation.advance.length) { validation.valid = true; }
       else if(validation.deadvance.length) { validation.valid = true; }
       else if(validation.unadvance.length) { validation.valid = undefined; }
@@ -2845,7 +2879,6 @@ class Schema extends EventTarget{
     else if(this.type === 'object') { propertyDefinition = this.context[$key]; }
     let propertyValidation = new Validation({
       type: this.validationType,
-      context: this.context,
       definition: propertyDefinition,
       key: $key,
       value: $value,

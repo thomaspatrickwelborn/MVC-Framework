@@ -12,14 +12,14 @@ export default class Validator extends EventTarget {
     )
     this.schema = $schema
   }
+  get settings() { return this.#_settings }
+  set settings($settings) { this.#_settings = $settings }
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined) { return this.#_schema }
     this.#_schema = $schema
     return this.#_schema
   }
-  get settings() { return this.#_settings }
-  set settings($settings) { this.#_settings = $settings }
   get type() { return this.settings.type }
   get messages() { return this.settings.messages }
   get validate() { return this.settings.validate }
