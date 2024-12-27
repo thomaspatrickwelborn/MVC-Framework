@@ -49,7 +49,10 @@ export default class RequiredValidator extends Validator {
         const corequiredContextSize = Object.keys(corequiredContext).length
         const corequiredContentSize = Object.keys(corequiredContent).length
         let coschema, coschemaValidation
-        if(corequiredContextSize !== corequiredContentSize) { pass = false }
+        if(
+          (corequiredContextSize !== corequiredContentSize) // ||
+          // (corequiredContextSize === 0 && corequiredContentSize === 0)
+        ) { pass = false }
         else if(corequiredContextSize === corequiredContentSize) { pass = true }
         else {
           coschema = new Schema(corequiredContext, this.schema.options)

@@ -9,6 +9,8 @@ export default {
     [0, `When schema property enum defined validate any boolean, number, or string content property value against array of enumerated values.`],
   ]),
   method: function() {
+    console.log("-----")
+    console.log(this.id)
     const schemaA = new Schema({
       propertyA: {
         type: Boolean,
@@ -65,6 +67,7 @@ export default {
       solve,
       validations,
     }
+    console.log(this)
     return this
   },
 }

@@ -9,6 +9,8 @@ export default {
     [0, `When schema property type is undefined validate content property values that are numbers, strings, booleans.`,]
   ]),
   method: function() {
+    console.log("-----")
+    console.log(this.id)
     const schema = new Schema({
       propertyA: {
         type: undefined,
@@ -44,6 +46,7 @@ export default {
       solve,
       validations,
     }
+    console.log(this)
     return this
   },
 }

@@ -9,6 +9,8 @@ export default {
     [0, `When schema property type is boolean validate only content property values that are booleans.`],
   ]),
   method: function() {
+    console.log("-----")
+    console.log(this.id)
     const schema = new Schema({
       propertyA: Boolean
     })
@@ -39,6 +41,7 @@ export default {
       solve,
       validations,
     }
+    console.log(this)
     return this
   },
 }

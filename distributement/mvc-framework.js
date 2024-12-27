@@ -2527,7 +2527,10 @@ class RequiredValidator extends Validator {
         const corequiredContextSize = Object.keys(corequiredContext).length;
         const corequiredContentSize = Object.keys(corequiredContent).length;
         let coschema, coschemaValidation;
-        if(corequiredContextSize !== corequiredContentSize) { pass = false; }
+        if(
+          (corequiredContextSize !== corequiredContentSize) // ||
+          // (corequiredContextSize === 0 && corequiredContentSize === 0)
+        ) { pass = false; }
         else if(corequiredContextSize === corequiredContentSize) { pass = true; }
         else {
           coschema = new Schema(corequiredContext, this.schema.options);
@@ -2802,7 +2805,12 @@ class Schema extends EventTarget{
         minLength, maxLength, 
         match,
       } = propertyDefinition;
-      if(required && required.value === true) validators.set('required', { properties: { required }, validator: RequiredValidator });
+      if(required && required.value === true) {
+        validators.set('required', { properties: { required }, validator: RequiredValidator });
+      }
+      else if(required && required.value == false) {
+        validators.set('required', { properties: { required: false }, validator: RequiredValidator });
+      }
       if(type) validators.set('type', { properties: { type }, validator: TypeValidator } );
       if(min || max) validators.set('range', { properties: { min, max }, validator: RangeValidator } );
       if(minLength || maxLength) validators.set('length', { properties: { minLength, maxLength }, validator: LengthValidator });
@@ -2845,17 +2853,17 @@ class Schema extends EventTarget{
     });
     const contentProperties = Object.entries($content);
     let contentPropertyIndex = 0;
-    let deadvancedRequiredProperties;
+    let deadvancedRequiredProperties = [];
     // Iterate Content Properties 
     while(contentPropertyIndex < contentProperties.length) {
       const [$contentKey, $contentValue] = contentProperties[contentPropertyIndex];
       const propertyValidation = this.validateProperty($contentKey, $contentValue, $content, $target);
-      deadvancedRequiredProperties = propertyValidation.deadvance.map(
+      deadvancedRequiredProperties = deadvancedRequiredProperties.concat(propertyValidation.deadvance.map(
         ($verification) => $verification.type === 'required'
-      ).includes(true);
-      console.log("deadvancedRequiredProperties", deadvancedRequiredProperties);
+      ));
       validation.properties[$contentKey] = propertyValidation;
-      if(propertyValidation.valid === true) { validation.advance.push(propertyValidation); } 
+      /*if(deadvancedRequiredProperties) { validation.deadvance.push(propertyValidation) }
+      else */if(propertyValidation.valid === true) { validation.advance.push(propertyValidation); } 
       else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation); } 
       else if(propertyValidation.valid === undefined) { validation.unadvance.push(propertyValidation );}
       contentPropertyIndex++;
@@ -2866,7 +2874,7 @@ class Schema extends EventTarget{
       else if(validation.unadvance.length) { validation.valid = undefined; }
     }
     else if(this.validationType === 'primitive') {
-      if(deadvancedRequiredProperties) { validation.valid = false; }
+      if(deadvancedRequiredProperties.includes(true)) { validation.valid = false; }
       if(validation.advance.length) { validation.valid = true; }
       else if(validation.deadvance.length) { validation.valid = true; }
       else if(validation.unadvance.length) { validation.valid = undefined; }

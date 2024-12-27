@@ -11,7 +11,6 @@ export default class PandTreeView extends View {
       templates: {
         testResultsNavigation: function TestResultsNavigationTemplate($models) {
           const $data = $models.data
-          console.log($data)
           return ''
         },
         default: function PandTreeTemplate($models) {
@@ -102,7 +101,6 @@ export default class PandTreeView extends View {
       }
       else {
         const collectName = this.models.data.get('collectName')
-        console.log(collectName, $collectItem)
         this.querySelectors[collectName]?.insertAdjacentHTML('beforeEnd', $collectItem)
       }
     }

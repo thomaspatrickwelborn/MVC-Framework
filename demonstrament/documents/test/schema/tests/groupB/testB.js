@@ -12,6 +12,8 @@ export default {
     [0, `<div>When Schema context property definitions are not <code>required</code> no valid complementary content property values must be present on target or source object to pass.</div>`],
   ]),
   method: function() {
+    console.log("-----")
+    console.log(this.id)
     const schema = new Schema({
       propertyA: {
         required: false,
@@ -55,13 +57,13 @@ export default {
     ]
     const quest = []
     const contents = [
-      contentA,
-      contentB,
+      ['contentA', contentA],
+      ['contentB', contentB],
     ]
     const validations = []
-    for(const $content of contents) {
+    for(const [$contentName, $content] of contents) {
       const contentValidation = schema.validate($content)
-      console.log(contentValidation)
+      console.log($contentName, contentValidation)
       validations.push(contentValidation)
       quest.push(contentValidation.valid)
     }
@@ -74,6 +76,7 @@ export default {
       solve,
       validations,
     }
+    console.log(this)
     return this
   },
 }

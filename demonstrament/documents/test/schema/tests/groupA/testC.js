@@ -10,6 +10,8 @@ export default {
     [1, ` - When schema property minimum and/or maximum length (minLength, maxLength) defined validate only content property values with length inside range.`],
   ]),
   method: function() {
+    console.log("-----")
+    console.log(this.id)
     const schema = new Schema({
       propertyA: {
         type: String,
@@ -51,6 +53,7 @@ export default {
       solve,
       validations,
     }
+    console.log(this)
     return this
   },
 }

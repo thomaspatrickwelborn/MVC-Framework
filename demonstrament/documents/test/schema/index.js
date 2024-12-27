@@ -6,11 +6,3 @@ const testResults = new TestResultsView({
   tests: Tests,
 })
 testResults.render(testResults.models, 'default')
-
-/*
-const testResults = new TestResultsView({
-  parentElement: document.querySelector('index'),
-  models: {
-  },
-})
-*/
