@@ -12,8 +12,6 @@ export default {
     [0, `<div>When Schema context property definitions are <code>required</code> valid complementary content property values must be present on target or source object to pass.</div>`],
   ]),
   method: function() {
-    console.log("-----")
-    console.log(this.id)
     const schema = new Schema({
       propertyA: {
         required: true,
@@ -36,7 +34,7 @@ export default {
         type: undefined,
       },
     }, {
-      validationType: "primitive"
+      // validationType: "primitive"
     })
     // All Properties Present
     // All Properties Valid
@@ -55,7 +53,7 @@ export default {
       propertyD: null,
       propertyE: "55555",
     } // false
-    // All Properties Presetn
+    // All Properties Present
     // Some Properties Valid
     const contentC = {
       propertyA: 11111,
@@ -63,22 +61,30 @@ export default {
       propertyC: "33333",
       propertyD: null,
       propertyE: "55555",
-    } // true
+    } // false
+    // Some Properties Present
+    // Some Properties Valid
+    const contentD = {
+      propertyC: 33333,
+      propertyD: false,
+      propertyE: 555555,
+    } // false
     const solve = [
       true,
       false,
-      true,
+      false,
+      false,
     ]
     const quest = []
     const contents = [
       ['contentA', contentA],
       ['contentB', contentB],
       ['contentC', contentC],
+      ['contentD', contentD],
     ]
     const validations = []
     for(const [$contentName, $content] of contents) {
       const contentValidation = schema.validate($content)
-      console.log($contentName, contentValidation)
       validations.push(contentValidation)
       quest.push(contentValidation.valid)
     }
@@ -91,7 +97,6 @@ export default {
       solve,
       validations,
     }
-    console.log(this)
     return this
   },
 }

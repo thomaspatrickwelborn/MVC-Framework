@@ -173,17 +173,17 @@ export default class Schema extends EventTarget{
       else if(propertyValidation.valid === undefined) { validation.unadvance.push(propertyValidation )}
       contentPropertyIndex++
     }
-    if(this.validationType === 'object') {
+    // if(this.validationType === 'object') {
       if(validation.deadvance.length) { validation.valid = false }
       else if(validation.advance.length) { validation.valid = true }
       else if(validation.unadvance.length) { validation.valid = undefined }
-    }
-    else if(this.validationType === 'primitive') {
-      if(deadvancedRequiredProperties.includes(true)) { validation.valid = false }
-      if(validation.advance.length) { validation.valid = true }
-      else if(validation.deadvance.length) { validation.valid = true }
-      else if(validation.unadvance.length) { validation.valid = undefined }
-    }
+    // }
+    // else if(this.validationType === 'primitive') {
+    //   if(deadvancedRequiredProperties.includes(true)) { validation.valid = false }
+    //   if(validation.advance.length) { validation.valid = true }
+    //   else if(validation.deadvance.length) { validation.valid = true }
+    //   else if(validation.unadvance.length) { validation.valid = undefined }
+    // }
     return validation
   }
   validateProperty($key, $value, $source, $target) {

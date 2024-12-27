@@ -9,8 +9,6 @@ export default {
     [0, `When schema property type is number validate only content property values that are numbers.`],
   ]),
   method: function() {
-    console.log("-----")
-    console.log(this.id)
     const schema = new Schema({
       propertyA: {
         type: Number,
@@ -71,7 +69,6 @@ export default {
       solve,
       validations,
     }
-    console.log(this)
     return this
   },
 }

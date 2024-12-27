@@ -20,7 +20,6 @@ export default function TestResultsModels($tests) {
   })
   let testGroupIndex = 0
   const testGroupResults = {
-    // path: data.id,
     pass: 0,
     nonpass: 0,
     sumpass: 0,
@@ -94,7 +93,6 @@ export default function TestResultsModels($tests) {
         .get($testID)
       const solve = Array.from(Object.values(test.get('detail').solve))
       const testResult = {
-        path: testPath,
         pass: solve.reduce(($pass, $solute, $soluteIndex) => {
           if(test.get('detail').quest[$soluteIndex] === $solute) $pass++
           return $pass

@@ -48,7 +48,23 @@ export default class PandTreeView extends View {
       // },
       models: $settings.models,
     })
-    this.addEventListener('render', ($event) => { this.renderCollect() })
+    this.addEventListener('render', ($event) => {
+      const { location, path, content } = this.models.data
+      const { result, detail } = content
+      let header = []
+      header.length = path.length
+      header = header.fill('-').join('')
+      const log = [
+        "\n", header,
+        "\n", path,
+        "\n", JSON.stringify(result),
+      ]
+      if(detail !== undefined) log.push(
+        "\n", "detail", detail,
+      )
+      console.log(...log)
+      this.renderCollect()
+    })
   }
   togglePand() {
     const preterpand = this.querySelectors.pandTree.getAttribute('data-pand')
