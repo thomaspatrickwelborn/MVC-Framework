@@ -5,7 +5,7 @@ export default class RangeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'range',
-      validate: ($definition, $key, $value) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,
           definition: $definition,

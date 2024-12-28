@@ -9,7 +9,7 @@ export default class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'type',
-      validate: ($definition, $key, $value) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         let verification = new Verification({
           type: this.type,
           definition: $definition,

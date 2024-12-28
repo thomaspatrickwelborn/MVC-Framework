@@ -2512,7 +2512,7 @@ class TypeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'type',
-      validate: ($definition, $key, $value) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         let verification = new Verification({
           type: this.type,
           definition: $definition,
@@ -2548,7 +2548,7 @@ class RangeValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'range',
-      validate: ($definition, $key, $value) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,
           definition: $definition,
@@ -2579,7 +2579,7 @@ class LengthValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
-      validate: ($definition, $key, $value) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,
           definition: $definition,
@@ -2614,7 +2614,7 @@ class EnumValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
-      validate: ($definition, $key, $value) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,
           definition: $definition,
@@ -2641,7 +2641,7 @@ class MatchValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
       type: 'length',
-      validate: ($definition, $key, $value) => {
+      validate: ($definition, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,
           definition: $definition,
