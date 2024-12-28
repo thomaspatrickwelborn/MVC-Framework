@@ -12,6 +12,7 @@ export default {
     [0, `<div>When Schema context property definitions are not <code>required</code> no valid complementary content property values must be present on target or source object to pass.</div>`],
   ]),
   method: function() {
+    // No Properties Required
     const schema = new Schema({
       propertyA: {
         required: false,
@@ -34,7 +35,7 @@ export default {
         type: undefined,
       },
     }, {
-      // validationType: "primitive"
+      validationType: "primitive"
     })
     // All Properties Present
     // All Properties Valid
@@ -61,11 +62,11 @@ export default {
       propertyC: 33333,
       propertyD: null,
       propertyE: "55555",
-    } // false
+    } // true
     const solve = [
       true,
       true,
-      false,
+      true,
     ]
     const quest = []
     const contents = [
