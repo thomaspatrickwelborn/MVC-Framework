@@ -1,10 +1,10 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: "testC",
+  id: "testF",
   name: `<div style="display: flex; flex-direction: column;">
     <div>Required: Some Properties</div>
-    <div>Validation Type: <code>primitive</code></div>
+    <div>Validation Type: <code>object</code></div>
   </div>
   `,
   type: 'test-result',
@@ -37,8 +37,10 @@ export default {
         type: undefined,
       },
     }, {
-      validationType: "primitive"
+      validationType: "object"
     })
+    // 3 Required Properties Valid (A, C, E)
+    // 2 Nonrequired Properties Valid (B, D)
     const contentA = {
       propertyA: "11111",
       propertyB: false,
@@ -46,55 +48,75 @@ export default {
       propertyD: null,
       propertyE: "55555",
     } // true
+    // 2 Required Properties Valid (C, E)
+    // 2 Nonrequired Properties Valid (B, D)
     const contentB = {
       propertyB: false,
       propertyC: 33333,
       propertyD: null,
       propertyE: "55555",
     } // false
+    // 2 Required Properties Valid (A, E)
+    // 2 Nonrequired Properties Valid (B, D)
     const contentC = {
       propertyA: "11111",
       propertyB: false,
       propertyD: null,
       propertyE: "55555",
     } // false
+    // 2 Required Properties Valid (A, C)
+    // 2 Nonrequired Properties Valid (B, D)
     const contentD = {
       propertyA: "11111",
       propertyB: false,
       propertyC: 33333,
       propertyD: null,
     } // false
+    // 1 Required Property Valid (E)
+    // 2 Nonrequired Properties Valid (B, D)
     const contentE = {
       propertyB: false,
       propertyD: null,
       propertyE: "55555",
     } // false
+    // 1 Required Property Valid (C)
+    // 2 Nonrequired Properties Valid (B, D)
     const contentF = {
       propertyB: false,
       propertyC: 33333,
       propertyD: null,
     } // false
+    // 1 Required Property Valid (A)
+    // 2 Nonrequired Properties Valid (B, D)
     const contentG = {
       propertyA: "11111",
       propertyB: false,
       propertyD: null,
     } // false
+    // 0 Required Properties
+    // 2 Nonrequired Properties Valid (B, D)
     const contentH = {
       propertyB: false,
       propertyD: null,
     } // false
+    // 3 Required Properties Valid (A, C, E)
+    // 1 Nonrequired Property Valid (D)
     const contentI = {
       propertyA: "11111",
       propertyC: 33333,
       propertyD: null,
       propertyE: "55555",
     } // true
+    // 3 Required Properties Valid (A, C, E)
+    // 1 Nonrequired Property Valid  (B)
     const contentJ = {
       propertyA: "11111",
       propertyB: false,
       propertyC: 33333,
       propertyE: "55555",
     } // true
+    // 3 Required Properties Valid (A, C, E)
+    // 0 Unrequired Properties
     const contentK = {
       propertyA: "11111",
       propertyC: 33333,

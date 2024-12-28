@@ -1,10 +1,10 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: "testB",
+  id: "testE",
   name: `<div style="display: flex; flex-direction: column;">
     <div>Required: No Properties</div>
-    <div>Validation Type: <code>primitive</code></div>
+    <div>Validation Type: <code>object</code></div>
   </div>
   `,
   type: 'test-result',
@@ -13,7 +13,8 @@ export default {
     [0, `<div>When Schema context property definitions are not <code>required</code> no valid complementary content property values must be present on target or source object to pass.</div>`],
   ]),
   method: function() {
-    // No Properties Required
+    // 0 Required Properties
+    // 5 Nonrequired Properties
     const schema = new Schema({
       propertyA: {
         required: false,
@@ -36,10 +37,9 @@ export default {
         type: undefined,
       },
     }, {
-      validationType: "primitive"
+      validationType: "object"
     })
-    // All Properties Present
-    // All Properties Valid
+    // 5 Nonrequired Properties Valid (A, B, C, D, E)
     const contentA = {
       propertyA: "11111",
       propertyB: false,
@@ -47,27 +47,26 @@ export default {
       propertyD: null,
       propertyE: "55555",
     } // true
-    // Some Properties Present
-    // All Properties Valid
+    // 4 Nonrequired Properties Valid (B, C, D, E)
     const contentB = {
       propertyB: false,
       propertyC: 33333,
       propertyD: null,
       propertyE: "55555",
     } // true
-    // All Properties Present
-    // Some Properties Valid
+    // 2 Nonrequired Properties Nonvalid (A, B)
+    // 3 Nonrequired Properties Valid (C, D, E)
     const contentC = {
       propertyA: 11111,
       propertyB: "false",
       propertyC: 33333,
       propertyD: null,
       propertyE: "55555",
-    } // true
+    } // false
     const solve = [
       true,
       true,
-      true,
+      false,
     ]
     const quest = []
     const contents = [

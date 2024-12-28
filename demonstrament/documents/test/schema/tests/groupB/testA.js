@@ -2,8 +2,10 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: "testA",
-  name: `<div style="display: flex; flex-wrap: wrap;">
+  name: `
+  <div style="display: flex; flex-direction: column;">
     <div>Required: All Properties</div>
+    <div>Validation Type: <code>primitive</code></div>
   </div>
   `,
   type: 'test-result',

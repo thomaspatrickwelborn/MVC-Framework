@@ -1,42 +1,44 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: "testB",
-  name: `<div style="display: flex; flex-direction: column;">
-    <div>Required: No Properties</div>
-    <div>Validation Type: <code>primitive</code></div>
+  id: "testD",
+  name: `
+  <div style="display: flex; flex-direction: column;">
+    <div>Required: All Properties</div>
+    <div>Validation Type: <code>object</code></div>
   </div>
   `,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
-    [0, `<div>When Schema context property definitions are not <code>required</code> no valid complementary content property values must be present on target or source object to pass.</div>`],
+    [0, `<div>When Schema context property definitions are <code>required</code> valid complementary content property values must be present on target or source object to pass.</div>`],
   ]),
   method: function() {
-    // No Properties Required
+    // 5 Required Properties
+    // Validation Type: "object'"
     const schema = new Schema({
       propertyA: {
-        required: false,
+        required: true,
         type: String,
       },
       propertyB: {
-        required: false,
+        required: true,
         type: Boolean,
       },
       propertyC: {
-        required: false,
+        required: true,
         type: Number,
       },
       propertyD: {
-        required: false,
+        required: true,
         type: null,
       },
       propertyE: {
-        required: false,
+        required: true,
         type: undefined,
       },
     }, {
-      validationType: "primitive"
+      validationType: "object"
     })
     // All Properties Present
     // All Properties Valid
@@ -54,26 +56,35 @@ export default {
       propertyC: 33333,
       propertyD: null,
       propertyE: "55555",
-    } // true
+    } // false
     // All Properties Present
     // Some Properties Valid
     const contentC = {
       propertyA: 11111,
-      propertyB: "false",
-      propertyC: 33333,
+      propertyB: false,
+      propertyC: "33333",
       propertyD: null,
       propertyE: "55555",
-    } // true
+    } // false
+    // Some Properties Present
+    // Some Properties Valid
+    const contentD = {
+      propertyC: 33333,
+      propertyD: false,
+      propertyE: 555555,
+    } // false
     const solve = [
       true,
-      true,
-      true,
+      // false,
+      // false,
+      // false,
     ]
     const quest = []
     const contents = [
       ['contentA', contentA],
-      ['contentB', contentB],
-      ['contentC', contentC]
+      // ['contentB', contentB],
+      // ['contentC', contentC],
+      // ['contentD', contentD],
     ]
     const validations = []
     for(const [$contentName, $content] of contents) {
