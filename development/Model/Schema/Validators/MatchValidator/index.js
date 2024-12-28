@@ -4,7 +4,7 @@ import Verification from '../../Verification/index.js'
 export default class MatchValidator extends Validator {
   constructor($settings = {}) {
     super(Object.assign($settings, {
-      type: 'length',
+      type: 'match',
       validate: ($definition, $key, $value, $source, $target) => {
         const verification = new Verification({
           type: this.type,

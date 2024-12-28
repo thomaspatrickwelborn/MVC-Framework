@@ -1,3 +1,3 @@
 export default {
-  validationType: 'primitive', // 'object', 
+  required: false 
 }

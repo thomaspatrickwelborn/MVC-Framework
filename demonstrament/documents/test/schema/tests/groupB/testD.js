@@ -4,8 +4,8 @@ export default {
   id: "testD",
   name: `
     <div style="display: flex; flex-direction: column;">
-      <div>Required: All Properties</div>
-      <div>Validation Type: <code>object</code></div>
+      <div>Schema Properties Required: All</div>
+      <div>Schema Required: <code>true</code></div>
     </div>
   `,
   type: 'test-result',
@@ -16,7 +16,7 @@ export default {
   ]),
   method: function() {
     // 5 Required Properties
-    // Validation Type "object'"
+    // Schema Required
     const schema = new Schema({
       propertyA: {
         required: true,
@@ -39,7 +39,7 @@ export default {
         type: undefined,
       },
     }, {
-      validationType: "object"
+      required: true
     })
     // All Properties Present
     // All Properties Valid
@@ -76,16 +76,16 @@ export default {
     } // false
     const solve = [
       true,
-      // false,
-      // false,
-      // false,
+      false,
+      false,
+      false,
     ]
     const quest = []
     const contents = [
       ['contentA', contentA],
-      // ['contentB', contentB],
-      // ['contentC', contentC],
-      // ['contentD', contentD],
+      ['contentB', contentB],
+      ['contentC', contentC],
+      ['contentD', contentD],
     ]
     const validations = []
     for(const [$contentName, $content] of contents) {

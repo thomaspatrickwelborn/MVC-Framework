@@ -1,10 +1,11 @@
 import groupA from './groupA/index.js'
 import groupB from './groupB/index.js'
+import groupC from './groupC/index.js'
 
 /*
 Validation Multidimensional Properties
-  Validation Type: Object
-  Validation Type: Primitive
+  Schema Required
+  Schema Not Required
 */
 
 /*
@@ -26,5 +27,6 @@ export default {
   collect: new Map([
     ['groupA', groupA],
     ['groupB', groupB],
+    ['groupC', groupC],
   ]),
 }

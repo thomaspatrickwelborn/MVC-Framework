@@ -16,12 +16,12 @@ export default class RequiredValidator extends Validator {
         })
         let pass
         const content = $target || $source
-        const { requiredProperties, requiredPropertiesSize } = this.context
+        const { requiredProperties, requiredPropertiesSize } = this.schema
         if(requiredPropertiesSize === 0) { pass = true }
         else {
           // Corequirements
-          const corequiredContext = typedObjectLiteral(this.context.type)
-          const corequiredContent = typedObjectLiteral(this.context.type)
+          const corequiredContext = typedObjectLiteral(this.schema.type)
+          const corequiredContent = typedObjectLiteral(this.schema.type)
           iterateRequiredProperties: 
           for(const [
             $requiredPropertyName, $requiredProperty
@@ -52,7 +52,7 @@ export default class RequiredValidator extends Validator {
           const corequiredContentSize = Object.keys(corequiredContent).length
           if(corequiredContextSize !== corequiredContentSize) { pass = false }
           else {
-            const coschema = new Schema(corequiredContext, this.context.options)
+            const coschema = new Schema(corequiredContext, this.schema.options)
             const coschemaValidation = coschema.validate(corequiredContent)
             pass = coschemaValidation.valid
           }

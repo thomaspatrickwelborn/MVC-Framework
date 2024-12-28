@@ -5,6 +5,7 @@ import Content from '../Content/index.js'
 import Context from './Context/index.js'
 import Verification from './Verification/index.js'
 import Validation from './Validation/index.js'
+import { RequiredValidator } from './Validators/index.js'
 import Options from './Options/index.js' 
 
 export default class Schema extends EventTarget{
@@ -18,12 +19,20 @@ export default class Schema extends EventTarget{
     this.options = Object.assign({}, Options, $options)
     // this.context
   }
-  get validationType() { return this.options.validationType }
   get type() {
     if(this.#_type !== undefined) return this.#_type
     this.#_type = typeOf(typedObjectLiteral(this.#properties))
     return this.#_type
   }
+  get required() { return this.options.required }
+  get requiredProperties() {
+    let requiredProperties = typedObjectLiteral(this.type)
+    for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
+      if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition }
+    }
+    return requiredProperties
+  }
+  get requiredPropertiesSize() { return Object.keys(this.requiredProperties).length }
   get context() {
     if(this.#_context !== undefined) return this.#_context
     this.#_context = new Context(this.#properties, this.options, this)
@@ -48,7 +57,7 @@ export default class Schema extends EventTarget{
     if($content?.classToString === Content.toString()) { $content = $content.object }
     if($target?.classToString === Content.toString()) { $target = $target.object }
     const validation = new Validation({
-      type: this.validationType,
+      type: this.required,
       definition: this.context,
       key: $contentName, 
       value: $content,
@@ -72,25 +81,27 @@ export default class Schema extends EventTarget{
       deadvancedRequiredProperties = deadvancedRequiredProperties.concat(deadvancedRequiredPropertyValidation)
       contentPropertyIndex++
     }
-    if(this.validationType === 'object') {
+    if(this.required === true) {
       if(validation.deadvance.length) { validation.valid = false }
       else if(validation.advance.length) { validation.valid = true }
       else if(validation.unadvance.length) { validation.valid = undefined }
+      else { validation.valid = false }
     }
-    else if(this.validationType === 'primitive') {
+    else if(this.required === false) {
       if(deadvancedRequiredProperties.length) { validation.valid = false }
       else if(validation.advance.length) { validation.valid = true }
       else if(validation.deadvance.length) { validation.valid = true }
       else if(validation.unadvance.length) { validation.valid = undefined }
-    } 
+      else { validation = true }
+    }
     return validation
   }
   validateProperty($key, $value, $source, $target) {
     let propertyDefinition
     if(this.type === 'array') { propertyDefinition = this.context[0] }
     else if(this.type === 'object') { propertyDefinition = this.context[$key] }
-    let propertyValidation = new Validation({
-      type: this.validationType,
+    const propertyValidation = new Validation({
+      type: this.required,
       definition: propertyDefinition,
       key: $key,
       value: $value,

@@ -4,8 +4,8 @@ export default {
   id: "testE",
   name: `
     <div style="display: flex; flex-direction: column;">
-      <div>Required: No Properties</div>
-      <div>Validation Type: <code>object</code></div>
+      <div>Schema Properties Required: None</div>
+      <div>Schema Required: <code>true</code></div>
     </div>
   `,
   type: 'test-result',
@@ -39,7 +39,7 @@ export default {
         type: undefined,
       },
     }, {
-      validationType: "object"
+      required: true
     })
     // 5 Nonrequired Properties Valid (A, B, C, D, E)
     const contentA = {

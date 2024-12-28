@@ -4,15 +4,15 @@ export default {
   id: "testA",
   name: `
     <div style="display: flex; flex-direction: column;">
-      <div>Required: All Properties</div>
-      <div>Validation Type: <code>primitive</code></div>
+      <div>Schema Properties Required: All</div>
+      <div>Schema Required: <code>false</code></div>
     </div>
   `,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
     [0, `<div>When Schema context property definitions are <code>required</code> valid complementary content property values must be present on target or source object to pass.</div>`],
-    [1, `<div>When Schema validation type is <code>primitive</code> no complementary content property values must validate on target or source to pass.</div>`],
+    [1, `<div>When Schema required option is <code>false</code> no complementary content property values must validate on target or source to pass.</div>`],
   ]),
   method: function() {
     // All Properties Required
@@ -38,7 +38,7 @@ export default {
         type: undefined,
       },
     }, {
-      validationType: "primitive"
+      required: false
     })
     // All Properties Present
     // All Properties Valid

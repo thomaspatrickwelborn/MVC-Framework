@@ -14,10 +14,11 @@ export default class Context extends EventTarget {
   #_proxy
   #_handler
   #_source
-  constructor($properties, $options) {
+  constructor($properties, $options, $schema) {
     super()
     this.#properties = $properties
     this.options = $options
+    this.schema = $schema
     return this.proxy
   }
   get #properties() { return this.#_properties }
@@ -26,20 +27,13 @@ export default class Context extends EventTarget {
     this.#_properties = $properties
     return this.#_properties
   }
-  get requiredProperties() {
-    let requiredProperties = typedObjectLiteral(this.type)
-    for(const [$propertyKey, $propertyDefinition] of Object.entries(this.proxy)) {
-      if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition }
-    }
-    return requiredProperties
-  }
-  get requiredPropertiesSize() { return Object.keys(this.requiredProperties).length }
   get options() { return this.#_options }
   set options($options) {
     if(this.#_options !== undefined) return
     this.#_options = $options
     return this.#_options
   }
+  get required() { return this.options.required }
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined) return
@@ -125,6 +119,7 @@ export default class Context extends EventTarget {
       }
       propertyDefinition.validators = []
       const validators = new Map()
+      const contextRequired = this.required
       const {
         required,
         type,
@@ -132,10 +127,10 @@ export default class Context extends EventTarget {
         minLength, maxLength, 
         match,
       } = propertyDefinition
-      if(required && required.value === true) {
-        validators.set('required', { source: { required }, validator: RequiredValidator })
+      if(required?.value === true || contextRequired === true) {
+        validators.set('required', { source: { required: true }, validator: RequiredValidator })
       }
-      else {
+      else if(required?.value == false || contextRequired == false) {
         validators.set('required', { source: { required: false }, validator: RequiredValidator })
       }
       if(type) validators.set('type', { source: { type }, validator: TypeValidator } )
@@ -147,7 +142,7 @@ export default class Context extends EventTarget {
         $validatorName, $validatorSettings
       ] of validators.entries()) {
         const { source, validator } = $validatorSettings
-        propertyDefinition.validators.push(new validator(source, this))
+        propertyDefinition.validators.push(new validator(source, this.schema))
       }
       source[$propertyKey] = propertyDefinition
     }
