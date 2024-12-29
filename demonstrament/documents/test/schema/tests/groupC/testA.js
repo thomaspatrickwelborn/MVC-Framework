@@ -1,72 +1,127 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: "testF",
+  id: 'testA',
   name: `
     <div style="display: flex; flex-direction: column;">
-      <div>Schema Properties Required: Some</div>
-      <div>Schema Required: <code>true</code></div>
+      <div><code>$schema.type</code>: <code>"array"</code></div>
+      <div><code>$schema.context[0].type.value</code>: <code>[undefined|null|Number|String|Boolean]</code>
+      <div><code>$schema.required</code>: <code>false</code>
     </div>
   `,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
-    [0, `<div>When Schema context property definitions are not <code>required</code> no valid complementary content property values must be present on target or source object to pass.</div>`],
-    [1, `<div>When Schema validation type is <code>object</code> all complementary content property values must validate on target or source to pass.</div>`],
+    [0, "Content Values"]
   ]),
   method: function() {
-    // 3 Required Properties (A, C, E)
-    // 2 Nonrequired Properties (B, D)
-    const schema = new Schema({
-      propertyA: {
-        required: true,
-        type: String,
-      },
-      propertyB: {
-        required: false,
-        type: Boolean,
-      },
-      propertyC: {
-        required: true,
-        type: Number,
-      },
-      propertyD: {
-        required: false,
-        type: null,
-      },
-      propertyE: {
-        required: true,
-        type: undefined,
-      },
-    }, {
-      required: true
+    const schemaA = new Schema([{
+      type: undefined
+    }], {
+      required: false
     })
-    // 3 Required Properties Valid (A, C, E)
-    // 2 Nonrequired Properties Valid (B, D)
-    const contentA = {
-      propertyA: "11111",
-      propertyB: false,
-      propertyC: 33333,
-      propertyD: null,
-      propertyE: "55555",
-    } // true
+    const schemaB = new Schema([{
+      type: null
+    }], {
+      required: false
+    })
+    const schemaC = new Schema([{
+      type: Number
+    }], {
+      required: false
+    })
+    const schemaD = new Schema([{
+      type: String
+    }], {
+      required: false
+    })
+    const schemaE = new Schema([{
+      type: Boolean
+    }], {
+      required: false
+    })
+    // Content A
+    // Schema A: true 
+    // Schema B: true
+    // Schema C: true
+    // Schema D: true
+    // Schema E: true
+    const contentA = [undefined, null, 333, "DDD", true]
+    // Content B
+    // Schema A: true 
+    // Schema B: true
+    // Schema C: true
+    // Schema D: true
+    // Schema E: true
+    const contentB = [null, null, null, null, null]
+    // Content C
+    // Schema A: true 
+    // Schema B: true
+    // Schema C: true
+    // Schema D: true
+    // Schema E: true
+    const contentC = [111, 222, 333, 444, 555]
+    // Content D
+    // Schema A: true 
+    // Schema B: true
+    // Schema C: true
+    // Schema D: true
+    // Schema E: true
+    const contentD = ["AAA", "BBB", "CCC", "DDD", "EEE"]
+    // Content E
+    // Schema A: true 
+    // Schema B: true
+    // Schema C: true
+    // Schema D: true
+    // Schema E: true
+    const contentE = [true, false, true, false, true]
     const solve = [
-      //
+      // contentA: 
+      [true, true, true, true, true], 
+      // contentB: 
+      [true, true, true, true, true], 
+      // contentC: 
+      [true, true, true, true, true], 
+      // contentD: 
+      [true, true, true, true, true], 
+      // contentE: 
+      [true, true, true, true, true], 
     ]
     const quest = []
+    const schemata = [
+      ['schemaA', schemaA],
+      ['schemaB', schemaB],
+      ['schemaC', schemaC],
+      ['schemaD', schemaD],
+      ['schemaE', schemaE],
+    ]
     const contents = [
-      // 
+      ['contentA', contentA], 
+      ['contentB', contentB],
+      ['contentC', contentC],
+      ['contentD', contentD],
+      ['contentE', contentE],
     ]
     const validations = []
-    for(const [$contentName, $content] of contents) {
-      const contentValidation = schema.validate($content)
-      validations.push(contentValidation)
-      quest.push(contentValidation.valid)
+    for(const [$schemaName, $schema] of schemata) {
+      const subvalidations = []
+      const subquest = []
+      for(const [$contentName, $content] of contents) {
+        const contentValidation = $schema.validate($content)
+        subvalidations.push(contentValidation)
+        subquest.push(contentValidation.valid)
+      }
+      validations.push(subvalidations)
+      quest.push(subquest)
     }
+    console.log(
+      "\n", JSON.stringify(quest), 
+      "\n", JSON.stringify(solve), 
+    )
     this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
       method: this.method.toString(),
-      schema,
+      schemata,
       contents,
       quest,
       solve,
