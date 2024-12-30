@@ -6,7 +6,7 @@ export default {
   type: 'test-result', 
   collectName: 'detail',
   collect: new Map([
-    [0, `When schema property type is undefined validate content property values that are numbers, strings, booleans.`,]
+    [0, `When schema property type is undefined validate primitive content property values (number, boolean, string, null).`,]
   ]),
   method: function() {
     const schema = new Schema({

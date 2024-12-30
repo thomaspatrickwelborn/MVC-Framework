@@ -2,23 +2,24 @@ import { recursiveAssign } from '../../../../Coutil/index.js'
 import Validator from '../../Validator/index.js'
 import Verification from '../../Verification/index.js'
 export default class MatchValidator extends Validator {
-  constructor($settings = {}) {
+  constructor($settings = {}, $schema) {
     super(Object.assign($settings, {
       type: 'match',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.settings
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         })
         let pass
         if(![
           'string', 'number', 'boolean'
         ].includes(typeof $value)) { pass = false}
         else {
-          const match = $definition
+          const match = definition
           const valueMatch = (match.value.exec($value) !== null)
         }
         verification.pass = pass
@@ -26,6 +27,6 @@ export default class MatchValidator extends Validator {
           : false
         return verification
       },
-    }))
+    }), $schema)
   }
 }

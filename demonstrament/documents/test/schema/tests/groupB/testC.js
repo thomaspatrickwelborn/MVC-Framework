@@ -18,29 +18,12 @@ export default {
     // 3 Required Properties (A, C, E)
     // 2 Nonrequired Properties (B, D)
     const schema = new Schema({
-      propertyA: {
-        required: true,
-        type: String,
-      },
-      propertyB: {
-        required: false,
-        type: Boolean,
-      },
-      propertyC: {
-        required: true,
-        type: Number,
-      },
-      propertyD: {
-        required: false,
-        type: null,
-      },
-      propertyE: {
-        required: true,
-        type: undefined,
-      },
-    }, {
-      required: false
-    })
+      propertyA: { required: true, type: String },
+      propertyB: { required: false, type: Boolean },
+      propertyC: { required: true, type: Number },
+      propertyD: { required: false, type: null },
+      propertyE: { required: true, type: undefined },
+    }, { required: false })
     const contentA = {
       propertyA: "11111",
       propertyB: false,
@@ -88,7 +71,7 @@ export default {
     const contentI = {
       propertyA: "11111",
       propertyC: 33333,
-      propertyD: null,
+      // propertyD: null,
       propertyE: "55555",
     } // true
     const contentJ = {

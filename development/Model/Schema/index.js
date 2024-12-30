@@ -132,7 +132,7 @@ export default class Schema extends EventTarget{
       iterateContextValueValidators: 
       propertyDefinition.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const verification = $validator.validate(propertyDefinition[$validator.type], $key, $value, $source, $target)
+          const verification = $validator.validate($key, $value, $source, $target)
           if(verification.pass === true) { $propertyValidation.advance.push(verification) }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification) }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }

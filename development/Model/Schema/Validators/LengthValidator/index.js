@@ -2,21 +2,22 @@ import { recursiveAssign } from '../../../../Coutil/index.js'
 import Validator from '../../Validator/index.js'
 import Verification from '../../Verification/index.js'
 export default class LengthValidator extends Validator {
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
+  constructor($definition = {}, $schema) {
+    super(Object.assign($definition, {
       type: 'length',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         })
         let pass
         if(typeof $value !== 'string') { pass = false }
         else {
-          const { minLength, maxLength } = $definition
+          const { minLength, maxLength } = definition
           let validMin, validMax
           if(minLength.value !== undefined) {
             validMin = ($value.length >= minLength.value)
@@ -32,6 +33,6 @@ export default class LengthValidator extends Validator {
         verification.pass = pass
         return verification
       },
-    }))
+    }), $schema)
   }
 }

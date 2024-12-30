@@ -2393,26 +2393,26 @@ const Messages$1 = {
   'false': ($verification) => `${$verification.pass}`,
 };
 class Validator extends EventTarget {
-  #_settings
+  #_definition
   #_schema
-  constructor($settings = {}, $schema) {
+  constructor($definition = {}, $schema) {
     super();
-    this.settings = Object.freeze(
-      Object.assign({ messages: Messages$1 }, $settings)
+    this.definition = Object.freeze(
+      Object.assign({ messages: Messages$1 }, $definition)
     );
     this.schema = $schema;
   }
-  get settings() { return this.#_settings }
-  set settings($settings) { this.#_settings = $settings; }
+  get definition() { return this.#_definition }
+  set definition($definition) { this.#_definition = $definition; }
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined) { return this.#_schema }
     this.#_schema = $schema;
     return this.#_schema
   }
-  get type() { return this.settings.type }
-  get messages() { return this.settings.messages }
-  get validate() { return this.settings.validate }
+  get type() { return this.definition.type }
+  get messages() { return this.definition.messages }
+  get validate() { return this.definition.validate }
 }
 
 class Verification extends EventTarget {
@@ -2446,121 +2446,112 @@ class Verification extends EventTarget {
 }
 
 class RequiredValidator extends Validator {
-  constructor() {
-    super(Object.assign(arguments[0], {
+  constructor($definition, $schema) {
+    super(Object.assign($definition, {
       type: 'required',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition;
+        let pass;
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         });
-        if($definition.value === false) {
-          verification.pass = true;
-          return verification
-        }
-        const requiredContextProperties = this.schema.requiredProperties;
-        const corequiredContextProperties = typedObjectLiteral(this.schema.type);
-        let corequiredContentProperties = {
-          source: typedObjectLiteral(this.schema.type),
-          target: typedObjectLiteral(this.schema.type),
-        };
-        for(const [
-          $requiredContextPropertyName, $requiredContextPropertyDefintition
-        ] of Object.entries(requiredContextProperties)) {
-          if(Number.isNaN(Number($requiredContextPropertyName))) {
-            if($requiredContextPropertyName !== $key) {
-              if(Object.getOwnPropertyDescriptor($source, $requiredContextPropertyName)) {
-                corequiredContentProperties.source[$requiredContextPropertyName] = $source[$requiredContextPropertyName];
-              }
-              else if(Object.getOwnPropertyDescriptor($target, $requiredContextPropertyName)) {
-                corequiredContentProperties.target[$requiredContextPropertyName] = $target[$requiredContextPropertyName];
-              }
+        const { requiredProperties, requiredPropertiesSize, type } = this.schema;
+        if(requiredPropertiesSize === 0) { pass = true; }
+        else if(type === 'object') {
+          const corequiredContextProperties = typedObjectLiteral(type);
+          const corequiredContentProperties = typedObjectLiteral(type);
+          iterateRequiredProperties: 
+          for(const [
+            $requiredPropertyName, $requiredProperty
+          ] of Object.entries(requiredProperties)) {
+            if($requiredPropertyName === $key) { continue iterateRequiredProperties }
+            const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor($source, $requiredPropertyName);
+            if(sourcePropertyDescriptor !== undefined) {
+              corequiredContextProperties[$requiredPropertyName] = $requiredProperty;
+              corequiredContentProperties[$requiredPropertyName] = $source[$requiredPropertyName];
+            }
+            else if($target) {
+              const targetPropertyDescriptor = Object.getOwnPropertyDescriptor($target, $requiredPropertyName);
+              if(targetPropertyDescriptor !== undefined) { continue iterateRequiredProperties }
+              else { corequiredContextProperties[$requiredPropertyName] = $requiredProperty; }
+            }
+            else {
+              corequiredContextProperties[$requiredPropertyName] = $requiredProperty;
             }
           }
+          const corequiredContextPropertiesSize = Object.keys(corequiredContextProperties).length;
+          const corequiredContentPropertiesSize = Object.keys(corequiredContentProperties).length;
+          if(
+            corequiredContextPropertiesSize === 0 && corequiredContentPropertiesSize === 0 ||
+            corequiredContextPropertiesSize !== corequiredContentPropertiesSize
+          ) { pass = false; }
           else {
-            for(const [$sourcePropertyName, $sourceProperty] of Object.entries($source)) {
-              if(Number($sourcePropertyName) !== Number($key)) {
-                corequiredContentProperties.source.push($source[$sourcePropertyName]);
-              }
-            }
+            const coschema = new Schema(corequiredContextProperties, this.schema.options);
+            const coschemaValidation = coschema.validate(corequiredContentProperties);
+            pass = coschemaValidation.pass;
           }
-          const corequiredContextPropertyDefinition = {
-            required: { value: false },
-            validators: $requiredContextPropertyDefintition.validators.filter(
-              ($validator) => $validator instanceof RequiredValidator === false
-            )
-          };
-          corequiredContextProperties[$requiredContextPropertyName] = Object.assign(
-            {}, $requiredContextPropertyDefintition, corequiredContextPropertyDefinition
-          );
         }
-        if(this.schema.type === 'array') {
-          corequiredContentProperties = Array.prototype.concat(
-            corequiredContentProperties.source, corequiredContentProperties.target
-          );
+        else if(type === 'array') {
+          pass = true;
         }
-        else if(this.schema.type === 'object') {
-          corequiredContentProperties = Object.assign(
-            {}, corequiredContentProperties.target, corequiredContentProperties.source
-          );
-        }
-        const coschema = new Schema(corequiredContextProperties);
-        const coschemaValidation = coschema.validate(corequiredContentProperties);
-        let pass = coschemaValidation.valid;
         verification.pass = pass;
         return verification
       }
-    }), arguments[1]);
+    }), $schema);
   }
 }
 
 class TypeValidator extends Validator {
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
+  constructor($definition = {}, $schema) {
+    super(Object.assign($definition, {
       type: 'type',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition;
         let verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         });
         let pass;
-        let typeOfDefinitionValue = typeOf($definition.value);
+        let typeOfDefinitionValue = typeOf(definition.value);
         typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
-          ? typeOf($definition.value())
+          ? typeOf(definition.value())
           : typeOfDefinitionValue;
         const typeOfContentValue = typeOf($value);
-        if(typeOfDefinitionValue === 'undefined') { pass = true; }
+        if(typeOfContentValue === 'undefined') { pass = false; }
+        else if(typeOfDefinitionValue === 'undefined') { pass = true; }
         else if(typeOfDefinitionValue === typeOfContentValue) { pass = true; }
         else { pass = false; }
         verification.pass = pass;
         return verification
       },
-    }));
+    }), $schema);
   }
 }
 
 class RangeValidator extends Validator {
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
+  constructor($definition = {}, $schema) {
+    super(Object.assign($definition, {
       type: 'range',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition;
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         });
         let pass;
         if(typeof $value !== 'number') { pass = false; }
         else {
-          const { min, max } = $definition;
+          const { min, max } = definition;
           let validMin, validMax;
           if(min.value !== undefined) { validMin = ($value >= min.value); }
           else { validMin = true; }
@@ -2572,26 +2563,27 @@ class RangeValidator extends Validator {
         verification.pass = pass;
         return verification
       }
-    }));
+    }), $schema);
   }
 }
 
 class LengthValidator extends Validator {
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
+  constructor($definition = {}, $schema) {
+    super(Object.assign($definition, {
       type: 'length',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition;
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         });
         let pass;
         if(typeof $value !== 'string') { pass = false; }
         else {
-          const { minLength, maxLength } = $definition;
+          const { minLength, maxLength } = definition;
           let validMin, validMax;
           if(minLength.value !== undefined) {
             validMin = ($value.length >= minLength.value);
@@ -2607,55 +2599,57 @@ class LengthValidator extends Validator {
         verification.pass = pass;
         return verification
       },
-    }));
+    }), $schema);
   }
 }
 
 class EnumValidator extends Validator {
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
+  constructor($definition = {}, $schema) {
+    super(Object.assign($definition, {
       type: 'enum',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition;
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         });
         let pass;
         if(![
           'string', 'number', 'boolean'
         ].includes(typeof $value)) { pass = false;}
         else {
-          const enumeration = $definition.value;
+          const enumeration = definition.value;
           pass = enumeration.includes($value);
         }
         verification.pass = pass;
         return verification
       },
-    }));
+    }), $schema);
   }
 }
 
 class MatchValidator extends Validator {
-  constructor($settings = {}) {
+  constructor($settings = {}, $schema) {
     super(Object.assign($settings, {
       type: 'match',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.settings;
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         });
         let pass;
         if(![
           'string', 'number', 'boolean'
         ].includes(typeof $value)) { pass = false;}
         else {
-          const match = $definition;
+          const match = definition;
           (match.value.exec($value) !== null);
         }
         verification.pass = pass
@@ -2663,7 +2657,7 @@ class MatchValidator extends Validator {
           : false;
         return verification
       },
-    }));
+    }), $schema);
   }
 }
 
@@ -2763,7 +2757,7 @@ class Context extends EventTarget {
           };
         }
         else if(propertyDefinitionIsPropertyDefinition === true) {
-          propertyDefinition = {};
+          propertyDefinition = { validators: [] };
           // Property Definition: 
           iteratePropertyValidators: 
           for(const [
@@ -2782,6 +2776,16 @@ class Context extends EventTarget {
             }
             propertyDefinition[$propertyValidatorName] = propertyValidator;
           }
+          $propertyDefinition.validators = $propertyDefinition.validators || [];
+          for(const $propertyDefinitionValidator of $propertyDefinition.validators) {
+            for(const $Validator of [
+              RequiredValidator, TypeValidator, RangeValidator, LengthValidator, EnumValidator, MatchValidator
+            ]) {
+              if($propertyDefinitionValidator instanceof $Validator === false) {
+                propertyDefinition.validators.push($propertyDefinitionValidator);
+              }
+            }
+          }
         }
       }
       propertyDefinition.validators = [];
@@ -2790,33 +2794,61 @@ class Context extends EventTarget {
       const {
         required,
         type,
-        min, max, 
-        minLength, maxLength, 
+        range, min, max, 
+        length, minLength, maxLength, 
         match,
       } = propertyDefinition;
-      if(contextRequired === true) {
-        propertyDefinition.required = Object.assign({}, propertyDefinition.required, { value: true });
-        validators.set('required', { source: propertyDefinition.required, validator: RequiredValidator });
+      // Required
+      if(contextRequired === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
+        type: 'required', validator: RequiredValidator, value: true
+      })); }
+      else if(required?.value === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
+        type: 'required', validator: RequiredValidator, value: true }));
       }
-      else if(required?.value === true) {
-        propertyDefinition.required = Object.assign({}, propertyDefinition.required, { value: true });
-        validators.set('required', { source: propertyDefinition.required, validator: RequiredValidator });
-      }
-      else {
-        propertyDefinition.required = Object.assign({}, propertyDefinition.required, { value: false });
-        validators.set('required', { source: propertyDefinition.required, validator: RequiredValidator });
-      }
-      if(type) { validators.set('type', { source: type, validator: TypeValidator } ); }
-      else { validators.set('type', { source: { value: undefined }, validator: TypeValidator } ); }
-      if(min || max) validators.set('range', { source: { min, max }, validator: RangeValidator } );
-      if(minLength || maxLength) validators.set('length', { source: { minLength, maxLength }, validator: LengthValidator });
-      if(propertyDefinition.enum) validators.set('enum', { source: propertyDefinition.enum, validator: EnumValidator });
-      if(match) validators.set('match', { source: match, validator: MatchValidator });
+      else { validators.set('required', Object.assign({}, propertyDefinition.required, {
+        type: 'required', validator: RequiredValidator, value: false
+      })); }
+      // Type
+      if(type) { validators.set('type', Object.assign({}, type, {
+        type: 'type', validator: TypeValidator
+      })); }
+      else { validators.set('type', Object.assign({}, type, {
+        type: 'type', validator: TypeValidator, value: undefined
+      })); }
+      // Range
+      if(range) { validators.set('range', Object.assign({}, range, {
+        type: 'range', validator: RangeValidator
+      })); }
+      else if(min || max) { validators.set('range', Object.assign({}, {
+        type: 'range', validator: RangeValidator, min, max
+      })); }
+      // Length
+      if(length) { validators.set('length', Object.assign({}, length, {
+        type: 'length', validator: LengthValidator
+      })); }
+      else if(minLength || maxLength) { validators.set('length', Object.assign({}, {
+        type: 'length', validator: LengthValidator, minLength, maxLength
+      })); }
+      // Enum
+      if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {
+        type: 'enum', validator: EnumValidator
+      })); }
+      // Match
+      if(match) { validators.set('match', Object.assign({}, match, {
+        type: 'match', validator: MatchValidator
+      })); }
+      delete propertyDefinition.min;
+      delete propertyDefinition.max;
+      delete propertyDefinition.minLength;
+      delete propertyDefinition.maxLength;
       for(const [
         $validatorName, $validatorSettings
       ] of validators.entries()) {
-        const { source, validator } = $validatorSettings;
-        propertyDefinition.validators.push(new validator(source, this.schema));
+        // const { source, validator } = $validatorSettings
+        const ValidatorClass = $validatorSettings.validator;
+        const validatorSource = $validatorSettings;
+        propertyDefinition[$validatorName] = $validatorSettings;
+        propertyDefinition.validators.push(new ValidatorClass(validatorSource, this.schema));
       }
       source[$propertyKey] = propertyDefinition;
     }
@@ -2987,7 +3019,7 @@ class Schema extends EventTarget{
     else {
       propertyDefinition.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const verification = $validator.validate(propertyDefinition[$validator.type], $key, $value, $source, $target);
+          const verification = $validator.validate($key, $value, $source, $target);
           if(verification.pass === true) { $propertyValidation.advance.push(verification); }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification); }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification); }

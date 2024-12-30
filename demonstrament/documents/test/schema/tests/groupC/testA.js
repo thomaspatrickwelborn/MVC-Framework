@@ -5,14 +5,19 @@ export default {
   name: `
     <div style="display: flex; flex-direction: column;">
       <div><code>$schema.type</code>: <code>"array"</code></div>
-      <div><code>$schema.context[0].type.value</code>: <code>[undefined|null|Number|String|Boolean]</code>
-      <div><code>$schema.required</code>: <code>false</code>
+      <div><code>$schema.context[0].type.value</code>: <code>[undefined|null|Number|String|Boolean]</code></div>
+      <div><code>$schema.required</code>: <code>false</code></div>
     </div>
   `,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
-    [0, "Content Values"]
+    [0, `
+      <div>
+        When <code>Schema.type</code> is <code>array</code> and <code>Schema.required</code> is <code>false</code>
+        added array elements must pass <code>type</code> verification.
+      </div>
+    `]
   ]),
   method: function() {
     // Schemata

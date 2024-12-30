@@ -3,24 +3,24 @@ const Messages = {
   'false': ($verification) => `${$verification.pass}`,
 }
 export default class Validator extends EventTarget {
-  #_settings
+  #_definition
   #_schema
-  constructor($settings = {}, $schema) {
+  constructor($definition = {}, $schema) {
     super()
-    this.settings = Object.freeze(
-      Object.assign({ messages: Messages }, $settings)
+    this.definition = Object.freeze(
+      Object.assign({ messages: Messages }, $definition)
     )
     this.schema = $schema
   }
-  get settings() { return this.#_settings }
-  set settings($settings) { this.#_settings = $settings }
+  get definition() { return this.#_definition }
+  set definition($definition) { this.#_definition = $definition }
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined) { return this.#_schema }
     this.#_schema = $schema
     return this.#_schema
   }
-  get type() { return this.settings.type }
-  get messages() { return this.settings.messages }
-  get validate() { return this.settings.validate }
+  get type() { return this.definition.type }
+  get messages() { return this.definition.messages }
+  get validate() { return this.definition.validate }
 }

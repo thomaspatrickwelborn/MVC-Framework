@@ -12,7 +12,7 @@ export default {
   collectName: 'detail',
   collect: new Map([
     [0, `<div>When Schema context property definitions are not <code>required</code> no valid complementary content property values must be present on target or source object to pass.</div>`],
-    [1, `<div>When Schema validation type is <code>object</code> all complementary content property values must validate on target or source to pass.</div>`],
+    [1, `<div>When Schema <code>required</code> option is <code>true</code> all complementary content property values must validate on target or source to pass.</div>`],
   ]),
   method: function() {
     // 0 Required Properties
@@ -55,7 +55,7 @@ export default {
       propertyC: 33333,
       propertyD: null,
       propertyE: "55555",
-    } // true
+    } // false
     // 2 Nonrequired Properties Nonvalid (A, B)
     // 3 Nonrequired Properties Valid (C, D, E)
     const contentC = {
@@ -67,7 +67,7 @@ export default {
     } // false
     const solve = [
       true,
-      true,
+      false,
       false,
     ]
     const quest = []

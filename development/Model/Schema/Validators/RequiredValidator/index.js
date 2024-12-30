@@ -3,73 +3,61 @@ import Schema from '../../index.js'
 import Validator from '../../Validator/index.js'
 import Verification from '../../Verification/index.js'
 export default class RequiredValidator extends Validator {
-  constructor() {
-    super(Object.assign(arguments[0], {
+  constructor($definition, $schema) {
+    super(Object.assign($definition, {
       type: 'required',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition
+        let pass
         const verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         })
-        if($definition.value === false) {
-          verification.pass = true
-          return verification
-        }
-        const requiredContextProperties = this.schema.requiredProperties
-        const corequiredContextProperties = typedObjectLiteral(this.schema.type)
-        let corequiredContentProperties = {
-          source: typedObjectLiteral(this.schema.type),
-          target: typedObjectLiteral(this.schema.type),
-        }
-        for(const [
-          $requiredContextPropertyName, $requiredContextPropertyDefintition
-        ] of Object.entries(requiredContextProperties)) {
-          if(Number.isNaN(Number($requiredContextPropertyName))) {
-            if($requiredContextPropertyName !== $key) {
-              if(Object.getOwnPropertyDescriptor($source, $requiredContextPropertyName)) {
-                corequiredContentProperties.source[$requiredContextPropertyName] = $source[$requiredContextPropertyName]
-              }
-              else if(Object.getOwnPropertyDescriptor($target, $requiredContextPropertyName)) {
-                corequiredContentProperties.target[$requiredContextPropertyName] = $target[$requiredContextPropertyName]
-              }
+        const { requiredProperties, requiredPropertiesSize, type } = this.schema
+        if(requiredPropertiesSize === 0) { pass = true }
+        else if(type === 'object') {
+          const corequiredContextProperties = typedObjectLiteral(type)
+          const corequiredContentProperties = typedObjectLiteral(type)
+          iterateRequiredProperties: 
+          for(const [
+            $requiredPropertyName, $requiredProperty
+          ] of Object.entries(requiredProperties)) {
+            if($requiredPropertyName === $key) { continue iterateRequiredProperties }
+            const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor($source, $requiredPropertyName)
+            if(sourcePropertyDescriptor !== undefined) {
+              corequiredContextProperties[$requiredPropertyName] = $requiredProperty
+              corequiredContentProperties[$requiredPropertyName] = $source[$requiredPropertyName]
+            }
+            else if($target) {
+              const targetPropertyDescriptor = Object.getOwnPropertyDescriptor($target, $requiredPropertyName)
+              if(targetPropertyDescriptor !== undefined) { continue iterateRequiredProperties }
+              else { corequiredContextProperties[$requiredPropertyName] = $requiredProperty }
+            }
+            else {
+              corequiredContextProperties[$requiredPropertyName] = $requiredProperty
             }
           }
+          const corequiredContextPropertiesSize = Object.keys(corequiredContextProperties).length
+          const corequiredContentPropertiesSize = Object.keys(corequiredContentProperties).length
+          if(
+            corequiredContextPropertiesSize === 0 && corequiredContentPropertiesSize === 0 ||
+            corequiredContextPropertiesSize !== corequiredContentPropertiesSize
+          ) { pass = false }
           else {
-            for(const [$sourcePropertyName, $sourceProperty] of Object.entries($source)) {
-              if(Number($sourcePropertyName) !== Number($key)) {
-                corequiredContentProperties.source.push($source[$sourcePropertyName])
-              }
-            }
+            const coschema = new Schema(corequiredContextProperties, this.schema.options)
+            const coschemaValidation = coschema.validate(corequiredContentProperties)
+            pass = coschemaValidation.pass
           }
-          const corequiredContextPropertyDefinition = {
-            required: { value: false },
-            validators: $requiredContextPropertyDefintition.validators.filter(
-              ($validator) => $validator instanceof RequiredValidator === false
-            )
-          }
-          corequiredContextProperties[$requiredContextPropertyName] = Object.assign(
-            {}, $requiredContextPropertyDefintition, corequiredContextPropertyDefinition
-          )
         }
-        if(this.schema.type === 'array') {
-          corequiredContentProperties = Array.prototype.concat(
-            corequiredContentProperties.source, corequiredContentProperties.target
-          )
+        else if(type === 'array') {
+          pass = true
         }
-        else if(this.schema.type === 'object') {
-          corequiredContentProperties = Object.assign(
-            {}, corequiredContentProperties.target, corequiredContentProperties.source
-          )
-        }
-        const coschema = new Schema(corequiredContextProperties)
-        const coschemaValidation = coschema.validate(corequiredContentProperties)
-        let pass = coschemaValidation.valid
         verification.pass = pass
         return verification
       }
-    }), arguments[1])
+    }), $schema)
   }
 }

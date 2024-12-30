@@ -6,29 +6,31 @@ import Verification from '../../Verification/index.js'
 const { PrimitiveKeys, PrimitiveValues } = Variables
 
 export default class TypeValidator extends Validator {
-  constructor($settings = {}) {
-    super(Object.assign($settings, {
+  constructor($definition = {}, $schema) {
+    super(Object.assign($definition, {
       type: 'type',
-      validate: ($definition, $key, $value, $source, $target) => {
+      validate: ($key, $value, $source, $target) => {
+        const definition = this.definition
         let verification = new Verification({
           type: this.type,
-          definition: $definition,
+          definition: definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.messages),
+          messages: recursiveAssign(this.messages, definition.messages),
         })
         let pass
-        let typeOfDefinitionValue = typeOf($definition.value)
+        let typeOfDefinitionValue = typeOf(definition.value)
         typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
-          ? typeOf($definition.value())
+          ? typeOf(definition.value())
           : typeOfDefinitionValue
         const typeOfContentValue = typeOf($value)
-        if(typeOfDefinitionValue === 'undefined') { pass = true }
+        if(typeOfContentValue === 'undefined') { pass = false }
+        else if(typeOfDefinitionValue === 'undefined') { pass = true }
         else if(typeOfDefinitionValue === typeOfContentValue) { pass = true }
         else { pass = false }
         verification.pass = pass
         return verification
       },
-    }))
+    }), $schema)
   }
 }
