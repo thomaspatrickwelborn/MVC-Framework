@@ -127,17 +127,24 @@ export default class Context extends EventTarget {
         minLength, maxLength, 
         match,
       } = propertyDefinition
-      if(required?.value === true || contextRequired === true) {
-        validators.set('required', { source: { required: true }, validator: RequiredValidator })
+      if(contextRequired === true) {
+        propertyDefinition.required = Object.assign({}, propertyDefinition.required, { value: true })
+        validators.set('required', { source: propertyDefinition.required, validator: RequiredValidator })
       }
-      else if(required?.value == false || contextRequired == false) {
-        validators.set('required', { source: { required: false }, validator: RequiredValidator })
+      else if(required?.value === true) {
+        propertyDefinition.required = Object.assign({}, propertyDefinition.required, { value: true })
+        validators.set('required', { source: propertyDefinition.required, validator: RequiredValidator })
       }
-      if(type) validators.set('type', { source: { type }, validator: TypeValidator } )
+      else {
+        propertyDefinition.required = Object.assign({}, propertyDefinition.required, { value: false })
+        validators.set('required', { source: propertyDefinition.required, validator: RequiredValidator })
+      }
+      if(type) { validators.set('type', { source: type, validator: TypeValidator } ) }
+      else { validators.set('type', { source: { value: undefined }, validator: TypeValidator } ) }
       if(min || max) validators.set('range', { source: { min, max }, validator: RangeValidator } )
       if(minLength || maxLength) validators.set('length', { source: { minLength, maxLength }, validator: LengthValidator })
-      if(propertyDefinition.enum) validators.set('enum', { source: { enum: propertyDefinition.enum }, validator: EnumValidator })
-      if(match) validators.set('match', { source: { match }, validator: MatchValidator })
+      if(propertyDefinition.enum) validators.set('enum', { source: propertyDefinition.enum, validator: EnumValidator })
+      if(match) validators.set('match', { source: match, validator: MatchValidator })
       for(const [
         $validatorName, $validatorSettings
       ] of validators.entries()) {

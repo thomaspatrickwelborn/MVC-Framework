@@ -11,14 +11,14 @@ export default class EnumValidator extends Validator {
           definition: $definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.type.messages),
+          messages: recursiveAssign(this.messages, $definition.messages),
         })
         let pass
         if(![
           'string', 'number', 'boolean'
         ].includes(typeof $value)) { pass = false}
         else {
-          const enumeration = $definition.enum.value
+          const enumeration = $definition.value
           pass = enumeration.includes($value)
         }
         verification.pass = pass

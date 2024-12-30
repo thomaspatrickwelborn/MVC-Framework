@@ -12,12 +12,13 @@ export default class Schema extends EventTarget{
   options
   #_type
   #properties
+  #_requiredProperties
   #_context
   constructor($properties = {}, $options = {}) {
     super()
     this.#properties = $properties
     this.options = Object.assign({}, Options, $options)
-    // this.context
+    // this.context 
   }
   get type() {
     if(this.#_type !== undefined) return this.#_type
@@ -26,11 +27,13 @@ export default class Schema extends EventTarget{
   }
   get required() { return this.options.required }
   get requiredProperties() {
+    if(this.#_requiredProperties !== undefined) return this.#_requiredProperties
     let requiredProperties = typedObjectLiteral(this.type)
     for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
       if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition }
     }
-    return requiredProperties
+    this.#_requiredProperties = requiredProperties
+    return this.#_requiredProperties
   }
   get requiredPropertiesSize() { return Object.keys(this.requiredProperties).length }
   get context() {
@@ -57,7 +60,7 @@ export default class Schema extends EventTarget{
     if($content?.classToString === Content.toString()) { $content = $content.object }
     if($target?.classToString === Content.toString()) { $target = $target.object }
     const validation = new Validation({
-      type: this.required,
+      // type: this.required,
       definition: this.context,
       key: $contentName, 
       value: $content,
@@ -92,7 +95,7 @@ export default class Schema extends EventTarget{
       else if(validation.advance.length) { validation.valid = true }
       else if(validation.deadvance.length) { validation.valid = true }
       else if(validation.unadvance.length) { validation.valid = undefined }
-      else { validation = true }
+      else { validation.valid = true }
     }
     return validation
   }
@@ -101,7 +104,7 @@ export default class Schema extends EventTarget{
     if(this.type === 'array') { propertyDefinition = this.context[0] }
     else if(this.type === 'object') { propertyDefinition = this.context[$key] }
     const propertyValidation = new Validation({
-      type: this.required,
+      // type: this.required,
       definition: propertyDefinition,
       key: $key,
       value: $value,
@@ -129,7 +132,7 @@ export default class Schema extends EventTarget{
       iterateContextValueValidators: 
       propertyDefinition.validators.reduce(
         ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const verification = $validator.validate(propertyDefinition, $key, $value, $source, $target)
+          const verification = $validator.validate(propertyDefinition[$validator.type], $key, $value, $source, $target)
           if(verification.pass === true) { $propertyValidation.advance.push(verification) }
           else if(verification.pass === false) { $propertyValidation.deadvance.push(verification) }
           else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification) }

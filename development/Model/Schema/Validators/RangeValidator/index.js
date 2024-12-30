@@ -11,7 +11,7 @@ export default class RangeValidator extends Validator {
           definition: $definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.type.messages),
+          messages: recursiveAssign(this.messages, $definition.messages),
         })
         let pass
         if(typeof $value !== 'number') { pass = false }

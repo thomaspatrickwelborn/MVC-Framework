@@ -11,14 +11,14 @@ export default class MatchValidator extends Validator {
           definition: $definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.type.messages),
+          messages: recursiveAssign(this.messages, $definition.messages),
         })
         let pass
         if(![
           'string', 'number', 'boolean'
         ].includes(typeof $value)) { pass = false}
         else {
-          const { match } = $definition
+          const match = $definition
           const valueMatch = (match.value.exec($value) !== null)
         }
         verification.pass = pass

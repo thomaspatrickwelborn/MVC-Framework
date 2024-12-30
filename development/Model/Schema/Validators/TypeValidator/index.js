@@ -15,25 +15,17 @@ export default class TypeValidator extends Validator {
           definition: $definition,
           key: $key,
           value: $value,
-          messages: recursiveAssign(this.messages, $definition.type.messages),
+          messages: recursiveAssign(this.messages, $definition.messages),
         })
         let pass
-        let typeOfDefinitionValue = typeOf($definition.type.value)
+        let typeOfDefinitionValue = typeOf($definition.value)
         typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
-          ? typeOf($definition.type.value())
+          ? typeOf($definition.value())
           : typeOfDefinitionValue
         const typeOfContentValue = typeOf($value)
-        if(typeOfContentValue === 'undefined') { pass = false }
-        else if(typeOfDefinitionValue === 'undefined') { pass = true }
-        else {
-          if(
-            PrimitiveValues.includes($definition.type.value) &&
-            PrimitiveKeys.includes(typeOfContentValue)
-          ) {
-            if(typeOfDefinitionValue === typeOfContentValue) { pass = true }
-            else { pass = false }
-          }
-        }
+        if(typeOfDefinitionValue === 'undefined') { pass = true }
+        else if(typeOfDefinitionValue === typeOfContentValue) { pass = true }
+        else { pass = false }
         verification.pass = pass
         return verification
       },

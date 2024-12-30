@@ -13,7 +13,7 @@ export default class Validation extends EventTarget {
     super()
     this.#settings = Object.assign({ messages: Messages }, $settings)
   }
-  get type() { return this.#settings.type }
+  // get type() { return this.#settings.type }
   get definition() { return this.#settings.definition }
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }

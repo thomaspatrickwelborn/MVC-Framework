@@ -1,12 +1,12 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: 'testA',
+  id: 'testB',
   name: `
     <div style="display: flex; flex-direction: column;">
       <div><code>$schema.type</code>: <code>"array"</code></div>
       <div><code>$schema.context[0].type.value</code>: <code>[undefined|null|Number|String|Boolean]</code>
-      <div><code>$schema.required</code>: <code>false</code>
+      <div><code>$schema.required</code>: <code>true</code>
     </div>
   `,
   type: 'test-result',
@@ -16,11 +16,11 @@ export default {
   ]),
   method: function() {
     // Schemata
-    const schemaA = new Schema([{ type: undefined }], { required: false })
-    const schemaB = new Schema([{ type: null }], { required: false })
-    const schemaC = new Schema([{ type: Number }], { required: false })
-    const schemaD = new Schema([{ type: String }], { required: false })
-    const schemaE = new Schema([{ type: Boolean }], { required: false })
+    const schemaA = new Schema([{ type: undefined }], { required: true })
+    const schemaB = new Schema([{ type: null }], { required: true })
+    const schemaC = new Schema([{ type: Number }], { required: true })
+    const schemaD = new Schema([{ type: String }], { required: true })
+    const schemaE = new Schema([{ type: Boolean }], { required: true })
     // Contents
     const contentA = [undefined, null, 333, "DDD", true]
     const contentB = [null, null, null, null, null]
@@ -37,36 +37,36 @@ export default {
         true, // contentD
         true, // contentE
       ], 
-      // schemaA: 
+      // schemaB: 
       [
-        true, // contentA
+        false, // contentA
         true, // contentB
-        true, // contentC
-        true, // contentD
-        true, // contentE
+        false, // contentC
+        false, // contentD
+        false, // contentE
       ], 
-      // schemaA: 
+      // schemaC: 
       [
-        true, // contentA
-        true, // contentB
+        false, // contentA
+        false, // contentB
         true, // contentC
-        true, // contentD
-        true, // contentE
+        false, // contentD
+        false, // contentE
       ], 
-      // schemaA: 
+      // schemaD: 
       [
-        true, // contentA
-        true, // contentB
-        true, // contentC
+        false, // contentA
+        false, // contentB
+        false, // contentC
         true, // contentD
-        true, // contentE
+        false, // contentE
       ], 
-      // schemaA: 
+      // schemaE: 
       [
-        true, // contentA
-        true, // contentB
-        true, // contentC
-        true, // contentD
+        false, // contentA
+        false, // contentB
+        false, // contentC
+        false, // contentD
         true, // contentE
       ], 
     ]
@@ -98,8 +98,8 @@ export default {
       quest.push(subquest)
     }
     console.log(
-      "\n", JSON.stringify(quest), 
-      "\n", JSON.stringify(solve), 
+      "\n", "quest", JSON.stringify(quest), 
+      "\n", "solve", JSON.stringify(solve), 
     )
     this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
