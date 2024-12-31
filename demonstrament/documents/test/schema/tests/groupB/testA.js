@@ -4,8 +4,8 @@ export default {
   id: "testA",
   name: `
     <div style="display: flex; flex-direction: column;">
-      <div>Schema Properties Required: All</div>
-      <div>Schema Required: <code>false</code></div>
+      <div><code>$schema.required</code>: <code>false</code></div>
+      <div><code>$schema.context[$property].required</code>: <code>true</code></div>
     </div>
   `,
   type: 'test-result',
