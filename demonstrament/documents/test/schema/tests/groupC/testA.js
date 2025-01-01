@@ -2,13 +2,7 @@ import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
   id: 'testC',
-  name: `
-    <div style="display: flex; flex-direction: column;">
-      <div><code>$schema.type</code>: <code>"object"</code></div>
-      <div><code>$schema.context[$contextKey].type.value</code>: <code>[undefined|null|Number|String|Boolean]</code></div>
-      <div><code>$schema.required</code>: <code>true</code></div>
-    </div>
-  `,
+  name: `Complex Schemata 1`,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
@@ -17,6 +11,31 @@ export default {
   method: function() {
     const solve = []
     const quest = []
+    const schemaA = new Schema({
+      propertyA: {
+        propertyB: Number
+      },
+      propertyC: {
+        propertyD: String,
+      }
+    })
+    // console.log(schemaA)
+    console.log(schemaA.validate({
+      propertyA: {
+        propertyB: 333
+      },
+      propertyC: {
+        propertyD: "333"
+      }
+    }))
+    console.log(schemaA.validate({
+      propertyA: {
+        propertyB: "333"
+      },
+      propertyC: {
+        propertyD: 333
+      }
+    }))
     const schemata = []
     const contents = []
     const validations = []

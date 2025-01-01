@@ -2519,15 +2519,20 @@ class TypeValidator extends Validator {
           messages: recursiveAssign(this.messages, definition.messages),
         });
         let pass;
-        let typeOfDefinitionValue = typeOf(definition.value);
-        typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
-          ? typeOf(definition.value())
-          : typeOfDefinitionValue;
-        const typeOfContentValue = typeOf($value);
-        if(typeOfContentValue === 'undefined') { pass = false; }
-        else if(typeOfDefinitionValue === 'undefined') { pass = true; }
-        else if(typeOfDefinitionValue === typeOfContentValue) { pass = true; }
-        else { pass = false; }
+        if(definition.value instanceof Schema) {
+          const schemaValidation = definition.value.validate($value);
+          pass = schemaValidation.valid;
+        }
+        else {
+          let typeOfDefinitionValue = typeOf(definition.value);
+          typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
+            ? typeOf(definition.value())
+            : typeOfDefinitionValue;
+          const typeOfContentValue = typeOf($value);
+          if(typeOfContentValue === 'undefined') { pass = false; }
+          else if(typeOfDefinitionValue === 'undefined') { pass = true; }
+          else { pass = (typeOfDefinitionValue === typeOfContentValue); }
+        }
         verification.pass = pass;
         return verification
       },
@@ -2981,9 +2986,9 @@ class Schema extends EventTarget{
     else if(this.required === false) {
       if(deadvancedRequiredProperties.length) { validation.valid = false; }
       else if(validation.advance.length) { validation.valid = true; }
-      else if(validation.deadvance.length) { validation.valid = true; }
+      else if(validation.deadvance.length) { validation.valid = false; }
       else if(validation.unadvance.length) { validation.valid = undefined; }
-      else { validation.valid = true; }
+      else { validation.valid = false; }
     }
     return validation
   }

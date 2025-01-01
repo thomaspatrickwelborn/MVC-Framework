@@ -93,9 +93,9 @@ export default class Schema extends EventTarget{
     else if(this.required === false) {
       if(deadvancedRequiredProperties.length) { validation.valid = false }
       else if(validation.advance.length) { validation.valid = true }
-      else if(validation.deadvance.length) { validation.valid = true }
+      else if(validation.deadvance.length) { validation.valid = false }
       else if(validation.unadvance.length) { validation.valid = undefined }
-      else { validation.valid = true }
+      else { validation.valid = false }
     }
     return validation
   }

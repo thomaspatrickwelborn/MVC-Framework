@@ -1,7 +1,7 @@
 import testA from './testA.js'
 export default {
   id: "groupC",
-  name: "<div><code>Schema.context[$property].required</code></div>",
+  name: "<div>Complex Schemata</div>",
   // descript: "",
   type: 'test-group',
   collectName: 'tests',

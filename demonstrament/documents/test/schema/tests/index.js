@@ -25,8 +25,8 @@ export default {
   type: 'test-results', 
   collectName: 'test-groups',
   collect: new Map([
-    ['groupA', groupA],
-    ['groupB', groupB],
+    // ['groupA', groupA],
+    // ['groupB', groupB],
     ['groupC', groupC],
   ]),
 }
