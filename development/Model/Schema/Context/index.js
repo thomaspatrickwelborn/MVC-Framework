@@ -7,33 +7,19 @@ import {
 import Schema from '../index.js'
 import Handler from './Handler/index.js'
 export default class Context extends EventTarget {
-  #_properties
-  #_options
+  #properties
   #_schema
   #_type
   #_proxy
   #_handler
   #_source
-  constructor($properties, $options, $schema) {
+  constructor($properties, $schema) {
     super()
     this.#properties = $properties
-    this.options = $options
     this.schema = $schema
     return this.proxy
   }
-  get #properties() { return this.#_properties }
-  set #properties($properties) {
-    if(this.#_properties !== undefined) return
-    this.#_properties = $properties
-    return this.#_properties
-  }
-  get options() { return this.#_options }
-  set options($options) {
-    if(this.#_options !== undefined) return
-    this.#_options = $options
-    return this.#_options
-  }
-  get required() { return this.options.required }
+  get required() { return this.schema.options.required }
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined) return
@@ -92,7 +78,7 @@ export default class Context extends EventTarget {
       ) {
         let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition)
         if(propertyDefinitionIsPropertyDefinition === false) {
-          propertyDefinition = new Schema($propertyDefinition, this.options)
+          propertyDefinition = new Schema($propertyDefinition, this.schema.options)
         }
         else if(propertyDefinitionIsPropertyDefinition === true) {
           propertyDefinition = { validators: [] }

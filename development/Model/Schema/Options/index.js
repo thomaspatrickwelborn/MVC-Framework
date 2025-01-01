@@ -1,3 +1,4 @@
 export default {
-  required: false 
+  required: false,
+  verificationType: 'all', // 'one'
 }

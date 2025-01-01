@@ -2633,33 +2633,19 @@ class Handler {
 }
 
 class Context extends EventTarget {
-  #_properties
-  #_options
+  #properties
   #_schema
   #_type
   #_proxy
   #_handler
   #_source
-  constructor($properties, $options, $schema) {
+  constructor($properties, $schema) {
     super();
     this.#properties = $properties;
-    this.options = $options;
     this.schema = $schema;
     return this.proxy
   }
-  get #properties() { return this.#_properties }
-  set #properties($properties) {
-    if(this.#_properties !== undefined) return
-    this.#_properties = $properties;
-    return this.#_properties
-  }
-  get options() { return this.#_options }
-  set options($options) {
-    if(this.#_options !== undefined) return
-    this.#_options = $options;
-    return this.#_options
-  }
-  get required() { return this.options.required }
+  get required() { return this.schema.options.required }
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined) return
@@ -2717,7 +2703,7 @@ class Context extends EventTarget {
       ) {
         let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition);
         if(propertyDefinitionIsPropertyDefinition === false) {
-          propertyDefinition = new Schema($propertyDefinition, this.options);
+          propertyDefinition = new Schema($propertyDefinition, this.schema.options);
         }
         else if(propertyDefinitionIsPropertyDefinition === true) {
           propertyDefinition = { validators: [] };
@@ -2862,20 +2848,21 @@ class Validation extends EventTarget {
 }
 
 var Options$6 = {
-  required: false 
+  required: false,
+  verificationType: 'all', // 'one'
 };
 
 class Schema extends EventTarget{
+  #properties
   options
   #_type
-  #properties
-  #_requiredProperties
   #_context
+  #_requiredProperties
+  #_requiredPropertiesSize
   constructor($properties = {}, $options = {}) {
     super();
     this.#properties = $properties;
     this.options = Object.assign({}, Options$6, $options);
-    // this.context 
   }
   get type() {
     if(this.#_type !== undefined) return this.#_type
@@ -2892,13 +2879,18 @@ class Schema extends EventTarget{
     this.#_requiredProperties = requiredProperties;
     return this.#_requiredProperties
   }
-  get requiredPropertiesSize() { return Object.keys(this.requiredProperties).length }
+  get requiredPropertiesSize() {
+    if(this.#_requiredPropertiesSize !== undefined) return this.#_requiredPropertiesSize
+    this.#_requiredPropertiesSize = Object.keys(this.requiredProperties).length;
+    return this.#_requiredPropertiesSize
+  }
+  get verificationType() { return this.options.verificationType }
   get context() {
     if(this.#_context !== undefined) return this.#_context
-    this.#_context = new Context(this.#properties, this.options, this);
+    this.#_context = new Context(this.#properties, this);
     return this.#_context
   }
-  validate() {
+  #parseValidateArguments() {
     let $arguments = [...arguments];
     let $sourceName, $source, $target;
     if($arguments.length === 1) {
@@ -2915,8 +2907,11 @@ class Schema extends EventTarget{
     }
     if($source?.classToString === Content.toString()) { $source = $source.object; }
     if($target?.classToString === Content.toString()) { $target = $target.object; }
+    return { $sourceName, $source, $target }
+  }
+  validate() {
+    const { $sourceName, $source, $target } = this.#parseValidateArguments(...arguments);
     const validation = new Validation({
-      // type: this.required,
       definition: this.context,
       key: $sourceName, 
       value: $source,
@@ -2986,15 +2981,14 @@ class Schema extends EventTarget{
     }
     // Context Value: Primitive
     else {
-      propertyDefinition.validators.reduce(
-        ($propertyValidation, $validator, $validatorIndex, $validators) => {
-          const verification = $validator.validate($key, $value, $source, $target);
-          if(verification.pass === true) { $propertyValidation.advance.push(verification); }
-          else if(verification.pass === false) { $propertyValidation.deadvance.push(verification); }
-          else if(verification.pass === undefined) { $propertyValidation.unadvance.push(verification); }
-          return $propertyValidation
-        }, propertyValidation
-      );
+      iterateContextValueValidators:
+      for(const [$validatorIndex, $validator] of Object.entries(propertyDefinition.validators)) {
+        const verification = $validator.validate($key, $value, $source, $target);
+        if(verification.pass === true) { propertyValidation.advance.push(verification); }
+        else if(verification.pass === false) { propertyValidation.deadvance.push(verification); }
+        else if(verification.pass === undefined) { propertyValidation.unadvance.push(verification); }
+        if(this.verificationType === 'one' && propertyValidation.deadvance.length) { break iterateContextValueValidators }
+      }
     }
     if(propertyValidation.deadvance.length) { propertyValidation.valid = false; }
     else if(propertyValidation.advance.length) { propertyValidation.valid = true; }

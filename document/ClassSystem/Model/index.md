@@ -6,9 +6,9 @@
 { content, schema, localStorage }
 ```
 ### `schema` Setting
+**Type**: `object`, `array`, `Schema`, `undefined`  
 **Default**: `undefined`  
 **Required**: `false`  
-**Type**: `object`, `array`, `Schema`, `undefined`  
 **Descript**:  
  - [`Schema` settings](./Schema/index.md#settings-property).  
 ### `content` Setting
@@ -19,9 +19,9 @@
  - [`Content` Settings](./Content/index.md#settings-property).  
  - Required to instantiate model, otherwise `constructor` returns `null`.  
 ### `localStorage` Setting
+**Type**: `string`, `undefined`  
 **Default**: `undefined`  
 **Required**: `false`  
-**Type**: `string`, `undefined`  
 **Descript**:  
  - [`LocalStorage` Settings](./LocalStorage/index.md#settings-property).  
 
@@ -30,33 +30,33 @@
 { schema, content, enableEvents, localStorage, autoLoad }
 ```
 ### `schema` Option
+**Type**: `object`, `array`, `undefined`  
 **Default**: `undefined`  
 **Required**: `false`  
-**Type**: `object`, `array`, `undefined`  
 **Descript**:  
  - [`Schema` Options](./Schema/index.md/#options-property).  
 ### `content` Option
+**Type**: `object`, `array`, `undefined`  
 **Default**: `undefined`  
 **Required**: `false`  
-**Type**: `object`, `array`, `undefined`  
 **Descript**:  
  - [`Content` Options](./Content/index.md/#options-property).  
 ### `autoload` Option
+**Type**: `boolean`  
 **Default**: `false`  
 **Required**: `false`  
-**Type**: `boolean`  
 **Descript**:  
    - Specifies `content` property instantiated with `localStorage` item.  
 ### `autosave` Option
+**Type**: `boolean`  
 **Default**: `false`  
 **Required**: `false`  
-**Type**: `boolean`  
 **Descript**:  
  - Specifies `content` saved to `localStorage` after each content property modifier event.  
 ### `changEvents` Options
+**Type**: `Boolean`  
 **Default**: `false`  
 **Required**: `false`  
-**Type**: `Boolean`  
 **Descript**:  
  - Specifies `content` property modifier events (`ChangeEvents`) captured
 
