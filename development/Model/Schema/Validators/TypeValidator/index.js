@@ -19,20 +19,14 @@ export default class TypeValidator extends Validator {
           messages: recursiveAssign(this.messages, definition.messages),
         })
         let pass
-        if(definition.value instanceof Schema) {
-          const schemaValidation = definition.value.validate($value)
-          pass = schemaValidation.valid
-        }
-        else {
-          let typeOfDefinitionValue = typeOf(definition.value)
-          typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
-            ? typeOf(definition.value())
-            : typeOfDefinitionValue
-          const typeOfContentValue = typeOf($value)
-          if(typeOfContentValue === 'undefined') { pass = false }
-          else if(typeOfDefinitionValue === 'undefined') { pass = true }
-          else { pass = (typeOfDefinitionValue === typeOfContentValue) }
-        }
+        let typeOfDefinitionValue = typeOf(definition.value)
+        typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
+          ? typeOf(definition.value())
+          : typeOfDefinitionValue
+        const typeOfContentValue = typeOf($value)
+        if(typeOfContentValue === 'undefined') { pass = false }
+        else if(typeOfDefinitionValue === 'undefined') { pass = true }
+        else { pass = (typeOfDefinitionValue === typeOfContentValue) }
         verification.pass = pass
         return verification
       },

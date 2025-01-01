@@ -43,46 +43,44 @@ export default class Schema extends EventTarget{
   }
   validate() {
     let $arguments = [...arguments]
-    let $contentName, $content, $target
-    if($arguments.length === 1) { $contentName = null; $content = $arguments.shift(); $target = null }
-    else if(
-      $arguments.length === 2 &&
-      typeof $arguments[0] === 'string'
-    ) { $contentName = $arguments.shift(); $content = $arguments.shift(); $target = null }
-    else if(
-      $arguments.length === 2 &&
-      typeof $arguments[0] === 'object'
-    ) { $contentName = null; $content = $arguments.shift(); $target = $arguments.shift() }
-    else if(
-      $arguments.length === 3 &&
-      typeof $arguments[0] === 'string'
-    ) { $contentName = $arguments.shift(); $content = $arguments.shift(); $target = $arguments.shift() }
-    if($content?.classToString === Content.toString()) { $content = $content.object }
+    let $sourceName, $source, $target
+    if($arguments.length === 1) {
+      $sourceName = null; $source = $arguments.shift(); $target = null
+    }
+    else if($arguments.length === 2 && typeof $arguments[0] === 'string') {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = null
+    }
+    else if($arguments.length === 2 && typeof $arguments[0] === 'object') {
+      $sourceName = null; $source = $arguments.shift(); $target = $arguments.shift()
+    }
+    else if($arguments.length === 3 && typeof $arguments[0] === 'string') {
+      $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift()
+    }
+    if($source?.classToString === Content.toString()) { $source = $source.object }
     if($target?.classToString === Content.toString()) { $target = $target.object }
     const validation = new Validation({
       // type: this.required,
       definition: this.context,
-      key: $contentName, 
-      value: $content,
+      key: $sourceName, 
+      value: $source,
       properties: typedObjectLiteral(this.type),
     })
-    const contentProperties = Object.entries($content)
-    let contentPropertyIndex = 0
+    const sourceProperties = Object.entries($source)
+    let sourcePropertyIndex = 0
     let deadvancedRequiredProperties = []
     // Iterate Content Properties 
-    while(contentPropertyIndex < contentProperties.length) {
-      const [$contentKey, $contentValue] = contentProperties[contentPropertyIndex]
-      const propertyValidation = this.validateProperty($contentKey, $contentValue, $content, $target)
+    while(sourcePropertyIndex < sourceProperties.length) {
+      const [$sourceKey, $sourceValue] = sourceProperties[sourcePropertyIndex]
+      const propertyValidation = this.validateProperty($sourceKey, $sourceValue, $source, $target)
       const deadvancedRequiredPropertyValidation = propertyValidation.deadvance.filter(
         ($verification) => $verification.type === 'required'
       )
-      validation.properties[$contentKey] = propertyValidation
-      if(deadvancedRequiredPropertyValidation.length) { validation.deadvance.push(propertyValidation) }
-      else if(propertyValidation.valid === true) { validation.advance.push(propertyValidation) } 
+      validation.properties[$sourceKey] = propertyValidation
+      if(propertyValidation.valid === true) { validation.advance.push(propertyValidation) } 
       else if(propertyValidation.valid === false) { validation.deadvance.push(propertyValidation) } 
       else if(propertyValidation.valid === undefined) { validation.unadvance.push(propertyValidation )}
       deadvancedRequiredProperties = deadvancedRequiredProperties.concat(deadvancedRequiredPropertyValidation)
-      contentPropertyIndex++
+      sourcePropertyIndex++
     }
     if(this.required === true) {
       if(validation.deadvance.length) { validation.valid = false }
@@ -122,7 +120,9 @@ export default class Schema extends EventTarget{
     }
     // Context Value: Object
     else if(propertyDefinition instanceof Schema) {
-      const validation = propertyDefinition.validate($key, $value, $source, $target)
+      let validation
+      if($target && $target[$key]) { validation = propertyDefinition.validate($key, $value, $target[$key]) }
+      else { validation = propertyDefinition.validate($key, $value) }
       if(validation.valid === true) { propertyValidation.advance.push(validation) }
       else if(validation.valid === false) { propertyValidation.deadvance.push(validation) }
       else if(validation.valid === undefined) { propertyValidation.unadvance.push(validation) }

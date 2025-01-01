@@ -1,14 +1,14 @@
 import Test from '../../test/index.js'
 import Model from '../../core/model/index.js'
 export default function TestResultsModels($tests) {
-  const dataPath = [$tests.id, 'data'].join('/')
+  const dataPath = ['data', $tests.id].join('/')
   const data = new Model({
     autosave: false,
     autoload: false,
     path: dataPath,
     content: $tests,
   })
-  const facePath = [$tests.id, 'face'].join('/')
+  const facePath = ['face', $tests.id].join('/')
   const face = new Model({
     autosave: true,
     autoload: true,
@@ -28,7 +28,7 @@ export default function TestResultsModels($tests) {
   for(const [
     $testGroupID, $testGroup
   ] of Array.from(data.get('collect'))/*.reverse()*/) {
-    const testGroupPath = [data.path,  $testGroupID, 'data'].join('/')
+    const testGroupPath = [data.path,  $testGroupID].join('/')
     const testGroup = data.get('collect')
       .set($testGroupID, new Model({
         autosave: false,
@@ -37,7 +37,7 @@ export default function TestResultsModels($tests) {
         content: $testGroup,
       }))
       .get($testGroupID)
-    const testGroupFacePath = [data.path,  $testGroupID, 'face'].join('/')
+    const testGroupFacePath = [data.path,  $testGroupID].join('/')
     const testGroupFace = face.get('collect')
       .set($testGroupID, new Model({
         autosave: true,
@@ -63,7 +63,7 @@ export default function TestResultsModels($tests) {
         groupID: testGroup.get('id'),
         group: testGroup.get('name'),
       })
-      const testPath = [testGroup.path, $testID, 'data'].join('/')
+      const testPath = [testGroup.path, $testID].join('/')
       const testVerification = new Test($testSettings).execute()
       const test = testGroup.get('collect')
         .set($testID, new Model({
@@ -81,7 +81,7 @@ export default function TestResultsModels($tests) {
           },
         }))
         .get($testID)
-      const testFacePath = [testGroup.path, $testID, 'face'].join('/')
+      const testFacePath = [testGroup.path, $testID].join('/')
       const testFace = testGroupFace.get('collect')
         .set($testID, new Model({
           path: testFacePath,

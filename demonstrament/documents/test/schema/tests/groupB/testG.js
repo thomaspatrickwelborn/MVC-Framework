@@ -41,36 +41,36 @@ export default {
         true, // contentD
         true, // contentE
       ], 
-      // schemaA: 
+      // schemaB: 
       [
         true, // contentA
         true, // contentB
-        true, // contentC
-        true, // contentD
-        true, // contentE
+        false, // contentC
+        false, // contentD
+        false, // contentE
       ], 
-      // schemaA: 
+      // schemaC: 
       [
         true, // contentA
-        true, // contentB
+        false, // contentB
         true, // contentC
-        true, // contentD
-        true, // contentE
+        false, // contentD
+        false, // contentE
       ], 
-      // schemaA: 
+      // schemaD: 
       [
         true, // contentA
-        true, // contentB
-        true, // contentC
+        false, // contentB
+        false, // contentC
         true, // contentD
-        true, // contentE
+        false, // contentE
       ], 
-      // schemaA: 
+      // schemaE: 
       [
         true, // contentA
-        true, // contentB
-        true, // contentC
-        true, // contentD
+        false, // contentB
+        false, // contentC
+        false, // contentD
         true, // contentE
       ], 
     ]
@@ -101,10 +101,6 @@ export default {
       validations.push(subvalidations)
       quest.push(subquest)
     }
-    console.log(
-      "\n", JSON.stringify(quest), 
-      "\n", JSON.stringify(solve), 
-    )
     this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
       method: this.method.toString(),

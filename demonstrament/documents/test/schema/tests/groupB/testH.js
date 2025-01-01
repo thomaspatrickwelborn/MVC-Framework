@@ -13,8 +13,8 @@ export default {
   collect: new Map([
     [0, `
       <div>
-        When <code>Schema.type</code> is <code>array</code> and <code>Schema.required</code> is <code>false</code> 
-        added array elements must pass <code>type</code> verification.
+        When <code>Schema.type</code> is <code>array</code> and <code>Schema.required</code> is <code>true</code> 
+        all added array elements must pass <code>type</code> verification.
       </div>
       `]
   ]),
@@ -33,46 +33,17 @@ export default {
     const contentE = [true, false, true, false, true]
     // Solve
     const solve = [
+      // [contentA, contentB, contentC, contentD, contentE]
       // schemaA: 
-      [
-        false, // contentA
-        true, // contentB
-        true, // contentC
-        true, // contentD
-        true, // contentE
-      ], 
+      [false, true, true, true, true], 
       // schemaB: 
-      [
-        false, // contentA
-        true, // contentB
-        false, // contentC
-        false, // contentD
-        false, // contentE
-      ], 
+      [false, true, false, false, false], 
       // schemaC: 
-      [
-        false, // contentA
-        false, // contentB
-        true, // contentC
-        false, // contentD
-        false, // contentE
-      ], 
+      [false, false, true, false, false], 
       // schemaD: 
-      [
-        false, // contentA
-        false, // contentB
-        false, // contentC
-        true, // contentD
-        false, // contentE
-      ], 
+      [false, false, false, true, false], 
       // schemaE: 
-      [
-        false, // contentA
-        false, // contentB
-        false, // contentC
-        false, // contentD
-        true, // contentE
-      ], 
+      [false, false, false, false, true], 
     ]
     const quest = []
     const schemata = [
@@ -101,10 +72,6 @@ export default {
       validations.push(subvalidations)
       quest.push(subquest)
     }
-    console.log(
-      "\n", "quest", JSON.stringify(quest), 
-      "\n", "solve", JSON.stringify(solve), 
-    )
     this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
       method: this.method.toString(),

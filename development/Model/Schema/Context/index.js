@@ -73,7 +73,7 @@ export default class Context extends EventTarget {
       let propertyDefinition
       // Property Definition: Schema
       if($propertyDefinition instanceof Schema) {
-        propertyDefinition = expandTree($propertyDefinition, 'type.value')
+        propertyDefinition = $propertyDefinition
       }
       // Property Definition: String, Number, Boolean, Object, Array, null, undefined
       else if(Variables.TypeValues.includes($propertyDefinition)) {
@@ -86,14 +86,13 @@ export default class Context extends EventTarget {
         ], 'type.value')
       }
       // Property Definition: Object Literal
-      else if(typeOfPropertyDefinition === 'object') {
+      else if(
+        typeOfPropertyDefinition === 'object' || 
+        typeOfPropertyDefinition === 'array'
+      ) {
         let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition)
         if(propertyDefinitionIsPropertyDefinition === false) {
-          propertyDefinition = {
-            type: {
-              value: new Schema($propertyDefinition, this.options)
-            }
-          }
+          propertyDefinition = new Schema($propertyDefinition, this.options)
         }
         else if(propertyDefinitionIsPropertyDefinition === true) {
           propertyDefinition = { validators: [] }
@@ -128,67 +127,68 @@ export default class Context extends EventTarget {
           }
         }
       }
-      propertyDefinition.validators = []
-      const validators = new Map()
-      const contextRequired = this.required
-      const {
-        required,
-        type,
-        range, min, max, 
-        length, minLength, maxLength, 
-        match,
-      } = propertyDefinition
-      // Required
-      if(contextRequired === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
-        type: 'required', validator: RequiredValidator, value: true
-      })) }
-      else if(required?.value === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
-        type: 'required', validator: RequiredValidator, value: true }))
-      }
-      else { validators.set('required', Object.assign({}, propertyDefinition.required, {
-        type: 'required', validator: RequiredValidator, value: false
-      })) }
-      // Type
-      if(type) { validators.set('type', Object.assign({}, type, {
-        type: 'type', validator: TypeValidator
-      })) }
-      else { validators.set('type', Object.assign({}, type, {
-        type: 'type', validator: TypeValidator, value: undefined
-      })) }
-      // Range
-      if(range) { validators.set('range', Object.assign({}, range, {
-        type: 'range', validator: RangeValidator
-      })) }
-      else if(min || max) { validators.set('range', Object.assign({}, {
-        type: 'range', validator: RangeValidator, min, max
-      })) }
-      // Length
-      if(length) { validators.set('length', Object.assign({}, length, {
-        type: 'length', validator: LengthValidator
-      })) }
-      else if(minLength || maxLength) { validators.set('length', Object.assign({}, {
-        type: 'length', validator: LengthValidator, minLength, maxLength
-      })) }
-      // Enum
-      if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {
-        type: 'enum', validator: EnumValidator
-      })) }
-      // Match
-      if(match) { validators.set('match', Object.assign({}, match, {
-        type: 'match', validator: MatchValidator
-      })) }
-      delete propertyDefinition.min
-      delete propertyDefinition.max
-      delete propertyDefinition.minLength
-      delete propertyDefinition.maxLength
-      for(const [
-        $validatorName, $validatorSettings
-      ] of validators.entries()) {
-        // const { source, validator } = $validatorSettings
-        const ValidatorClass = $validatorSettings.validator
-        const validatorSource = $validatorSettings
-        propertyDefinition[$validatorName] = $validatorSettings
-        propertyDefinition.validators.push(new ValidatorClass(validatorSource, this.schema))
+      if(propertyDefinition instanceof Schema === false) {
+        propertyDefinition.validators = []
+        const validators = new Map()
+        const contextRequired = this.required
+        const {
+          required,
+          type,
+          range, min, max, 
+          length, minLength, maxLength, 
+          match,
+        } = propertyDefinition
+        // Required
+        if(contextRequired === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
+          type: 'required', value: true, validator: RequiredValidator 
+        })) }
+        else if(required?.value === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
+          type: 'required', value: true, validator: RequiredValidator  }))
+        }
+        else { validators.set('required', Object.assign({}, propertyDefinition.required, {
+          type: 'required', value: false, validator: RequiredValidator 
+        })) }
+        // Type
+        if(type) { validators.set('type', Object.assign({}, type, {
+          type: 'type', validator: TypeValidator
+        })) }
+        else { validators.set('type', Object.assign({}, type, {
+          type: 'type', value: undefined, validator: TypeValidator
+        })) }
+        // Range
+        if(range) { validators.set('range', Object.assign({}, range, {
+          type: 'range', validator: RangeValidator
+        })) }
+        else if(min || max) { validators.set('range', Object.assign({}, {
+          type: 'range', min, max, validator: RangeValidator
+        })) }
+        // Length
+        if(length) { validators.set('length', Object.assign({}, length, {
+          type: 'length', validator: LengthValidator
+        })) }
+        else if(minLength || maxLength) { validators.set('length', Object.assign({}, {
+          type: 'length', minLength, maxLength, validator: LengthValidator
+        })) }
+        // Enum
+        if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {
+          type: 'enum', validator: EnumValidator
+        })) }
+        // Match
+        if(match) { validators.set('match', Object.assign({}, match, {
+          type: 'match', validator: MatchValidator
+        })) }
+        delete propertyDefinition.min
+        delete propertyDefinition.max
+        delete propertyDefinition.minLength
+        delete propertyDefinition.maxLength
+        for(const [
+          $validatorName, $validatorSettings
+        ] of validators.entries()) {
+          const ValidatorClass = $validatorSettings.validator
+          const validatorSource = $validatorSettings
+          propertyDefinition[$validatorName] = $validatorSettings
+          propertyDefinition.validators.push(new ValidatorClass(validatorSource, this.schema))
+        }
       }
       source[$propertyKey] = propertyDefinition
     }
