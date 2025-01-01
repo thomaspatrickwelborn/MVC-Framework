@@ -3,6 +3,7 @@ const { expandTree } = Coutil
 export default {
   id: "testD",
   name: "Type: Enum Validator",
+  descript: ``, 
   type: "test-result",
   collectName: 'detail',
   collect: new Map([

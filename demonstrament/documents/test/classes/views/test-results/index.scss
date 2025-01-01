@@ -9,6 +9,8 @@ test-results {
     "idFontSize": 0.8em,
     "nameFontSize": 1.2em,
     "nameCodeFontSize": 0.9em,
+    "descriptFontSize": 1,
+    "descriptCodeFontSize": 0.85em,
     "bodyCodeFontSize": 0.75em,
   ));
   & > test-groups > test-group {
@@ -21,6 +23,8 @@ test-results {
       "idFontSize": 0.8em,
       "nameFontSize": 1.1em,
       "nameCodeFontSize": 0.825em,
+      "descriptFontSize": 1,
+      "descriptCodeFontSize": 0.85em,
       "bodyCodeFontSize": 0.75em,
     ));
     & > tests > test-result {
@@ -33,6 +37,8 @@ test-results {
         "idFontSize": 0.8em,
         "nameFontSize": 1em,
         "nameCodeFontSize": 0.75em,
+        "descriptFontSize": 1,
+        "descriptCodeFontSize": 0.85em,
         "bodyCodeFontSize": 0.75em,
       ));
     }

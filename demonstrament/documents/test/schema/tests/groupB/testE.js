@@ -8,6 +8,7 @@ export default {
       <div><code>$schema.required</code>: <code>true</code></div>
     </div>
   `,
+  descript: ``, 
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([

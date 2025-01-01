@@ -76,6 +76,7 @@ export default function TestResultsModels($tests) {
             detail: testVerification.detail,
             id: testVerification.id,
             name: testVerification.name,
+            descript: testVerification.descript,
             pass: testVerification.pass,
             type: testVerification.type,
           },

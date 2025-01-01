@@ -5,13 +5,10 @@ import testD from './testD.js'
 import testE from './testE.js'
 export default {
   id: "groupA",
-  name: `
-    <div style="display: flex; flex-direction: column;">
-      <code>$schema.type</code>
-      <code>$schema.context[$property].type</code>
-    </div>
+  name: `Property Validators`,
+  descript: `
+    <p>Validate literal property values with different Validators.</p>
   `,
-  descript: "Validate literal property values",
   type: 'test-group',
   collectName: 'tests',
   collect: new Map([

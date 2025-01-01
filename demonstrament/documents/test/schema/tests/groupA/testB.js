@@ -3,6 +3,7 @@ const { expandTree } = Coutil
 export default {
   id: "testB",
   name: "Type: Number - Range Validator",
+  descript: ``, 
   type: "test-result",
   collectName: 'detail',
   collect: new Map([

@@ -8,8 +8,10 @@ import testG from './testG.js'
 import testH from './testH.js'
 export default {
   id: "groupB",
-  name: `
+  name: 'Required Validator',
+  descript: `
     <div>
+      <p>Validate literal property values with Required Validator</p>
       <div><code>Schema.required</code></div>
       <div><code>Schema.context[$property].required</code></div>
     </div>

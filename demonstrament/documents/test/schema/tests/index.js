@@ -21,7 +21,13 @@ Validation: Property Validity
 export default {
   id: "schema",
   name: "<div>MVC Framework | <code>Schema</code></div>",
-  descript: '',
+  descript: `
+    <p>Schema Methods with different Schema Property Definitions.</p>
+    <ul>
+      <li><code>Schema.validate</code></li>
+      <li><code>Schema.validateProperty</code></li>
+    </ul>
+  `,
   type: 'test-results', 
   collectName: 'test-groups',
   collect: new Map([

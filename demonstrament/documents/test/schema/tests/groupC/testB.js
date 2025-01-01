@@ -1,8 +1,9 @@
 import { Schema, Coutil } from '/dependencies/mvc-framework.js'
 const { expandTree } = Coutil
 export default {
-  id: 'testA',
+  id: 'testB',
   name: `Schemata Properties Are Arrays Of Schematized Objects`,
+  descript: ``,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([

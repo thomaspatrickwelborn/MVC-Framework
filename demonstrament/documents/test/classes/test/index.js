@@ -10,6 +10,7 @@ export default class Test extends EventTarget {
   }
   get id() { return this.#settings.id }
   get name() { return this.#settings.name }
+  get descript() { return this.#settings.descript }
   get type() { return this.#settings.type }
   get collectName() { return this.#settings.collectName }
   get collect() { return this.#settings.collect }

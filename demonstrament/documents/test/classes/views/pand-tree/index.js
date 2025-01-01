@@ -27,6 +27,7 @@ export default class PandTreeView extends View {
               ></pass>
               <id>${$data.get('id')}</id>
               <name>${$data.get('name')}</name>
+              <descript>${$data.get('descript')}</descript>
               <${$data.get('collectName')}></${$data.get('collectName')}>
             </${$data.get('type')}>
           `

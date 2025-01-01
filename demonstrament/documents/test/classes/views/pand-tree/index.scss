@@ -1,12 +1,18 @@
 @use "sass:map" as map;
 @use "sass:color" as color;
 @use "../pass/index.scss" as pass;
+$collectIndex: 5;
 @mixin layout() {
   display: grid;
   grid-template-columns: 3em 1fr;
   width: 100%;
+  & * {
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+  }
   &[data-pand="im"] {
-    & > :nth-child(4) {
+    & > :nth-child(#{$collectIndex}) {
       display: none;
     }
   }
@@ -38,11 +44,24 @@
       left: 0.5em;
     }
   }
-  & > :nth-child(4) {
+  & > descript {
+    display: flex; 
+    flex-direction: column;
+    grid-column: span 2 / span 2;
+    grid-row-start: 3;
+    padding: {
+      top: 0.25em;
+      right: 0.5em;
+      bottom: 0.25em;
+      left: 0.5em;
+    }
+    &:empty { display: none; }
+  }
+  & > :nth-child(#{$collectIndex}) {
     display: flex;
     flex-wrap: wrap;
     grid-column: span 2 / span 2;
-    grid-row-start: 3;
+    grid-row-start: #{calc($collectIndex - 1)};
     &:is(detail) {
       padding: {
         top: 0.25em;
@@ -70,6 +89,8 @@ $settings
   $idFontSize: map.get($settings, "idFontSize");
   $nameFontSize: map.get($settings, "nameFontSize");
   $nameCodeFontSize: map.get($settings, "nameCodeFontSize");
+  $descriptFontSize: map.get($settings, "descriptFontSize");
+  $descriptCodeFontSize: map.get($settings, "descriptCodeFontSize");
   $bodyCodeFontSize: map.get($settings, "bodyCodeFontSize");
   $collectName: map.get($settings, "collectName");
   &[data-pass="true"] {
@@ -96,7 +117,26 @@ $settings
     background: {
       color: $passBackgroundColor;
     }
-    & > :nth-child(4) {
+    & > descript {
+      border: {
+        top: {
+          width: 0.1em;
+          style: solid;
+          color: color.scale(
+            $passBackgroundColor,
+            $saturation: -30%,
+            $lightness: 30%,
+          );
+        };
+      }
+      background: {
+        color: color.scale(
+          $passBackgroundColor,
+          $lightness: 50%,
+        );
+      };
+    }
+    & > :nth-child(#{$collectIndex}) {
       border: {
         top: {
           width: 0.1em;
@@ -140,7 +180,26 @@ $settings
     background: {
       color: $nopassBackgroundColor;
     }
-    & > :nth-child(4) {
+    & > descript {
+      border: {
+        top: {
+          width: 0.1em;
+          style: solid;
+          color: color.scale(
+            $nopassBackgroundColor,
+            $saturation: -30%,
+            $lightness: 30%,
+          );
+        };
+      };
+      background: {
+        color: color.scale(
+          $nopassBackgroundColor,
+          $lightness: 50%,
+        );
+      };
+    }
+    & > :nth-child(#{$collectIndex}) {
       border: {
         top: {
           width: 0.1em;
@@ -182,8 +241,14 @@ $settings
       font-size: $nameCodeFontSize;
     }
   }
+  & > descript {
+    font-size: $descriptFontSize;
+    code {
+      font-size: $descriptCodeFontSize;
+    }
+  }
   & > #{ $collectName } {}
-  & > :nth-child(4) {
+  & > :nth-child(#{$collectIndex}) {
     &:is(detail) {
       code {
         font-size: $bodyCodeFontSize;

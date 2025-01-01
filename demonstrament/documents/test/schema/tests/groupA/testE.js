@@ -3,6 +3,7 @@ const { expandTree } = Coutil
 export default {
   id: "testE",
   name: "Type: Undefined",
+  descript: ``, 
   type: 'test-result', 
   collectName: 'detail',
   collect: new Map([

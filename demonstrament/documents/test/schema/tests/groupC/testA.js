@@ -3,6 +3,7 @@ const { expandTree } = Coutil
 export default {
   id: 'testA',
   name: `Schemata Properties Are Schematized Objects`,
+  descript: ``,
   type: 'test-result',
   collectName: 'detail',
   collect: new Map([
