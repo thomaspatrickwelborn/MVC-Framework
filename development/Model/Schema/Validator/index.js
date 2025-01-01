@@ -1,8 +1,11 @@
+import { recursiveAssign } from '../../../Coutil/index.js'
+import Verification from '../Verification/index.js'
 const Messages = {
   'true': ($verification) => `${$verification.pass}`,
   'false': ($verification) => `${$verification.pass}`,
 }
 export default class Validator extends EventTarget {
+  #boundValidate
   #_definition
   #_schema
   constructor($definition = {}, $schema) {
@@ -22,5 +25,20 @@ export default class Validator extends EventTarget {
   }
   get type() { return this.definition.type }
   get messages() { return this.definition.messages }
-  get validate() { return this.definition.validate }
+  get validate() {
+    function validate($key, $value, $source, $target) {
+      const definition = this.definition
+      const verification = new Verification({
+        type: this.type,
+        definition: definition,
+        key: $key,
+        value: $value,
+        messages: recursiveAssign(this.messages, definition.messages),
+      })
+      verification.pass = definition.validate(...arguments)
+      return verification
+    }
+    this.#boundValidate = validate.bind(this)
+    return this.#boundValidate
+  }
 }

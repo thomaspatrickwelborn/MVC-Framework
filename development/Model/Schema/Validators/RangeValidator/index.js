@@ -1,19 +1,11 @@
 import { recursiveAssign } from '../../../../Coutil/index.js'
 import Validator from '../../Validator/index.js'
-import Verification from '../../Verification/index.js'
 export default class RangeValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'range',
       validate: ($key, $value, $source, $target) => {
         const definition = this.definition
-        const verification = new Verification({
-          type: this.type,
-          definition: definition,
-          key: $key,
-          value: $value,
-          messages: recursiveAssign(this.messages, definition.messages),
-        })
         let pass
         if(typeof $value !== 'number') { pass = false }
         else {
@@ -26,8 +18,7 @@ export default class RangeValidator extends Validator {
           if(validMin && validMax) { pass = true }          
           else { pass = false}
         }
-        verification.pass = pass
-        return verification
+        return pass
       }
     }), $schema)
   }

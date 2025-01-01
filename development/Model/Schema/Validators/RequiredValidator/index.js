@@ -1,7 +1,6 @@
 import { recursiveAssign, typedObjectLiteral } from '../../../../Coutil/index.js'
 import Schema from '../../index.js'
 import Validator from '../../Validator/index.js'
-import Verification from '../../Verification/index.js'
 export default class RequiredValidator extends Validator {
   constructor($definition, $schema) {
     super(Object.assign($definition, {
@@ -9,13 +8,6 @@ export default class RequiredValidator extends Validator {
       validate: ($key, $value, $source, $target) => {
         const definition = this.definition
         let pass
-        const verification = new Verification({
-          type: this.type,
-          definition: definition,
-          key: $key,
-          value: $value,
-          messages: recursiveAssign(this.messages, definition.messages),
-        })
         const { requiredProperties, requiredPropertiesSize, type } = this.schema
         if(requiredPropertiesSize === 0) { pass = true }
         else if(type === 'object') {
@@ -54,8 +46,7 @@ export default class RequiredValidator extends Validator {
         else if(type === 'array') {
           pass = true
         }
-        verification.pass = pass
-        return verification
+        return pass
       }
     }), $schema)
   }
