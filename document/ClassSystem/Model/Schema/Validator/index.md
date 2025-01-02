@@ -1,5 +1,5 @@
 # Schema Validator Class
-**MVC Framework \| Guide \| Model \| Schema \| *Validator***  
+**MVC Framework \| Class System \| Model \| Schema \| *Validator***  
 
 ## Constructor
 ### `$definition` Argument

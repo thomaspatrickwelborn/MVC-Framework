@@ -1,5 +1,5 @@
 # Schema Context Class
-**MVC Framework \| Guide \| Model \| Schema \| *Context***  
+**MVC Framework \| ClassSystem \| Model \| Schema \| *Context***  
  - Schema Context Class utilized by Schema Class.  
  - Configures, stores Property Definitions.  
 
@@ -7,22 +7,6 @@
 **Type**: `object`\|`array`
 ###  `type` Property
 #### `context.type`: `object`  
-**Impand**
-```
-{
-  propertyA: Number,
-  propertyB: String,
-  propertyC: Boolean,
-}
-```
-**Expand**:  
-```
-{
-  propertyA: { type: Number },
-  propertyB: { type: String },
-  propertyC: { type: Boolean },
-}
-```
 #### `context.type`: `array`  
 **Impand**
 ```

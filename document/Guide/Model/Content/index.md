@@ -74,7 +74,7 @@ Content {
 ### Proxy Property Accessors
 #### Get Property
 ```
-const propertyC = $property.get(`${propertyAKey}.${propertyBKey}.${propertyCKey}`)
+const propertyC = $property.get(`${profirefopertyAKey}.${propertyBKey}.${propertyCKey}`)
 console.log(propertyC.parent.parent.parent === $property)
 // true
 console.log(propertyC.basename)

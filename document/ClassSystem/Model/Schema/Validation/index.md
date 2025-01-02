@@ -1,5 +1,5 @@
 # Schema Validation Class
-**MVC Framework \| Guide \| Model \| Schema \| *Validation***  
+**MVC Framework \| Class System \| Model \| Schema \| *Validation***  
 
 ## Constructor
 ### `$settings` Argument
