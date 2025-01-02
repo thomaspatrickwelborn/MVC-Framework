@@ -63,7 +63,7 @@ export default function assign() {
         conter: undefined
       }
       // Source Prop: Object Type
-      if(typeof $assignSourcePropVal === 'object') {
+      if($assignSourcePropVal && typeof $assignSourcePropVal === 'object') {
         if($assignSourcePropVal.classToString === Content.toString()) {
           $assignSourcePropVal = $assignSourcePropVal.object
         }

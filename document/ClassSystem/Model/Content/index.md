@@ -4,67 +4,21 @@ See Also: [Content Guide](../../../Guide/Model/Content/index.md)
 **Directory**  
  - [Handler Class](./Handler/index.md)
 
-**Contents**:  
- - [`Settings` Property]()
- - [`Options` Property]()
-   - [`path` Option]()
-   - [`parent` Option]()
-   - [`enableValidation` Option]()
-   - [`validationEvents` Option]()
-   - [`contentEvents` Option]()
-   - [`enableEvents` Option]()
- - [Constructor Method]()
-   - [`$properties` Argument]()
-   - [`$schema` Argument]()
-   - [`$options` Argument]()
- - [Public Properties]()
-   - [`properties` Property]()
-   - [`options` Property]()
-   - [`schema` Property]()
-   - [`Class` Property]()
-   - [`object` Property]()
-   - [`string` Property]()
-   - [`type` Property]()
-   - [`typedObjectLiteral` Property]()
-   - [`parent` Property]()
-   - [`basename` Property]()
-   - [`path` Property]()
-   - [`root` Property]()
-   - [`proxy` Property]()
- - [Public Methods]()
-   - [`parse` Method]()
- - [Private Properties]()
-   - [`#handler` Property]()
-   - [`#_properties` Property]()
-   - [`#_options` Property]()
-   - [`#_schema` Property]()
-   - [`#_type` Property]()
-   - [`#_root` Property]()
-   - [`#_parent` Property]()
-   - [`#_basename` Property]()
-   - [`#_path` Property]()
-   - [`#_proxy` Property]()
-   - [`#_handler` Property]()
-
 ## `Options` Property
 Default Content Options.  
 ```
 {
-  path: null,
-  parent: null,
-  enableValidation: true,
-  validationEvents: true,
-  contentEvents: true,
-  enableEvents: true,
+  path: null, 
+  parent: null, 
+  enableValidation: true, 
+  validationEvents: true, 
+  contentEvents: true, 
+  enableEvents: true, 
+  pathkey: true,
+  subpathError: false,
+  proxyAssignmentMethod: 'set',
 }
 ```
-### `basename` Option
-**Type**: `String`, `null`  
-**Default**: `null`  
-**Descript**:  
- - When `Content` Class Instance is subproperty of other `Content` Class Instance, `basename` is the subproperty key from other `Content` Class Instance.  
- - When `Content` Class Instance is base property, `basename` is `null`.  
- - `basename` is the last subpath of `path`.  
 ### `path` Option
 **Type**: `String`, `null`  
 **Default**: `null`  
@@ -101,6 +55,24 @@ Default Content Options.
 **Descript**:  
  - When `true` and `validationEvents` or `contentEvents` values are `true`, dispatch events.  
  - When `false`, no `ContentEvent` or `ValidatorEvent` instances dispatched.  
+### `pathkey` Option
+**Type**: `boolean`  
+**Default**: `true`  
+**Descript**:  
+ - When `true` accesses object properties using period-delimited path keys.  
+ - When `false` acdesses object properties using individual keys.  
+### `subpathError` Option
+**Type**: `boolean`  
+**Default**: `false`  
+**Descript**:  
+ - When `true` and `pathkey` is `true` accessing nonexistent content properties using path notation throws error.  
+ - When `false` and `pathkey` is `true` accessing nonexistent content properties using path notation catches error silently.  
+### `proxyAssignmentMethod` Option
+**Type**: `string`  
+**Default**: `set`  
+**Enum**: [`set`, `assign`]
+**Descript**:  
+ - Method used to assign initial properties to proxy.  
 
 ## Constructor Method
  - Sets `properties`, `options`, `schema` properties.  
@@ -119,13 +91,6 @@ Default Content Options.
  - `$schema` assigned to `schema`.  
 
 ## Public Properties
-### `properties` Property
-**Type**: `get`, `set`  
-**Inturn**: `$properties` (from `constructor`)  
-**Return**: `#_properties`  
-**Descript**:  
- - When `$properties` is `Content` Class instance, sets `$properties.object` to `#_properties`
- - When `$properties` is not `Content` Class instance, sets `$properties` to `#_properties`  
 ### `options` Property
 **Type**: `get`, `set`    
 **Inturn**: `$options` (from `constructor`)  
@@ -166,27 +131,30 @@ Default Content Options.
 **Return**: `#_parent`  
 **Descript**:  
  - Assigns `$parent` to `#_parent`.  
-### `basename` Property
+### `root` Property
 **Type**: `get`  
-**Return**: `#_basename`  
+**Return**: Root `Content` Class Instance `proxy` property.  
+### `key` Property
+**Type**: `get`  
+**Return**: `#_key`  
 **Descript**:  
- - Assigns `$basename` to `#_basename`.  
+ - Assigns `$key` to `#_key`.  
 ### `path` Property
 **Type**: `get`    
 **Inturn**: `String` Literal  
 **Return**: `#_path`  
 **Descript**:  
  - Assigns `$path` to `#_path`.  
-### `root` Property
+### `source` Property
 **Type**: `get`  
-**Return**: `#_root`  
+**Return**: `#_source`  
 **Descript**:  
- - Assigns `typedObjectLiteral` to `#_root`.  
+ - Assigns `typedObjectLiteral` to `#_source`.  
 ### `proxy` Property
 **Type**: `get`  
 **Return**: `#_proxy`  
 **Descript**:  
-- Creates new `Proxy` Instance with `root` target and `Handler` Instance handler.  
+- Creates new `Proxy` Instance with `source` target and `this.#handler`.  
 - Sets `properties` to `proxy`.  
 - Assigns new `Proxy` Instance to `#_proxy`.  
 
@@ -194,6 +162,13 @@ Default Content Options.
 ### `parse` Method
 
 ## Private Properties
+### `#properties` Property
+**Type**: `get`, `set`  
+**Inturn**: `$properties` (from `constructor`)  
+**Return**: `#_properties`  
+**Descript**:  
+ - When `$properties` is `Content` Class instance, sets `$properties.object` to `#_properties`
+ - When `$properties` is not `Content` Class instance, sets `$properties` to `#_properties`  
 ### `#handler` Property
 **Type**: `Handler` Instance  
 ### `#_properties` Property
@@ -204,11 +179,11 @@ Default Content Options.
 **Type**: `Schema` Instance, `null`  
 ### `#_type` Property
 **Type**: `String` Literal  
-### `#_root` Property
+### `#_source` Property
 **Type**: `Array` Literal, `Object` Literal  
 ### `#_parent` Property
 **Type**: `Content Proxy`  
-### `#_basename` Property
+### `#_key` Property
 **Type**: `String` Literal  
 ### `#_path` Property
 **Type**: `String` Literal  

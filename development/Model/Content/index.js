@@ -19,17 +19,14 @@ export default class Content extends EventTarget {
     this.#properties = $properties
     this.options = $options
     this.schema = $schema
-    if(
-      this.schema !== null && 
-      this.schema?.type !== this.type
-    ) { return undefined }
-    else {
-      return this.proxy
-    }
+    return this.proxy
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
     if(this.#_properties !== undefined) return
+    if($properties?.classToString === Content.toString()) {
+      this.#_properties = $properties.object
+    }
     this.#_properties = $properties
     return this.#_properties
   }
@@ -42,12 +39,11 @@ export default class Content extends EventTarget {
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined)  { return }
-    if(!$schema) { this.#_schema = null }
+    const typeOfSchema = typeOf($schema)
+    if(['undefined', 'null'].includes(typeOfSchema)) { this.#_schema = null }
     else if($schema instanceof Schema) { this.#_schema = $schema }
-    else if(typeof $schema === 'object') {
-      if(Array.isArray($schema)) { new Schema(...arguments) }
-      else { new Schema($schema) }
-    }
+    else if(typeOfSchema === 'array') { this.#_schema = new Schema(...arguments) }
+    else if(typeOfSchema === 'object') { this.#_schema = new Schema($schema) }
   }
   get classToString() { return Content.toString() }
   get object() { return this.#parse({ type: 'object' }) }
@@ -59,9 +55,7 @@ export default class Content extends EventTarget {
   }
   get parent() {
     if(this.#_parent !== undefined)  return this.#_parent
-    this.#_parent = (this.options.parent)
-      ? this.options.parent
-      : null
+    this.#_parent = (this.options.parent) ? this.options.parent : null
     return this.#_parent
   }
   get root() {
@@ -95,7 +89,12 @@ export default class Content extends EventTarget {
     if(this.#_proxy !== undefined) return this.#_proxy
     const { proxyAssignmentMethod } = this.options
     this.#_proxy = new Proxy(this.source, this.#handler)
-    this.#_proxy[proxyAssignmentMethod](this.#properties)
+    if(['set', 'assign'].includes(proxyAssignmentMethod)) {
+      this.#_proxy[proxyAssignmentMethod](this.#properties)
+    }
+    else {
+      this.#_proxy[Options.proxyAssignmentMethod](this.#properties)
+    }
     return this.#_proxy
   }
   get #handler() {
@@ -107,6 +106,8 @@ export default class Content extends EventTarget {
   }
   #parse($settings = {
     type: 'object',
+    replacer: null,
+    space: 0,
   }) {
     let parsement
     if(this.type === 'object') { parsement = {} }
@@ -124,14 +125,13 @@ export default class Content extends EventTarget {
       }
       return $parsement
     }, parsement)
-    if(
-      $settings.type === 'object' || 
-      $settings.type === 'Object'
-    ) return parsement
-    else if(
-      $settings.type === 'string' || 
-      $settings.type === 'String'
-    ) return JSON.stringify(parsement, null, 2)
-    return undefined
+    const { type, replacer, space } = $settings
+    if(type === 'object' || type === 'Object') {
+      return parsement
+    }
+    else if(type === 'string' || type === 'String') {
+      return JSON.stringify(parsement, replacer, space)
+    }
+    else { return undefined }
   }
 }
