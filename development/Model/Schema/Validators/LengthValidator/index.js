@@ -9,14 +9,14 @@ export default class LengthValidator extends Validator {
         let pass
         if(typeof $value !== 'string') { pass = false }
         else {
-          const { minLength, maxLength } = definition
+          const { min, max } = definition
           let validMin, validMax
-          if(minLength.value !== undefined) {
-            validMin = ($value.length >= minLength.value)
+          if(min !== undefined) {
+            validMin = ($value.length >= min.value)
           }
           else { validMin = true }
-          if(maxLength.value !== undefined) {
-            validMax = ($value.length <= maxLength.value)
+          if(max !== undefined) {
+            validMax = ($value.length <= max.value)
           }
           else { validMax = true }
           if(validMin && validMax) { pass = true }          

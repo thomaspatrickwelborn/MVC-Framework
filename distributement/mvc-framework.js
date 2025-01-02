@@ -2544,11 +2544,11 @@ class RangeValidator extends Validator {
         else {
           const { min, max } = definition;
           let validMin, validMax;
-          if(min.value !== undefined) { validMin = ($value >= min.value); }
+          if(min !== undefined) { validMin = ($value >= min.value); }
           else { validMin = true; }
-          if(max.value !== undefined) { validMax = ($value <= max.value); }
+          if(max !== undefined) { validMax = ($value <= max.value); }
           else { validMax = true; }
-          if(validMin && validMax) { pass = true; }          
+          if(validMin && validMax) { pass = true; }
           else { pass = false;}
         }
         return pass
@@ -2566,14 +2566,14 @@ class LengthValidator extends Validator {
         let pass;
         if(typeof $value !== 'string') { pass = false; }
         else {
-          const { minLength, maxLength } = definition;
+          const { min, max } = definition;
           let validMin, validMax;
-          if(minLength.value !== undefined) {
-            validMin = ($value.length >= minLength.value);
+          if(min !== undefined) {
+            validMin = ($value.length >= min.value);
           }
           else { validMin = true; }
-          if(maxLength.value !== undefined) {
-            validMax = ($value.length <= maxLength.value);
+          if(max !== undefined) {
+            validMax = ($value.length <= max.value);
           }
           else { validMax = true; }
           if(validMin && validMax) { pass = true; }          
@@ -2591,6 +2591,7 @@ class EnumValidator extends Validator {
       type: 'enum',
       validate: ($key, $value, $source, $target) => {
         const definition = this.definition;
+        console.log(definition);
         let pass;
         if(![
           'string', 'number', 'boolean'
@@ -2786,7 +2787,7 @@ class Context extends EventTarget {
       type: 'length', validator: LengthValidator
     })); }
     else if(minLength || maxLength) { validators.set('length', Object.assign({}, {
-      type: 'length', minLength, maxLength, validator: LengthValidator
+      type: 'length', min: minLength, max: maxLength, validator: LengthValidator
     })); }
     // Enum
     if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {

@@ -162,7 +162,7 @@ export default class Context extends EventTarget {
       type: 'length', validator: LengthValidator
     })) }
     else if(minLength || maxLength) { validators.set('length', Object.assign({}, {
-      type: 'length', minLength, maxLength, validator: LengthValidator
+      type: 'length', min: minLength, max: maxLength, validator: LengthValidator
     })) }
     // Enum
     if(propertyDefinition.enum) { validators.set('enum', Object.assign({}, propertyDefinition.enum, {

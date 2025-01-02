@@ -6,6 +6,7 @@ export default class EnumValidator extends Validator {
       type: 'enum',
       validate: ($key, $value, $source, $target) => {
         const definition = this.definition
+        console.log(definition)
         let pass
         if(![
           'string', 'number', 'boolean'

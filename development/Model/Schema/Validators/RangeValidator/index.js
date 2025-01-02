@@ -11,11 +11,11 @@ export default class RangeValidator extends Validator {
         else {
           const { min, max } = definition
           let validMin, validMax
-          if(min.value !== undefined) { validMin = ($value >= min.value) }
+          if(min !== undefined) { validMin = ($value >= min.value) }
           else { validMin = true }
-          if(max.value !== undefined) { validMax = ($value <= max.value) }
+          if(max !== undefined) { validMax = ($value <= max.value) }
           else { validMax = true }
-          if(validMin && validMax) { pass = true }          
+          if(validMin && validMax) { pass = true }
           else { pass = false}
         }
         return pass
