@@ -15,6 +15,7 @@ export default function assign() {
     let assignedSource
     if(Array.isArray($assignSource)) { assignedSource = [] }
     else if(typeof $assignSource === 'object') { assignedSource = {} }
+    /* <- Property Validation -> */ 
     // Iterate Source Props
     iterateSourceProps:
     for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
@@ -25,7 +26,7 @@ export default function assign() {
       ) ? true : false
       // Validation
       if(schema && enableValidation) {
-        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $content, proxy)
+        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $assignSource, proxy)
         if(validationEvents) {
           let type, propertyType
           const validatorEventPath = (path)

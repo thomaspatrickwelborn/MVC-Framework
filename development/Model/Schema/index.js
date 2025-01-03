@@ -93,6 +93,8 @@ export default class Schema extends EventTarget{
     }
     if(this.required === true) {
       if(validation.deadvance.length) { validation.valid = false }
+      // else if(validation.unadvance.length) { validation.valid = undefined }
+      // else if(validation.advance.length) { validation.valid = true }
       else if(validation.advance.length) { validation.valid = true }
       else if(validation.unadvance.length) { validation.valid = undefined }
       else { validation.valid = false }
@@ -106,7 +108,18 @@ export default class Schema extends EventTarget{
     }
     return validation
   }
-  validateProperty($key, $value, $source, $target) {
+  #parseValidatePropertyArguments() {
+    let $arguments = [...arguments]
+    let [$key, $value, $source, $target] = $arguments
+    const ContentClassString = Content.toString()
+    const sourceIsContentClassInstance = ($source?.classToString === ContentClassString)
+    $source = (sourceIsContentClassInstance) ? $source.object : $source
+    const $targetIsContentClassInstance = ($target?.classToString === ContentClassString)
+    $target = ($targetIsContentClassInstance) ? $target.object : $target
+    return { $key, $value, $source, $target }
+  }
+  validateProperty() {
+    const { $key, $value, $source, $target } = this.#parseValidatePropertyArguments(...arguments)
     let propertyDefinition
     if(this.type === 'array') { propertyDefinition = this.context[0] }
     else if(this.type === 'object') { propertyDefinition = this.context[$key] }

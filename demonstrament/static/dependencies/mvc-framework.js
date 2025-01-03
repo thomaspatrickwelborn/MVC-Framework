@@ -401,6 +401,7 @@ function assign() {
     let assignedSource;
     if(Array.isArray($assignSource)) { assignedSource = []; }
     else if(typeof $assignSource === 'object') { assignedSource = {}; }
+    /* <- Property Validation -> */ 
     // Iterate Source Props
     iterateSourceProps:
     for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
@@ -410,7 +411,7 @@ function assign() {
       ) ? true : false;
       // Validation
       if(schema && enableValidation) {
-        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $content, proxy);
+        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $assignSource, proxy);
         if(validationEvents) {
           let type, propertyType;
           const validatorEventPath = (path)
@@ -2466,10 +2467,10 @@ class RequiredValidator extends Validator {
     super(Object.assign($definition, {
       type: 'required',
       validate: ($key, $value, $source, $target) => {
-        this.definition;
+        const definition = this.definition;
         let pass;
         const { requiredProperties, requiredPropertiesSize, type } = this.schema;
-        if(requiredPropertiesSize === 0) { pass = true; }
+        if(requiredPropertiesSize === 0 || definition.value === false) { pass = true; }
         else if(type === 'object') {
           const corequiredContextProperties = typedObjectLiteral(type);
           const corequiredContentProperties = typedObjectLiteral(type);
@@ -2477,30 +2478,43 @@ class RequiredValidator extends Validator {
           for(const [
             $requiredPropertyName, $requiredProperty
           ] of Object.entries(requiredProperties)) {
+            const requiredProperty = recursiveAssign({}, $requiredProperty);
+            requiredProperty.required.value = false;
             if($requiredPropertyName === $key) { continue iterateRequiredProperties }
             const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor($source, $requiredPropertyName);
             if(sourcePropertyDescriptor !== undefined) {
-              corequiredContextProperties[$requiredPropertyName] = $requiredProperty;
-              corequiredContentProperties[$requiredPropertyName] = $source[$requiredPropertyName];
+              corequiredContextProperties[$requiredPropertyName] = requiredProperty;
+              corequiredContentProperties[$requiredPropertyName] = sourcePropertyDescriptor.value;
             }
             else if($target) {
               const targetPropertyDescriptor = Object.getOwnPropertyDescriptor($target, $requiredPropertyName);
               if(targetPropertyDescriptor !== undefined) { continue iterateRequiredProperties }
-              else { corequiredContextProperties[$requiredPropertyName] = $requiredProperty; }
+              else { corequiredContextProperties[$requiredPropertyName] = requiredProperty; }
             }
             else {
-              corequiredContextProperties[$requiredPropertyName] = $requiredProperty;
+              corequiredContextProperties[$requiredPropertyName] = requiredProperty;
             }
           }
           const corequiredContextPropertiesSize = Object.keys(corequiredContextProperties).length;
           const corequiredContentPropertiesSize = Object.keys(corequiredContentProperties).length;
-          // ???
           if(corequiredContextPropertiesSize === 0 && corequiredContentPropertiesSize === 0) { pass = true; }
-          if(corequiredContextPropertiesSize !== corequiredContentPropertiesSize) { pass = false; }
+          else if(corequiredContextPropertiesSize !== corequiredContentPropertiesSize) { pass = false; }
           else {
-            const coschema = new Schema(corequiredContextProperties, this.schema.options);
-            const coschemaValidation = coschema.validate(corequiredContentProperties);
-            pass = coschemaValidation.pass;
+            const coschema = new Schema(corequiredContextProperties, Object.assign({}, this.schema.options, {
+              required: false 
+            }));
+            const validations = [];
+            for(const [
+              $corequiredContextPropertyName, $corequiredContextProperty
+            ] of Object.entries(corequiredContentProperties)) {
+              const corequiredContentPropertyName = $corequiredContextPropertyName;
+              const corequiredContentProperty = corequiredContentProperties[corequiredContentPropertyName];
+              const coschemaPropertyValidation = coschema.validateProperty($corequiredContextPropertyName, corequiredContentProperty);
+              validations.push(coschemaPropertyValidation);
+            }
+            const nonvalidValidation = (validations.find(($validation) => $validation.valid === false));
+            if(nonvalidValidation) { pass = false; }
+            else { pass = true; }
           }
         }
         else if(type === 'array') {
@@ -2765,9 +2779,9 @@ class Context extends EventTarget {
     else if(required?.value === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
       type: 'required', value: true, validator: RequiredValidator  }));
     }
-    else { validators.set('required', Object.assign({}, propertyDefinition.required, {
-      type: 'required', value: false, validator: RequiredValidator 
-    })); }
+    // else { validators.set('required', Object.assign({}, propertyDefinition.required, {
+    //   type: 'required', value: false, validator: RequiredValidator 
+    // })) }
     // Type
     if(type) { validators.set('type', Object.assign({}, type, {
       type: 'type', validator: TypeValidator
@@ -2937,6 +2951,8 @@ class Schema extends EventTarget{
     }
     if(this.required === true) {
       if(validation.deadvance.length) { validation.valid = false; }
+      // else if(validation.unadvance.length) { validation.valid = undefined }
+      // else if(validation.advance.length) { validation.valid = true }
       else if(validation.advance.length) { validation.valid = true; }
       else if(validation.unadvance.length) { validation.valid = undefined; }
       else { validation.valid = false; }
@@ -2950,7 +2966,18 @@ class Schema extends EventTarget{
     }
     return validation
   }
-  validateProperty($key, $value, $source, $target) {
+  #parseValidatePropertyArguments() {
+    let $arguments = [...arguments];
+    let [$key, $value, $source, $target] = $arguments;
+    const ContentClassString = Content.toString();
+    const sourceIsContentClassInstance = ($source?.classToString === ContentClassString);
+    $source = (sourceIsContentClassInstance) ? $source.object : $source;
+    const $targetIsContentClassInstance = ($target?.classToString === ContentClassString);
+    $target = ($targetIsContentClassInstance) ? $target.object : $target;
+    return { $key, $value, $source, $target }
+  }
+  validateProperty() {
+    const { $key, $value, $source, $target } = this.#parseValidatePropertyArguments(...arguments);
     let propertyDefinition;
     if(this.type === 'array') { propertyDefinition = this.context[0]; }
     else if(this.type === 'object') { propertyDefinition = this.context[$key]; }

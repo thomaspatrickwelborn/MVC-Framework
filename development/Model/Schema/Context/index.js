@@ -140,9 +140,9 @@ export default class Context extends EventTarget {
     else if(required?.value === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
       type: 'required', value: true, validator: RequiredValidator  }))
     }
-    else { validators.set('required', Object.assign({}, propertyDefinition.required, {
-      type: 'required', value: false, validator: RequiredValidator 
-    })) }
+    // else { validators.set('required', Object.assign({}, propertyDefinition.required, {
+    //   type: 'required', value: false, validator: RequiredValidator 
+    // })) }
     // Type
     if(type) { validators.set('type', Object.assign({}, type, {
       type: 'type', validator: TypeValidator

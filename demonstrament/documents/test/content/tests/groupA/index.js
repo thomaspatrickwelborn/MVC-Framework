@@ -13,8 +13,8 @@ export default {
   collectName: 'tests',
   collect: new Map([
     ['testA', testA],
-    // ['testB', testB],
-    // ['testC', testC],
+    ['testB', testB],
+    ['testC', testC],
     // ['testD', testD],
     // ['testE', testE],
     // ['testF', testF],

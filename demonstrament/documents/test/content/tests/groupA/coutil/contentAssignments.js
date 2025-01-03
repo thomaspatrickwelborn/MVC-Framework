@@ -1,3 +1,4 @@
+// All Valid Properties - Series Assignment
 const contentAssignmentsA = [
   { propertyA: true },
   { propertyB: 1 },
@@ -29,10 +30,28 @@ const contentAssignmentsD = [{
   propertyD: undefined,
   propertyE: undefined,
 }]
+// Some Valid Properties - Series Assignment
+const contentAssignmentsE = [
+  { propertyA: true },
+  { propertyB: false },
+  { propertyC: "true" },
+  { propertyD: undefined },
+  { propertyE: false },
+]
+// Some Valid Properties - Single Assignment
+const contentAssignmentsF = [{
+  propertyA: false,
+  propertyB: false,
+  propertyC: "false",
+  propertyD: undefined,
+  propertyE: true,
+}]
 
 export {
   contentAssignmentsA,
   contentAssignmentsB,
   contentAssignmentsC,
   contentAssignmentsD,
+  contentAssignmentsE,
+  contentAssignmentsF,
 }
