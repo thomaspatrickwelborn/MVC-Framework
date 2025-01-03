@@ -401,6 +401,7 @@ function assign() {
     let assignedSource;
     if(Array.isArray($assignSource)) { assignedSource = []; }
     else if(typeof $assignSource === 'object') { assignedSource = {}; }
+    /* <- Property Validation -> */ 
     // Iterate Source Props
     iterateSourceProps:
     for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {

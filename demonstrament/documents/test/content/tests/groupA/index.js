@@ -12,9 +12,9 @@ export default {
   type: 'test-group',
   collectName: 'tests',
   collect: new Map([
-    ['testA', testA],
+    // ['testA', testA],
     // ['testB', testB],
-    // ['testC', testC],
+    ['testC', testC],
     // ['testD', testD],
     // ['testE', testE],
     // ['testF', testF],
