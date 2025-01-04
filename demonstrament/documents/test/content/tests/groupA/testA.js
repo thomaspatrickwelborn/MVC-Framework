@@ -42,8 +42,7 @@ export default {
       contentString: contentA.string,
       object: ['objectA', objectA],
       objectString: JSON.stringify(objectA),
-      statement: `contentA.string === JSON.stringify(objectA)`,
-      evaluation: `${contentA.string} === ${JSON.stringify(objectA)}`,
+      statement: `${contentA.string} === ${JSON.stringify(objectA)}`,
       pass: (contentA.string === JSON.stringify(objectA)),
     }
     validations.push(['validationA', validationA])
@@ -57,8 +56,7 @@ export default {
       contentString: contentB.string,
       object: ['objectB', objectB],
       objectString: JSON.stringify(objectB),
-      statement: `contentB.string === JSON.stringify(objectB)`,
-      evaluation: `${contentB.string} === ${JSON.stringify(objectB)}`,
+      statement: `${contentB.string} === ${JSON.stringify(objectB)}`,
       pass: (contentB.string === JSON.stringify(objectB)),
     }
     validations.push(['validationB', validationB])
@@ -72,8 +70,7 @@ export default {
       contentString: contentC.string,
       object: ['objectC', objectC],
       objectString: JSON.stringify(objectC),
-      statement: `contentC.string === JSON.stringify(objectC)`,
-      evaluation: `${contentC.string} === ${JSON.stringify(objectC)}`,
+      statement: `${contentC.string} === ${JSON.stringify(objectC)}`,
       pass: (contentC.string === JSON.stringify(objectC)),
     }
     validations.push(['validationC', validationC])
@@ -87,8 +84,7 @@ export default {
       contentString: contentD.string,
       object: ['objectD', objectD],
       objectString: JSON.stringify(objectD),
-      statement: `contentD.string === JSON.stringify(objectD)`,
-      evaluation: `${contentD.string} === ${JSON.stringify(objectD)}`,
+      statement: `${contentD.string} === ${JSON.stringify(objectD)}`,
       pass: (contentD.string === JSON.stringify(objectD)),
     }
     validations.push(['validationD', validationD])

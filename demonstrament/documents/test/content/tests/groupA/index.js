@@ -15,7 +15,7 @@ export default {
     ['testA', testA],
     ['testB', testB],
     ['testC', testC],
-    // ['testD', testD],
+    ['testD', testD],
     // ['testE', testE],
     // ['testF', testF],
     // ['testG', testG],

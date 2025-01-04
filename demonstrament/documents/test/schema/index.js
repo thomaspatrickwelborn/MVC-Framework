@@ -1,8 +1,10 @@
 import Tests from "./tests/index.js"
-import TestResultsView from "../classes/views/test-results/index.js"
+import PandTreeView from '../classes/views/pand-tree/index.js'
+import TestResultsModels from '../classes/models/test-results/index.js'
 
+const testResultsModels = await TestResultsModels(Tests)
 const testResults = new TestResultsView({
   parentElement: document.querySelector('index'),
-  tests: Tests,
+  tests: testResultsModels,
 })
 testResults.render(testResults.models, 'default')

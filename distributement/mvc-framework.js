@@ -414,9 +414,7 @@ function assign() {
         const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $assignSource, proxy);
         if(validationEvents) {
           let type, propertyType;
-          const validatorEventPath = (path)
-            ? [path, $assignSourcePropKey].join('.')
-            : String($assignSourcePropKey);
+          const validatorEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey);
           if(validSourceProp.valid) {
             type = 'validProperty';
             propertyType = ['validProperty', $assignSourcePropKey].join(':');
@@ -506,7 +504,7 @@ function assign() {
       change.anter.value = sourcePropVal;
       // Content Event: Assign Source Property
       if(contentEvents) {
-        const contentEventPath = [path, $assignSourcePropKey].join('.');
+        const contentEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey);
         if(events['assignSourceProperty']) {
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {

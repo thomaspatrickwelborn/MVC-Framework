@@ -24,6 +24,7 @@ export default class Test extends EventTarget {
     if(this.#_pass !== undefined) return
     this.#_pass = $pass
   }
+  get async() { return this.#settings.async }
   get method() {
     if(this.#_method !== undefined) return this.#_method
     this.#_method = this.#settings.method
