@@ -1,11 +1,10 @@
-import { Schema, Content, Coutil } from '/dependencies/mvc-framework.js'
-import simplexObjectSchemaProperties from './coutil/simplexObjectSchemaProperties.js'
+import { Content } from '/dependencies/mvc-framework.js'
 import * as ContentAssignments from './coutil/contentAssignments.js'
 const {
   contentAssignmentsA, contentAssignmentsB, 
-  contentAssignmentsC, contentAssignmentsD
+  contentAssignmentsC, contentAssignmentsD,
+  contentAssignmentsE, contentAssignmentsF,
 } = ContentAssignments
-const { expandTree } = Coutil
 export default {
   id: "testD", name: `Simplex Objects - Content Events`,
   type: "test-result", collectName: 'detail',
@@ -22,64 +21,98 @@ export default {
     </ul>
   `, 
   collect: new Map([
-    [0, ``],
+    [0, `
+      <p>There is no schema - any assigned property may emit an event.</p>
+    `],
   ]),
   method: async function() {
+    // Quest
     const quest = [
-      ["contentA", []]
+      ["contentA", []],
+      ["contentB", []],
+      ["contentC", []],
+      ["contentD", []],
+      ["contentE", []],
+      ["contentF", []],
     ]
-    const questContentA = quest[0][1]
+    // Solve
     const solve = [
-      ["contentA", [true, true, true, true, true]]
+      ["contentA", [true, true, true, true, true]],
+      ["contentB", [true, true, true, true, true]],
+      ["contentC", [true, true, true, true, true]],
+      ["contentD", [true, true, true, true, true]],
+      ["contentE", [true, true, true, true, true]],
+      ["contentF", [true, true, true, true, true]],
     ]
-    const solveContentA = solve[0][1]
+    // Validations
     const validations = [
-      ["contentA", []]
+      ["contentA", []],
+      ["contentB", []],
+      ["contentC", []],
+      ["contentD", []],
+      ["contentE", []],
+      ["contentF", []],
     ]
-    const validationContentA = validations[0][1]
-    const contentA = new Content({}, null)
-    for(const [$propertyKeyIndex, $propertyKey] of Object.entries([
-      'propertyA', 'propertyB', 'propertyC', 'propertyD', 'propertyE'
-    ])) {
-      const { promise, resolve, reject} = Promise.withResolvers()
-      questContentA[$propertyKeyIndex] = promise
-      function assignSourceProperty($event) {
-        const { type, path, value, detail } = $event
-        const { source } = detail
-        const detailSourceString = JSON.stringify(source)
-        const contentSourceString = JSON.stringify(contentAssignmentsA[$propertyKeyIndex])
-        const verifications = new Map([
-          ["type", {
-            statement: `${type} === "assignSourceProperty:${$propertyKey}"`,
-            pass: (type === `assignSourceProperty:${$propertyKey}`),
-          }],
-          ["path", {
-            statement: `${path} === ${$propertyKey}`,
-            pass: (path === $propertyKey),
-          }],
-          ["value", {
-            statement: `${value} === ${contentAssignmentsA[$propertyKeyIndex][$propertyKey]}`,
-            pass: (value === contentAssignmentsA[$propertyKeyIndex][$propertyKey]),
-          }],
-          ["source", {
-            statement: `${detailSourceString} === ${contentSourceString}`,
-            pass: (detailSourceString === contentSourceString),
-          }]
-        ])
-        const assignSourcePropertyEventValidation = {
-          verifications: Object.fromEntries(verifications),
-          valid: (!verifications.values().find(
-            ($verification) => $verification.pass === false
-          )) ? true : false,
+    const contents = []
+    const contentAssignments = Object.entries(ContentAssignments)
+    let solveIndex = 0
+    iterateSolve: 
+    for(const [$solveName, $solve] of solve) {
+      const [$questName, $quest] = quest[solveIndex]
+      const [$validationName, $validation] = validations[solveIndex]
+      const [$contentAssignmentName, $contentAssignment] = contentAssignments[solveIndex]
+      contents[solveIndex] = [$solveName, new Content({}, null)]
+      const [$contentName, $content] = contents[solveIndex]
+      const assignedObjectName = $contentName
+      const assignedObject = Object.assign({}, ...$contentAssignment)
+      iterateContentProperties: 
+      for(const [$propertyKeyIndex, $propertyKey] of Object.entries([
+        'propertyA', 'propertyB', 'propertyC', 'propertyD', 'propertyE'
+      ])) {
+        const { promise, resolve, reject} = Promise.withResolvers()
+        $quest[$propertyKeyIndex] = promise
+        function assignSourceProperty($event) {
+          const { type, path, key, value, detail } = $event
+          const { source } = detail
+          const detailSourceString = JSON.stringify(source)
+          const contentAssignmentSource = $contentAssignment.find(($source) => Object.keys(
+            Object.getOwnPropertyDescriptors($source)
+          ).includes($propertyKey))
+          const contentAssignmentSourceString = JSON.stringify(contentAssignmentSource)
+          const verifications = new Map([
+            ["type", {
+              statement: `${type} === "assignSourceProperty:${$propertyKey}"`,
+              pass: (type === `assignSourceProperty:${$propertyKey}`),
+            }],
+            ["path", {
+              statement: `${path} === ${$propertyKey}`,
+              pass: (path === $propertyKey),
+            }],
+            ["value", {
+              statement: `${value} === ${assignedObject[$propertyKey]}`,
+              pass: (value === assignedObject[$propertyKey]),
+            }],
+            ["source", {
+              statement: `${detailSourceString} === ${contentAssignmentSourceString}`,
+              pass: (detailSourceString === contentAssignmentSourceString),
+            }]
+          ])
+          const assignSourcePropertyEventValidation = {
+            verifications: Object.fromEntries(verifications),
+            valid: (!verifications.values().find(
+              ($verification) => $verification.pass === false
+            )),
+          }
+          $validation[$propertyKeyIndex] = assignSourcePropertyEventValidation
+          resolve(assignSourcePropertyEventValidation.valid)
+          $content.removeEventListener(`assignSourceProperty:${$propertyKey}`, assignSourceProperty)
         }
-        validationContentA[$propertyKeyIndex] = assignSourcePropertyEventValidation
-        resolve(assignSourcePropertyEventValidation.valid)
-        contentA.removeEventListener(`assignSourceProperty:${$propertyKey}`, assignSourceProperty)
+        $content.addEventListener(`assignSourceProperty:${$propertyKey}`, assignSourceProperty)
       }
-      contentA.addEventListener(`assignSourceProperty:${$propertyKey}`, assignSourceProperty)
+      $content.assign(...$contentAssignment)
+      $quest.splice(0, 5, ...await Promise.all($quest))
+      solveIndex++
     }
-    contentA.assign(...contentAssignmentsA)
-    questContentA.splice(0, 5, ...await Promise.all(questContentA))
     let pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.pass = pass
     this.detail = {
