@@ -170,7 +170,7 @@ export default function assign() {
       new ContentEvent('assign', { 
         path,
         detail: {
-          assignedSources
+          sources: assignedSources
         },
       }, $content)
     )

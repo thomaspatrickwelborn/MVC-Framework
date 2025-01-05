@@ -21,99 +21,487 @@ export default {
     </ul>
   `, 
   collect: new Map([
-    [0, `
-      <p>There is no schema - any assigned property may emit an event.</p>
-    `],
+    [0, ``],
   ]),
   method: async function() {
-    // Quest
     const quest = [
-      ["contentA", []],
-      ["contentB", []],
-      ["contentC", []],
-      ["contentD", []],
-      ["contentE", []],
-      ["contentF", []],
+      // $contentEventName, $contentAssignments
+      ["assignSourcePropertyKey", [
+        // $contentAssignmentName, $questContentAssignmentProperties
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assignSourceProperty", [
+        // $contentAssignmentName, $questContentAssignmentProperties
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assignSource", [
+        // $contentAssignmentName, $questContentAssignmentSources
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assign", [
+        // $contentAssignmentName, $questContentAssignment
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
     ]
-    // Solve
     const solve = [
-      ["contentA", [true, true, true, true, true]],
-      ["contentB", [true, true, true, true, true]],
-      ["contentC", [true, true, true, true, true]],
-      ["contentD", [true, true, true, true, true]],
-      ["contentE", [true, true, true, true, true]],
-      ["contentF", [true, true, true, true, true]],
+      // $contentEventName, $contentAssignments
+      ["assignSourcePropertyKey", [
+        // $contentAssignmentName, $solveContentAssignmentProperties
+        // One slot per assignment source property. `
+        ["contentAssignmentsA", [true, true, true, true, true]],
+        ["contentAssignmentsB", [true, true, true, true, true]],
+        ["contentAssignmentsC", [true, true, true, true, true]],
+        ["contentAssignmentsD", [true, true, true, true, true]],
+        ["contentAssignmentsE", [true, true, true, true, true]],
+        ["contentAssignmentsF", [true, true, true, true, true]],
+      ]],
+      ["assignSourceProperty", [
+        // $contentAssignmentName, $solveContentAssignmentProperties
+        // One slot per assignment source property. 
+        ["contentAssignmentsA", [true, true, true, true, true]],
+        ["contentAssignmentsB", [true, true, true, true, true]],
+        ["contentAssignmentsC", [true, true, true, true, true]],
+        ["contentAssignmentsD", [true, true, true, true, true]],
+        ["contentAssignmentsE", [true, true, true, true, true]],
+        ["contentAssignmentsF", [true, true, true, true, true]],
+      ]],
+      ["assignSource", [
+        // $contentAssignmentName, $solveContentAssignmentSources
+        // One slot per assignment source. 
+        ["contentAssignmentsA", [true, true, true, true, true]],
+        ["contentAssignmentsB", [true]],
+        ["contentAssignmentsC", [true, true, true, true, true]],
+        ["contentAssignmentsD", [true]],
+        ["contentAssignmentsE", [true, true, true, true, true]],
+        ["contentAssignmentsF", [true]],
+      ]],
+      ["assign", [
+        // $contentAssignmentName, $solveContentAssignment
+        // One slot per assignment
+        ["contentAssignmentsA", [true]],
+        ["contentAssignmentsB", [true]],
+        ["contentAssignmentsC", [true]],
+        ["contentAssignmentsD", [true]],
+        ["contentAssignmentsE", [true]],
+        ["contentAssignmentsF", [true]],
+      ]],
     ]
-    // Validations
     const validations = [
-      ["contentA", []],
-      ["contentB", []],
-      ["contentC", []],
-      ["contentD", []],
-      ["contentE", []],
-      ["contentF", []],
+      // $contentEventName, $contentAssignments
+      ["assignSourcePropertyKey", [
+        // $contentAssignmentName, $validateContentAssignmentProperties
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assignSourceProperty", [
+        // $contentAssignmentName, $validateContentAssignmentProperties
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assignSource", [
+        // $contentAssignmentName, $validateContentAssignmentSources
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assign", [
+        // $contentAssignmentName, $validateContentAssignment
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
     ]
-    const contents = []
-    const contentAssignments = Object.entries(ContentAssignments)
-    let solveIndex = 0
-    iterateSolve: 
-    for(const [$solveName, $solve] of solve) {
-      const [$questName, $quest] = quest[solveIndex]
-      const [$validationName, $validation] = validations[solveIndex]
-      const [$contentAssignmentName, $contentAssignment] = contentAssignments[solveIndex]
-      contents[solveIndex] = [$solveName, new Content({}, null)]
-      const [$contentName, $content] = contents[solveIndex]
-      const assignedObjectName = $contentName
-      const assignedObject = Object.assign({}, ...$contentAssignment)
-      iterateContentProperties: 
-      for(const [$propertyKeyIndex, $propertyKey] of Object.entries([
-        'propertyA', 'propertyB', 'propertyC', 'propertyD', 'propertyE'
-      ])) {
-        const { promise, resolve, reject} = Promise.withResolvers()
-        $quest[$propertyKeyIndex] = promise
-        function assignSourceProperty($event) {
-          const { type, path, key, value, detail } = $event
-          const { source } = detail
-          const detailSourceString = JSON.stringify(source)
-          const contentAssignmentSource = $contentAssignment.find(($source) => Object.keys(
-            Object.getOwnPropertyDescriptors($source)
-          ).includes($propertyKey))
-          const contentAssignmentSourceString = JSON.stringify(contentAssignmentSource)
-          const verifications = new Map([
-            ["type", {
-              statement: `${type} === "assignSourceProperty:${$propertyKey}"`,
-              pass: (type === `assignSourceProperty:${$propertyKey}`),
-            }],
-            ["path", {
-              statement: `${path} === ${$propertyKey}`,
-              pass: (path === $propertyKey),
-            }],
-            ["value", {
-              statement: `${value} === ${assignedObject[$propertyKey]}`,
-              pass: (value === assignedObject[$propertyKey]),
-            }],
-            ["source", {
-              statement: `${detailSourceString} === ${contentAssignmentSourceString}`,
-              pass: (detailSourceString === contentAssignmentSourceString),
-            }]
-          ])
-          const assignSourcePropertyEventValidation = {
-            verifications: Object.fromEntries(verifications),
-            valid: (!verifications.values().find(
-              ($verification) => $verification.pass === false
-            )),
+    const assignmentSourceProperties = ["propertyA", "propertyB", "propertyC", "propertyD", "propertyE"]
+    const contents = [
+      ["assignSourcePropertyKey", [
+        ["contentAssignmentTargetA", new Content({}, null)],
+        ["contentAssignmentTargetB", new Content({}, null)],
+        ["contentAssignmentTargetC", new Content({}, null)],
+        ["contentAssignmentTargetD", new Content({}, null)],
+        ["contentAssignmentTargetE", new Content({}, null)],
+        ["contentAssignmentTargetF", new Content({}, null)],
+      ]],
+      ["assignSourceProperty", [
+        ["contentAssignmentTargetA", new Content({}, null)],
+        ["contentAssignmentTargetB", new Content({}, null)],
+        ["contentAssignmentTargetC", new Content({}, null)],
+        ["contentAssignmentTargetD", new Content({}, null)],
+        ["contentAssignmentTargetE", new Content({}, null)],
+        ["contentAssignmentTargetF", new Content({}, null)],
+      ]],
+      ["assignSource", [
+        ["contentAssignmentTargetA", new Content({}, null)],
+        ["contentAssignmentTargetB", new Content({}, null)],
+        ["contentAssignmentTargetC", new Content({}, null)],
+        ["contentAssignmentTargetD", new Content({}, null)],
+        ["contentAssignmentTargetE", new Content({}, null)],
+        ["contentAssignmentTargetF", new Content({}, null)],
+      ]],
+      ["assign", [
+        ["contentAssignmentTargetA", new Content({}, null)],
+        ["contentAssignmentTargetB", new Content({}, null)],
+        ["contentAssignmentTargetC", new Content({}, null)],
+        ["contentAssignmentTargetD", new Content({}, null)],
+        ["contentAssignmentTargetE", new Content({}, null)],
+        ["contentAssignmentTargetF", new Content({}, null)],
+      ]],
+      // $contentAssignmentTargetName, $contentAssignmentTarget
+    ]
+    let contentEventsIndex = 0
+    iterateContentEvents: 
+    for(const [
+      $contentEventName, $contentAssignments
+    ] of solve) {
+      if($contentEventName === "assignSourcePropertyKey") {
+        let contentAssignmentIndex = 0
+        iterateContentAssignments: 
+        for(const [
+          $contentAssignmentName, $contentAssignment
+        ] of $contentAssignments) {
+          const [
+            $contentAssignmentTargetName, $contentAssignmentTarget
+          ] = contents[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $validateContentAssignmentName, $validateContentAssignmentProperties
+          ] = validations[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $questContentAssignmenName, $questContentAssignmentProperties
+          ] = quest[contentEventsIndex][1][contentAssignmentIndex]
+          const alterObjectAssignment = Object.assign({}, ...ContentAssignments[$contentAssignmentName])
+          iterateAssignmentSourceProperties: 
+          for(const $assignmentSourceProperty of assignmentSourceProperties) {
+            const assignmentSourcePropertyPromise = Promise.withResolvers()
+            $questContentAssignmentProperties.push(assignmentSourcePropertyPromise.promise)
+            function assignSourcePropertyKeyListener($event) {
+              const { type, key, value, detail } = $event
+              const { source } = detail
+              const alterPropertyDescriptor = Object.getOwnPropertyDescriptor(alterObjectAssignment, key)
+              const alterkey = (alterPropertyDescriptor) ? key : undefined
+              const altervalue = alterPropertyDescriptor?.value
+              const altertype = `assignSourceProperty:${key}`
+              const altersource = ContentAssignments[$contentAssignmentName].find(
+                ($source) => JSON.stringify($source) === JSON.stringify(source)
+              )
+              const sourceString = JSON.stringify(source)
+              const altersourceString = JSON.stringify(altersource)
+              const verifications = [
+                ["key", {
+                  detail: {
+                    code: `(key === alterkey)`,
+                    statement: `(${key} === ${alterkey})`,
+                    evaluation: (key === alterkey),
+                  }
+                }],
+                ["value", {
+                  detail: {
+                    code: `(value === altervalue)`,
+                    statement: `(${value} === ${altervalue})`,
+                    evaluation: (value === altervalue),
+                  }
+                }],
+                ["type", {
+                  detail: {
+                    code: `(type === altertype)`,
+                    statement: `(${type} === ${altertype})`,
+                    evaluation: (type === altertype),
+                  }
+                }],
+                ["source", {
+                  detail: {
+                    code: `(sourceString === altersourceString)`,
+                    statement: `(${sourceString} === ${altersourceString})`,
+                    evaluation: (sourceString === altersourceString),
+                  }
+                }],
+              ]
+              const pass = verifications.reduce(($pass, [
+                $verificationName, $verification
+              ]) => {
+                if($pass === false) { return $pass}
+                return $verification.detail.evaluation
+              }, undefined)
+              const validation = {
+                verifications,
+                pass,
+              }
+              $validateContentAssignmentProperties.push(validation)
+              assignmentSourcePropertyPromise.resolve(validation.pass)
+            }
+            $contentAssignmentTarget.addEventListener(
+              `assignSourceProperty:${$assignmentSourceProperty}`, assignSourcePropertyKeyListener
+            )
           }
-          $validation[$propertyKeyIndex] = assignSourcePropertyEventValidation
-          resolve(assignSourcePropertyEventValidation.valid)
-          $content.removeEventListener(`assignSourceProperty:${$propertyKey}`, assignSourceProperty)
+          $contentAssignmentTarget.assign(...ContentAssignments[$contentAssignmentName])
+          $questContentAssignmentProperties.splice(
+            0, $questContentAssignmentProperties.length, ...await Promise.all($questContentAssignmentProperties)
+          )
+          contentAssignmentIndex++
         }
-        $content.addEventListener(`assignSourceProperty:${$propertyKey}`, assignSourceProperty)
       }
-      $content.assign(...$contentAssignment)
-      $quest.splice(0, 5, ...await Promise.all($quest))
-      solveIndex++
+      else if($contentEventName === "assignSourceProperty") {
+        let contentAssignmentIndex = 0
+        for(const [
+          $contentAssignmentName, $contentAssignment
+        ] of $contentAssignments) {
+          const [
+            $contentAssignmentTargetName, $contentAssignmentTarget
+          ] = contents[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $validateContentAssignmentName, $validateContentAssignmentProperties
+          ] = validations[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $questContentAssignmenName, $questContentAssignmentProperties
+          ] = quest[contentEventsIndex][1][contentAssignmentIndex]
+          const assignmentSourcePropertyResolvers = []
+          for(const assignmentSourceProperty of assignmentSourceProperties) {
+            const assignmentSourcePropertyResolver = Promise.withResolvers()
+            assignmentSourcePropertyResolvers.push(assignmentSourcePropertyResolver)
+            $questContentAssignmentProperties.push(assignmentSourcePropertyResolver.promise)
+          }
+          const alterObjectAssignment = Object.assign({}, ...ContentAssignments[$contentAssignmentName])
+          let assignmentSourcePropertyIndex = 0
+          function assignSourcePropertyListener($event) {
+            const assignmentSourcePropertyPromise = assignmentSourcePropertyResolvers[assignmentSourcePropertyIndex]
+            const { type, key, value, detail } = $event
+            const { source } = detail
+            const alterPropertyDescriptor = Object.getOwnPropertyDescriptor(alterObjectAssignment, key)
+            const alterkey = (alterPropertyDescriptor) ? key : undefined
+            const altervalue = alterPropertyDescriptor?.value
+            const altertype = `assignSourceProperty`
+            const altersource = ContentAssignments[$contentAssignmentName].find(
+              ($source) => JSON.stringify($source) === JSON.stringify(source)
+            )
+            const sourceString = JSON.stringify(source)
+            const altersourceString = JSON.stringify(altersource)
+            const verifications = [
+              ["key", {
+                detail: {
+                  code: `(key === alterkey)`,
+                  statement: `(${key} === ${alterkey})`,
+                  evaluation: (key === alterkey),
+                }
+              }],
+              ["value", {
+                detail: {
+                  code: `(value === altervalue)`,
+                  statement: `(${value} === ${altervalue})`,
+                  evaluation: (value === altervalue),
+                }
+              }],
+              ["type", {
+                detail: {
+                  code: `(type === altertype)`,
+                  statement: `(${type} === ${altertype})`,
+                  evaluation: (type === altertype),
+                }
+              }],
+              ["source", {
+                detail: {
+                  code: `(sourceString === altersourceString)`,
+                  statement: `(${sourceString} === ${altersourceString})`,
+                  evaluation: (sourceString === altersourceString),
+                }
+              }],
+            ]
+            const pass = verifications.reduce(($pass, [
+              $verificationName, $verification
+            ]) => {
+              if($pass === false) { return $pass}
+              return $verification.detail.evaluation
+            }, undefined)
+            const validation = {
+              verifications,
+              pass,
+            }
+            $validateContentAssignmentProperties.push(validation)
+            assignmentSourcePropertyPromise.resolve(validation.pass)
+            assignmentSourcePropertyIndex++
+          }
+          $contentAssignmentTarget.addEventListener("assignSourceProperty", assignSourcePropertyListener)
+          $contentAssignmentTarget.assign(...ContentAssignments[$contentAssignmentName])
+          $questContentAssignmentProperties.splice(
+            0, $questContentAssignmentProperties.length, ...await Promise.all($questContentAssignmentProperties)
+          )
+          contentAssignmentIndex++
+        }
+      }
+      else if($contentEventName === "assignSource") {
+        let contentAssignmentIndex = 0
+        for(const [
+          $contentAssignmentName, $contentAssignment
+        ] of $contentAssignments) {
+          const [
+            $contentAssignmentTargetName, $contentAssignmentTarget
+          ] = contents[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $validateContentAssignmentName, $validateContentAssignmentSources
+          ] = validations[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $questContentAssignmenName, $questContentAssignmentSources
+          ] = quest[contentEventsIndex][1][contentAssignmentIndex]
+          const assignmentSourceResolvers = []
+          for(const assignmentSource of $contentAssignment) {
+            const assignmentSourceResolver = Promise.withResolvers()
+            assignmentSourceResolvers.push(assignmentSourceResolver)
+            $questContentAssignmentSources.push(assignmentSourceResolver.promise)
+          }
+          const alterObjectAssignment = Object.assign({}, ...ContentAssignments[$contentAssignmentName])
+          let assignmentSourceIndex = 0
+          function assignSourceListener($event) {
+            const assignmentSourcePromise = assignmentSourceResolvers[assignmentSourceIndex]
+            const { type, key, value, detail } = $event
+            const { source } = detail
+            const altertype = `assignSource`
+            const altersource = ContentAssignments[$contentAssignmentName].find(
+              ($source) => JSON.stringify($source) === JSON.stringify(source)
+            )
+            const sourceString = JSON.stringify(source)
+            const altersourceString = JSON.stringify(altersource)
+            const verifications = [
+              ["type", {
+                detail: {
+                  code: `(type === altertype)`,
+                  statement: `(${type} === ${altertype})`,
+                  evaluation: (type === altertype),
+                }
+              }],
+              ["source", {
+                detail: {
+                  code: `(sourceString === altersourceString)`,
+                  statement: `(${sourceString} === ${altersourceString})`,
+                  evaluation: (sourceString === altersourceString),
+                }
+              }],
+            ]
+            const pass = verifications.reduce(($pass, [
+              $verificationName, $verification
+            ]) => {
+              if($pass === false) { return $pass}
+              return $verification.detail.evaluation
+            }, undefined)
+            const validation = {
+              verifications,
+              pass,
+            }
+            $validateContentAssignmentSources.push(validation)
+            assignmentSourcePromise.resolve(validation.pass)
+            assignmentSourceIndex++
+          }
+          $contentAssignmentTarget.addEventListener("assignSource", assignSourceListener)
+          $contentAssignmentTarget.assign(...ContentAssignments[$contentAssignmentName])
+          $questContentAssignmentSources.splice(
+            0, $questContentAssignmentSources.length, ...await Promise.all($questContentAssignmentSources)
+          )
+          contentAssignmentIndex++
+        }
+      }
+      else if($contentEventName === "assign") {
+        let contentAssignmentIndex = 0
+        for(const [
+          $contentAssignmentName, $contentAssignment
+        ] of $contentAssignments) {
+          const [
+            $contentAssignmentTargetName, $contentAssignmentTarget
+          ] = contents[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $validateContentAssignmentName, $validateContentAssignment
+          ] = validations[contentEventsIndex][1][contentAssignmentIndex]
+          const [
+            $questContentAssignmenName, $questContentAssignment
+          ] = quest[contentEventsIndex][1][contentAssignmentIndex]
+          const assignmentResolvers = []
+          for(const assignmentSource of $contentAssignment) {
+            const assignmentResolver = Promise.withResolvers()
+            assignmentResolvers.push(assignmentResolver)
+            $questContentAssignment.push(assignmentResolver.promise)
+          }
+          const alterObjectAssignment = Object.assign({}, ...ContentAssignments[$contentAssignmentName])
+          let assignmentIndex = 0
+          function assignListener($event) {
+            const assignmentPromise = assignmentResolvers[assignmentIndex]
+            const { type, key, value, detail } = $event
+            const { sources } = detail
+            const altertype = `assign`
+            const altersources = ContentAssignments[$contentAssignmentName]
+            const sourcesString = JSON.stringify(sources)
+            const altersourcesString = JSON.stringify(altersources)
+            const verifications = [
+              ["type", {
+                detail: {
+                  code: `(type === altertype)`,
+                  statement: `(${type} === ${altertype})`,
+                  evaluation: (type === altertype),
+                }
+              }],
+              ["source", {
+                detail: {
+                  code: `(sourceString === altersourceString)`,
+                  statement: `(${sourcesString} === ${altersourcesString})`,
+                  evaluation: (sourcesString === altersourcesString),
+                }
+              }],
+            ]
+            const pass = verifications.reduce(($pass, [
+              $verificationName, $verification
+            ]) => {
+              if($pass === false) { return $pass}
+              return $verification.detail.evaluation
+            }, undefined)
+            const validation = {
+              verifications,
+              pass,
+            }
+            $validateContentAssignment.push(validation)
+            assignmentPromise.resolve(validation.pass)
+            assignmentIndex++
+          }
+          $contentAssignmentTarget.addEventListener("assign", assignListener)
+          $contentAssignmentTarget.assign(...ContentAssignments[$contentAssignmentName])
+          $questContentAssignment.splice(
+            0, $questContentAssignment.length, ...await Promise.all($questContentAssignment)
+          )
+          contentAssignmentIndex++
+        }
+      }
+      contentEventsIndex++
     }
-    let pass = (JSON.stringify(quest) === JSON.stringify(solve))
+    const questString = JSON.stringify(quest)
+    const solveString = JSON.stringify(solve)
+    let pass = (solveString === questString)
     this.pass = pass
     this.detail = {
       method: this.method.toString(),

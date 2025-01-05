@@ -55,11 +55,13 @@ export default class PandTreeView extends View {
       let header = []
       header.length = path.length
       header = header.fill('-').join('')
-      const log = [
+      const log = []
+      log.push(...[
         "\n", header,
         "\n", path,
+        "\n", `pass: ${content.pass}`,
         "\n", JSON.stringify(result),
-      ]
+      ])
       if(detail !== undefined) log.push(
         "\n", "detail", detail,
       )
