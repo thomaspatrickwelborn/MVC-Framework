@@ -3,7 +3,10 @@ import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function assign() {
   const $content = Array.prototype.shift.call(arguments)
+  console.log("$content", $content)
   const $options = Array.prototype.shift.call(arguments)
+  console.log("$options", $options)
+  throw "MVC Framework"
   const { sourceTree, events } = $options
   const { path, source, schema, proxy } = $content
   const { enableValidation, validationEvents, contentEvents } = $content.options

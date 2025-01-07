@@ -33,8 +33,8 @@ export default {
     // ['testB', testB],
     // ['testC', testC],
     // ['testD', testD],
-    ['testE', testE],
-    // ['testF', testF],
+    // ['testE', testE],
+    ['testF', testF],
     // ['testG', testG],
   ]),
 }

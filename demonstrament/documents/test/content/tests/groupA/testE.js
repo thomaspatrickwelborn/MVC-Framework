@@ -26,56 +26,56 @@ export default {
   ]),
   method: async function() {
     const solve = [
-      // ["assignSourcePropertyKey", [
-      //   ["contentAssignmentsA", [true, true, true, true, true]],
-      //   ["contentAssignmentsB", [true, true, true, true, true]],
-      //   ["contentAssignmentsC", [true, true, true, true, true]],
-      //   ["contentAssignmentsD", [true, true, true, true, true]],
-      //   ["contentAssignmentsE", [true, true, true, true, true]],
-      //   ["contentAssignmentsF", [true, true, true, true, true]],
-      // ]],
-      // ["assignSourceProperty", [
-      //   ["contentAssignmentsA", [true, true, true, true, true]],
-      //   ["contentAssignmentsB", [true, true, true, true, true]],
-      //   ["contentAssignmentsC", [true, true, true, true, true]],
-      //   ["contentAssignmentsD", [true, true, true, true, true]],
-      //   ["contentAssignmentsE", [true, true, true, true, true]],
-      //   ["contentAssignmentsF", [true, true, true, true, true]],
-      // ]],
-      ["assignSource", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+      ["assignSourcePropertyKey", [
+        ["contentAssignmentsA", [true, true, true, true, true]],
+        ["contentAssignmentsB", [true, true, true, true, true]],
+        ["contentAssignmentsC", [true, true, true, true, true]],
+        ["contentAssignmentsD", [true, true, true, true, true]],
+        ["contentAssignmentsE", [true, true, true, true, true]],
+        ["contentAssignmentsF", [true, true, true, true, true]],
       ]],
-      // ["assign", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
+      ["assignSourceProperty", [
+        ["contentAssignmentsA", [true, true, true, true, true]],
+        ["contentAssignmentsB", [true, true, true, true, true]],
+        ["contentAssignmentsC", [true, true, true, true, true]],
+        ["contentAssignmentsD", [true, true, true, true, true]],
+        ["contentAssignmentsE", [true, true, true, true, true]],
+        ["contentAssignmentsF", [true, true, true, true, true]],
+      ]],
+      ["assignSource", [
+        ["contentAssignmentsA", [true, true, true, true, true]],
+        ["contentAssignmentsB", [true]],
+        ["contentAssignmentsC", [true, true, true, true, true]],
+        ["contentAssignmentsD", [true]],
+        ["contentAssignmentsE", [true, true, true, true, true]],
+        ["contentAssignmentsF", [true]],
+      ]],
+      ["assign", [
+        ["contentAssignmentsA", [true]],
+        ["contentAssignmentsB", [true]],
+        ["contentAssignmentsC", [true]],
+        ["contentAssignmentsD", [true]],
+        ["contentAssignmentsE", [true]],
+        ["contentAssignmentsF", [true]],
+      ]],
     ]
     const quest = [
-      // ["assignSourcePropertyKey", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
-      // ["assignSourceProperty", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
+      ["assignSourcePropertyKey", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assignSourceProperty", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
       ["assignSource", [
         ["contentAssignmentsA", []],
         ["contentAssignmentsB", []],
@@ -84,32 +84,32 @@ export default {
         ["contentAssignmentsE", []],
         ["contentAssignmentsF", []],
       ]],
-      // ["assign", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
+      ["assign", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
     ]
     const validations = [
-      // ["assignSourcePropertyKey", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
-      // ["assignSourceProperty", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
+      ["assignSourcePropertyKey", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assignSourceProperty", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
       ["assignSource", [
         ["contentAssignmentsA", []],
         ["contentAssignmentsB", []],
@@ -118,32 +118,32 @@ export default {
         ["contentAssignmentsE", []],
         ["contentAssignmentsF", []],
       ]],
-      // ["assign", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
+      ["assign", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
     ]
     const contents = [
-      // ["assignSourcePropertyKey", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
-      // ["assignSourceProperty", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
+      ["assignSourcePropertyKey", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
+      ["assignSourceProperty", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
       ["assignSource", [
         ["contentAssignmentsA", []],
         ["contentAssignmentsB", []],
@@ -152,14 +152,14 @@ export default {
         ["contentAssignmentsE", []],
         ["contentAssignmentsF", []],
       ]],
-      // ["assign", [
-      //   ["contentAssignmentsA", []],
-      //   ["contentAssignmentsB", []],
-      //   ["contentAssignmentsC", []],
-      //   ["contentAssignmentsD", []],
-      //   ["contentAssignmentsE", []],
-      //   ["contentAssignmentsF", []],
-      // ]],
+      ["assign", [
+        ["contentAssignmentsA", []],
+        ["contentAssignmentsB", []],
+        ["contentAssignmentsC", []],
+        ["contentAssignmentsD", []],
+        ["contentAssignmentsE", []],
+        ["contentAssignmentsF", []],
+      ]],
     ]
     let solveEventsIndex = 0
     for(const [
@@ -209,7 +209,7 @@ export default {
             resolvers.resolve(false)
             resolvers.resolved = true
           }
-          content.addEventListener(`assignSourcePropertyKey`, assignSourcePropertyListener)
+          content.addEventListener(`assignSourceProperty`, assignSourcePropertyListener)
           content.assign(...contentAssignmentSources)
           await new Promise(($resolve) => {
             setTimeout(() => {
@@ -236,7 +236,7 @@ export default {
             resolvers.resolve(false)
             resolvers.resolved = true
           }
-          content.addEventListener(`assignSourcePropertyKey`, assignSourceListener)
+          content.addEventListener(`assignSource`, assignSourceListener)
           content.assign(...contentAssignmentSources)
           await new Promise(($resolve) => {
             setTimeout(() => {
@@ -251,13 +251,37 @@ export default {
           })
           $quest.splice(0, $quest.length, ...await Promise.all($quest.map(($resolver) => $resolver.promise)))
         }
-        else if($eventName === "assign") {}
+        else if($eventName === "assign") {
+          const contentAssignmentSources = ContentAssignments[$contentAssignmentName]
+          const resolvers = Object.assign(Promise.withResolvers(), { resolved: false })
+          $quest.push(resolvers)
+          function assignListener($event) {
+            const { type, key, value, detail } = $event
+            const resolvers = $quest[propertyResolversIndex]
+            resolvers.resolve(false)
+            resolvers.resolved = true
+          }
+          content.addEventListener(`assign`, assignListener)
+          content.assign(...contentAssignmentSources)
+          await new Promise(($resolve) => {
+            setTimeout(() => {
+              if($quest.find(($resolver) => $resolver.resolved) === undefined) {
+                $quest.forEach(($resolver) => {
+                  $resolver.resolve(true)
+                  $resolver.resolved = true
+                })
+              }
+              $resolve()
+            }, 10)
+          })
+          $quest.splice(0, $quest.length, ...await Promise.all($quest.map(($resolver) => $resolver.promise)))
+        }
         $content.push(content)
         solveAssignmentsIndex++
       }
       solveEventsIndex++
     }
-    this.pass = (!false)
+    this.pass = (JSON.stringify(quest) === JSON.stringify(solve))
     this.detail = {
       method: this.method.toString(),
       quest,

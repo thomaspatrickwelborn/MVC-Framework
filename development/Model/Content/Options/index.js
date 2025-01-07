@@ -1,10 +1,17 @@
 export default {
   path: null, 
   parent: null, 
+  // Enable Events
+  // enableEvents: true, 
+  // Enable Validation
   enableValidation: true, 
+  // Enable Validation Events
   validationEvents: true, 
+  enableValidationEvents: true, 
+  // Enable Content Events
   contentEvents: true, 
-  enableEvents: true, 
+  enableContentEvents: true, 
+  // -----
   pathkey: true,
   subpathError: false,
   proxyAssignmentMethod: 'set',
@@ -96,6 +103,20 @@ export default {
           'assignSourceProperty': true,
           'assignSource': true,
           'assign': true,
+        },
+        contentEvents: {
+          'assignSourceProperty:$key': true,
+          'assignSourceProperty': true,
+          'assignSource': true,
+          'assign': true,
+        },
+        validationEvents: {
+          'validProperty:$key': true,
+          'validProperty': true,
+          'valid': true,
+          'nonvalidProperty:$key': true,
+          'nonvalidProperty': true,
+          'nonvalid': true,
         },
       },
       defineProperties: {
