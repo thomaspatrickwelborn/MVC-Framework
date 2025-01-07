@@ -16,12 +16,7 @@ export default {
     </ul>
   `, 
   collect: new Map([
-    [0, `
-      <p>
-        When <code>schema.required</code> is <code>true</code> and <code>schema.validate</code> or 
-        <code>schema.validateProperty</code> are invoked then all properties must validate to be set.  
-      </p>
-    `],
+    [0, ``],
   ]),
   method: function() {
     const solve = [

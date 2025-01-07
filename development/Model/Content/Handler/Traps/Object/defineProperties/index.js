@@ -6,7 +6,7 @@ export default function defineProperties() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { source, path, schema, proxy } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
   const $propertyDescriptors = arguments[0]
   const propertyDescriptorEntries = Object.entries($propertyDescriptors)
   const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value')
@@ -20,7 +20,7 @@ export default function defineProperties() {
     proxy.defineProperty($propertyKey, $propertyDescriptor)
   }
   // Define Properties Event
-  if(contentEvents && events['defineProperties']) {
+  if(events && events['defineProperties']) {
     // Define Properties Validator Event
     $content.dispatchEvent(
       new ContentEvent(

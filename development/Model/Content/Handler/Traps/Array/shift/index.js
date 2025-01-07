@@ -7,7 +7,7 @@ export default function shift() {
   const shiftElement = Array.prototype.shift.call(source)
   const shiftElementIndex = 0
   // Array Shift Event
-  if(contentEvents && events['shift']) {
+  if(events && events['shift']) {
     const contentEventPath = (path)
       ? [path, shiftElementIndex].join('.')
       : String(shiftElementIndex)

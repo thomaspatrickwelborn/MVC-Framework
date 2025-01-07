@@ -4,16 +4,19 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function deleteContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { source, path } = $content
-  const { contentEvents } = $content.options
-  const { proxy } = $content
+  const { source, path, schema, proxy } = $content
+  const { enableValidation, /* validationEvents */ } = $content.options
+  // const  = $options
   // Arguments
   const $path = arguments[0]
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
   }, $options, arguments[1])
-  const { events, pathkey, subpathError } = ulteroptions
+  const { events, pathkey, subpathError, /* validationEvents */ } = ulteroptions
+  const validationEvents = ($options.validationEvents !== undefined)
+    ? $options.validationEvents
+    : $content.options.validationEvents 
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
@@ -26,12 +29,38 @@ export default function deleteContentProperty() {
       if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
+    // Validation
+    if(schema && enableValidation) {
+      const differedPropertyProxy = proxy.object
+      delete differedPropertyProxy[propertyKey]
+      const validSourceProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
+      if(validationEvents) {
+        let type, propertyType
+        const validatorEventPath = (path)
+          ? [path, propertyKey].join('.')
+          : String(propertyKey)
+        if(validSourceProp.valid) {
+          type = 'validProperty'
+          propertyType = ['validProperty', ':', propertyKey].join('')
+        }
+        else {
+          type = 'nonvalidProperty'
+          propertyType = ['nonvalidProperty', ':', propertyKey].join('')
+        }
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, validSourceProp, $content)
+          )
+        }
+      }
+      if(!validSourceProp.valid) { return }
+    }
     if(typeof propertyValue === 'object') {
       propertyValue.delete(ulteroptions)
     }
     delete source[propertyKey]
     // Delete Property Event
-    if(contentEvents) {
+    if(events) {
       if(events['deleteProperty']) {
         $content.dispatchEvent(
           new ContentEvent('deleteProperty', {
@@ -64,12 +93,40 @@ export default function deleteContentProperty() {
   else if(pathkey === false) {
     const propertyKey = $path
     const propertyValue = source[propertyKey]
+
+    // Validation
+    if(schema && enableValidation) {
+      const differedPropertyProxy = proxy.object
+      delete differedPropertyProxy[propertyKey]
+      const validSourceProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
+      if(validationEvents) {
+        let type, propertyType
+        const validatorEventPath = (path)
+          ? [path, propertyKey].join('.')
+          : String(propertyKey)
+        if(validSourceProp.valid) {
+          type = 'validProperty'
+          propertyType = ['validProperty', ':', propertyKey].join('')
+        }
+        else {
+          type = 'nonvalidProperty'
+          propertyType = ['nonvalidProperty', ':', propertyKey].join('')
+        }
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, validSourceProp, $content)
+          )
+        }
+      }
+      if(!validSourceProp.valid) { return }
+    }
+  
     if(propertyValue instanceof Content) {
       propertyValue.delete(ulteroptions)
     }
     delete source[propertyKey]
     // Delete Property Event
-    if(contentEvents) {
+    if(events) {
       if(events['deleteProperty']) {
         $content.dispatchEvent(
           new ContentEvent('deleteProperty', {

@@ -4,7 +4,6 @@ export default function setContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { path } = $content
-  const { contentEvents } = $content.options
   const { proxy } = $content
   // Delete Preterproperties
   // proxy.delete()
@@ -27,7 +26,7 @@ export default function setContent() {
     proxy.set($propertyKey, $propertyValue, ulteroptions)
   }
   // Set Property Event
-  if(contentEvents && events['set']) {
+  if(events && events['set']) {
     $content.dispatchEvent(
       new ContentEvent('set', {
         path,

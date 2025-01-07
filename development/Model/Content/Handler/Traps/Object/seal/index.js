@@ -15,7 +15,7 @@ export default function seal() {
         $propertyValue.seal()
       }
       else { Object.seal($propertyValue) }
-      if(contentEvents && events['seal']) {
+      if(events && events['seal']) {
         $content.dispatchEvent(
           new ContentEvent(
             'seal',

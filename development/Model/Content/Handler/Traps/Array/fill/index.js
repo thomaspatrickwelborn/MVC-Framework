@@ -5,7 +5,7 @@ export default function fill() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { source, path, schema } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments]
   let $start
@@ -43,12 +43,7 @@ export default function fill() {
           propertyType = ['nonvalidProperty', ':', fillIndex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorPath,
-              detail: validSourceProp,
-            }, $content)
-          )
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
         }
       }
       if(!validValue.valid) { continue iterateFillIndexes }
@@ -69,7 +64,7 @@ export default function fill() {
       source, value, fillIndex, fillIndex + 1
     )
     // Array Fill Index Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, fillIndex].join('.')
         : String(fillIndex)
@@ -103,7 +98,7 @@ export default function fill() {
     fillIndex++
   }
   // Array Fill Event
-  if(contentEvents && events['fill']) {
+  if(events && events['fill']) {
     $content.dispatchEvent(
       new ContentEvent('fill', {
         path,

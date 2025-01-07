@@ -5,7 +5,7 @@ export default function concat() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { source, path, schema } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments].reduce(($arguments, $argument) => {
     if(Array.isArray($argument)) { $arguments.push(...$argument) }
@@ -35,12 +35,7 @@ export default function concat() {
           propertyType = ['nonvalidProperty', ':', valueIndex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorPath,
-              detail: validSourceProp,
-            }, $content)
-          )
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
         }
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
@@ -64,7 +59,7 @@ export default function concat() {
       values[valueIndex] = $value
     }
     sourceConcat = Array.prototype.concat.call(sourceConcat, values[valueIndex])
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, valueIndex].join('.')
         : String(valueIndex)
@@ -97,7 +92,7 @@ export default function concat() {
     valueIndex++
   }
   proxyConcat = new Content(sourceConcat, schema, $content.options)
-  if(contentEvents && events['concat']) {
+  if(events && events['concat']) {
     $content.dispatchEvent(
       new ContentEvent('concat', {
         path,

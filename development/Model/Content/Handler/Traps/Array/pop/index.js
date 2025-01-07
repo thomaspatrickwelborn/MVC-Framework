@@ -7,7 +7,7 @@ export default function pop() {
   const popElement = Array.prototype.pop.call(source)
   const popElementIndex = source.length - 1
   // Array Pop Event
-  if(contentEvents && events['pop']) {
+  if(events && events['pop']) {
     const contentEventPath = (path)
       ? [path, popElementIndex].join('.')
       : String(popElementIndex)

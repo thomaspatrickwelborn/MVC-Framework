@@ -5,7 +5,7 @@ export default function splice() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { source, path, schema } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
   const $arguments = [...arguments]
   const $start = ($arguments[0] >= 0)
     ? $arguments[0]
@@ -26,7 +26,7 @@ export default function splice() {
     const deleteItem = Array.prototype.splice.call(source, $start, 1)[0]
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, deleteItemsIndex].join('.')
         : String(deleteItemsIndex)
@@ -81,12 +81,7 @@ export default function splice() {
           propertyType = ['nonvalidProperty', ':', addItemsIndex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorEventPath,
-              detail: validSourceProp,
-            }, $content)
-          )
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
         }
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
@@ -114,7 +109,7 @@ export default function splice() {
       )
     }
     // Array Splice Add Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, addItemsIndex].join('.')
         : String(addItemsIndex)
@@ -149,7 +144,7 @@ export default function splice() {
     addItemsIndex++
   }
   // Array Splice Event
-  if(contentEvents && events['splice']) {
+  if(events && events['splice']) {
     $content.dispatchEvent(
       new ContentEvent('splice', {
         path,

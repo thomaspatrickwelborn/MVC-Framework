@@ -2,6 +2,8 @@ export default class ValidatorEvent extends Event {
   #settings
   #content
   #_key
+  #_value
+  #_valid
   constructor($type, $settings, $content) {
     super($type)
     this.#settings = $settings
@@ -30,10 +32,17 @@ export default class ValidatorEvent extends Event {
   }
   get key() {
     if(this.#_key !== undefined) { return this.#_key }
-    if(this.path) { this.#_key = this.path.split('.').pop() }
-    else { this.#_key = null }
+    this.#_key = this.#settings.key
     return this.#_key
   }
-  get path() { return this.#settings.path }
-  get detail() { return this.#settings.detail }
+  get value() {
+    if(this.#_value !== undefined) { return this.#_value }
+    this.#_value = this.#settings.value
+    return this.#_value
+  }
+  get valid() {
+    if(this.#_valid !== undefined) { return this.#_valid }
+    this.#_valid = this.#settings.valid
+    return this.#_valid
+  }
 }

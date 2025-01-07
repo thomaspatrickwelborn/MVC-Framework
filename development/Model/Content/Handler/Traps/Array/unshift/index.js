@@ -6,7 +6,7 @@ export default function unshift() {
   const $arguments = [...arguments]
   const { events } = $options
   const { source, path, schema, proxy } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
   const elements = []
   const elementsLength = $arguments.length
   let elementIndex = elementsLength - 1
@@ -37,12 +37,7 @@ export default function unshift() {
           propertyType = ['nonvalidProperty', ':', elementCoindex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorEventPath,
-              detail: validElement,
-            }, $content)
-          )
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
         }
       }
       if(!validElement.valid) { return proxy.length }
@@ -82,7 +77,7 @@ export default function unshift() {
       ? (sourceElement.string !== JSON.stringify(element))
       : (JSON.stringify(sourceElement) !== JSON.stringify(element))
     // Array Unshift Prop Event
-    if(contentEvents) {
+    if(events) {
       const type = ['unshiftProp', elementCoindex].join(':')
       const contentEventPath = (path)
         ? [path, elementCoindex].join('.')
@@ -119,7 +114,7 @@ export default function unshift() {
     elementCoindex++
   }
   // Array Unshift Event
-  if(contentEvents && events['unshift'] && elements.length) {
+  if(events && events['unshift'] && elements.length) {
     $content.dispatchEvent(
       new ContentEvent('unshift', {
         path,

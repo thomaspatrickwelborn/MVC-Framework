@@ -13,12 +13,6 @@ export default {
   descript: `
     <ul>
       <li><code>content.contentEvents</code>: <code>false</code></li>
-      <ul>
-        <li><s><code>"assignSourceProperty:$key"</code></s></li>
-        <li><s><code>"assignSourceProperty"</code></s></li>
-        <li><s><code>"assignSource"</code></s></li>
-        <li><s><code>"assign"</code></s></li>
-      </ul>
     </ul>
   `, 
   collect: new Map([
@@ -59,121 +53,28 @@ export default {
         ["contentAssignmentsF", [true]],
       ]],
     ]
-    const quest = [
-      ["assignSourcePropertyKey", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assignSourceProperty", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assignSource", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assign", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-    ]
-    const validations = [
-      ["assignSourcePropertyKey", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assignSourceProperty", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assignSource", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assign", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-    ]
-    const contents = [
-      ["assignSourcePropertyKey", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assignSourceProperty", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assignSource", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-      ["assign", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
-      ]],
-    ]
+    const quest = []
+    const validations = []
+    const contents = []
     let solveEventsIndex = 0
     for(const [
       $eventName, $solveContentAssignments
     ] of solve) {
+      quest[solveEventsIndex] = quest[solveEventsIndex] || [$eventName, []]
+      validations[solveEventsIndex] = validations[solveEventsIndex] || [$eventName, []]
+      contents[solveEventsIndex] = contents[solveEventsIndex] || [$eventName, []]
       let solveAssignmentsIndex = 0
       for(const [
         $contentAssignmentName, $solveContentAssignment
       ] of $solveContentAssignments) {
+        quest[solveEventsIndex][1][solveAssignmentsIndex] = quest[solveEventsIndex][1][solveAssignmentsIndex] || [$contentAssignmentName, []]
+        validations[solveEventsIndex][1][solveAssignmentsIndex] = validations[solveEventsIndex][1][solveAssignmentsIndex] || [$contentAssignmentName, []]
+        contents[solveEventsIndex][1][solveAssignmentsIndex] = contents[solveEventsIndex][1][solveAssignmentsIndex] || [$contentAssignmentName, []]
         const contentAssignmentSources = ContentAssignments[$contentAssignmentName]
         const [$questName, $quest] = quest[solveEventsIndex][1][solveAssignmentsIndex]
         const [$validationName, $validation] = validations[solveEventsIndex][1][solveAssignmentsIndex]
         const [$contentName, $content] = validations[solveEventsIndex][1][solveAssignmentsIndex]
-        const content = new Content({}, null, { contentEvents: false })
+        const content = new Content({}, null, { events: false })
         if($eventName === "assignSourcePropertyKey") {
           for(const $propertyKey of ["propertyA", "propertyB", "propertyC", "propertyD", "propertyE"]) {
             const resolvers = Object.assign(Promise.withResolvers(), { resolved: false })
@@ -213,13 +114,13 @@ export default {
           content.assign(...contentAssignmentSources)
           await new Promise(($resolve) => {
             setTimeout(() => {
-              if($quest.find(($resolver) => $resolver.resolved) === undefined) {
+              if($quest.find(($resolver) => $resolver.resolved === false)) {
                 $quest.forEach(($resolver) => {
                   $resolver.resolve(true)
                   $resolver.resolved = true
                 })
               }
-              $resolve()
+              $resolve(true)
             }, 10)
           })
           $quest.splice(0, $quest.length, ...await Promise.all($quest.map(($resolver) => $resolver.promise)))
@@ -240,7 +141,7 @@ export default {
           content.assign(...contentAssignmentSources)
           await new Promise(($resolve) => {
             setTimeout(() => {
-              if($quest.find(($resolver) => $resolver.resolved) === undefined) {
+              if($quest.find(($resolver) => $resolver.resolved === false)) {
                 $quest.forEach(($resolver) => {
                   $resolver.resolve(true)
                   $resolver.resolved = true
@@ -265,7 +166,7 @@ export default {
           content.assign(...contentAssignmentSources)
           await new Promise(($resolve) => {
             setTimeout(() => {
-              if($quest.find(($resolver) => $resolver.resolved) === undefined) {
+              if($quest.find(($resolver) => $resolver.resolved === false)) {
                 $quest.forEach(($resolver) => {
                   $resolver.resolve(true)
                   $resolver.resolved = true

@@ -10,18 +10,11 @@ export default {
   type: "test-result", collectName: 'detail',
   descript: `
     <ul>
-      <li><code>content.type</code>: <code>"object"</code></li>
       <li><code>content.schema</code>: <code>null</code></li>
     </ul>
   `, 
   collect: new Map([
-    [0, `
-      <p>
-        When schema is <code>null</code> any source properties may be assigned to content instances using 
-        <code>content.assign</code> and are same as complementary plain <code>object</code> when comparing 
-        their stringified JSON. 
-      </p>
-    `],
+    [0, ``],
   ]),
   method: function() {
     const solve = [

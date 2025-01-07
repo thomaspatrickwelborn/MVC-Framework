@@ -4,7 +4,7 @@ export default function copyWithin() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { source, path } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
   const $arguments = [...arguments]
   const target = (
     arguments[0] >= 0
@@ -35,7 +35,7 @@ export default function copyWithin() {
       copyIndex + 1
     )
     // Array Copy Within Index Event Data
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, copyIndex].join('.')
         : String(copyIndex)
@@ -81,7 +81,7 @@ export default function copyWithin() {
     targetIndex++
   }
   // Array Copy Within Event
-  if(contentEvents && events['copyWithin']) {
+  if(events && events['copyWithin']) {
     $content.dispatchEvent(
       new ContentEvent(
         'copyWithin',

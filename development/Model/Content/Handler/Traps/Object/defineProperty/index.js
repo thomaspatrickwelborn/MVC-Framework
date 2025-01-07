@@ -6,7 +6,7 @@ export default function defineProperty() {
   const $options = Array.prototype.shift.call(arguments)
   const { descriptorTree, events } = $options
   const { source, path, schema, proxy } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
   const propertyKey = arguments[0]
   const propertyDescriptor = arguments[1]
   const propertyValue = propertyDescriptor.value
@@ -35,12 +35,7 @@ export default function defineProperty() {
         propertyType = ['nonvalidProperty', propertyKey].join(':')
       }
       for(const $eventType of [type, propertyType]) {
-        $content.dispatchEvent(
-          new ValidatorEvent($eventType, {
-            path: validatorPath,
-            detail: validProperty,
-          }, $content)
-        )
+        $content.dispatchEvent(new ValidatorEvent($eventType, validProperty, $content))
       }
     }
     if(!validProperty.valid) { return proxy }
@@ -108,7 +103,7 @@ export default function defineProperty() {
     ? (sourcePropertyValue.string !== JSON.stringify(propertyValue))
     : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue))
   // Define Property Event
-  if(contentEvents) {
+  if(events) {
     const contentEventPath = (path)
       ? [path, propertyKey].join('.')
       : String(propertyKey)

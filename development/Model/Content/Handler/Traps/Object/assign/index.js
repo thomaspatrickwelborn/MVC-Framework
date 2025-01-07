@@ -3,13 +3,11 @@ import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function assign() {
   const $content = Array.prototype.shift.call(arguments)
-  console.log("$content", $content)
   const $options = Array.prototype.shift.call(arguments)
-  console.log("$options", $options)
-  throw "MVC Framework"
-  const { sourceTree, events } = $options
   const { path, source, schema, proxy } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
+  const { enableValidation, validationEvents } = $content.options
+  const { sourceTree } = $options
+  const events = ($content.options.events !== undefined) ? $content.options.events : $options.events
   const assignSources = [...arguments]
   const assignedSources = []
   // Iterate Sources
@@ -18,7 +16,6 @@ export default function assign() {
     let assignedSource
     if(Array.isArray($assignSource)) { assignedSource = [] }
     else if(typeof $assignSource === 'object') { assignedSource = {} }
-    /* <- Property Validation -> */ 
     // Iterate Source Props
     iterateSourceProps:
     for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
@@ -42,14 +39,8 @@ export default function assign() {
             propertyType = ['nonvalidProperty', $assignSourcePropKey].join(':')
           }
           for(const $eventType of [type, propertyType]) {
-            $content.dispatchEvent(
-              new ValidatorEvent($eventType, {
-                path: validatorEventPath,
-                detail: validSourceProp,
-              }, $content)
-            )
+            $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
           }
-          // Validator Event: Validate Property
         }
         if(!validSourceProp.valid) { continue iterateSourceProps }
       }
@@ -121,7 +112,7 @@ export default function assign() {
         : (JSON.stringify(sourcePropVal) !== JSON.stringify(sourcePropVal))
       change.anter.value = sourcePropVal
       // Content Event: Assign Source Property
-      if(contentEvents) {
+      if(events) {
         const contentEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey)
         if(events['assignSourceProperty']) {
           $content.dispatchEvent(
@@ -156,7 +147,7 @@ export default function assign() {
     }
     assignedSources.push(assignedSource)
     // Content Event: Assign Source
-    if(contentEvents && events['assignSource']) {
+    if(events && events['assignSource']) {
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
           path,
@@ -168,7 +159,7 @@ export default function assign() {
     }
   }
   // Content Event: Assign
-  if(contentEvents && events['assign']) {
+  if(events && events['assign']) {
     $content.dispatchEvent(
       new ContentEvent('assign', { 
         path,

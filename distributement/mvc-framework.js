@@ -352,6 +352,8 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
   #settings
   #content
   #_key
+  #_value
+  #_valid
   constructor($type, $settings, $content) {
     super($type);
     this.#settings = $settings;
@@ -380,20 +382,187 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
   }
   get key() {
     if(this.#_key !== undefined) { return this.#_key }
-    if(this.path) { this.#_key = this.path.split('.').pop(); }
-    else { this.#_key = null; }
+    this.#_key = this.#settings.key;
     return this.#_key
   }
-  get path() { return this.#settings.path }
-  get detail() { return this.#settings.detail }
+  get value() {
+    if(this.#_value !== undefined) { return this.#_value }
+    this.#_value = this.#settings.value;
+    return this.#_value
+  }
+  get valid() {
+    if(this.#_valid !== undefined) { return this.#_valid }
+    this.#_valid = this.#settings.valid;
+    return this.#_valid
+  }
 };
 
 function assign() {
   const $content = Array.prototype.shift.call(arguments);
-  console.log("$content", $content);
   const $options = Array.prototype.shift.call(arguments);
-  console.log("$options", $options);
-  throw "MVC Framework"
+  const { path, source, schema, proxy } = $content;
+  const { enableValidation, validationEvents } = $content.options;
+  const { sourceTree } = $options;
+  const events = ($content.options.events !== undefined) ? $content.options.events : $options.events;
+  const assignSources = [...arguments];
+  const assignedSources = [];
+  // Iterate Sources
+  for(let $assignSource of assignSources) {
+    let assignedSource;
+    if(Array.isArray($assignSource)) { assignedSource = []; }
+    else if(typeof $assignSource === 'object') { assignedSource = {}; }
+    // Iterate Source Props
+    iterateSourceProps:
+    for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
+      let sourcePropVal = source[$assignSourcePropKey];
+      const sourcePropValIsContentInstance = (
+        source[$assignSourcePropKey]?.classToString === Content.toString()
+      ) ? true : false;
+      // Validation
+      if(schema && enableValidation) {
+        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $assignSource, proxy);
+        if(validationEvents) {
+          let type, propertyType;
+          if(validSourceProp.valid) {
+            type = 'validProperty';
+            propertyType = ['validProperty', $assignSourcePropKey].join(':');
+          }
+          else {
+            type = 'nonvalidProperty';
+            propertyType = ['nonvalidProperty', $assignSourcePropKey].join(':');
+          }
+          for(const $eventType of [type, propertyType]) {
+            $content.dispatchEvent(new ValidatorEvent$1($eventType, validSourceProp, $content));
+          }
+        }
+        if(!validSourceProp.valid) { continue iterateSourceProps }
+      }
+      const change = {
+        preter: {
+          key: $assignSourcePropKey,
+          value: source[$assignSourcePropKey],
+        },
+        anter: {
+          key: $assignSourcePropKey,
+          value: undefined,
+        },
+        conter: undefined
+      };
+      // Source Prop: Object Type
+      if($assignSourcePropVal && typeof $assignSourcePropVal === 'object') {
+        if($assignSourcePropVal.classToString === Content.toString()) {
+          $assignSourcePropVal = $assignSourcePropVal.object;
+        }
+        // Subschema
+        let subschema;
+        if(schema?.type === 'array') { subschema = schema.context[0]; }
+        else if(schema?.type === 'object') { subschema = schema.context[$assignSourcePropKey]; }
+        else { subschema = null; }
+        // Content
+        const contentPath = (path)
+          ? [path, $assignSourcePropKey].join('.')
+          : String($assignSourcePropKey);
+        // Assignment
+        let assignment;
+        // Source Tree: False
+        if(sourceTree === false) {
+          assignment = { [$assignSourcePropKey]: content };
+        }
+        // Source Tree: true
+        else {
+          // Assignment: Existing Content Instance
+          if(sourcePropValIsContentInstance) {
+            sourcePropVal.assign($assignSourcePropVal);
+          }
+          // Assignment: New Content Instance
+          else {
+            sourcePropVal = new Content($assignSourcePropVal, subschema, 
+              recursiveAssign({}, $content.options, {
+                path: contentPath,
+                parent: proxy,
+              })
+            );
+          }
+          assignment = { [$assignSourcePropKey]: sourcePropVal };
+        }
+        // Assignment
+        Object.assign(source, assignment);
+        Object.assign(assignedSource, assignment);
+      }
+      // Source Prop: Primitive Type
+      else {
+        let assignment = {
+          [$assignSourcePropKey]: $assignSourcePropVal
+        };
+        // Assign Root
+        Object.assign(source, assignment);
+        // Assigned Source
+        Object.assign(assignedSource, assignment);
+      }
+      change.anter.value = sourcePropVal;
+      change.conter = (sourcePropValIsContentInstance)
+        ? (sourcePropVal.string !== JSON.stringify(sourcePropVal))
+        : (JSON.stringify(sourcePropVal) !== JSON.stringify(sourcePropVal));
+      change.anter.value = sourcePropVal;
+      // Content Event: Assign Source Property
+      if(events) {
+        const contentEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey);
+        if(events['assignSourceProperty']) {
+          $content.dispatchEvent(
+            new ContentEvent('assignSourceProperty', {
+              path: contentEventPath,
+              value: $assignSourcePropVal,
+              change,
+              detail: {
+                key: $assignSourcePropKey,
+                value: $assignSourcePropVal,
+                source: $assignSource,
+              }
+            }, $content)
+          );
+        }
+        if(events['assignSourceProperty:$key']) {
+          const type = ['assignSourceProperty', $assignSourcePropKey].join(':');
+          $content.dispatchEvent(
+            new ContentEvent(type, {
+              path: contentEventPath,
+              value: $assignSourcePropVal,
+              change,
+              detail: {
+                key: $assignSourcePropKey,
+                value: $assignSourcePropVal,
+                source: $assignSource,
+              }
+            }, $content)
+          );
+        }
+      }
+    }
+    assignedSources.push(assignedSource);
+    // Content Event: Assign Source
+    if(events && events['assignSource']) {
+      $content.dispatchEvent(
+        new ContentEvent('assignSource', {
+          path,
+          detail: {
+            source: assignedSource,
+          },
+        }, $content)
+      );
+    }
+  }
+  // Content Event: Assign
+  if(events && events['assign']) {
+    $content.dispatchEvent(
+      new ContentEvent('assign', { 
+        path,
+        detail: {
+          sources: assignedSources
+        },
+      }, $content)
+    );
+  }
+  return proxy
 }
 
 function defineProperties() {
@@ -401,7 +570,7 @@ function defineProperties() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path, schema, proxy } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  $content.options;
   const $propertyDescriptors = arguments[0];
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   impandTree($propertyDescriptors, 'value');
@@ -414,7 +583,7 @@ function defineProperties() {
     proxy.defineProperty($propertyKey, $propertyDescriptor);
   }
   // Define Properties Event
-  if(contentEvents && events['defineProperties']) {
+  if(events && events['defineProperties']) {
     // Define Properties Validator Event
     $content.dispatchEvent(
       new ContentEvent(
@@ -438,7 +607,7 @@ function defineProperty() {
   const $options = Array.prototype.shift.call(arguments);
   const { descriptorTree, events } = $options;
   const { source, path, schema, proxy } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   const propertyKey = arguments[0];
   const propertyDescriptor = arguments[1];
   const propertyValue = propertyDescriptor.value;
@@ -455,9 +624,6 @@ function defineProperty() {
     const validProperty = schema.validateProperty(propertyKey, impandPropertyValue, $content, proxy);
     if(validationEvents) {
       let type, propertyType;
-      const validatorPath = (path)
-        ? [path, propertyKey].join('.')
-        : String(propertyKey);
       if(validProperty.valid) {
         type = 'validProperty';
         propertyType = ['validProperty', propertyKey].join(':');
@@ -467,12 +633,7 @@ function defineProperty() {
         propertyType = ['nonvalidProperty', propertyKey].join(':');
       }
       for(const $eventType of [type, propertyType]) {
-        $content.dispatchEvent(
-          new ValidatorEvent$1($eventType, {
-            path: validatorPath,
-            detail: validProperty,
-          }, $content)
-        );
+        $content.dispatchEvent(new ValidatorEvent$1($eventType, validProperty, $content));
       }
     }
     if(!validProperty.valid) { return proxy }
@@ -540,7 +701,7 @@ function defineProperty() {
     ? (sourcePropertyValue.string !== JSON.stringify(propertyValue))
     : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue));
   // Define Property Event
-  if(contentEvents) {
+  if(events) {
     const contentEventPath = (path)
       ? [path, propertyKey].join('.')
       : String(propertyKey);
@@ -589,7 +750,7 @@ function freeze() {
         $propertyValue.freeze();
       }
       else { Object.freeze($propertyValue); }
-      if(contentEvents && events['freeze']) {
+      if(events && events['freeze']) {
         $content.dispatchEvent(
           new ContentEvent(
             'freeze',
@@ -618,7 +779,7 @@ function seal() {
         $propertyValue.seal();
       }
       else { Object.seal($propertyValue); }
-      if(contentEvents && events['seal']) {
+      if(events && events['seal']) {
         $content.dispatchEvent(
           new ContentEvent(
             'seal',
@@ -646,7 +807,7 @@ function concat() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path, schema } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   const { proxy } = $content;
   const $arguments = [...arguments].reduce(($arguments, $argument) => {
     if(Array.isArray($argument)) { $arguments.push(...$argument); }
@@ -664,9 +825,6 @@ function concat() {
       const validValue = schema.validateProperty(valueIndex, $subvalue, $content, proxy);
       if(schema &&validationEvents) {
         let type, propertyType;
-        const validatorPath = (path)
-          ? [path, valueIndex].join('.')
-          : String(valueIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', valueIndex].join('');
@@ -676,12 +834,7 @@ function concat() {
           propertyType = ['nonvalidProperty', ':', valueIndex].join('');
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorPath,
-              detail: validSourceProp,
-            }, $content)
-          );
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content));
         }
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
@@ -705,7 +858,7 @@ function concat() {
       values[valueIndex] = $value;
     }
     sourceConcat = Array.prototype.concat.call(sourceConcat, values[valueIndex]);
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, valueIndex].join('.')
         : String(valueIndex);
@@ -737,7 +890,7 @@ function concat() {
     valueIndex++;
   }
   proxyConcat = new Content(sourceConcat, schema, $content.options);
-  if(contentEvents && events['concat']) {
+  if(events && events['concat']) {
     $content.dispatchEvent(
       new ContentEvent('concat', {
         path,
@@ -755,7 +908,7 @@ function copyWithin() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  $content.options;
   const target = (
     arguments[0] >= 0
   ) ? arguments[0]
@@ -784,7 +937,7 @@ function copyWithin() {
       copyIndex + 1
     );
     // Array Copy Within Index Event Data
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, copyIndex].join('.')
         : String(copyIndex);
@@ -830,7 +983,7 @@ function copyWithin() {
     targetIndex++;
   }
   // Array Copy Within Event
-  if(contentEvents && events['copyWithin']) {
+  if(events && events['copyWithin']) {
     $content.dispatchEvent(
       new ContentEvent(
         'copyWithin',
@@ -855,7 +1008,7 @@ function fill() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path, schema } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   const { proxy } = $content;
   const $arguments = [...arguments];
   let $start;
@@ -881,9 +1034,6 @@ function fill() {
       let validValue = schema.validate(validValue);
       if(validationEvents) {
         let type, propertyType;
-        const validatorPath = (path)
-          ? [path, fillIndex].join('.')
-          : String(fillIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', fillIndex].join('');
@@ -893,12 +1043,7 @@ function fill() {
           propertyType = ['nonvalidProperty', ':', fillIndex].join('');
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorPath,
-              detail: validSourceProp,
-            }, $content)
-          );
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content));
         }
       }
       if(!validValue.valid) { continue iterateFillIndexes }
@@ -919,7 +1064,7 @@ function fill() {
       source, value, fillIndex, fillIndex + 1
     );
     // Array Fill Index Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, fillIndex].join('.')
         : String(fillIndex);
@@ -953,7 +1098,7 @@ function fill() {
     fillIndex++;
   }
   // Array Fill Event
-  if(contentEvents && events['fill']) {
+  if(events && events['fill']) {
     $content.dispatchEvent(
       new ContentEvent('fill', {
         path,
@@ -977,7 +1122,7 @@ function pop() {
   const popElement = Array.prototype.pop.call(source);
   const popElementIndex = source.length - 1;
   // Array Pop Event
-  if(contentEvents && events['pop']) {
+  if(events && events['pop']) {
     const contentEventPath = (path)
       ? [path, popElementIndex].join('.')
       : String(popElementIndex);
@@ -1004,7 +1149,7 @@ function push() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path, schema } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   const { proxy } = $content;
   const elements = [];
   let elementsIndex = 0;
@@ -1014,9 +1159,6 @@ function push() {
       const validElement = schema.validateProperty(elementsIndex, $element, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
-        const validatorPath = (path)
-          ? [path, elementsIndex].join('.')
-          : String(elementsIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', elementsIndex].join('');
@@ -1026,12 +1168,7 @@ function push() {
           propertyType = ['nonvalidProperty', ':', elementsIndex].join('');
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorPath,
-              detail: validSourceProp,
-            }, $content)
-          );
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content));
         }
       }
       if(!validElement.valid) { return source.length }
@@ -1052,7 +1189,7 @@ function push() {
       elements.push($element);
       Array.prototype.push.call(source, $element);
     }
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, '.', elementsIndex].join('')
         : String(elementsIndex);
@@ -1085,7 +1222,7 @@ function push() {
     elementsIndex++;
   }
   // Push Event
-  if(contentEvents && events['push']) {
+  if(events && events['push']) {
     $content.dispatchEvent(
       new ContentEvent('push', {
         path,
@@ -1105,7 +1242,7 @@ function reverse() {
   const { source, path } = $content;
   const { proxy } = $content;
   Array.prototype.reverse.call(source, ...arguments);
-  if(contentEvents && events['reverse']) {
+  if(events && events['reverse']) {
     $content.dispatchEvent(
       new ContentEvent(
         'reverse',
@@ -1130,7 +1267,7 @@ function shift() {
   const shiftElement = Array.prototype.shift.call(source);
   const shiftElementIndex = 0;
   // Array Shift Event
-  if(contentEvents && events['shift']) {
+  if(events && events['shift']) {
     const contentEventPath = (path)
       ? [path, shiftElementIndex].join('.')
       : String(shiftElementIndex);
@@ -1157,7 +1294,7 @@ function splice() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { source, path, schema } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   const $arguments = [...arguments];
   const $start = ($arguments[0] >= 0)
     ? $arguments[0]
@@ -1177,7 +1314,7 @@ function splice() {
     const deleteItem = Array.prototype.splice.call(source, $start, 1)[0];
     deleteItems.push(deleteItem);
     // Array Splice Delete Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, deleteItemsIndex].join('.')
         : String(deleteItemsIndex);
@@ -1220,9 +1357,6 @@ function splice() {
       const validAddItem = schema.validateProperty(elementIndex, element, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
-        const validatorEventPath = (path)
-          ? [path, addItemsIndex].join('.')
-          : String(addItemsIndex);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', addItemsIndex].join('');
@@ -1232,12 +1366,7 @@ function splice() {
           propertyType = ['nonvalidProperty', ':', addItemsIndex].join('');
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorEventPath,
-              detail: validSourceProp,
-            }, $content)
-          );
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content));
         }
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
@@ -1265,7 +1394,7 @@ function splice() {
       );
     }
     // Array Splice Add Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, addItemsIndex].join('.')
         : String(addItemsIndex);
@@ -1300,7 +1429,7 @@ function splice() {
     addItemsIndex++;
   }
   // Array Splice Event
-  if(contentEvents && events['splice']) {
+  if(events && events['splice']) {
     $content.dispatchEvent(
       new ContentEvent('splice', {
         path,
@@ -1323,7 +1452,7 @@ function unshift() {
   const $arguments = [...arguments];
   const { events } = $options;
   const { source, path, schema, proxy } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   const elements = [];
   const elementsLength = $arguments.length;
   let elementIndex = elementsLength - 1;
@@ -1341,9 +1470,6 @@ function unshift() {
       const validElement = schema.validateProperty(elementIndex, $element, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
-        const validatorEventPath = (path)
-          ? [path, '.', elementCoindex].join('')
-          : elementCoindex;
         if(validElement.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', elementCoindex].join('');
@@ -1353,12 +1479,7 @@ function unshift() {
           propertyType = ['nonvalidProperty', ':', elementCoindex].join('');
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent$1($eventType, {
-              path: validatorEventPath,
-              detail: validElement,
-            }, $content)
-          );
+          $content.dispatchEvent(new ValidatorEvent$1($eventType, validSourceProp, $content));
         }
       }
       if(!validElement.valid) { return proxy.length }
@@ -1398,7 +1519,7 @@ function unshift() {
       ? (sourceElement.string !== JSON.stringify(element))
       : (JSON.stringify(sourceElement) !== JSON.stringify(element));
     // Array Unshift Prop Event
-    if(contentEvents) {
+    if(events) {
       const type = ['unshiftProp', elementCoindex].join(':');
       const contentEventPath = (path)
         ? [path, elementCoindex].join('.')
@@ -1435,7 +1556,7 @@ function unshift() {
     elementCoindex++;
   }
   // Array Unshift Event
-  if(contentEvents && events['unshift'] && elements.length) {
+  if(events && events['unshift'] && elements.length) {
     $content.dispatchEvent(
       new ContentEvent('unshift', {
         path,
@@ -1465,11 +1586,10 @@ function getContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { source, path } = $content;
-  const { contentEvents } = $content.options;
   const ulteroptions = Object.assign({}, $options, arguments[0] || {});
   const { events } = ulteroptions;
   // Get Property Event
-  if(contentEvents && events['get']) {
+  if(events && events['get']) {
     $content.dispatchEvent(
       new ContentEvent('get', {
         path,
@@ -1487,7 +1607,6 @@ function getContentProperty() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { source, path } = $content;
-  const { contentEvents } = $content.options;
   // Arguments
   const $path = arguments[0];
   const ulteroptions = recursiveAssign({
@@ -1507,7 +1626,7 @@ function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event
-    if(contentEvents) {
+    if(events) {
       if(events['getProperty']) {
         $content.dispatchEvent(
           new ContentEvent('getProperty', {
@@ -1574,7 +1693,6 @@ function setContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { path } = $content;
-  const { contentEvents } = $content.options;
   const { proxy } = $content;
   // Delete Preterproperties
   // proxy.delete()
@@ -1596,7 +1714,7 @@ function setContent() {
     proxy.set($propertyKey, $propertyValue, ulteroptions);
   }
   // Set Property Event
-  if(contentEvents && events['set']) {
+  if(events && events['set']) {
     $content.dispatchEvent(
       new ContentEvent('set', {
         path,
@@ -1614,9 +1732,8 @@ function setContent() {
 function setContentProperty() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { source, path, schema } = $content;
-  const { enableValidation, validationEvents, contentEvents } = $content.options;
-  const { proxy } = $content;
+  const { source, path, schema, proxy } = $content;
+  const { enableValidation, validationEvents } = $content.options;
   // Arguments
   const $path = arguments[0];
   const $value = arguments[1];
@@ -1673,9 +1790,6 @@ function setContentProperty() {
       const validSourceProp = schema.validateProperty(propertyKey, $value, $content, proxy);
       if(validationEvents) {
         let type, propertyType;
-        const validatorEventPath = (path)
-          ? [path, propertyKey].join('.')
-          : String(propertyKey);
         if(validSourceProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', propertyKey].join('');
@@ -1685,12 +1799,7 @@ function setContentProperty() {
           propertyType = ['nonvalidProperty', ':', propertyKey].join('');
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent$1($eventType, {
-              path: validatorEventPath,
-              detail: validSourceProp,
-            }, $content)
-          );
+          $content.dispatchEvent(new ValidatorEvent$1($eventType, validSourceProp, $content));
         }
       }
       if(!validSourceProp.valid) { return }
@@ -1729,7 +1838,7 @@ function setContentProperty() {
     // Root Assignment
     source[propertyKey] = propertyValue;
     // Set Property Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
@@ -1788,7 +1897,7 @@ function setContentProperty() {
     // Root Assignment
     source[propertyKey] = propertyValue;
     // Set Property Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
@@ -1855,18 +1964,18 @@ function setProperty() {
 function deleteContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { source, path } = $content;
-  const { contentEvents } = $content.options;
-  const { proxy } = $content;
+  // const { events } = $options
+  const { source, path, schema, proxy } = $content;
+  $content.options;
   // Arguments
-  const ulteroptions = Object.assign({}, $options, arguments[0]);
+  const ulteroptions = Object.assign({}, $options, arguments[0], { validationEvents: false });
   const { events } = ulteroptions;
   const sourcePropertyEntries = Object.entries(source);
   for(const [$sourcePropertyKey, $sourcePropertyValue] of sourcePropertyEntries) {
     proxy.delete($sourcePropertyKey, ulteroptions);
   }
   // Delete Property Event
-  if(contentEvents && events['delete']) {
+  if(events && events['delete']) {
     $content.dispatchEvent(
       new ContentEvent('delete', {
         path,
@@ -1882,15 +1991,19 @@ function deleteContent() {
 function deleteContentProperty() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  const { source, path } = $content;
-  const { contentEvents } = $content.options;
+  const { source, path, schema, proxy } = $content;
+  const { enableValidation, /* validationEvents */ } = $content.options;
+  // const  = $options
   // Arguments
   const $path = arguments[0];
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
   }, $options, arguments[1]);
-  const { events, pathkey, subpathError } = ulteroptions;
+  const { events, pathkey, subpathError, /* validationEvents */ } = ulteroptions;
+  const validationEvents = ($options.validationEvents !== undefined)
+    ? $options.validationEvents
+    : $content.options.validationEvents; 
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
@@ -1903,12 +2016,35 @@ function deleteContentProperty() {
       if(subpathError === false && propertyValue === undefined) { return undefined }
       return propertyValue.delete(subpaths.join('.'), ulteroptions)
     }
+    // Validation
+    if(schema && enableValidation) {
+      const differedPropertyProxy = proxy.object;
+      delete differedPropertyProxy[propertyKey];
+      const validSourceProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy);
+      if(validationEvents) {
+        let type, propertyType;
+        if(validSourceProp.valid) {
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', propertyKey].join('');
+        }
+        else {
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', propertyKey].join('');
+        }
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, validSourceProp, $content)
+          );
+        }
+      }
+      if(!validSourceProp.valid) { return }
+    }
     if(typeof propertyValue === 'object') {
       propertyValue.delete(ulteroptions);
     }
     delete source[propertyKey];
     // Delete Property Event
-    if(contentEvents) {
+    if(events) {
       if(events['deleteProperty']) {
         $content.dispatchEvent(
           new ContentEvent('deleteProperty', {
@@ -1941,12 +2077,37 @@ function deleteContentProperty() {
   else if(pathkey === false) {
     const propertyKey = $path;
     const propertyValue = source[propertyKey];
+
+    // Validation
+    if(schema && enableValidation) {
+      const differedPropertyProxy = proxy.object;
+      delete differedPropertyProxy[propertyKey];
+      const validSourceProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy);
+      if(validationEvents) {
+        let type, propertyType;
+        if(validSourceProp.valid) {
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', propertyKey].join('');
+        }
+        else {
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', propertyKey].join('');
+        }
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, validSourceProp, $content)
+          );
+        }
+      }
+      if(!validSourceProp.valid) { return }
+    }
+  
     if(propertyValue instanceof Content) {
       propertyValue.delete(ulteroptions);
     }
     delete source[propertyKey];
     // Delete Property Event
-    if(contentEvents) {
+    if(events) {
       if(events['deleteProperty']) {
         $content.dispatchEvent(
           new ContentEvent('deleteProperty', {
@@ -2859,17 +3020,13 @@ class Schema extends EventTarget{
 var Options$5 = {
   path: null, 
   parent: null, 
-  // Enable Events
-  // enableEvents: true, 
-  // Enable Validation
   enableValidation: true, 
-  // Enable Validation Events
-  validationEvents: true, 
-  enableValidationEvents: true, 
-  // Enable Content Events
-  contentEvents: true, 
-  enableContentEvents: true, 
-  // -----
+  validationEvents: {
+    'validProperty:$key': true,
+    'validProperty': true,
+    'nonvalidProperty:$key': true,
+    'nonvalidProperty': true,
+  },
   pathkey: true,
   subpathError: false,
   proxyAssignmentMethod: 'set',
@@ -2961,20 +3118,6 @@ var Options$5 = {
           'assignSourceProperty': true,
           'assignSource': true,
           'assign': true,
-        },
-        contentEvents: {
-          'assignSourceProperty:$key': true,
-          'assignSourceProperty': true,
-          'assignSource': true,
-          'assign': true,
-        },
-        validationEvents: {
-          'validProperty:$key': true,
-          'validProperty': true,
-          'valid': true,
-          'nonvalidProperty:$key': true,
-          'nonvalidProperty': true,
-          'nonvalid': true,
         },
       },
       defineProperties: {

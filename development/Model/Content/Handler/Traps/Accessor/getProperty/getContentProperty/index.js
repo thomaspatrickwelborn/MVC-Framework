@@ -5,7 +5,6 @@ export default function getContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { source, path } = $content
-  const { contentEvents } = $content.options
   const { proxy } = $content
   // Arguments
   const $path = arguments[0]
@@ -26,7 +25,7 @@ export default function getContentProperty() {
       return propertyValue.get(subpaths.join('.'), ulteroptions)
     }
     // Get Property Event
-    if(contentEvents) {
+    if(events) {
       if(events['getProperty']) {
         $content.dispatchEvent(
           new ContentEvent('getProperty', {

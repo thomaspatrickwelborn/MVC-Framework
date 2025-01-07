@@ -4,9 +4,8 @@ import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function setContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { source, path, schema } = $content
-  const { enableValidation, validationEvents, contentEvents } = $content.options
-  const { proxy } = $content
+  const { source, path, schema, proxy } = $content
+  const { enableValidation, validationEvents } = $content.options
   // Arguments
   const $path = arguments[0]
   const $value = arguments[1]
@@ -75,12 +74,7 @@ export default function setContentProperty() {
           propertyType = ['nonvalidProperty', ':', propertyKey].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(
-            new ValidatorEvent($eventType, {
-              path: validatorEventPath,
-              detail: validSourceProp,
-            }, $content)
-          )
+          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
         }
       }
       if(!validSourceProp.valid) { return }
@@ -119,7 +113,7 @@ export default function setContentProperty() {
     // Root Assignment
     source[propertyKey] = propertyValue
     // Set Property Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
@@ -178,7 +172,7 @@ export default function setContentProperty() {
     // Root Assignment
     source[propertyKey] = propertyValue
     // Set Property Event
-    if(contentEvents) {
+    if(events) {
       const contentEventPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
