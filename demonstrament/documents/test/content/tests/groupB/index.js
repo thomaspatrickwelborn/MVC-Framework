@@ -1,21 +1,18 @@
-import testA from './testA.js'
-import testB from './testB.js'
-import testC from './testC.js'
-import testD from './testD.js'
-import testE from './testE.js'
-import testF from './testF.js'
-import testG from './testG.js'
+import testA from './testA/index.js'
+import testB from './testB/index.js'
+import testC from './testC/index.js'
+import testD from './testD/index.js'
 export default {
-  id: "groupA",
+  id: "groupB",
   name: `<div>
-    <code>content.assign</code> | Simplex Objects
+    <code>content.assign</code> | Complex Objects
   </div>`,
   descript: `
     <ul>
       <li>2 Content Assignment Source Sequences</li>
       <ul>
-        <li><em>5</em> Sources With <em>1</em> Property</li>
-        <li><em>1</em> Source With <em>5</em> Properties</li>
+        <li><em>3</em> Sources With <em>Separate</em> Properties</li>
+        <li><em>1</em> Source With <em>Corporate</em> Properties</li>
       </ul>
       <li>6 Content Assignment Objects</li>
       <ul>
@@ -32,8 +29,5 @@ export default {
     ['testB', testB],
     ['testC', testC],
     ['testD', testD],
-    ['testE', testE],
-    ['testF', testF],
-    ['testG', testG],
   ]),
 }

@@ -1,6 +1,6 @@
 import { Schema, Content, Coutil } from '/dependencies/mvc-framework.js'
 import simplexObjectSchemaProperties from './coutil/simplexObjectSchemaProperties.js'
-import * as ContentAssignments from './coutil/contentAssignments.js'
+import * as ContentAssignments from './coutil/simplexObjectContentAssignments.js'
 const { expandTree } = Coutil
 const PropertyKeys = ["propertyA", "propertyB", "propertyC", "propertyD", "propertyE"]
 export default {
@@ -24,36 +24,36 @@ export default {
   method: async function() {
     const solve = [
       ["validPropertyKey", [
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true, true, true, true, true]],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", [true, true, true]],
-        ["contentAssignmentsF", [true, true, true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", [true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true, true]],
       ]],
       ["validProperty", [
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true, true, true, true, true]],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", [true, true, true]],
-        ["contentAssignmentsF", [true, true, true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", [true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true, true]],
       ]],
       ["nonvalidPropertyKey", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true, true, true, true, true]],
-        ["contentAssignmentsE", [true, true]],
-        ["contentAssignmentsF", [true, true]],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsE", [true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true]],
       ]],
       ["nonvalidProperty", [
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true, true, true, true, true]],
-        ["contentAssignmentsE", [true, true]],
-        ["contentAssignmentsF", [true, true]],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsE", [true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true]],
       ]],
     ]
     const quest = []

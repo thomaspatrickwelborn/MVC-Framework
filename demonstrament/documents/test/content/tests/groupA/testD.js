@@ -1,9 +1,9 @@
 import { Content } from '/dependencies/mvc-framework.js'
-import * as ContentAssignments from './coutil/contentAssignments.js'
+import * as ContentAssignments from './coutil/simplexObjectContentAssignments.js'
 const {
-  contentAssignmentsA, contentAssignmentsB, 
-  contentAssignmentsC, contentAssignmentsD,
-  contentAssignmentsE, contentAssignmentsF,
+  simplexObjectContentAssignmentsA, simplexObjectContentAssignmentsB, 
+  simplexObjectContentAssignmentsC, simplexObjectContentAssignmentsD,
+  simplexObjectContentAssignmentsE, simplexObjectContentAssignmentsF,
 } = ContentAssignments
 export default {
   id: "testD", name: `Simplex Objects - Content Events`,
@@ -25,124 +25,124 @@ export default {
   ]),
   method: async function() {
     const quest = [
-      // $contentEventName, $contentAssignments
+      // $contentEventName, $simplexObjectContentAssignments
       ["assignSourcePropertyKey", [
         // $contentAssignmentName, $questContentAssignmentProperties
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
       ["assignSourceProperty", [
         // $contentAssignmentName, $questContentAssignmentProperties
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
       ["assignSource", [
         // $contentAssignmentName, $questContentAssignmentSources
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
       ["assign", [
         // $contentAssignmentName, $questContentAssignment
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
     ]
     const solve = [
-      // $contentEventName, $contentAssignments
+      // $contentEventName, $simplexObjectContentAssignments
       ["assignSourcePropertyKey", [
         // $contentAssignmentName, $solveContentAssignmentProperties
         // One slot per assignment source property. `
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true, true, true, true, true]],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true, true, true, true, true]],
-        ["contentAssignmentsE", [true, true, true, true, true]],
-        ["contentAssignmentsF", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsE", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true, true, true, true]],
       ]],
       ["assignSourceProperty", [
         // $contentAssignmentName, $solveContentAssignmentProperties
         // One slot per assignment source property. 
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true, true, true, true, true]],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true, true, true, true, true]],
-        ["contentAssignmentsE", [true, true, true, true, true]],
-        ["contentAssignmentsF", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsE", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true, true, true, true]],
       ]],
       ["assignSource", [
         // $contentAssignmentName, $solveContentAssignmentSources
         // One slot per assignment source. 
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true]],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true]],
-        ["contentAssignmentsE", [true, true, true, true, true]],
-        ["contentAssignmentsF", [true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true]],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true]],
+        ["simplexObjectContentAssignmentsE", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true]],
       ]],
       ["assign", [
         // $contentAssignmentName, $solveContentAssignment
         // One slot per assignment
-        ["contentAssignmentsA", [true]],
-        ["contentAssignmentsB", [true]],
-        ["contentAssignmentsC", [true]],
-        ["contentAssignmentsD", [true]],
-        ["contentAssignmentsE", [true]],
-        ["contentAssignmentsF", [true]],
+        ["simplexObjectContentAssignmentsA", [true]],
+        ["simplexObjectContentAssignmentsB", [true]],
+        ["simplexObjectContentAssignmentsC", [true]],
+        ["simplexObjectContentAssignmentsD", [true]],
+        ["simplexObjectContentAssignmentsE", [true]],
+        ["simplexObjectContentAssignmentsF", [true]],
       ]],
     ]
     const validations = [
-      // $contentEventName, $contentAssignments
+      // $contentEventName, $simplexObjectContentAssignments
       ["assignSourcePropertyKey", [
         // $contentAssignmentName, $validateContentAssignmentProperties
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
       ["assignSourceProperty", [
         // $contentAssignmentName, $validateContentAssignmentProperties
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
       ["assignSource", [
         // $contentAssignmentName, $validateContentAssignmentSources
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
       ["assign", [
         // $contentAssignmentName, $validateContentAssignment
-        ["contentAssignmentsA", []],
-        ["contentAssignmentsB", []],
-        ["contentAssignmentsC", []],
-        ["contentAssignmentsD", []],
-        ["contentAssignmentsE", []],
-        ["contentAssignmentsF", []],
+        ["simplexObjectContentAssignmentsA", []],
+        ["simplexObjectContentAssignmentsB", []],
+        ["simplexObjectContentAssignmentsC", []],
+        ["simplexObjectContentAssignmentsD", []],
+        ["simplexObjectContentAssignmentsE", []],
+        ["simplexObjectContentAssignmentsF", []],
       ]],
     ]
     const assignmentSourceProperties = ["propertyA", "propertyB", "propertyC", "propertyD", "propertyE"]
@@ -184,14 +184,14 @@ export default {
     let contentEventsIndex = 0
     iterateContentEvents: 
     for(const [
-      $contentEventName, $contentAssignments
+      $contentEventName, $simplexObjectContentAssignments
     ] of solve) {
       if($contentEventName === "assignSourcePropertyKey") {
         let contentAssignmentIndex = 0
         iterateContentAssignments: 
         for(const [
           $contentAssignmentName, $contentAssignment
-        ] of $contentAssignments) {
+        ] of $simplexObjectContentAssignments) {
           const [
             $contentAssignmentTargetName, $contentAssignmentTarget
           ] = contents[contentEventsIndex][1][contentAssignmentIndex]
@@ -276,7 +276,7 @@ export default {
         let contentAssignmentIndex = 0
         for(const [
           $contentAssignmentName, $contentAssignment
-        ] of $contentAssignments) {
+        ] of $simplexObjectContentAssignments) {
           const [
             $contentAssignmentTargetName, $contentAssignmentTarget
           ] = contents[contentEventsIndex][1][contentAssignmentIndex]
@@ -363,7 +363,7 @@ export default {
         let contentAssignmentIndex = 0
         for(const [
           $contentAssignmentName, $contentAssignment
-        ] of $contentAssignments) {
+        ] of $simplexObjectContentAssignments) {
           const [
             $contentAssignmentTargetName, $contentAssignmentTarget
           ] = contents[contentEventsIndex][1][contentAssignmentIndex]
@@ -433,7 +433,7 @@ export default {
         let contentAssignmentIndex = 0
         for(const [
           $contentAssignmentName, $contentAssignment
-        ] of $contentAssignments) {
+        ] of $simplexObjectContentAssignments) {
           const [
             $contentAssignmentTargetName, $contentAssignmentTarget
           ] = contents[contentEventsIndex][1][contentAssignmentIndex]

@@ -1,10 +1,10 @@
 import { Content, Coutil } from '/dependencies/mvc-framework.js'
 import simplexObjectSchemaProperties from './coutil/simplexObjectSchemaProperties.js'
-import * as ContentAssignments from './coutil/contentAssignments.js'
+import * as ContentAssignments from './coutil/simplexObjectContentAssignments.js'
 const {
-  contentAssignmentsA, contentAssignmentsB, 
-  contentAssignmentsC, contentAssignmentsD,
-  contentAssignmentsE, contentAssignmentsF,
+  simplexObjectContentAssignmentsA, simplexObjectContentAssignmentsB, 
+  simplexObjectContentAssignmentsC, simplexObjectContentAssignmentsD,
+  simplexObjectContentAssignmentsE, simplexObjectContentAssignmentsF,
 } = ContentAssignments
 const { expandTree } = Coutil
 export default {
@@ -21,36 +21,36 @@ export default {
   method: async function() {
     const solve = [
       ["assignSourcePropertyKey", [
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true, true, true, true, true]],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true, true, true, true, true]],
-        ["contentAssignmentsE", [true, true, true, true, true]],
-        ["contentAssignmentsF", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsE", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true, true, true, true]],
       ]],
       ["assignSourceProperty", [
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true, true, true, true, true]],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true, true, true, true, true]],
-        ["contentAssignmentsE", [true, true, true, true, true]],
-        ["contentAssignmentsF", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsE", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true, true, true, true, true]],
       ]],
       ["assignSource", [
-        ["contentAssignmentsA", [true, true, true, true, true]],
-        ["contentAssignmentsB", [true]],
-        ["contentAssignmentsC", [true, true, true, true, true]],
-        ["contentAssignmentsD", [true]],
-        ["contentAssignmentsE", [true, true, true, true, true]],
-        ["contentAssignmentsF", [true]],
+        ["simplexObjectContentAssignmentsA", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsB", [true]],
+        ["simplexObjectContentAssignmentsC", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsD", [true]],
+        ["simplexObjectContentAssignmentsE", [true, true, true, true, true]],
+        ["simplexObjectContentAssignmentsF", [true]],
       ]],
       ["assign", [
-        ["contentAssignmentsA", [true]],
-        ["contentAssignmentsB", [true]],
-        ["contentAssignmentsC", [true]],
-        ["contentAssignmentsD", [true]],
-        ["contentAssignmentsE", [true]],
-        ["contentAssignmentsF", [true]],
+        ["simplexObjectContentAssignmentsA", [true]],
+        ["simplexObjectContentAssignmentsB", [true]],
+        ["simplexObjectContentAssignmentsC", [true]],
+        ["simplexObjectContentAssignmentsD", [true]],
+        ["simplexObjectContentAssignmentsE", [true]],
+        ["simplexObjectContentAssignmentsF", [true]],
       ]],
     ]
     const quest = []

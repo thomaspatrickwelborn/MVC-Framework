@@ -1,5 +1,5 @@
 // All Valid Properties - Series Assignment
-const contentAssignmentsA = [
+const simplexObjectContentAssignmentsA = [
   { propertyA: true },
   { propertyB: 1 },
   { propertyC: "true" },
@@ -7,7 +7,7 @@ const contentAssignmentsA = [
   { propertyE: false },
 ]
 // All Valid Properties - Single Assignment
-const contentAssignmentsB = [{
+const simplexObjectContentAssignmentsB = [{
   propertyA: false,
   propertyB: 0,
   propertyC: "false",
@@ -15,7 +15,7 @@ const contentAssignmentsB = [{
   propertyE: true,
 }]
 // All Nonvalid Properties - Series Assignment - 
-const contentAssignmentsC = [
+const simplexObjectContentAssignmentsC = [
   { propertyA: "false" },
   { propertyB: false },
   { propertyC: 0 },
@@ -23,7 +23,7 @@ const contentAssignmentsC = [
   { propertyE: undefined },
 ]
 // All Nonvalid Properties - Single Assignment
-const contentAssignmentsD = [{
+const simplexObjectContentAssignmentsD = [{
   propertyA: "false",
   propertyB: false,
   propertyC: 0,
@@ -31,7 +31,7 @@ const contentAssignmentsD = [{
   propertyE: undefined,
 }]
 // Some Valid Properties - Series Assignment
-const contentAssignmentsE = [
+const simplexObjectContentAssignmentsE = [
   { propertyA: true },
   { propertyB: false },
   { propertyC: "true" },
@@ -39,7 +39,7 @@ const contentAssignmentsE = [
   { propertyE: false },
 ]
 // Some Valid Properties - Single Assignment
-const contentAssignmentsF = [{
+const simplexObjectContentAssignmentsF = [{
   propertyA: false,
   propertyB: false,
   propertyC: "false",
@@ -48,10 +48,10 @@ const contentAssignmentsF = [{
 }]
 
 export {
-  contentAssignmentsA,
-  contentAssignmentsB,
-  contentAssignmentsC,
-  contentAssignmentsD,
-  contentAssignmentsE,
-  contentAssignmentsF,
+  simplexObjectContentAssignmentsA,
+  simplexObjectContentAssignmentsB,
+  simplexObjectContentAssignmentsC,
+  simplexObjectContentAssignmentsD,
+  simplexObjectContentAssignmentsE,
+  simplexObjectContentAssignmentsF,
 }

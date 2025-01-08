@@ -1,8 +1,8 @@
 import { Content, Coutil } from '/dependencies/mvc-framework.js'
-import * as ContentAssignments from './coutil/contentAssignments.js'
+import * as ContentAssignments from './coutil/simplexObjectContentAssignments.js'
 const {
-  contentAssignmentsA, contentAssignmentsB, 
-  contentAssignmentsC, contentAssignmentsD
+  simplexObjectContentAssignmentsA, simplexObjectContentAssignmentsB, 
+  simplexObjectContentAssignmentsC, simplexObjectContentAssignmentsD
 } = ContentAssignments
 const { expandTree } = Coutil
 export default {
@@ -28,8 +28,8 @@ export default {
     // A
     const contentA = new Content({}, null)
     const objectA = {}
-    contentA.assign(...contentAssignmentsA)
-    Object.assign(objectA, ...contentAssignmentsA)
+    contentA.assign(...simplexObjectContentAssignmentsA)
+    Object.assign(objectA, ...simplexObjectContentAssignmentsA)
     const validationA = {
       content: ['contentA', contentA],
       contentString: contentA.string,
@@ -42,8 +42,8 @@ export default {
     // B
     const contentB = new Content({}, null)
     const objectB = {}
-    contentB.assign(...contentAssignmentsB)
-    Object.assign(objectB, ...contentAssignmentsB)
+    contentB.assign(...simplexObjectContentAssignmentsB)
+    Object.assign(objectB, ...simplexObjectContentAssignmentsB)
     const validationB = {
       content: ['contentB', contentB],
       contentString: contentB.string,
@@ -56,8 +56,8 @@ export default {
     // C
     const contentC = new Content({}, null)
     const objectC = {}
-    contentC.assign(...contentAssignmentsC)
-    Object.assign(objectC, ...contentAssignmentsC)
+    contentC.assign(...simplexObjectContentAssignmentsC)
+    Object.assign(objectC, ...simplexObjectContentAssignmentsC)
     const validationC = {
       content: ['contentC', contentC],
       contentString: contentC.string,
@@ -70,8 +70,8 @@ export default {
     // D
     const contentD = new Content({}, null)
     const objectD = {}
-    contentD.assign(...contentAssignmentsD)
-    Object.assign(objectD, ...contentAssignmentsD)
+    contentD.assign(...simplexObjectContentAssignmentsD)
+    Object.assign(objectD, ...simplexObjectContentAssignmentsD)
     const validationD = {
       content: ['contentD', contentD],
       contentString: contentD.string,

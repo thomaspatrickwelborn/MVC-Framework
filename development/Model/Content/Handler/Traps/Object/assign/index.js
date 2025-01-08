@@ -73,7 +73,13 @@ export default function assign() {
         let assignment
         // Source Tree: False
         if(sourceTree === false) {
-          assignment = { [$assignSourcePropKey]: content }
+          sourcePropVal = new Content($assignSourcePropVal, subschema, 
+            recursiveAssign({}, $content.options, {
+              path: contentPath,
+              parent: proxy,
+            })
+          )
+          assignment = { [$assignSourcePropKey]: sourcePropVal }
         }
         // Source Tree: true
         else {

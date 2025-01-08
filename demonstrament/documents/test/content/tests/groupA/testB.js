@@ -1,11 +1,11 @@
 import { Schema, Content, Coutil } from '/dependencies/mvc-framework.js'
 import simplexObjectSchemaProperties from './coutil/simplexObjectSchemaProperties.js'
-import * as ContentAssignments from './coutil/contentAssignments.js'
+import * as ContentAssignments from './coutil/simplexObjectContentAssignments.js'
 import {
-  contentAssignmentsA, contentAssignmentsB, 
-  contentAssignmentsC, contentAssignmentsD,
-  contentAssignmentsE, contentAssignmentsF,
-} from './coutil/contentAssignments.js'
+  simplexObjectContentAssignmentsA, simplexObjectContentAssignmentsB, 
+  simplexObjectContentAssignmentsC, simplexObjectContentAssignmentsD,
+  simplexObjectContentAssignmentsE, simplexObjectContentAssignmentsF,
+} from './coutil/simplexObjectContentAssignments.js'
 const { expandTree } = Coutil
 export default {
   id: "testB", name: `Simplex Objects - Valid Schema Properties Not Required`,
@@ -32,7 +32,7 @@ export default {
     const schema = new Schema(simplexObjectSchemaProperties, { required: false } )
     // A
     const contentA = new Content({}, schema)
-    contentA.assign(...contentAssignmentsA)
+    contentA.assign(...simplexObjectContentAssignmentsA)
     const objectA = {
       propertyA: true,
       propertyB: 1,
@@ -51,7 +51,7 @@ export default {
     validations.push(['validationA', validationA])
     // B
     const contentB = new Content({}, schema)
-    contentB.assign(...contentAssignmentsB)
+    contentB.assign(...simplexObjectContentAssignmentsB)
     const objectB = {
       propertyA: false,
       propertyB: 0,
@@ -71,7 +71,7 @@ export default {
 
     // C
     const contentC = new Content({}, schema)
-    contentC.assign(...contentAssignmentsC)
+    contentC.assign(...simplexObjectContentAssignmentsC)
     const objectC = {}
     const validationC = {
       content: ['contentC', contentC],
@@ -85,7 +85,7 @@ export default {
 
     // D
     const contentD = new Content({}, schema)
-    contentD.assign(...contentAssignmentsD)
+    contentD.assign(...simplexObjectContentAssignmentsD)
     const objectD = {}
     const validationD = {
       content: ['contentD', contentD],
@@ -99,7 +99,7 @@ export default {
 
     // E
     const contentE = new Content({}, schema)
-    contentE.assign(...contentAssignmentsE)
+    contentE.assign(...simplexObjectContentAssignmentsE)
     const objectE = {
       propertyA: true,
       propertyC: "true",
@@ -117,7 +117,7 @@ export default {
     
     // F
     const contentF = new Content({}, schema)
-    contentF.assign(...contentAssignmentsF)
+    contentF.assign(...simplexObjectContentAssignmentsF)
     const objectF = {
       propertyA: false,
       propertyC: "false",

@@ -1,4 +1,5 @@
 import groupA from './groupA/index.js'
+import groupB from './groupB/index.js'
 export default {
   id: "content",
   name: "<div>MVC Framework | <code>Content</code></div>",
@@ -15,5 +16,6 @@ export default {
   collectName: 'test-groups',
   collect: new Map([
     ['groupA', groupA],
+    ['groupB', groupB],
   ]),
 }
