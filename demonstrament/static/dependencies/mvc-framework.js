@@ -2459,10 +2459,10 @@ class RequiredValidator extends Validator {
     super(Object.assign($definition, {
       type: 'required',
       validate: ($key, $value, $source, $target) => {
-        const definition = this.definition;
+        this.definition;
         let pass;
         const { requiredProperties, requiredPropertiesSize, type } = this.schema;
-        if(requiredPropertiesSize === 0 || definition.value === false) { pass = true; }
+        if(requiredPropertiesSize === 0/* || definition.value === false*/) { pass = true; }
         else if(type === 'object') {
           const corequiredContextProperties = typedObjectLiteral(type);
           const corequiredContentProperties = typedObjectLiteral(type);
@@ -2771,9 +2771,9 @@ class Context extends EventTarget {
     else if(required?.value === true) { validators.set('required', Object.assign({}, propertyDefinition.required, {
       type: 'required', value: true, validator: RequiredValidator  }));
     }
-    // else { validators.set('required', Object.assign({}, propertyDefinition.required, {
-    //   type: 'required', value: false, validator: RequiredValidator 
-    // })) }
+    else { validators.set('required', Object.assign({}, propertyDefinition.required, {
+      type: 'required', value: false, validator: RequiredValidator 
+    })); }
     // Type
     if(type) { validators.set('type', Object.assign({}, type, {
       type: 'type', validator: TypeValidator

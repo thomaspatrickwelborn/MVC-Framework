@@ -76,7 +76,7 @@ export default {
         const contentAssignmentSources = ContentAssignments[$contentAssignmentName]
         const [$questName, $quest] = quest[solveEventsIndex][1][solveAssignmentsIndex]
         const [$validationName, $validation] = validations[solveEventsIndex][1][solveAssignmentsIndex]
-        const [$contentName, $content] = validations[solveEventsIndex][1][solveAssignmentsIndex]
+        const [$contentName, $content] = contents[solveEventsIndex][1][solveAssignmentsIndex]
         const schema = new Schema(simplexObjectSchemaProperties, { required: false } )
         const content = new Content({}, simplexObjectSchemaProperties, {})
         if($eventName === "validPropertyKey") {

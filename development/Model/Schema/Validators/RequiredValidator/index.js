@@ -9,7 +9,7 @@ export default class RequiredValidator extends Validator {
         const definition = this.definition
         let pass
         const { requiredProperties, requiredPropertiesSize, type } = this.schema
-        if(requiredPropertiesSize === 0 || definition.value === false) { pass = true }
+        if(requiredPropertiesSize === 0/* || definition.value === false*/) { pass = true }
         else if(type === 'object') {
           const corequiredContextProperties = typedObjectLiteral(type)
           const corequiredContentProperties = typedObjectLiteral(type)

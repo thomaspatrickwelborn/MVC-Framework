@@ -73,7 +73,7 @@ export default {
         const contentAssignmentSources = ContentAssignments[$contentAssignmentName]
         const [$questName, $quest] = quest[solveEventsIndex][1][solveAssignmentsIndex]
         const [$validationName, $validation] = validations[solveEventsIndex][1][solveAssignmentsIndex]
-        const [$contentName, $content] = validations[solveEventsIndex][1][solveAssignmentsIndex]
+        const [$contentName, $content] = contents[solveEventsIndex][1][solveAssignmentsIndex]
         const content = new Content({}, null, { events: false })
         if($eventName === "assignSourcePropertyKey") {
           for(const $propertyKey of ["propertyA", "propertyB", "propertyC", "propertyD", "propertyE"]) {
