@@ -3,29 +3,32 @@ import * as AssignmentKeys from '../coutil/assignmentKeys.js'
 import * as Assignments from '../coutil/assignments/index.js'
 import * as Assigned from './assigned/index.js'
 import SchemaProperties from '../coutil/schemaProperties.js'
+const SchemaOptions = {
+  required: true
+}
 const ContentOptions = {
   traps: { object: { assign: {
-    sourceTree: true,
+    sourceTree: false,
   } } },
 }
 export default {
-  id: "testC", name: `Complex Objects - With Schema, With Source Tree`,
+  id: "testF", name: `Complex Objects - With Schema (Required), No Source Tree`,
   type: "test-result", collectName: 'detail',
   descript: `
     <ul>
       <li><code>content.schema</code></li>
       <ul>
-        <li><code>required</code>: <code>false</code></li>
+        <li><code>required</code>: <code>true</code></li>
       </ul>
       <li><code>content.options</code></li>
       <ul>
-        <li><code>sourceTree</code>: <code>true</code></li>
+        <li><code>sourceTree</code>: <code>false</code></li>
       </ul>
     </ul>
   `, 
   collect: new Map([[0, ``]]),
   method: async function() {
-    const schema = new Schema(SchemaProperties)
+    const schema = new Schema(SchemaProperties, SchemaOptions)
     const solve = [
       ["assignmentsA", [
         ["assignmentSourcesA", [true]],

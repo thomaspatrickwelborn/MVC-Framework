@@ -11,7 +11,7 @@ export default {
   descript: `
     <ul>
       <li><code>content.schema</code>: <code>null</code></li>
-      <li><code>content.contentEvents</code>: <code>true</code></li>
+      <li><code>content.events</code>: <code>true</code></li>
       <ul>
         <li><code>"assignSourceProperty:$key"</code></li>
         <li><code>"assignSourceProperty"</code></li>

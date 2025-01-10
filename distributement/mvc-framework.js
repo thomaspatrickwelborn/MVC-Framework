@@ -250,6 +250,40 @@ function isPropertyValidator($propertyValidator) {
   else { return false }
 }
 
+function keytree($object) {
+  const target = [];
+  for(const [$key, $value] of Object.entries($object)) {
+    if(typeof $value === 'object') {
+      target.push([$key, keytree($value)]);
+    }
+    else {
+      target.push($key);
+    }
+  }
+  return target
+}
+
+function pathkeytree($object) {
+  const target = [];
+  for(const [$key, $value] of Object.entries($object)) {
+    target.push($key);
+    if(typeof $value === 'object') {
+      const subtarget = pathkeytree($value);
+      for(const $subtarget of subtarget) {
+        let path;
+        if(typeof $subtarget === 'object') {
+          path = [$key, ...$subtarget].join('.');
+        }
+        else {
+          path = [$key, $subtarget].join('.');
+        }
+        target.push(path);
+      }
+    }
+  }
+  return target
+}
+
 function recursiveAssign() {
   const $arguments = [...arguments];
   const $target = $arguments.shift();
@@ -299,7 +333,9 @@ var index = /*#__PURE__*/Object.freeze({
   impandTree: impandTree,
   isPropertyDefinition: isPropertyDefinition,
   isPropertyValidator: isPropertyValidator,
+  keytree: keytree,
   path: index$2,
+  pathkeytree: pathkeytree,
   recursiveAssign: recursiveAssign,
   regularExpressions: regularExpressions,
   tree: index$1,
@@ -462,16 +498,18 @@ function assign() {
         const contentPath = (path)
           ? [path, $assignSourcePropKey].join('.')
           : String($assignSourcePropKey);
+        let contentTypedLiteral = typedObjectLiteral($assignSourcePropVal);
         // Assignment
         let assignment;
         // Source Tree: False
         if(sourceTree === false) {
-          sourcePropVal = new Content($assignSourcePropVal, subschema, 
+          sourcePropVal = new Content(contentTypedLiteral, subschema, 
             recursiveAssign({}, $content.options, {
               path: contentPath,
               parent: proxy,
             })
           );
+          sourcePropVal.assign($assignSourcePropVal);
           assignment = { [$assignSourcePropKey]: sourcePropVal };
         }
         // Source Tree: true
@@ -482,12 +520,13 @@ function assign() {
           }
           // Assignment: New Content Instance
           else {
-            sourcePropVal = new Content($assignSourcePropVal, subschema, 
+            sourcePropVal = new Content(contentTypedLiteral, subschema, 
               recursiveAssign({}, $content.options, {
                 path: contentPath,
                 parent: proxy,
               })
             );
+            sourcePropVal.assign($assignSourcePropVal);
           }
           assignment = { [$assignSourcePropKey]: sourcePropVal };
         }
@@ -513,9 +552,10 @@ function assign() {
       // Content Event: Assign Source Property
       if(events) {
         const contentEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey);
-        if(events['assignSourceProperty']) {
+        if(events['assignSourceProperty:$key']) {
+          const type = ['assignSourceProperty', $assignSourcePropKey].join(':');
           $content.dispatchEvent(
-            new ContentEvent('assignSourceProperty', {
+            new ContentEvent(type, {
               path: contentEventPath,
               value: $assignSourcePropVal,
               change,
@@ -527,10 +567,9 @@ function assign() {
             }, $content)
           );
         }
-        if(events['assignSourceProperty:$key']) {
-          const type = ['assignSourceProperty', $assignSourcePropKey].join(':');
+        if(events['assignSourceProperty']) {
           $content.dispatchEvent(
-            new ContentEvent(type, {
+            new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
               value: $assignSourcePropVal,
               change,

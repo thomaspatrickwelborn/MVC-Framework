@@ -1,4 +1,4 @@
-import { recursiveAssign } from '../../../../../../Coutil/index.js'
+import { recursiveAssign, typedObjectLiteral } from '../../../../../../Coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function assign() {
@@ -69,16 +69,18 @@ export default function assign() {
         const contentPath = (path)
           ? [path, $assignSourcePropKey].join('.')
           : String($assignSourcePropKey)
+        let contentTypedLiteral = typedObjectLiteral($assignSourcePropVal)
         // Assignment
         let assignment
         // Source Tree: False
         if(sourceTree === false) {
-          sourcePropVal = new Content($assignSourcePropVal, subschema, 
+          sourcePropVal = new Content(contentTypedLiteral, subschema, 
             recursiveAssign({}, $content.options, {
               path: contentPath,
               parent: proxy,
             })
           )
+          sourcePropVal.assign($assignSourcePropVal)
           assignment = { [$assignSourcePropKey]: sourcePropVal }
         }
         // Source Tree: true
@@ -89,12 +91,13 @@ export default function assign() {
           }
           // Assignment: New Content Instance
           else {
-            sourcePropVal = new Content($assignSourcePropVal, subschema, 
+            sourcePropVal = new Content(contentTypedLiteral, subschema, 
               recursiveAssign({}, $content.options, {
                 path: contentPath,
                 parent: proxy,
               })
             )
+            sourcePropVal.assign($assignSourcePropVal)
           }
           assignment = { [$assignSourcePropKey]: sourcePropVal }
         }
@@ -120,9 +123,10 @@ export default function assign() {
       // Content Event: Assign Source Property
       if(events) {
         const contentEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey)
-        if(events['assignSourceProperty']) {
+        if(events['assignSourceProperty:$key']) {
+          const type = ['assignSourceProperty', $assignSourcePropKey].join(':')
           $content.dispatchEvent(
-            new ContentEvent('assignSourceProperty', {
+            new ContentEvent(type, {
               path: contentEventPath,
               value: $assignSourcePropVal,
               change,
@@ -134,10 +138,9 @@ export default function assign() {
             }, $content)
           )
         }
-        if(events['assignSourceProperty:$key']) {
-          const type = ['assignSourceProperty', $assignSourcePropKey].join(':')
+        if(events['assignSourceProperty']) {
           $content.dispatchEvent(
-            new ContentEvent(type, {
+            new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
               value: $assignSourcePropVal,
               change,

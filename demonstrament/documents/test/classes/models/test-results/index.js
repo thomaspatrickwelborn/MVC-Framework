@@ -99,20 +99,6 @@ export default async function TestResultsModels($tests) {
           }
         }))
         .get($testID)
-      const solve = Array.from(Object.values(test.get('detail').solve))
-      const testResult = {
-        pass: solve.reduce(($pass, $solute, $soluteIndex) => {
-          if(test.get('pass') === true) $pass++
-          return $pass
-        }, 0),
-        nonpass: solve.reduce(($nonpass, $solute, $soluteIndex) => {
-          if(test.get('pass') === false) $nonpass++
-          return $nonpass
-        }, 0),
-        sumpass: solve.length,
-      }
-
-      test.set('result', testResult)
       if(test.get('pass') === true) { testResults.pass++ }
       else if(test.get('pass') === false) { testResults.nonpass++ }
       if(testGroup.get('pass') !== false) testGroup.set('pass', test.get('pass'))

@@ -42,11 +42,6 @@ export default class PandTreeView extends View {
         [$settings.models.data.get('collectName')]: `:scope > ${$settings.models.data.get('type')} > ${$settings.models.data.get('collectName')}`,
       } },
       events: {},
-      // events: {
-      //   'pass click': function passClick($event) {},
-      //   'id click': function idClick($event) { this.togglePand() },
-      //   'name click': function nameClick($event) { this.togglePand() },
-      // },
       models: $settings.models,
     })
     this.addEventListener('render', ($event) => {
@@ -60,7 +55,6 @@ export default class PandTreeView extends View {
         "\n", header,
         "\n", path,
         "\n", `pass: ${content.pass}`,
-        "\n", JSON.stringify(result),
       ])
       if(detail !== undefined) log.push(
         "\n", "detail", detail,
