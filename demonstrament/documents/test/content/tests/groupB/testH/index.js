@@ -1,7 +1,7 @@
 import { Schema, Content, Coutil } from '/dependencies/mvc-framework.js'
 import * as AssignmentKeys from '../coutil/assignmentKeys.js'
 import * as Assignments from '../coutil/assignments/index.js'
-const { pathkeytree } = Coutil
+const { pathkeytree, objectCount } = Coutil
 const { AssignmentSourceProperties } = AssignmentKeys
 // import SchemaProperties from '../coutil/schemaProperties.js'
 // const SchemaOptions = {
@@ -13,9 +13,9 @@ const ContentOptions = {
   } } },
 }
 export default {
-  id: "testG", name: `
+  id: "testH", name: `
     <div>
-      Complex Objects - No Schema, With <code>assignSourceProperty</code> Event
+      Complex Objects - No Schema, With <code>assignSource</code> Event
     </div>
   `,
   type: "test-result", collectName: 'detail',
@@ -24,7 +24,7 @@ export default {
       <li><code>content.schema</code>: <code>null</code></li>
       <li><code>content.events</code>: <code>true</code></li>
       <ul>
-        <li><code>"assignSourceProperty"</code></li>
+        <li><code>"assignSource"</code></li>
       </ul>
     </ul>
   `, 
@@ -32,7 +32,7 @@ export default {
   method: async function() {
     // const schema = new Schema(SchemaProperties, SchemaOptions)
     const assignSolveSources = () => [
-      ["assignSourceProperty", []],
+      ["assignSource", []],
     ]
     const assignmentsSolve = () => [
       ["assignmentSourcesA", assignSolveSources()],
@@ -58,44 +58,44 @@ export default {
     for(const [$assignmentIndex, $assignmentName] of Object.entries(AssignmentKeys.Assignments)) {
       iterateAssignmentSources: 
       for(const [$assignmentSourceIndex, $assignmentSourceName] of Object.entries(AssignmentKeys.AssignmentSources)) {
+        console.log($assignmentName, ".", $assignmentSourceName)
         const [$validationName, $validation] = validations[$assignmentIndex][1][$assignmentSourceIndex]
         const assignmentSources = Assignments[$assignmentName][$assignmentSourceName]
         if(targets[$assignmentSourceName] === undefined) {
           targets[$assignmentSourceName] = new Content({}, null, ContentOptions)
-          targets[$assignmentSourceName].addEventListener("assignSourceProperty", assignSourcePropertyListener)
+          targets[$assignmentSourceName].addEventListener("assignSource", assignSourceListener)
         }
         else {
           targets[$assignmentSourceName] = targets[$assignmentSourceName]
         }
         const target = targets[$assignmentSourceName]
-        var assignSourcePropertyValidatorEvents = $validation[0][1]
-        var assignSourcePropertyEventsSize = assignmentSources.reduce((
-          $assignSourcePropertyEventsSize, $assignSource
-        ) => $assignSourcePropertyEventsSize += pathkeytree($assignSource).length, 0)
-        var assignSourcePropertyEventsIndex = 0
-        while(assignSourcePropertyEventsIndex < assignSourcePropertyEventsSize) {
+        var assignSourceValidatorEvents = $validation[0][1]
+        var assignSourceEventsSize = assignmentSources.reduce(
+          ($assignSourceEventsSize, $source) => $assignSourceEventsSize += objectCount($source) ,0
+        )
+        var assignSourceEventsIndex = 0
+        while(assignSourceEventsIndex < assignSourceEventsSize) {
           const promiseResolvers = Promise.withResolvers()
-          assignSourcePropertyValidatorEvents.push(Object.assign({
+          assignSourceValidatorEvents.push(Object.assign({
             resolved: false,
             resolution: undefined,
           }, promiseResolvers))
-          assignSourcePropertyEventsIndex++
+          assignSourceEventsIndex++
         }
-        assignSourcePropertyEventsIndex = 0
-        function assignSourcePropertyListener($event) {
-          console.log($event.path)
+        assignSourceEventsIndex = 0
+        function assignSourceListener($event) {
           const { path } = $event
-          const promiseResolvers = assignSourcePropertyValidatorEvents[assignSourcePropertyEventsIndex]
+          const promiseResolvers = assignSourceValidatorEvents[assignSourceEventsIndex]
           const promiseResolution = true
           promiseResolvers.resolve(promiseResolution)
           promiseResolvers.resolution = promiseResolution
           promiseResolvers.resolved = true
-          assignSourcePropertyEventsIndex++
+          assignSourceEventsIndex++
         }
         target.assign(...assignmentSources)
         await new Promise(($resolve, $reject) => {
           setTimeout(() => {
-            assignSourcePropertyValidatorEvents.forEach(($promiseResolver) => {
+            assignSourceValidatorEvents.forEach(($promiseResolver) => {
               if($promiseResolver.resolved === false) {
                 const promiseResolution = false
                 $promiseResolver.resolve(promiseResolution)

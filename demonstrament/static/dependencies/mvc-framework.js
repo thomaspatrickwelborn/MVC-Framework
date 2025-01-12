@@ -263,6 +263,15 @@ function keytree($object) {
   return target
 }
 
+function objectCount($object) {
+  if($object && typeof $object !== 'object') return undefined 
+  let count = 1;
+  for(const [$key, $value] of Object.entries($object)) {
+    if(typeof $value === 'object') { count += objectCount($value); }
+  }
+  return count
+}
+
 function pathkeytree($object) {
   const target = [];
   for(const [$key, $value] of Object.entries($object)) {
@@ -334,6 +343,7 @@ var index = /*#__PURE__*/Object.freeze({
   isPropertyDefinition: isPropertyDefinition,
   isPropertyValidator: isPropertyValidator,
   keytree: keytree,
+  objectCount: objectCount,
   path: index$2,
   pathkeytree: pathkeytree,
   recursiveAssign: recursiveAssign,

@@ -5,6 +5,8 @@ import testD from './testD/index.js'
 import testE from './testE/index.js'
 import testF from './testF/index.js'
 import testG from './testG/index.js'
+import testH from './testH/index.js'
+import testI from './testI/index.js'
 export default {
   id: "groupB",
   name: `<div>
@@ -28,12 +30,14 @@ export default {
   type: 'test-group',
   collectName: 'tests',
   collect: new Map([
-    // ['testA', testA],
-    // ['testB', testB],
-    // ['testC', testC],
-    // ['testD', testD],
-    // ['testE', testE],
-    // ['testF', testF],
+    ['testA', testA],
+    ['testB', testB],
+    ['testC', testC],
+    ['testD', testD],
+    ['testE', testE],
+    ['testF', testF],
     ['testG', testG],
+    ['testH', testH],
+    ['testI', testI],
   ]),
 }

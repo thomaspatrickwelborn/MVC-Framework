@@ -3,6 +3,7 @@ import { expandTree, impandTree } from './pandTree/index.js'
 import isPropertyDefinition from './isPropertyDefinition/index.js'
 import isPropertyValidator from './isPropertyValidator/index.js'
 import keytree from './keytree/index.js'
+import objectCount from './objectCount/index.js'
 import * as path from './path/index.js'
 import pathkeytree from './pathkeytree/index.js'
 import recursiveAssign from './recursiveAssign/index.js'
@@ -21,6 +22,7 @@ export {
   isPropertyDefinition,
   isPropertyValidator,
   keytree,
+  objectCount,
   path, 
   pathkeytree,
   recursiveAssign, 
