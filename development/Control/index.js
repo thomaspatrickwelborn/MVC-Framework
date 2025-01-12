@@ -29,14 +29,22 @@ export default class Control extends Core {
     for(const [
       $modelName, $model
     ] of Object.entries($models)) {
+      const path = (this.path)
+        ? [this.path, $modelName].join('.')
+        : $modelName
+      const parent = this
+      let modelSettings, modelOptions
       if($model instanceof Model) {
         models[$modelName] = $model
       }
       else if(typeOf($model) === 'object') {
-        models[$modelName] = new Model($model)
+        modelSettings = Object.assign({ path, parent }, $model)
+        models[$modelName] = new Model(modelSettings)
       }
       else if(typeOf($model) === 'array') {
-        models[$modelName] = new Model(...$model)
+        modelSettings = Object.assign({ path, parent }, $model[0])
+        modelOptions = $model[1]
+        models[$modelName] = new Model(modelSettings, modelOptions)
       }
     }
   }
@@ -47,32 +55,48 @@ export default class Control extends Core {
     for(const [
       $viewName, $view
     ] of Object.entries($views)) {
+      const path = (this.path)
+        ? [this.path, $viewName].join('.')
+        : $viewName
+      const parent = this
+      let viewSettings, viewOptions
       if($view instanceof View) {
         views[$viewName] = $view
       }
       else if(typeOf($view) === 'object') {
-        views[$viewName] = new View($view)
+        viewSettings = Object.assign({ path, parent }, $view)
+        views[$viewName] = new View(viewSettings)
       }
       else if(typeOf($view) === 'array') {
-        views[$viewName] = new View(...$view)
+        viewSettings = Object.assign({ path, parent }, $view[0])
+        viewOptions = $view[1]
+        views[$viewName] = new View(viewSettings, viewOptions)
       }
     }
   }
   get controls() { return this.#_controls }
   set controls($controls) {
     const controls = this.controls
-    iterateControlInstances: 
+    iterateViewInstances: 
     for(const [
       $controlName, $control
     ] of Object.entries($controls)) {
-      if($control instanceof Control) {
+      const path = (this.path)
+        ? [this.path, $controlName].join('.')
+        : $controlName
+      const parent = this
+      let controlSettings, controlOptions
+      if($control instanceof View) {
         controls[$controlName] = $control
       }
       else if(typeOf($control) === 'object') {
-        controls[$controlName] = new Control($control)
+        controlSettings = Object.assign({ path, parent }, $control)
+        controls[$controlName] = new View(controlSettings)
       }
       else if(typeOf($control) === 'array') {
-        controls[$controlName] = new Control(...$control)
+        controlSettings = Object.assign({ path, parent }, $control[0])
+        controlOptions = $control[1]
+        controls[$controlName] = new View(controlSettings, controlOptions)
       }
     }
   }
@@ -81,17 +105,22 @@ export default class Control extends Core {
     const routers = this.routers
     iterateRouterClasses: 
     for(const [
-      $routerClassName, $routerClassInstances
+      $routerClassName, $routers
     ] of Object.entries($routers)) {
       iterateRouterClassInstances: 
       for(const [
-        $routerClassInstanceName, $routerClassInstance
-      ] of Object.entries($routerClassInstances)) {
+        $routerName, $router
+      ] of Object.entries($routers)) {
+        const path = (this.path)
+          ? [this.path, $routerName].join('.')
+          : $routerName
+        const parent = this
+        let routerSettings, routerOptions
         if(
-          $routerClassInstance instanceof LocationRouter ||
-          $routerClassInstance instanceof FetchRouter
+          $router instanceof LocationRouter ||
+          $router instanceof FetchRouter
         ) {
-          routers[$routerClassName][$routerClassInstanceName] = $routerClassInstance
+          routers[$routerClassName][$routerName] = $router
         }
         else {
           const Router = ($routerClassName === 'location')
@@ -101,11 +130,14 @@ export default class Control extends Core {
               : undefined
           if(Router !== undefined) {
             let routerParameters
-            if(typeOf($routerClassInstance) === 'object') {
-              routers[$routerClassName][$routerClassInstanceName] = new Router($routerClassInstance)
+            if(typeOf($router) === 'object') {
+              routerSettings = Object.assign({ path, parent }, $router)
+              routers[$routerClassName][$routerName] = new Router($router)
             }
             else if(typeOf($router) === 'array') {
-              routers[$routerClassName][$routerClassInstanceName] = new Router(...$routerClassInstance)
+              routerSettings = Object.assign({ path, parent }, $router[0])
+              routerOptions = $router[1]
+              routers[$routerClassName][$routerName] = new Router(...$router)
             }
           }
         }
@@ -148,14 +180,14 @@ export default class Control extends Core {
       else {
         iterateRouterClasses: 
         for(const [
-          $routerClassName, $routerClassInstances
+          $routerClassName, $routers
         ] of Object.entries($classInstances)) {
           let routerClassInstanceKeys
-          if(Array.isArray($routerClassInstances)) { routerClassInstanceKeys = $routerClassInstances }
-          else { routerClassInstances = Object.keys($routerClassInstances) }
+          if(Array.isArray($routers)) { routerClassInstanceKeys = $routers }
+          else { routerClassInstances = Object.keys($routers) }
           iterateRouterClassInstanceKeys: 
-          for(const $routerClassInstanceName of routerClassInstanceKeys) {
-            delete this[$className][$routerClassName][$routerClassInstanceName]
+          for(const $routerName of routerClassInstanceKeys) {
+            delete this[$className][$routerClassName][$routerName]
           }
         }
       }

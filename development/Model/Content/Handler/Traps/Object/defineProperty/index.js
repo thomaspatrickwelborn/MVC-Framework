@@ -58,7 +58,6 @@ export default function defineProperty() {
     if(schema.type === 'array') { subschema = schema.context[0] }
     else if(schema.type === 'object') { subschema = schema.context[propertyKey] }
     else { subschema = undefined}
-    // const  = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
     const contentPath = (path)
       ? [path, propertyKey].join('.')

@@ -31,7 +31,7 @@ export default class Core extends EventTarget {
   get key() {
     if(this.#_key !== undefined) return this.#_key
     this.#_key = (this.settings.key !== undefined)
-      ? this.settings.key
+      ? this.path.split('.').pop()
       : null
     return this.#_key
   }
@@ -50,7 +50,11 @@ export default class Core extends EventTarget {
       : null
     return this.#_parent
   }
-  get root() {}
+  get root() {
+    let root = this
+    while(root !== null) { root = root.parent }
+    return root
+  }
   get events() {
     if(this.#_events !== undefined) return this.#_events
     this.#_events = []

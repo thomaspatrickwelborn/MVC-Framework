@@ -68,8 +68,19 @@ export default class Model extends Core {
   }
   get localStorage() {
     if(this.#_localStorage !== undefined) { return this.#_localStorage }
-    if(this.settings.localStorage !== undefined) {
-      this.#_localStorage = new LocalStorage(this.settings.localStorage)
+    const { localStorage } = this.settings
+    let path
+    if(localStorage !== undefined) {
+      if(typeof localStorage === 'string') {
+        if(path[0] !== "/") { path = "/".concat(path) }
+        else { path = localStorage }
+      }
+      else if(localStorage === true) {
+        path = [window.location.pathname]
+        if(this.path) { path.push(path) }
+        path = path.join('')
+      }
+      if(path !== undefined) { this.#_localStorage = new LocalStorage(path) }
     }
     return this.#_localStorage
   }
