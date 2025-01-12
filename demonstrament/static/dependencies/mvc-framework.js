@@ -624,8 +624,8 @@ function defineProperties() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
-  const { source, path, schema, proxy } = $content;
-  $content.options;
+  const { path, proxy } = $content;
+  // const {} = $content.options
   const $propertyDescriptors = arguments[0];
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   impandTree($propertyDescriptors, 'value');
@@ -711,7 +711,6 @@ function defineProperty() {
     if(schema.type === 'array') { subschema = schema.context[0]; }
     else if(schema.type === 'object') { subschema = schema.context[propertyKey]; }
     else { subschema = undefined;}
-    // const  = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
     // Root Property Descriptor Value: Existent Content Instance
     const contentPath = (path)
       ? [path, propertyKey].join('.')
@@ -3439,7 +3438,7 @@ class Core extends EventTarget {
   get key() {
     if(this.#_key !== undefined) return this.#_key
     this.#_key = (this.settings.key !== undefined)
-      ? this.settings.key
+      ? this.path.split('.').pop()
       : null;
     return this.#_key
   }
@@ -3458,7 +3457,11 @@ class Core extends EventTarget {
       : null;
     return this.#_parent
   }
-  get root() {}
+  get root() {
+    let root = this;
+    while(root !== null) { root = root.parent; }
+    return root
+  }
   get events() {
     if(this.#_events !== undefined) return this.#_events
     this.#_events = [];
@@ -3595,13 +3598,12 @@ class LocalStorage extends EventTarget {
 var Settings$3 = {
   schema: undefined, // Schema
   content: undefined, // Content
-  localStorage: undefined, // String,
+  localStorage: false, // Boolean, String,
 };
 
 var Options$3 = {
   schema: undefined, // Schema Options
   content: undefined, // Content Options
-  localStorage: undefined, // LocalStorage Options
   enableEvents: true, // Boolean
   autoload: false, // Boolean
   autosave: false, // Boolean
@@ -3691,8 +3693,19 @@ class Model extends Core {
   }
   get localStorage() {
     if(this.#_localStorage !== undefined) { return this.#_localStorage }
-    if(this.settings.localStorage !== undefined) {
-      this.#_localStorage = new LocalStorage(this.settings.localStorage);
+    const { localStorage } = this.settings;
+    let path;
+    if(localStorage !== undefined) {
+      if(typeof localStorage === 'string') {
+        if(path[0] !== "/") { path = "/".concat(path); }
+        else { path = localStorage; }
+      }
+      else if(localStorage === true) {
+        path = [window.location.pathname];
+        if(this.path) { path.push(path); }
+        path = path.join('');
+      }
+      if(path !== undefined) { this.#_localStorage = new LocalStorage(path); }
     }
     return this.#_localStorage
   }
@@ -5233,14 +5246,22 @@ class Control extends Core {
     for(const [
       $modelName, $model
     ] of Object.entries($models)) {
+      const path = (this.path)
+        ? [this.path, $modelName].join('.')
+        : $modelName;
+      const parent = this;
+      let modelSettings, modelOptions;
       if($model instanceof Model) {
         models[$modelName] = $model;
       }
       else if(typeOf($model) === 'object') {
-        models[$modelName] = new Model($model);
+        modelSettings = Object.assign({ path, parent }, $model);
+        models[$modelName] = new Model(modelSettings);
       }
       else if(typeOf($model) === 'array') {
-        models[$modelName] = new Model(...$model);
+        modelSettings = Object.assign({ path, parent }, $model[0]);
+        modelOptions = $model[1];
+        models[$modelName] = new Model(modelSettings, modelOptions);
       }
     }
   }
@@ -5250,14 +5271,22 @@ class Control extends Core {
     for(const [
       $viewName, $view
     ] of Object.entries($views)) {
+      const path = (this.path)
+        ? [this.path, $viewName].join('.')
+        : $viewName;
+      const parent = this;
+      let viewSettings, viewOptions;
       if($view instanceof View) {
         views[$viewName] = $view;
       }
       else if(typeOf($view) === 'object') {
-        views[$viewName] = new View($view);
+        viewSettings = Object.assign({ path, parent }, $view);
+        views[$viewName] = new View(viewSettings);
       }
       else if(typeOf($view) === 'array') {
-        views[$viewName] = new View(...$view);
+        viewSettings = Object.assign({ path, parent }, $view[0]);
+        viewOptions = $view[1];
+        views[$viewName] = new View(viewSettings, viewOptions);
       }
     }
   }
@@ -5267,14 +5296,22 @@ class Control extends Core {
     for(const [
       $controlName, $control
     ] of Object.entries($controls)) {
-      if($control instanceof Control) {
+      const path = (this.path)
+        ? [this.path, $controlName].join('.')
+        : $controlName;
+      const parent = this;
+      let controlSettings, controlOptions;
+      if($control instanceof View) {
         controls[$controlName] = $control;
       }
       else if(typeOf($control) === 'object') {
-        controls[$controlName] = new Control($control);
+        controlSettings = Object.assign({ path, parent }, $control);
+        controls[$controlName] = new View(controlSettings);
       }
       else if(typeOf($control) === 'array') {
-        controls[$controlName] = new Control(...$control);
+        controlSettings = Object.assign({ path, parent }, $control[0]);
+        controlOptions = $control[1];
+        controls[$controlName] = new View(controlSettings, controlOptions);
       }
     }
   }
@@ -5282,16 +5319,20 @@ class Control extends Core {
   set routers($routers) {
     const routers = this.routers;
     for(const [
-      $routerClassName, $routerClassInstances
+      $routerClassName, $routers
     ] of Object.entries($routers)) {
       for(const [
-        $routerClassInstanceName, $routerClassInstance
-      ] of Object.entries($routerClassInstances)) {
+        $routerName, $router
+      ] of Object.entries($routers)) {
+        const path = (this.path)
+          ? [this.path, $routerName].join('.')
+          : $routerName;
+        const parent = this;
         if(
-          $routerClassInstance instanceof LocationRouter ||
-          $routerClassInstance instanceof FetchRouter
+          $router instanceof LocationRouter ||
+          $router instanceof FetchRouter
         ) {
-          routers[$routerClassName][$routerClassInstanceName] = $routerClassInstance;
+          routers[$routerClassName][$routerName] = $router;
         }
         else {
           const Router = ($routerClassName === 'location')
@@ -5300,11 +5341,14 @@ class Control extends Core {
               ? FetchRouter
               : undefined;
           if(Router !== undefined) {
-            if(typeOf($routerClassInstance) === 'object') {
-              routers[$routerClassName][$routerClassInstanceName] = new Router($routerClassInstance);
+            if(typeOf($router) === 'object') {
+              Object.assign({ path, parent }, $router);
+              routers[$routerClassName][$routerName] = new Router($router);
             }
             else if(typeOf($router) === 'array') {
-              routers[$routerClassName][$routerClassInstanceName] = new Router(...$routerClassInstance);
+              Object.assign({ path, parent }, $router[0]);
+              $router[1];
+              routers[$routerClassName][$routerName] = new Router(...$router);
             }
           }
         }
@@ -5343,13 +5387,13 @@ class Control extends Core {
       // Router Class Instances
       else {
         for(const [
-          $routerClassName, $routerClassInstances
+          $routerClassName, $routers
         ] of Object.entries($classInstances)) {
           let routerClassInstanceKeys;
-          if(Array.isArray($routerClassInstances)) { routerClassInstanceKeys = $routerClassInstances; }
-          else { routerClassInstances = Object.keys($routerClassInstances); }
-          for(const $routerClassInstanceName of routerClassInstanceKeys) {
-            delete this[$className][$routerClassName][$routerClassInstanceName];
+          if(Array.isArray($routers)) { routerClassInstanceKeys = $routers; }
+          else { routerClassInstances = Object.keys($routers); }
+          for(const $routerName of routerClassInstanceKeys) {
+            delete this[$className][$routerClassName][$routerName];
           }
         }
       }
