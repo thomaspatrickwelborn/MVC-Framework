@@ -77,7 +77,7 @@ export default class Control extends Core {
   get controls() { return this.#_controls }
   set controls($controls) {
     const controls = this.controls
-    iterateViewInstances: 
+    iterateControlInstances: 
     for(const [
       $controlName, $control
     ] of Object.entries($controls)) {
@@ -86,17 +86,17 @@ export default class Control extends Core {
         : $controlName
       const parent = this
       let controlSettings, controlOptions
-      if($control instanceof View) {
+      if($control instanceof Control) {
         controls[$controlName] = $control
       }
       else if(typeOf($control) === 'object') {
         controlSettings = Object.assign({ path, parent }, $control)
-        controls[$controlName] = new View(controlSettings)
+        controls[$controlName] = new Control(controlSettings)
       }
       else if(typeOf($control) === 'array') {
         controlSettings = Object.assign({ path, parent }, $control[0])
         controlOptions = $control[1]
-        controls[$controlName] = new View(controlSettings, controlOptions)
+        controls[$controlName] = new Control(controlSettings, controlOptions)
       }
     }
   }
