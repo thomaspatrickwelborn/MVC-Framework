@@ -2,9 +2,15 @@ import { impandEvents, expandEvents, recursiveAssign } from '../Coutil/index.js'
 import CoreEvent from './Event/index.js'
 import Settings from './Settings/index.js' 
 import Options from './Options/index.js' 
+const PropertyClassInstanceEventListenerAssignments = {
+  "add": "addEventListener",
+  "remove": "removeEventListener",
+}
+function PropertyClassInstantiator() {}
 export default class Core extends EventTarget {
   #_settings
   #_options
+  #_propertyClasses
   #_events
   #_key
   #_path
@@ -13,9 +19,65 @@ export default class Core extends EventTarget {
     super()
     this.settings = $settings
     this.options = $options
+    this.#propertyClasses = $settings.propertyClasses
     this.addEvents()
     this.#assign()
     this.#defineProperties()
+  }
+  set #propertyClasses($propertyClasses) {
+    console.log("$propertyClasses", $propertyClasses)
+    if(this.#_propertyClasses === undefined)
+    for(const [
+      $propertyClassName, $propertyClassInstantiatorSettings
+    ] of $propertyClasses) {
+      const { Class, Names, Events } = $propertyClassInstantiatorSettings
+      if(ClassInstantiator === undefined) ClassInstantiator = PropertyClassInstantiator
+      Object.defineProperties(this, {
+        [Names.Multiple.Nonformal]: {
+          configurable: false, enumerable: false, value: {}, writable: false,
+        },
+        // Add Property
+        [`add${Names.Multiple.Formal}`]: {
+          value: function($propertyClassDefinitions) {
+            const classInstances = this[`_${$propertyClassName}`]
+            iterateClassInstances: 
+            for(const [
+              $propertyClassInstanceName, $propertyClassInstanceParameters
+            ] of Object.entries($propertyClassDefinitions)) {
+              const path = (this.path)
+                ? [this.path, $propertyClassInstanceName].join('.')
+                : $propertyClassInstanceName
+              const parent = this
+              let propertyClassInstanceSettings, propertyClassInstanceOptions
+              if($propertyClassInstanceParameters instanceof Class) {
+                classInstances[$propertyClassInstanceName] = $propertyClassInstanceParameters
+              }
+              else if(typeOf($propertyClassInstanceParameters) === 'object') {
+                propertyClassInstanceSettings = Object.assign(
+                  { path, parent }, $propertyClassInstanceParameters
+                )
+                classInstances[$propertyClassInstanceName] = new Class(propertyClassInstanceSettings)
+              }
+              else if(typeOf($propertyClassInstanceParameters) === 'array') {
+                propertyClassInstanceSettings = Object.assign(
+                  { path, parent }, $propertyClassInstanceParameters[0]
+                )
+                propertyClassInstanceOptions = $propertyClassInstanceParameters[1]
+                classInstances[$propertyClassInstanceName] = new Class(
+                  propertyClassInstanceSettings, propertyClassInstanceOptions
+                )
+              }
+            }
+          }
+        },
+        // Remove Property
+        [`remove${Names.Multiple.Formal}`]: {
+          value: function() {
+            // 
+          }
+        },
+      })
+    }
   }
   get settings() { return this.#_settings }
   set settings($settings) {
@@ -60,6 +122,10 @@ export default class Core extends EventTarget {
     this.#_events = []
     return this.#_events
   }
+  
+  // removeClassInstances() {
+    
+  // }
   getEvents() {
     const getEvents = []
     const { events } = this

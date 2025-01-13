@@ -128,15 +128,15 @@ var index$2 = /*#__PURE__*/Object.freeze({
   typeofRoot: typeofRoot
 });
 
-const typeOf = ($data) => Object
+const typeOf$1 = ($data) => Object
   .prototype
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
 function typedObjectLiteral($object) {
-  if(typeOf($object) === 'object') { return {} }
-  else if(typeOf($object) === 'array') { return [] }
-  else if(typeOf($object) === 'string') { return (
+  if(typeOf$1($object) === 'object') { return {} }
+  else if(typeOf$1($object) === 'array') { return [] }
+  else if(typeOf$1($object) === 'string') { return (
     $object === 'object'
   ) ? {} : (
     $object === 'array'
@@ -349,7 +349,7 @@ var index = /*#__PURE__*/Object.freeze({
   recursiveAssign: recursiveAssign,
   regularExpressions: regularExpressions,
   tree: index$1,
-  typeOf: typeOf,
+  typeOf: typeOf$1,
   typedObjectLiteral: typedObjectLiteral,
   typedObjectLiteralFromPath: typedObjectLiteralFromPath,
   variables: Variables
@@ -2579,11 +2579,11 @@ class TypeValidator extends Validator {
       validate: ($key, $value, $source, $target) => {
         const definition = this.definition;
         let pass;
-        let typeOfDefinitionValue = typeOf(definition.value);
+        let typeOfDefinitionValue = typeOf$1(definition.value);
         typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
-          ? typeOf(definition.value())
+          ? typeOf$1(definition.value())
           : typeOfDefinitionValue;
-        const typeOfContentValue = typeOf($value);
+        const typeOfContentValue = typeOf$1($value);
         if(typeOfContentValue === 'undefined') { pass = false; }
         else if(typeOfDefinitionValue === 'undefined') { pass = true; }
         else { pass = (typeOfDefinitionValue === typeOfContentValue); }
@@ -2715,7 +2715,7 @@ class Context extends EventTarget {
   }
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(typedObjectLiteral(this.#properties));
+    this.#_type = typeOf$1(typedObjectLiteral(this.#properties));
     return this.#_type
   }
   get proxy() {
@@ -2741,7 +2741,7 @@ class Context extends EventTarget {
     for(const [
       $propertyKey, $propertyDefinition
     ] of Object.entries(properties)) {
-      const typeOfPropertyDefinition = typeOf($propertyDefinition);
+      const typeOfPropertyDefinition = typeOf$1($propertyDefinition);
       let propertyDefinition;
       // Property Definition: Schema
       if($propertyDefinition instanceof Schema) {
@@ -2774,7 +2774,7 @@ class Context extends EventTarget {
             $propertyValidatorName, $propertyValidator
           ] of Object.entries($propertyDefinition)) {
             if($propertyValidatorName === 'validators') { continue iteratePropertyValidators }
-            const typeOfPropertyValidator = typeOf($propertyValidator);
+            const typeOfPropertyValidator = typeOf$1($propertyValidator);
             let propertyValidator;
             if(typeOfPropertyValidator && typeOfPropertyValidator === 'object') {
               propertyValidator = $propertyValidator;
@@ -2927,7 +2927,7 @@ class Schema extends EventTarget{
   }
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(typedObjectLiteral(this.#properties));
+    this.#_type = typeOf$1(typedObjectLiteral(this.#properties));
     return this.#_type
   }
   get required() { return this.options.required }
@@ -3233,7 +3233,7 @@ class Content extends EventTarget {
   get schema() { return this.#_schema }
   set schema($schema) {
     if(this.#_schema !== undefined)  { return }
-    const typeOfSchema = typeOf($schema);
+    const typeOfSchema = typeOf$1($schema);
     if(['undefined', 'null'].includes(typeOfSchema)) { this.#_schema = null; }
     else if($schema instanceof Schema) { this.#_schema = $schema; }
     else if(typeOfSchema === 'array') { this.#_schema = new Schema(...arguments); }
@@ -3244,7 +3244,7 @@ class Content extends EventTarget {
   get string() { return this.#parse({ type: 'string' }) }
   get type() {
     if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.#properties);
+    this.#_type = typeOf$1(this.#properties);
     return this.#_type
   }
   get parent() {
@@ -3409,9 +3409,11 @@ var Options$4 = {
   assign: [],
 };
 
+function PropertyClassInstantiator() {}
 class Core extends EventTarget {
   #_settings
   #_options
+  #_propertyClasses
   #_events
   #_key
   #_path
@@ -3420,9 +3422,64 @@ class Core extends EventTarget {
     super();
     this.settings = $settings;
     this.options = $options;
+    this.#propertyClasses = $settings.propertyClasses;
     this.addEvents();
     this.#assign();
     this.#defineProperties();
+  }
+  set #propertyClasses($propertyClasses) {
+    console.log("$propertyClasses", $propertyClasses);
+    if(this.#_propertyClasses === undefined)
+    for(const [
+      $propertyClassName, $propertyClassInstantiatorSettings
+    ] of $propertyClasses) {
+      const { Class, Names, Events } = $propertyClassInstantiatorSettings;
+      if(ClassInstantiator === undefined) ClassInstantiator = PropertyClassInstantiator;
+      Object.defineProperties(this, {
+        [Names.Multiple.Nonformal]: {
+          configurable: false, enumerable: false, value: {}, writable: false,
+        },
+        // Add Property
+        [`add${Names.Multiple.Formal}`]: {
+          value: function($propertyClassDefinitions) {
+            const classInstances = this[`_${$propertyClassName}`];
+            for(const [
+              $propertyClassInstanceName, $propertyClassInstanceParameters
+            ] of Object.entries($propertyClassDefinitions)) {
+              const path = (this.path)
+                ? [this.path, $propertyClassInstanceName].join('.')
+                : $propertyClassInstanceName;
+              const parent = this;
+              let propertyClassInstanceSettings, propertyClassInstanceOptions;
+              if($propertyClassInstanceParameters instanceof Class) {
+                classInstances[$propertyClassInstanceName] = $propertyClassInstanceParameters;
+              }
+              else if(typeOf($propertyClassInstanceParameters) === 'object') {
+                propertyClassInstanceSettings = Object.assign(
+                  { path, parent }, $propertyClassInstanceParameters
+                );
+                classInstances[$propertyClassInstanceName] = new Class(propertyClassInstanceSettings);
+              }
+              else if(typeOf($propertyClassInstanceParameters) === 'array') {
+                propertyClassInstanceSettings = Object.assign(
+                  { path, parent }, $propertyClassInstanceParameters[0]
+                );
+                propertyClassInstanceOptions = $propertyClassInstanceParameters[1];
+                classInstances[$propertyClassInstanceName] = new Class(
+                  propertyClassInstanceSettings, propertyClassInstanceOptions
+                );
+              }
+            }
+          }
+        },
+        // Remove Property
+        [`remove${Names.Multiple.Formal}`]: {
+          value: function() {
+            // 
+          }
+        },
+      });
+    }
   }
   get settings() { return this.#_settings }
   set settings($settings) {
@@ -3467,6 +3524,10 @@ class Core extends EventTarget {
     this.#_events = [];
     return this.#_events
   }
+  
+  // removeClassInstances() {
+    
+  // }
   getEvents() {
     const getEvents = [];
     const { events } = this;
@@ -5212,10 +5273,8 @@ var Settings = {
   models: {},
   views: {},
   controls: {},
-  routers: {
-    fetch: {},
-    location: {},
-  },
+  fetchRouters: {},
+  locationRouters: {},
   events: [],
 };
 
@@ -5223,7 +5282,6 @@ var Options = {
   enableEvents: true
 };
 
-const ValidClassInstances = ["models", "views", "controls", "routers"];
 class Control extends Core {
   #_models = {}
   #_views = {}
@@ -5234,172 +5292,56 @@ class Control extends Core {
   }
   constructor($settings = {}, $options = {}) {
     super(
-      Object.assign({}, Settings, $settings),
+      Object.assign({
+        propertyClasses: [
+          ["models", {
+            Class: Model,
+            Names: {
+              Monople: { Formal: "Model", Nonformal: "model" },
+              Multiple: { Formal: "Models", Nonformal: "models" },
+            },
+            Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
+          }],
+          ["views", {
+            Class: View,
+            Names: {
+              Monople: { Formal: "View", Nonformal: "view" },
+              Multiple: { Formal: "Views", Nonformal: "views" },
+            },
+            Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
+          }],
+          ["controls", {
+            Class: Control,
+            Names: {
+              Monople: { Formal: "Control", Nonformal: "control" },
+              Multiple: { Formal: "Controls", Nonformal: "controls" },
+            },
+            Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
+          }],
+          ["locationRouters", {
+            Class: LocationRouter,
+            Names: {
+              Monople: { Formal: "LocationRouter", Nonformal: "locationRouter" },
+              Multiple: { Formal: "LocationRouters", Nonformal: "locationRouters" },
+            },
+            Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
+          }],
+          ["fetchRouters", {
+            Class: FetchRouter,
+            Names: {
+              Montiple: { Formal: "FetchRouter", Nonformal: "fetchRouter" },
+              Multiple: { Formal: "FetchRouters", Nonformal: "fetchRouters" },
+            },
+            Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
+          }],
+        ]
+      }, Settings, $settings),
       Object.assign({}, Options, $options),
     );
-    this.addClassInstances($settings);
-    if(this.options.enableEvents === true) this.enableEvents();
+    // this.addClassInstances($settings)
+    // if(this.options.enableEvents === true) this.enableEvents()
   }
-  get models() { return this.#_models }
-  set models($models) {
-    const models = this.models;
-    for(const [
-      $modelName, $model
-    ] of Object.entries($models)) {
-      const path = (this.path)
-        ? [this.path, $modelName].join('.')
-        : $modelName;
-      const parent = this;
-      let modelSettings, modelOptions;
-      if($model instanceof Model) {
-        models[$modelName] = $model;
-      }
-      else if(typeOf($model) === 'object') {
-        modelSettings = Object.assign({ path, parent }, $model);
-        models[$modelName] = new Model(modelSettings);
-      }
-      else if(typeOf($model) === 'array') {
-        modelSettings = Object.assign({ path, parent }, $model[0]);
-        modelOptions = $model[1];
-        models[$modelName] = new Model(modelSettings, modelOptions);
-      }
-    }
-  }
-  get views() { return this.#_views }
-  set views($views) {
-    const views = this.views;
-    for(const [
-      $viewName, $view
-    ] of Object.entries($views)) {
-      const path = (this.path)
-        ? [this.path, $viewName].join('.')
-        : $viewName;
-      const parent = this;
-      let viewSettings, viewOptions;
-      if($view instanceof View) {
-        views[$viewName] = $view;
-      }
-      else if(typeOf($view) === 'object') {
-        viewSettings = Object.assign({ path, parent }, $view);
-        views[$viewName] = new View(viewSettings);
-      }
-      else if(typeOf($view) === 'array') {
-        viewSettings = Object.assign({ path, parent }, $view[0]);
-        viewOptions = $view[1];
-        views[$viewName] = new View(viewSettings, viewOptions);
-      }
-    }
-  }
-  get controls() { return this.#_controls }
-  set controls($controls) {
-    const controls = this.controls;
-    for(const [
-      $controlName, $control
-    ] of Object.entries($controls)) {
-      const path = (this.path)
-        ? [this.path, $controlName].join('.')
-        : $controlName;
-      const parent = this;
-      let controlSettings, controlOptions;
-      if($control instanceof View) {
-        controls[$controlName] = $control;
-      }
-      else if(typeOf($control) === 'object') {
-        controlSettings = Object.assign({ path, parent }, $control);
-        controls[$controlName] = new View(controlSettings);
-      }
-      else if(typeOf($control) === 'array') {
-        controlSettings = Object.assign({ path, parent }, $control[0]);
-        controlOptions = $control[1];
-        controls[$controlName] = new View(controlSettings, controlOptions);
-      }
-    }
-  }
-  get routers() { return this.#_routers }
-  set routers($routers) {
-    const routers = this.routers;
-    for(const [
-      $routerClassName, $routers
-    ] of Object.entries($routers)) {
-      for(const [
-        $routerName, $router
-      ] of Object.entries($routers)) {
-        const path = (this.path)
-          ? [this.path, $routerName].join('.')
-          : $routerName;
-        const parent = this;
-        if(
-          $router instanceof LocationRouter ||
-          $router instanceof FetchRouter
-        ) {
-          routers[$routerClassName][$routerName] = $router;
-        }
-        else {
-          const Router = ($routerClassName === 'location')
-            ? LocationRouter
-            : ($routerClassName === 'fetch')
-              ? FetchRouter
-              : undefined;
-          if(Router !== undefined) {
-            if(typeOf($router) === 'object') {
-              Object.assign({ path, parent }, $router);
-              routers[$routerClassName][$routerName] = new Router($router);
-            }
-            else if(typeOf($router) === 'array') {
-              Object.assign({ path, parent }, $router[0]);
-              $router[1];
-              routers[$routerClassName][$routerName] = new Router(...$router);
-            }
-          }
-        }
-      }
-    }
-  }
-  addClassInstances() {
-    let $classes;
-    if(arguments.length === 0) { $classes = this.settings; } 
-    else if(arguments.length === 1) { $classes = arguments[0]; }
-    for(const [
-      $className, $classInstances
-    ] of Object.entries($classes)) {
-      if(ValidClassInstances.includes($className)) {
-        this[$className] = $classInstances;
-      }
-    }
-    return this
-  }
-  removeClassInstances() {
-    let $classes;
-    if(arguments.length === 0) { $classes = this.settings; } 
-    else if(arguments.length === 1) { $classes = arguments[0]; }
-    for(const [
-      $className, $classInstances
-    ] of Object.entries($classes)) {
-      // Model, View, Control Class Instances
-      if($className !== 'routers') {
-        let classInstanceKeys;
-        if(Array.isArray($classInstances)) { classInstanceKeys = $classInstances; }
-        else { classInstanceKeys = Object.keys($classInstances); }
-        for(const $classInstanceName of classInstanceKeys) {
-          delete this[$className][$classInstanceName];
-        }
-      }
-      // Router Class Instances
-      else {
-        for(const [
-          $routerClassName, $routers
-        ] of Object.entries($classInstances)) {
-          let routerClassInstanceKeys;
-          if(Array.isArray($routers)) { routerClassInstanceKeys = $routers; }
-          else { routerClassInstances = Object.keys($routers); }
-          for(const $routerName of routerClassInstanceKeys) {
-            delete this[$className][$routerClassName][$routerName];
-          }
-        }
-      }
-    }
-    return this
-  }
+  
 }
 
 export { Content, Control, Core, index as Coutil, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, Verification, View };

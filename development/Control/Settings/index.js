@@ -2,9 +2,7 @@ export default {
   models: {},
   views: {},
   controls: {},
-  routers: {
-    fetch: {},
-    location: {},
-  },
+  fetchRouters: {},
+  locationRouters: {},
   events: [],
 }
