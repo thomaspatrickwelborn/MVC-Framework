@@ -2,7 +2,7 @@ import { Control } from '/dependencies/mvc-framework.js'
 
 const control = new Control({
   models: {
-    model: {
+    model: [{
       schema: {
         // propertyA: {
         //   propertyB: {
@@ -33,9 +33,13 @@ const control = new Control({
         // propertyJ: 0,
         propertyK: "false",
       },
-    }
-  }
-})
+    }, { schema: { required: true } }]
+  },
+  events: {
+    'models.model.content assign': ($event) => console.log($event)
+  },
+}, { enableEvents: true })
+console.log(control)
 const { content } = control.models.model
 // NONVALID
 console.log(content.assign({ propertyK: 11111 }))

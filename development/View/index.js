@@ -17,10 +17,9 @@ export default class View extends Core {
       Object.assign({}, Options, $options),
     )
     this.addQuerySelectors(this.settings.querySelectors)
-    const { enableQuerySelectors, enableEvents } = this.settings
+    const { enableQuerySelectors, enableEvents } = this.options
     if(enableQuerySelectors) this.enableQuerySelectors()
     if(enableEvents) this.enableEvents()
-
   }
   get templates() {
     if(this.#_templates !== undefined) return this.#_templates

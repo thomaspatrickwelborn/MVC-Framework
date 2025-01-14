@@ -1,8 +1,8 @@
-import { typeOf, expandEvents, recursiveAssign } from '../Coutil/index.js'
+import { recursiveAssign, recursiveAssignConcat } from '../Coutil/index.js'
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import View from '../View/index.js'
-import { LocationRouter, FetchRouter } from '../Router/index.js'
+import { LocationRouter, FetchRouter } from '../Routers/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
 export default class Control extends Core {
@@ -61,8 +61,7 @@ export default class Control extends Core {
       }, Settings, $settings),
       recursiveAssign({}, Options, $options),
     )
-    // this.addClassInstances($settings)
-    // if(this.options.enableEvents === true) this.enableEvents()
+    const { enableEvents } = this.options
+    if(enableEvents) this.enableEvents()
   }
-  
 }

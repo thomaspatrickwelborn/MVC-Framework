@@ -4,5 +4,4 @@ export default {
   controls: {},
   fetchRouters: {},
   locationRouters: {},
-  events: [],
 }
