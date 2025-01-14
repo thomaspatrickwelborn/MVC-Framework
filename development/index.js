@@ -8,7 +8,7 @@ import View from './View/index.js'
 import Control from './Control/index.js'
 import {
   LocationRouter, FetchRouter
-} from './Router/index.js'
+} from './Routers/index.js'
 // Secondary Imports
 import Validator from './Model/Schema/Validator/index.js'
 import Validation from './Model/Schema/Validation/index.js'

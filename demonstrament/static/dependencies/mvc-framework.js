@@ -2061,8 +2061,6 @@ function setProperty() {
 function deleteContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  // const { events } = $options
-  console.log($content);
   const { target, path, schema, proxy } = $content;
   $content.options;
   // Arguments
@@ -2389,7 +2387,7 @@ class Traps {
   }
 }
 
-let Handler$1 = class Handler {
+let Handler$2 = class Handler {
   #content
   #_traps
   constructor($content) {
@@ -2729,12 +2727,12 @@ class MatchValidator extends Validator {
   }
 }
 
-class Handler {
+let Handler$1 = class Handler {
   #context
   constructor($context) {
     this.#context = $context;
   }
-}
+};
 
 class Context extends EventTarget {
   #properties
@@ -2768,7 +2766,7 @@ class Context extends EventTarget {
   }
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    this.#_handler = new Handler(this);
+    this.#_handler = new Handler$1(this);
     return this.#_handler
   }
   get target() {
@@ -3335,7 +3333,7 @@ class Content extends EventTarget {
   }
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
-    this.#_handler = new Handler$1(this, {
+    this.#_handler = new Handler$2(this, {
       traps: this.options.traps,
     });
     return this.#_handler
@@ -3442,27 +3440,109 @@ class CoreEvent {
   }
 }
 
+// Core Class Instantiation
+function CoreClassInstantiator($propertyClass, $property, $value) {
+  const { core, target, Class, ClassInstantiator, Names } = $propertyClass;
+  const valueInstanceOfClass = $value instanceof Class;
+  if(valueInstanceOfClass === false) {
+    const parent = core;
+    const path = (core.path)
+      ? [core.path, Names.Multiple.Nonformal, $property].join('.')
+      : [Names.Multiple.Nonformal, $property].join('.');
+    const propertyClassInstanceParameters = [].concat($value);
+    const $settings = Object.assign({ path, parent }, propertyClassInstanceParameters.shift());
+    const $options = propertyClassInstanceParameters.shift();
+    target[$property] = new Class($settings, $options);
+  }
+  else if(valueInstanceOfClass === true) {
+    if($value.parent === undefined && $value.path === undefined) {
+      $value.parent = parent;
+      $value.path = path;
+    }
+    target[$property] = $value;
+  }
+  return target[$property]
+}
+// Core Class Deinstantiation
+function CoreClassDeinstantiator($propertyClass, $property) {
+  const { target } = $propertyClass;
+  return delete target[$property]
+}
+
+class Handler {
+  #propertyClass
+  constructor($propertyClass) {
+    this.#propertyClass = $propertyClass;
+  }
+  get get() {
+    return function($target, $property) {
+      return $target[$property]
+    }
+  }
+  get set() {
+    const { ClassInstantiator } = this.#propertyClass;
+    return function($target, $property, $value) {
+      ClassInstantiator(this.#propertyClass, $property, $value);
+      return $target[$property]
+    }
+  }
+  get deleteProperty() {
+    const { ClassDeinstantiator } = this.#propertyClass;
+    return function($target, $property) {
+      ClassDeinstantiator(this.#propertyClass, $property);
+      return true
+    }
+  }
+}
+
+class PropertyClass {
+  #settings
+  #_core
+  #_target
+  #_handler
+  #_proxy
+  constructor($settings, $core) {
+    this.#settings = $settings;
+    this.core = $core;
+    return this.proxy
+  }
+  get core() { return this.#_core }
+  set core($core) {
+    if(this.#_core !== undefined) return
+    this.#_core = $core;
+    return this.#_core
+  }
+  get target() {
+    if(this.#_target !== undefined) { return this.#_target }
+    this.#_target = {};
+    return this.#_target
+  }
+  get handler() {
+    if(this.#_handler !== undefined) { return this.#_handler }
+    this.#_handler = new Handler(this);
+    return this.#_handler
+  }
+  get proxy() {
+    if(this.#_proxy !== undefined) { return this.#_proxy }
+    this.#_proxy = new Proxy(this.target, this.handler);
+    return this.#_proxy
+  }
+  get Class() { return this.#settings.Class }
+  get ClassInstantiator() { return this.#settings.ClassInstantiator }
+  get ClassDeinstantiator() { return this.#settings.ClassDeinstantiator }
+  get Names() { return this.#settings.Names }
+  get Events() { return this.#settings.Events }
+}
+
 var Settings$4 = {
+  events: {},
   propertyClasses: {},
-  events: [],
 };
 
 var Options$4 = {
   defineProperties: {},
   assign: [],
 };
-
-function CoreClassInstantiator() {
-  const $arguments = [...arguments];
-  const Class = $arguments.slice(0, 1)[0];
-  const Parameters = $arguments.slice(1);
-  return new Class(...Parameters)
-}
-function CoreClassDeinstantiator() {
-  const $arguments = [...arguments];
-  const $classInstance = $arguments.shift();
-  return $classInstance
-}
 
 class Core extends EventTarget {
   #_settings
@@ -3481,117 +3561,87 @@ class Core extends EventTarget {
     this.#assign();
     this.#defineProperties();
   }
-  #parseAddPropertyClassInstanceMethodArguments() {
-    const $arguments = [...arguments];
-    if($arguments.length === 1) {
-      const $propertyClassInstanceDefinitions = $arguments.shift();
-      return { $propertyClassInstanceDefinitions }
-    }
-    else if($arguments.length >= 2) {
-      const $propertyClassInstanceName = $arguments.shift();
-      $arguments.shift();
-      return { $propertyClassInstanceName, $propertyClassInstanceDefinition }
-    }
-  }
   get #propertyClasses() {
     if(this.#_propertyClasses !== undefined) return this.#_propertyClasses
-    Array.isArray(this.settings.propertyClasses);
     this.#_propertyClasses = this.settings.propertyClasses;
     const $this = this;
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
     ] of Object.entries(this.#_propertyClasses)) {
-      const { Class, ClassInstantiator, Names, Events } = $propertyClassInstantiatorSettings;
+      const { Names } = $propertyClassInstantiatorSettings;
+      const propertyClassStoreName = `_${$propertyClassName}`;
       Object.defineProperties(this, {
-        [Names.Multiple.Nonformal]: {
-          configurable: false, enumerable: false, value: {}, writable: false,
+        [propertyClassStoreName]: {
+          configurable: false, enumerable: false, writable: true,
+          value: undefined,
         },
-        // Add Property
-        [`add${Names.Multiple.Formal}`]: {
-          value: function() {
-            const $arguments = this.#parseAddPropertyClassInstanceMethodArguments(...arguments);
-            const {
-              $propertyClassInstanceDefinitions, $propertyClassInstanceName, $propertyClassInstanceDefinition
-            } = $arguments;
-            if(/*$arguments.*/$propertyClassInstanceDefinitions) {
-              const classInstances = $this[Names.Multiple.Nonformal];
-              for(const [
-                $propertyClassInstanceName, $propertyClassInstanceParameters
-              ] of Object.entries(/*$arguments.*/$propertyClassInstanceDefinitions)) {
-                const path = ($this.path)
-                  ? [$this.path, Names.Multiple.Nonformal, $propertyClassInstanceName].join('.')
-                  : [Names.Multiple.Nonformal, $propertyClassInstanceName].join('.');
-                const parent = $this;
-                const propertyClassInstanceParameters = [].concat($propertyClassInstanceParameters);
-                if($propertyClassInstanceParameters instanceof Class) {
-                  classInstances[Names.Monople.Nonformal] = $propertyClassInstanceParameters;
-                }
-                else {
-                  const [$settings, $options] = propertyClassInstanceParameters;
-                  classInstances[Names.Monople.Nonformal] = CoreClassInstantiator(
-                    Class, recursiveAssign({ path, parent }, $settings), $options
-                  );
-                }
-              }
+        [$propertyClassName]: {
+          get() {
+            if($this[propertyClassStoreName] !== undefined) {
+              return $this[propertyClassStoreName]
             }
-            else if(/*$arguments.*/$propertyClassInstanceName && /*$arguments.*/$propertyClassInstanceDefinition) {
-              const path = ($this.path)
-                ? [$this.path, Names.Multiple.Nonformal, $propertyClassInstanceName].join('.')
-                : [Names.Multiple.Nonformal, $propertyClassInstanceName].join('.');
-              const parent = $this;
-              const propertyClassInstanceParameters = [].concat($propertyClassInstanceParameters);
-              if($propertyClassInstanceParameters instanceof Class) {
-                classInstances[Names.Monople.Nonformal] = $propertyClassInstanceParameters;
-              }
-              else {
-                const [$settings, $options] = propertyClassInstanceParameters;
-                classInstances[Names.Monople.Nonformal] = CoreClassInstantiator(
-                  Class, recursiveAssign({ path, parent }, $settings), $options
-                );
-              }
+            $this[propertyClassStoreName] = new PropertyClass(
+              $propertyClassInstantiatorSettings, $this
+            );
+            return $this[propertyClassStoreName]
+          },
+          set($propertyClassInstances) {
+            const propertyClassInstances = $this[$propertyClassName];
+            const propertyClassInstancesEntries = (
+              Array.isArray($propertyClassInstances)
+            ) ? $propertyClassInstances
+              : Object.entries($propertyClassInstances);
+            for(const [
+              $propertyClassInstanceName, $propertyClassInstance
+            ] of propertyClassInstancesEntries) {
+              propertyClassInstances[$propertyClassInstanceName] = $propertyClassInstance;
             }
           }
         },
-        // Remove Property
-        [`remove${Names.Multiple.Formal}`]: {
+        [`add${Names.Multiple.Formal}`]: {
+          configurable: false, enumerable: true, writable: false, 
           value: function() {
             const $arguments = [...arguments];
-            const removePropertyKeys = [];
-            // Remove All Properties
-            if($arguments.length === 0) {
-              removePropertyKeys.push(...this[Names.Multiple.Nonformal].keys());
-            }
-            // Remove Some Properties
-            else if($arguments.length === 1) {
-              // Remove One Property
-              if(typeof $arguments[0] === 'string') {
-                removePropertyKeys.push($arguments[0]);
+            if($arguments.length === 1) {
+              const [$values] = $arguments;
+              if(Array.isArray($values)) {
+                $this[$propertyClassName] = Object.fromEntries($value);
               }
-              else if($arguments[0] && typeof $arguments[0] === 'object') {
-                // Remove Array Of Properties
-                if(
-                  Array.isArray($arguments[0] &&
-                  !$arguments[0].find(($key) => typeof $key !== 'string'))
-                ) { removePropertyKeys.push(...$arguments[0]); }
-                // Remove Array of Property Keys
-                else { removePropertyKeys.push(...Object.keys($arguments[0])); }
+              else {
+                $this[$propertyClassName] = $value;
               }
             }
-            for(const $removePropertyKey of removePropertyKeys) {
-              CoreClassDeinstantiator(this[Names.Multiple.Nonformal][$removePropertyKey]);
-              delete this[Names.Multiple.Nonformal][$removePropertyKey];
+            else if($arguments.length === 2) {
+              const [$key, $value] = $arguments;
+              $this[$propertyClassName] = { [$key]: $value };
+            }
+          }
+        },
+        [`remove${Names.Multiple.Formal}`]: {
+          configurable: false, enumerable: true, writable: false, 
+          value: function() {
+            const [$removeKeys] = [...arguments];
+            const removeKeys = [];
+            const typeofRemoveKeys = typeof $arguments[0];
+            if(typeofRemoveKeys === 'string') { removeKeys.push($arguments[0]); }
+            else if(typeofRemoveKeys === 'object') {
+              if(Array.isArray($removeKeys)) { removeKeys.push(...$removeKeys); }
+              else { removeKeys.push(...Object.keys($removeKeys)); }
+            }
+            for(const $removeKey of $removeKeys) {
+              delete $this[$propertyClassName][$removeKey];
             }
           }
         },
       });
-      this[`add${Names.Multiple.Formal}`](this.settings[Names.Multiple.Nonformal]);
+      this[$propertyClassName] = this.settings[$propertyClassName];
     }
     return this.#_propertyClasses
   }
   get settings() { return this.#_settings }
   set settings($settings) {
     if(this.#_settings !== undefined) return
-    this.#_settings = recursiveAssignConcat(structuredClone(Settings$4), $settings);
+    this.#_settings = Object.assign({}, Settings$4, $settings);
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
     ] of Object.entries(this.#_settings.propertyClasses)) {
@@ -3619,16 +3669,24 @@ class Core extends EventTarget {
     if(this.#_path !== undefined) return this.#_path
     this.#_path = (this.settings.path !== undefined)
       ? this.settings.path
-      : null;
+      : undefined;
     return this.#_path
+  }
+  set path($path) {
+    if(this.#_path !== undefined) return
+    this.#_path = $path;
   }
   get parent() {
     if(this.#_parent !== undefined) return this.#_parent
     this.#_parent = (
       this.settings.parent !== undefined
     ) ? this.settings.parent
-      : null;
+      : undefined;
     return this.#_parent
+  }
+  set parent($parent) {
+    if(this.#_parent !== undefined) return
+    this.#_parent = $parent;
   }
   get root() {
     let root = this;
@@ -3669,9 +3727,7 @@ class Core extends EventTarget {
   }
   addEvents() {
     const { events } = this;
-    let $events;
-    if(arguments.length === 0) { $events = this.settings.events; }
-    else if(arguments.length === 1) { $events = expandEvents(arguments[0]); }
+    const $events = expandEvents(arguments[0] || this.settings.events);
     for(let $event of $events) {
       $event = Object.assign({}, $event, { context: this });
       events.push(new CoreEvent($event));
@@ -4369,7 +4425,6 @@ var Settings$2 = {
   scope: 'template', // 'parent',
   templates: { default: () => `` },
   querySelectors: {},
-  events: {},
 };
 
 var Options$2 = {
@@ -4390,10 +4445,9 @@ class View extends Core {
       Object.assign({}, Options$2, $options),
     );
     this.addQuerySelectors(this.settings.querySelectors);
-    const { enableQuerySelectors, enableEvents } = this.settings;
+    const { enableQuerySelectors, enableEvents } = this.options;
     if(enableQuerySelectors) this.enableQuerySelectors();
     if(enableEvents) this.enableEvents();
-
   }
   get templates() {
     if(this.#_templates !== undefined) return this.#_templates
@@ -5387,7 +5441,6 @@ var Settings = {
   controls: {},
   fetchRouters: {},
   locationRouters: {},
-  events: [],
 };
 
 var Options = {
@@ -5450,10 +5503,9 @@ class Control extends Core {
       }, Settings, $settings),
       recursiveAssign({}, Options, $options),
     );
-    // this.addClassInstances($settings)
-    // if(this.options.enableEvents === true) this.enableEvents()
+    const { enableEvents } = this.options;
+    if(enableEvents) this.enableEvents();
   }
-  
 }
 
 export { Content, Control, Core, index as Coutil, FetchRouter, LocationRouter, Model, Schema, Validation, Validator, Verification, View };

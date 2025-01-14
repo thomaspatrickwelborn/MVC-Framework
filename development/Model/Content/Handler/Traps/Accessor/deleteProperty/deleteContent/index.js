@@ -3,8 +3,6 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function deleteContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  // const { events } = $options
-  console.log($content)
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
   // Arguments
