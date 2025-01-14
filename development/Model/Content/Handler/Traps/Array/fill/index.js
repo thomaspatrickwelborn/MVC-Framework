@@ -4,7 +4,7 @@ export default function fill() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { source, path, schema } = $content
+  const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments]
@@ -12,19 +12,19 @@ export default function fill() {
   if(typeof $arguments[1] === 'number') {
     $start = ($arguments[1] >= 0)
       ? $arguments[1]
-      : source.length + $arguments[1]
+      : target.length + $arguments[1]
   }
   else { $start = 0 }
   let $end
   if(typeof $arguments[2] === 'number') {
     $end = ($arguments[2] >= 0)
       ? $arguments[2]
-      : source.length + $arguments[2]
-  } else { $end = source.length }
+      : target.length + $arguments[2]
+  } else { $end = target.length }
   let fillIndex = $start
   iterateFillIndexes: 
   while(
-    fillIndex < source.length &&
+    fillIndex < target.length &&
     fillIndex < $end
   ) {
     if(schema && enableValidation) {
@@ -34,7 +34,7 @@ export default function fill() {
         const validatorPath = (path)
           ? [path, fillIndex].join('.')
           : String(fillIndex)
-        if(validSourceProp.valid) {
+        if(validValue.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', fillIndex].join('')
         }
@@ -43,7 +43,7 @@ export default function fill() {
           propertyType = ['nonvalidProperty', ':', fillIndex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
+          $content.dispatchEvent(new ValidatorEvent($eventType, validValue, $content))
         }
       }
       if(!validValue.valid) { continue iterateFillIndexes }
@@ -61,7 +61,7 @@ export default function fill() {
       })
     }
     Array.prototype.fill.call(
-      source, value, fillIndex, fillIndex + 1
+      target, value, fillIndex, fillIndex + 1
     )
     // Array Fill Index Event
     if(events) {

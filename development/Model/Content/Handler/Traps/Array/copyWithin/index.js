@@ -3,33 +3,33 @@ export default function copyWithin() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { source, path } = $content
+  const { target, path } = $content
   const { enableValidation, validationEvents } = $content.options
   const $arguments = [...arguments]
-  const target = (
+  const copyTarget = (
     arguments[0] >= 0
   ) ? arguments[0]
-    : source.length = arguments[0]
+    : target.length = arguments[0]
   const start = (
     arguments[1] >= 0
   ) ? arguments[1]
-    : source.length + arguments[1]
+    : target.length + arguments[1]
   const end = (
     arguments[2] === undefined
-  ) ? source.length
+  ) ? target.length
     : (
     arguments[2] >= 0
   ) ? arguments[2]
-    : source.length + arguments[2]
+    : target.length + arguments[2]
   const copiedItems = []
   let copyIndex = start
-  let targetIndex = target
+  let targetIndex = copyTarget
   iterateCopyIndex: 
   while(copyIndex < end) {
-    const copyItem = source[copyIndex]
+    const copyItem = target[copyIndex]
     copiedItems.push(copyItem)
     Array.prototype.copyWithin.call(
-      source,
+      target,
       targetIndex,
       copyIndex,
       copyIndex + 1
@@ -88,7 +88,7 @@ export default function copyWithin() {
         {
           path,
           detail: {
-            target: target,
+            target: copyTarget,
             start: start,
             end: end,
             items: copiedItems,

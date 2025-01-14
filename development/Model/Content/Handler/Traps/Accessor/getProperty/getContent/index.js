@@ -3,7 +3,7 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function getContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { source, path } = $content
+  const { target, path } = $content
   const ulteroptions = Object.assign({}, $options, arguments[0] || {})
   const { events } = ulteroptions
   // Get Property Event

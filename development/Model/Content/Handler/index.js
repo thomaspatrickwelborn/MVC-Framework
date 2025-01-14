@@ -19,7 +19,7 @@ export default class Handler {
   get get() {
     const content = this.#content
     const traps = this.#traps
-    const { source, schema, path } = content
+    const { target, schema, path } = content
     return function get($target, $property, $receiver) {
       // Accessor Traps
       if(this.#isAccessorProperty($property)) {

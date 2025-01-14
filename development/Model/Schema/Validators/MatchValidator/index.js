@@ -4,7 +4,7 @@ export default class MatchValidator extends Validator {
   constructor($settings = {}, $schema) {
     super(Object.assign($settings, {
       type: 'match',
-      validate: ($key, $value, $source, $target) => {
+      validate: ($key, $value) => {
         const definition = this.settings
         let pass
         if(![

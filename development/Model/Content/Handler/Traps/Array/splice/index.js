@@ -4,18 +4,18 @@ export default function splice() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { source, path, schema } = $content
+  const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
   const $arguments = [...arguments]
   const $start = ($arguments[0] >= 0)
     ? $arguments[0]
-    : source.length + $arguments[0]
+    : target.length + $arguments[0]
   const $deleteCount = ($arguments[1] <= 0)
     ? 0
     : (
       $arguments[1] === undefined ||
-      $start + $arguments[1] >= source.length
-    ) ? source.length - $start
+      $start + $arguments[1] >= target.length
+    ) ? target.length - $start
       : $arguments[1]
   const $addItems = $arguments.slice(2)
   const addCount = $addItems.length
@@ -23,7 +23,7 @@ export default function splice() {
   let deleteItemsIndex = 0
   spliceDelete:
   while(deleteItemsIndex < $deleteCount) {
-    const deleteItem = Array.prototype.splice.call(source, $start, 1)[0]
+    const deleteItem = Array.prototype.splice.call(target, $start, 1)[0]
     deleteItems.push(deleteItem)
     // Array Splice Delete Event
     if(events) {
@@ -72,7 +72,7 @@ export default function splice() {
         const validatorEventPath = (path)
           ? [path, addItemsIndex].join('.')
           : String(addItemsIndex)
-        if(validSourceProp.valid) {
+        if(validAddItem.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', addItemsIndex].join('')
         }
@@ -81,7 +81,7 @@ export default function splice() {
           propertyType = ['nonvalidProperty', ':', addItemsIndex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
+          $content.dispatchEvent(new ValidatorEvent($eventType, validAddItem, $content))
         }
       }
       if(!validAddItem.valid) { addItemsIndex++; continue spliceAdd }
@@ -99,13 +99,13 @@ export default function splice() {
         parent: proxy,
       })
       Array.prototype.splice.call(
-        source, startIndex, 0, addItem
+        target, startIndex, 0, addItem
       )
     }
     // Add Item: Primitive Type
     else {
       Array.prototype.splice.call(
-        source, startIndex, 0, addItem
+        target, startIndex, 0, addItem
       )
     }
     // Array Splice Add Event
@@ -152,7 +152,7 @@ export default function splice() {
           $start,
           deleted: deleteItems,
           added: $addItems,
-          length: source.length,
+          length: target.length,
         },
       },
       $content)

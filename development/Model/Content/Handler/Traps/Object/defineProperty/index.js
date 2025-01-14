@@ -5,15 +5,15 @@ export default function defineProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { descriptorTree, events } = $options
-  const { source, path, schema, proxy } = $content
+  const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
   const propertyKey = arguments[0]
   const propertyDescriptor = arguments[1]
   const propertyValue = propertyDescriptor.value
-  const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor(source, propertyKey) || {}
-  const sourcePropertyValue = sourcePropertyDescriptor.value
-  const sourcePropertyValueIsContentInstance = (
-    sourcePropertyValue?.classToString === Content.toString()
+  const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, propertyKey) || {}
+  const targetPropertyValue = targetPropertyDescriptor.value
+  const targetPropertyValueIsContentInstance = (
+    targetPropertyValue?.classToString === Content.toString()
   ) ? true : false
   // Validation
   if(schema && enableValidation) {
@@ -43,7 +43,7 @@ export default function defineProperty() {
   const change = {
     preter: {
       key: propertyKey,
-      value: source[propertyKey],
+      value: target[propertyKey],
     },
     anter: {
       key: propertyKey,
@@ -62,22 +62,22 @@ export default function defineProperty() {
     const contentPath = (path)
       ? [path, propertyKey].join('.')
       : String(propertyKey)
-    if(sourcePropertyValueIsContentInstance) {
+    if(targetPropertyValueIsContentInstance) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
         // propertyValue = Object.assign(propertyValue, { path: contentPath, parent: proxy })
-        sourcePropertyValue.defineProperties(propertyValue)
+        targetPropertyValue.defineProperties(propertyValue)
       }
       // Descriptor Tree: false
       else {
-        Object.defineProperty(source, propertyKey, propertyDescriptor)
+        Object.defineProperty(target, propertyKey, propertyDescriptor)
       }
     }
     // Root Property Descriptor Value: New Content Instance
     else {
-      let _source = typedObjectLiteral(propertyValue)
+      let _target = typedObjectLiteral(propertyValue)
       const contentObject = new Content(
-        _source, subschema, {
+        _target, subschema, {
           path: contentPath,
           parent: proxy,
         }
@@ -85,22 +85,22 @@ export default function defineProperty() {
       // Root Define Properties, Descriptor Tree
       if(descriptorTree === true) {
         contentObject.defineProperties(propertyValue)
-        source[propertyKey] = contentObject
+        target[propertyKey] = contentObject
       } else 
       // Root Define Properties, No Descriptor Tree
       if(descriptorTree === false) {
-        Object.defineProperty(source, propertyKey, propertyDescriptor)
+        Object.defineProperty(target, propertyKey, propertyDescriptor)
       }
     }
   }
   // Property Descriptor Value: Primitive Type
   else {
-    Object.defineProperty(source, propertyKey, propertyDescriptor)
+    Object.defineProperty(target, propertyKey, propertyDescriptor)
   }
   change.anter.value = propertyValue
-  change.conter = (sourcePropertyValueIsContentInstance)
-    ? (sourcePropertyValue.string !== JSON.stringify(propertyValue))
-    : (JSON.stringify(sourcePropertyValue) !== JSON.stringify(propertyValue))
+  change.conter = (targetPropertyValueIsContentInstance)
+    ? (targetPropertyValue.string !== JSON.stringify(propertyValue))
+    : (JSON.stringify(targetPropertyValue) !== JSON.stringify(propertyValue))
   // Define Property Event
   if(events) {
     const contentEventPath = (path)

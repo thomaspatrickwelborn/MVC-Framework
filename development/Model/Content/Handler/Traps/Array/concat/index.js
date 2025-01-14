@@ -4,7 +4,7 @@ export default function concat() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { source, path, schema } = $content
+  const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
   const { proxy } = $content
   const $arguments = [...arguments].reduce(($arguments, $argument) => {
@@ -12,9 +12,9 @@ export default function concat() {
     else { $arguments.push($argument) }
     return $arguments
   }, [])
-  let valueIndex = source.length
+  let valueIndex = target.length
   const values = []
-  let sourceConcat = [...Array.from(source)]
+  let targetConcat = [...Array.from(target)]
   let proxyConcat
   iterateValues: 
   for(const $value of $arguments) {
@@ -26,7 +26,7 @@ export default function concat() {
         const validatorPath = (path)
           ? [path, valueIndex].join('.')
           : String(valueIndex)
-        if(validSourceProp.valid) {
+        if(validValue.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', valueIndex].join('')
         }
@@ -35,7 +35,7 @@ export default function concat() {
           propertyType = ['nonvalidProperty', ':', valueIndex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
+          $content.dispatchEvent(new ValidatorEvent($eventType, validValue, $content))
         }
       }
       if(!validValue.valid) { valueIndex++; continue iterateValues }
@@ -58,7 +58,7 @@ export default function concat() {
     else {
       values[valueIndex] = $value
     }
-    sourceConcat = Array.prototype.concat.call(sourceConcat, values[valueIndex])
+    targetConcat = Array.prototype.concat.call(targetConcat, values[valueIndex])
     if(events) {
       const contentEventPath = (path)
         ? [path, valueIndex].join('.')
@@ -91,7 +91,7 @@ export default function concat() {
     }
     valueIndex++
   }
-  proxyConcat = new Content(sourceConcat, schema, $content.options)
+  proxyConcat = new Content(targetConcat, schema, $content.options)
   if(events && events['concat']) {
     $content.dispatchEvent(
       new ContentEvent('concat', {

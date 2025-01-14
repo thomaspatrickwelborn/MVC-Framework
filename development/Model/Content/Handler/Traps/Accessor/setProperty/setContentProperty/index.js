@@ -4,7 +4,7 @@ import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function setContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { source, path, schema, proxy } = $content
+  const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
   // Arguments
   const $path = arguments[0]
@@ -30,7 +30,7 @@ export default function setContentProperty() {
       : String(propertyKey)
     // Return: Subproperty
     if(subpaths.length) {
-      if(recursive && source[propertyKey] === undefined) {
+      if(recursive && target[propertyKey] === undefined) {
         // Subschema
         let subschema
         if(schema?.type === 'array') { subschema = schema.context[0] }
@@ -50,7 +50,7 @@ export default function setContentProperty() {
         }))
       }
       else {
-        propertyValue = source[propertyKey]
+        propertyValue = target[propertyKey]
       }
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
@@ -59,13 +59,13 @@ export default function setContentProperty() {
     }
     // Validation
     if(schema && enableValidation) {
-      const validSourceProp = schema.validateProperty(propertyKey, $value, $content, proxy)
+      const validTargetProp = schema.validateProperty(propertyKey, $value, $content, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)
           ? [path, propertyKey].join('.')
           : String(propertyKey)
-        if(validSourceProp.valid) {
+        if(validTargetProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', propertyKey].join('')
         }
@@ -74,15 +74,15 @@ export default function setContentProperty() {
           propertyType = ['nonvalidProperty', ':', propertyKey].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
+          $content.dispatchEvent(new ValidatorEvent($eventType, validTargetProp, $content))
         }
       }
-      if(!validSourceProp.valid) { return }
+      if(!validTargetProp.valid) { return }
     }
     const change = {
       preter: {
         key: propertyKey,
-        value: source[propertyKey],
+        value: target[propertyKey],
       },
       anter: {
         key: propertyKey,
@@ -111,7 +111,7 @@ export default function setContentProperty() {
       propertyValue = $value
     }
     // Root Assignment
-    source[propertyKey] = propertyValue
+    target[propertyKey] = propertyValue
     // Set Property Event
     if(events) {
       const contentEventPath = (path)
@@ -170,7 +170,7 @@ export default function setContentProperty() {
     // Property Value: Primitive Literal
     else { propertyValue = $value }
     // Root Assignment
-    source[propertyKey] = propertyValue
+    target[propertyKey] = propertyValue
     // Set Property Event
     if(events) {
       const contentEventPath = (path)

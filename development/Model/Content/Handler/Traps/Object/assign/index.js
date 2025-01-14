@@ -4,7 +4,7 @@ import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function assign() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { path, source, schema, proxy } = $content
+  const { path, target, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
   const { sourceTree } = $options
   const events = ($content.options.events !== undefined) ? $content.options.events : $options.events
@@ -19,10 +19,10 @@ export default function assign() {
     // Iterate Source Props
     iterateSourceProps:
     for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
-      let sourcePropVal = source[$assignSourcePropKey]
+      let targetPropVal = target[$assignSourcePropKey]
       let assignSourcePropVal
-      const sourcePropValIsContentInstance = (
-        source[$assignSourcePropKey]?.classToString === Content.toString()
+      const targetPropValIsContentInstance = (
+        target[$assignSourcePropKey]?.classToString === Content.toString()
       ) ? true : false
       // Validation
       if(schema && enableValidation) {
@@ -47,7 +47,7 @@ export default function assign() {
       const change = {
         preter: {
           key: $assignSourcePropKey,
-          value: source[$assignSourcePropKey],
+          value: target[$assignSourcePropKey],
         },
         anter: {
           key: $assignSourcePropKey,
@@ -74,35 +74,35 @@ export default function assign() {
         let assignment
         // Source Tree: False
         if(sourceTree === false) {
-          sourcePropVal = new Content(contentTypedLiteral, subschema, 
+          targetPropVal = new Content(contentTypedLiteral, subschema, 
             recursiveAssign({}, $content.options, {
               path: contentPath,
               parent: proxy,
             })
           )
-          sourcePropVal.assign($assignSourcePropVal)
-          assignment = { [$assignSourcePropKey]: sourcePropVal }
+          targetPropVal.assign($assignSourcePropVal)
+          assignment = { [$assignSourcePropKey]: targetPropVal }
         }
         // Source Tree: true
         else {
           // Assignment: Existing Content Instance
-          if(sourcePropValIsContentInstance) {
-            sourcePropVal.assign($assignSourcePropVal)
+          if(targetPropValIsContentInstance) {
+            targetPropVal.assign($assignSourcePropVal)
           }
           // Assignment: New Content Instance
           else {
-            sourcePropVal = new Content(contentTypedLiteral, subschema, 
+            targetPropVal = new Content(contentTypedLiteral, subschema, 
               recursiveAssign({}, $content.options, {
                 path: contentPath,
                 parent: proxy,
               })
             )
-            sourcePropVal.assign($assignSourcePropVal)
+            targetPropVal.assign($assignSourcePropVal)
           }
-          assignment = { [$assignSourcePropKey]: sourcePropVal }
+          assignment = { [$assignSourcePropKey]: targetPropVal }
         }
         // Assignment
-        Object.assign(source, assignment)
+        Object.assign(target, assignment)
         Object.assign(assignedSource, assignment)
       }
       // Source Prop: Primitive Type
@@ -111,15 +111,15 @@ export default function assign() {
           [$assignSourcePropKey]: $assignSourcePropVal
         }
         // Assign Root
-        Object.assign(source, assignment)
+        Object.assign(target, assignment)
         // Assigned Source
         Object.assign(assignedSource, assignment)
       }
-      change.anter.value = sourcePropVal
-      change.conter = (sourcePropValIsContentInstance)
-        ? (sourcePropVal.string !== JSON.stringify(sourcePropVal))
-        : (JSON.stringify(sourcePropVal) !== JSON.stringify(sourcePropVal))
-      change.anter.value = sourcePropVal
+      change.anter.value = targetPropVal
+      change.conter = (targetPropValIsContentInstance)
+        ? (targetPropVal.string !== JSON.stringify(targetPropVal))
+        : (JSON.stringify(targetPropVal) !== JSON.stringify(targetPropVal))
+      change.anter.value = targetPropVal
       // Content Event: Assign Source Property
       if(events) {
         const contentEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey)

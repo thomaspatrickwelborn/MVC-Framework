@@ -11,8 +11,8 @@ export default {
         return function() {
           const $content = Array.prototype.shift.call(arguments)
           const $options = Array.prototype.shift.call(arguments)
-          const { source } = $content
-          return Array.prototype.entries.call(source)
+          const { target } = $content
+          return Array.prototype.entries.call(target)
         }
       }
     },
@@ -26,8 +26,8 @@ export default {
         return function() {
           const $content = Array.prototype.shift.call(arguments)
           const $options = Array.prototype.shift.call(arguments)
-          const { source } = $content
-          return Object.getOwnPropertyDescriptor(source, ...arguments)
+          const { target } = $content
+          return Object.getOwnPropertyDescriptor(target, ...arguments)
         }
       }
     }
@@ -42,8 +42,8 @@ export default {
         return function() {
           const $content = Array.prototype.shift.call(arguments)
           const $options = Array.prototype.shift.call(arguments)
-          const { source } = $content
-          return Array.prototype[$methodName].call(source)
+          const { target } = $content
+          return Array.prototype[$methodName].call(target)
         }
       }
     },
@@ -59,8 +59,8 @@ export default {
         return function() {
           const $content = Array.prototype.shift.call(arguments)
           const $options = Array.prototype.shift.call(arguments)
-          const { source } = $content
-          return Array.prototype[$methodName].call(source, ...arguments)
+          const { target } = $content
+          return Array.prototype[$methodName].call(target, ...arguments)
         }
       }
     }

@@ -4,13 +4,13 @@ export default function seal() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { recursive, events } = $options
-  const { source, path } = $content
+  const { target, path } = $content
   const { proxy } = $content
   if(recursive === true) {
     iterateProperties: 
     for(const [
       $propertyKey, $propertyValue
-    ] of Object.entries(source)) {
+    ] of Object.entries(target)) {
       if($propertyValue.classToString === Content.toString()) {
         $propertyValue.seal()
       }
@@ -26,6 +26,6 @@ export default function seal() {
       }
     }
   }
-  Object.seal(source)
+  Object.seal(target)
   return proxy
 }

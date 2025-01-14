@@ -4,7 +4,7 @@ export default class EnumValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'enum',
-      validate: ($key, $value, $source, $target) => {
+      validate: ($key, $value) => {
         const definition = this.definition
         console.log(definition)
         let pass

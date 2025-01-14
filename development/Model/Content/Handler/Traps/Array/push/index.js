@@ -4,7 +4,7 @@ export default function push() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
-  const { source, path, schema } = $content
+  const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
   const { proxy } = $content
   const elements = []
@@ -19,7 +19,7 @@ export default function push() {
         const validatorPath = (path)
           ? [path, elementsIndex].join('.')
           : String(elementsIndex)
-        if(validSourceProp.valid) {
+        if(validElement.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', elementsIndex].join('')
         }
@@ -28,10 +28,10 @@ export default function push() {
           propertyType = ['nonvalidProperty', ':', elementsIndex].join('')
         }
         for(const $eventType of [type, propertyType]) {
-          $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
+          $content.dispatchEvent(new ValidatorEvent($eventType, validElement, $content))
         }
       }
-      if(!validElement.valid) { return source.length }
+      if(!validElement.valid) { return target.length }
     }
     const contentPath = (path)
       ? [path, elementsIndex].join('.')
@@ -44,10 +44,10 @@ export default function push() {
         parent: proxy,
       })
       elements.push($element)
-      Array.prototype.push.call(source, $element)
+      Array.prototype.push.call(target, $element)
     } else {
       elements.push($element)
-      Array.prototype.push.call(source, $element)
+      Array.prototype.push.call(target, $element)
     }
     if(events) {
       const contentEventPath = (path)
@@ -92,5 +92,5 @@ export default function push() {
       }, $content)
     )
   }
-  return source.length
+  return target.length
 }

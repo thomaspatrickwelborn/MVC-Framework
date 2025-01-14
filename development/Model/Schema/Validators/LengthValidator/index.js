@@ -4,7 +4,7 @@ export default class LengthValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'length',
-      validate: ($key, $value, $source, $target) => {
+      validate: ($key, $value) => {
         const definition = this.definition
         let pass
         if(typeof $value !== 'string') { pass = false }

@@ -1,5 +1,5 @@
 export default {
-  schema: undefined, // Schema
-  content: undefined, // Content
+  schema: undefined, // Schema Settings
+  content: undefined, // Content Settings
   localStorage: false, // Boolean, String,
 }

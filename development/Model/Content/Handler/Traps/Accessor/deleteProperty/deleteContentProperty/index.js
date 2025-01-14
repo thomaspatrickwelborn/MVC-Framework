@@ -4,9 +4,8 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function deleteContentProperty() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { source, path, schema, proxy } = $content
+  const { target, path, schema, proxy } = $content
   const { enableValidation, /* validationEvents */ } = $content.options
-  // const  = $options
   // Arguments
   const $path = arguments[0]
   const ulteroptions = recursiveAssign({
@@ -21,7 +20,7 @@ export default function deleteContentProperty() {
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
     const propertyKey = subpaths.shift()
-    let propertyValue = source[propertyKey]
+    let propertyValue = target[propertyKey]
 
     // Return: Subproperty
     if(subpaths.length) {
@@ -33,13 +32,13 @@ export default function deleteContentProperty() {
     if(schema && enableValidation) {
       const differedPropertyProxy = proxy.object
       delete differedPropertyProxy[propertyKey]
-      const validSourceProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)
           ? [path, propertyKey].join('.')
           : String(propertyKey)
-        if(validSourceProp.valid) {
+        if(validTargetProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', propertyKey].join('')
         }
@@ -49,16 +48,16 @@ export default function deleteContentProperty() {
         }
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
-            new ValidatorEvent($eventType, validSourceProp, $content)
+            new ValidatorEvent($eventType, validTargetProp, $content)
           )
         }
       }
-      if(!validSourceProp.valid) { return }
+      if(!validTargetProp.valid) { return }
     }
     if(typeof propertyValue === 'object') {
       propertyValue.delete(ulteroptions)
     }
-    delete source[propertyKey]
+    delete target[propertyKey]
     // Delete Property Event
     if(events) {
       if(events['deleteProperty']) {
@@ -92,19 +91,19 @@ export default function deleteContentProperty() {
   // Path Key: false
   else if(pathkey === false) {
     const propertyKey = $path
-    const propertyValue = source[propertyKey]
+    const propertyValue = target[propertyKey]
 
     // Validation
     if(schema && enableValidation) {
       const differedPropertyProxy = proxy.object
       delete differedPropertyProxy[propertyKey]
-      const validSourceProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)
           ? [path, propertyKey].join('.')
           : String(propertyKey)
-        if(validSourceProp.valid) {
+        if(validTargetProp.valid) {
           type = 'validProperty'
           propertyType = ['validProperty', ':', propertyKey].join('')
         }
@@ -114,17 +113,17 @@ export default function deleteContentProperty() {
         }
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
-            new ValidatorEvent($eventType, validSourceProp, $content)
+            new ValidatorEvent($eventType, validTargetProp, $content)
           )
         }
       }
-      if(!validSourceProp.valid) { return }
+      if(!validTargetProp.valid) { return }
     }
   
     if(propertyValue instanceof Content) {
       propertyValue.delete(ulteroptions)
     }
-    delete source[propertyKey]
+    delete target[propertyKey]
     // Delete Property Event
     if(events) {
       if(events['deleteProperty']) {

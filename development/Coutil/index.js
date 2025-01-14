@@ -7,6 +7,7 @@ import objectCount from './objectCount/index.js'
 import * as path from './path/index.js'
 import pathkeytree from './pathkeytree/index.js'
 import recursiveAssign from './recursiveAssign/index.js'
+import recursiveAssignConcat from './recursiveAssignConcat/index.js'
 import regularExpressions from './regularExpressions/index.js'
 import * as tree from './tree/index.js'
 import typeOf from './typeOf/index.js'
@@ -26,6 +27,7 @@ export {
   path, 
   pathkeytree,
   recursiveAssign, 
+  recursiveAssignConcat, 
   regularExpressions, 
   tree, 
   typeOf, 

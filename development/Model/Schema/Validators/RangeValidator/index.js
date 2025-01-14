@@ -4,7 +4,7 @@ export default class RangeValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'range',
-      validate: ($key, $value, $source, $target) => {
+      validate: ($key, $value) => {
         const definition = this.definition
         let pass
         if(typeof $value !== 'number') { pass = false }

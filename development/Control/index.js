@@ -1,4 +1,4 @@
-import { typeOf, expandEvents } from '../Coutil/index.js'
+import { typeOf, expandEvents, recursiveAssign } from '../Coutil/index.js'
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import View from '../View/index.js'
@@ -15,51 +15,51 @@ export default class Control extends Core {
   }
   constructor($settings = {}, $options = {}) {
     super(
-      Object.assign({
-        propertyClasses: [
-          ["models", {
+      recursiveAssign({
+        propertyClasses: {
+          models: {
             Class: Model,
             Names: {
               Monople: { Formal: "Model", Nonformal: "model" },
               Multiple: { Formal: "Models", Nonformal: "models" },
             },
             Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
-          }],
-          ["views", {
+          },
+          views: {
             Class: View,
             Names: {
               Monople: { Formal: "View", Nonformal: "view" },
               Multiple: { Formal: "Views", Nonformal: "views" },
             },
             Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
-          }],
-          ["controls", {
+          },
+          controls: {
             Class: Control,
             Names: {
               Monople: { Formal: "Control", Nonformal: "control" },
               Multiple: { Formal: "Controls", Nonformal: "controls" },
             },
             Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
-          }],
-          ["locationRouters", {
+          },
+          locationRouters: {
             Class: LocationRouter,
             Names: {
               Monople: { Formal: "LocationRouter", Nonformal: "locationRouter" },
               Multiple: { Formal: "LocationRouters", Nonformal: "locationRouters" },
             },
             Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
-          }],
-          ["fetchRouters", {
+          },
+          fetchRouters: {
             Class: FetchRouter,
             Names: {
               Montiple: { Formal: "FetchRouter", Nonformal: "fetchRouter" },
               Multiple: { Formal: "FetchRouters", Nonformal: "fetchRouters" },
             },
             Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
-          }],
-        ]
+          },
+        }
       }, Settings, $settings),
-      Object.assign({}, Options, $options),
+      recursiveAssign({}, Options, $options),
     )
     // this.addClassInstances($settings)
     // if(this.options.enableEvents === true) this.enableEvents()

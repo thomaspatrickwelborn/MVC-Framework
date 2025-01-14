@@ -8,7 +8,7 @@ export default class Content extends EventTarget {
   #_options
   #_schema
   #_type
-  #_source
+  #_target
   #_parent
   #_key
   #_path
@@ -80,15 +80,15 @@ export default class Content extends EventTarget {
       : null
     return this.#_path
   }
-  get source() {
-    if(this.#_source !== undefined) return this.#_source
-    this.#_source = typedObjectLiteral(this.#properties)
-    return this.#_source
+  get target() {
+    if(this.#_target !== undefined) return this.#_target
+    this.#_target = typedObjectLiteral(this.#properties)
+    return this.#_target
   }
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
     const { proxyAssignmentMethod } = this.options
-    this.#_proxy = new Proxy(this.source, this.#handler)
+    this.#_proxy = new Proxy(this.target, this.#handler)
     if(['set', 'assign'].includes(proxyAssignmentMethod)) {
       this.#_proxy[proxyAssignmentMethod](this.#properties)
     }

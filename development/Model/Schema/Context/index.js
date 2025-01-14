@@ -12,7 +12,7 @@ export default class Context extends EventTarget {
   #_type
   #_proxy
   #_handler
-  #_source
+  #_target
   constructor($properties, $schema) {
     super()
     this.#properties = $properties
@@ -33,7 +33,7 @@ export default class Context extends EventTarget {
   }
   get proxy() {
     if(this.#_proxy !== undefined) return this.#_proxy
-    this.#_proxy = new Proxy(this.source, this.#handler)
+    this.#_proxy = new Proxy(this.target, this.#handler)
     return this.#_proxy
   }
   get #handler() {
@@ -41,10 +41,10 @@ export default class Context extends EventTarget {
     this.#_handler = new Handler(this)
     return this.#_handler
   }
-  get source() {
-    if(this.#_source !== undefined) return this.#_source
+  get target() {
+    if(this.#_target !== undefined) return this.#_target
     let properties
-    const source = typedObjectLiteral(this.type)
+    const target = typedObjectLiteral(this.type)
     if(this.type === 'array') {
       properties = this.#properties.slice(0, 1)
     }
@@ -116,10 +116,10 @@ export default class Context extends EventTarget {
       if(propertyDefinition instanceof Schema === false) {
         propertyDefinition = this.#parsePropertyDefinition(propertyDefinition)
       }
-      source[$propertyKey] = propertyDefinition
+      target[$propertyKey] = propertyDefinition
     }
-    this.#_source = source
-    return this.#_source
+    this.#_target = target
+    return this.#_target
   }
   #parsePropertyDefinition($propertyDefinition) {
     const propertyDefinition = $propertyDefinition
@@ -180,9 +180,8 @@ export default class Context extends EventTarget {
       $validatorName, $validatorSettings
     ] of validators.entries()) {
       const ValidatorClass = $validatorSettings.validator
-      const validatorSource = $validatorSettings
       propertyDefinition[$validatorName] = $validatorSettings
-      propertyDefinition.validators.push(new ValidatorClass(validatorSource, this.schema))
+      propertyDefinition.validators.push(new ValidatorClass($validatorSettings, this.schema))
     }
     return propertyDefinition
   }

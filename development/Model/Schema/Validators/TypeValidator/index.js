@@ -8,7 +8,7 @@ export default class TypeValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'type',
-      validate: ($key, $value, $source, $target) => {
+      validate: ($key, $value) => {
         const definition = this.definition
         let pass
         let typeOfDefinitionValue = typeOf(definition.value)
