@@ -2692,7 +2692,6 @@ class EnumValidator extends Validator {
       type: 'enum',
       validate: ($key, $value) => {
         const definition = this.definition;
-        console.log(definition);
         let pass;
         if(![
           'string', 'number', 'boolean'
@@ -3410,8 +3409,8 @@ class CoreEvent {
     ) { return }
     const eventAbility = (
       $enable === true
-    ) ? 'addEventListener'
-      : 'removeEventListener';
+    ) ? this.#propertyClassEvents.Assign
+      : this.#propertyClassEvents.Deassign;
     if(
       this.target instanceof NodeList ||
       Array.isArray(this.target)
@@ -3432,6 +3431,7 @@ class CoreEvent {
       } catch($err) {}
     }
   }
+  get #propertyClassEvents() { return this.#settings.propertyClassEvents }
   get #context() { return this.#settings.context }
   get #boundListener() {
     if(this.#_boundListener !== undefined) { return this.#_boundListener }
@@ -3535,6 +3535,8 @@ class PropertyClass {
   get Events() { return this.#settings.Events }
 }
 
+var CoreClassEvents = { Assign: "addEventListener", Deassign: "removeEventListener" };
+
 var Settings$4 = {
   events: {},
   propertyClasses: {},
@@ -3553,7 +3555,7 @@ function CoreClassValidator($propertyClass, $property, $value) {
 class Core extends EventTarget {
   #_settings
   #_options
-  #_eventClasses
+  #_propertyClassEvents
   #_propertyClasses
   #_events
   #_key
@@ -3568,21 +3570,22 @@ class Core extends EventTarget {
     this.#assign();
     this.#defineProperties();
   }
-  get #eventClasses() {
-    if(this.#_eventClasses !== undefined) return this.#_eventClasses
-    this.#_eventClasses = {};
-    return this.#_eventClasses
+  get #propertyClassEvents() {
+    if(this.#_propertyClassEvents !== undefined) return this.#_propertyClassEvents
+    this.#_propertyClassEvents = {};
+    for(const [$propertyClassName, $propertyClass] of Object.entries(this.#propertyClasses)) {
+      this.#_propertyClassEvents[$propertyClassName] = $propertyClass.Events;
+    }
+    return this.#_propertyClassEvents
   }
   get #propertyClasses() {
     if(this.#_propertyClasses !== undefined) return this.#_propertyClasses
-    this.#eventClasses;
     this.#_propertyClasses = this.settings.propertyClasses;
     const $this = this;
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
     ] of Object.entries(this.#_propertyClasses)) {
       const { Events, Names } = $propertyClassInstantiatorSettings;
-      console.log("Events", Events);
       const propertyClassStoreName = `_${$propertyClassName}`;
       Object.defineProperties(this, {
         [propertyClassStoreName]: {
@@ -3648,7 +3651,6 @@ class Core extends EventTarget {
           }
         },
       });
-      console.log(this[$propertyClassName]);
       this[$propertyClassName] = this.settings[$propertyClassName];
     }
     return this.#_propertyClasses
@@ -3660,6 +3662,10 @@ class Core extends EventTarget {
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
     ] of Object.entries(this.#_settings.propertyClasses)) {
+      // Events
+      if($propertyClassInstantiatorSettings.Events === undefined) {
+        $propertyClassInstantiatorSettings.Events = CoreClassEvents;
+      }
       // Class Validator
       if($propertyClassInstantiatorSettings.ClassValidator === undefined) {
         $propertyClassInstantiatorSettings.ClassValidator = CoreClassValidator; 
@@ -3750,7 +3756,13 @@ class Core extends EventTarget {
     const { events } = this;
     const $events = expandEvents(arguments[0] || this.settings.events);
     for(let $event of $events) {
-      $event = Object.assign({}, $event, { context: this });
+      const propertyClassName = $event.path.split('.').shift();
+      const propertyClassEvents = this.#propertyClassEvents[propertyClassName];
+      propertyClassEvents[propertyClassName];
+      $event = Object.assign({}, $event, {
+        context: this,
+        propertyClassEvents,
+      });
       events.push(new CoreEvent($event));
     }
     return this

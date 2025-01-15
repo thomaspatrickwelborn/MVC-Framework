@@ -39,8 +39,8 @@ export default class CoreEvent {
     ) { return }
     const eventAbility = (
       $enable === true
-    ) ? 'addEventListener'
-      : 'removeEventListener'
+    ) ? this.#propertyClassEvents.Assign
+      : this.#propertyClassEvents.Deassign
     if(
       this.target instanceof NodeList ||
       Array.isArray(this.target)
@@ -61,6 +61,7 @@ export default class CoreEvent {
       } catch($err) {}
     }
   }
+  get #propertyClassEvents() { return this.#settings.propertyClassEvents }
   get #context() { return this.#settings.context }
   get #boundListener() {
     if(this.#_boundListener !== undefined) { return this.#_boundListener }

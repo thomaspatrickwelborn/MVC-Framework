@@ -1,6 +1,7 @@
 import { expandEvents, recursiveAssign } from '../Coutil/index.js'
 import CoreEvent from './Event/index.js'
 import PropertyClass from './PropertyClass/index.js'
+import CoreClassEvents from './PropertyEvents/index.js'
 import Settings from './Settings/index.js' 
 import Options from './Options/index.js' 
 import { CoreClassInstantiator, CoreClassDeinstantiator } from './Instantiators/index.js'
@@ -8,7 +9,7 @@ import { CoreClassValidator } from './PropertyValidators/index.js'
 export default class Core extends EventTarget {
   #_settings
   #_options
-  #_eventClasses
+  #_propertyClassEvents
   #_propertyClasses
   #_events
   #_key
@@ -23,21 +24,22 @@ export default class Core extends EventTarget {
     this.#assign()
     this.#defineProperties()
   }
-  get #eventClasses() {
-    if(this.#_eventClasses !== undefined) return this.#_eventClasses
-    this.#_eventClasses = {}
-    return this.#_eventClasses
+  get #propertyClassEvents() {
+    if(this.#_propertyClassEvents !== undefined) return this.#_propertyClassEvents
+    this.#_propertyClassEvents = {}
+    for(const [$propertyClassName, $propertyClass] of Object.entries(this.#propertyClasses)) {
+      this.#_propertyClassEvents[$propertyClassName] = $propertyClass.Events
+    }
+    return this.#_propertyClassEvents
   }
   get #propertyClasses() {
     if(this.#_propertyClasses !== undefined) return this.#_propertyClasses
-    const eventClasses = this.#eventClasses
     this.#_propertyClasses = this.settings.propertyClasses
     const $this = this
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
     ] of Object.entries(this.#_propertyClasses)) {
       const { Events, Names } = $propertyClassInstantiatorSettings
-      console.log("Events", Events)
       const propertyClassStoreName = `_${$propertyClassName}`
       Object.defineProperties(this, {
         [propertyClassStoreName]: {
@@ -103,7 +105,6 @@ export default class Core extends EventTarget {
           }
         },
       })
-      console.log(this[$propertyClassName])
       this[$propertyClassName] = this.settings[$propertyClassName]
     }
     return this.#_propertyClasses
@@ -115,6 +116,10 @@ export default class Core extends EventTarget {
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
     ] of Object.entries(this.#_settings.propertyClasses)) {
+      // Events
+      if($propertyClassInstantiatorSettings.Events === undefined) {
+        $propertyClassInstantiatorSettings.Events = CoreClassEvents
+      }
       // Class Validator
       if($propertyClassInstantiatorSettings.ClassValidator === undefined) {
         $propertyClassInstantiatorSettings.ClassValidator = CoreClassValidator 
@@ -206,7 +211,13 @@ export default class Core extends EventTarget {
     const { events } = this
     const $events = expandEvents(arguments[0] || this.settings.events)
     for(let $event of $events) {
-      $event = Object.assign({}, $event, { context: this })
+      const propertyClassName = $event.path.split('.').shift()
+      const propertyClassEvents = this.#propertyClassEvents[propertyClassName]
+      const propertyEvent = propertyClassEvents[propertyClassName]
+      $event = Object.assign({}, $event, {
+        context: this,
+        propertyClassEvents,
+      })
       events.push(new CoreEvent($event))
     }
     return this
