@@ -1,9 +1,9 @@
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function unshift() {
-  const $content = Array.prototype.shift.call(arguments)
-  const $options = Array.prototype.shift.call(arguments)
   const $arguments = [...arguments]
+  const $content = $arguments.shift()
+  const $options = $arguments.shift()
   const { events } = $options
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
@@ -22,7 +22,7 @@ export default function unshift() {
     ) ? true : false
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementIndex, $element, $content, proxy)
+      const validElement = schema.validateProperty(elementIndex, $element, {}, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

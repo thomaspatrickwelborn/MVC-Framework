@@ -32,7 +32,7 @@ export default function deleteContentProperty() {
     if(schema && enableValidation) {
       const differedPropertyProxy = proxy.object
       delete differedPropertyProxy[propertyKey]
-      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

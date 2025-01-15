@@ -66,7 +66,7 @@ export default function splice() {
     let addItem = $addItems[addItemsIndex]
     // Validation
     if(schema && enableValidation) {
-      const validAddItem = schema.validateProperty(elementIndex, element, $content, proxy)
+      const validAddItem = schema.validateProperty(elementIndex, element, {}, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

@@ -13,7 +13,7 @@ export default function push() {
   for(let $element of arguments) {
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementsIndex, $element, $content, proxy)
+      const validElement = schema.validateProperty(elementsIndex, $element, {}, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorPath = (path)

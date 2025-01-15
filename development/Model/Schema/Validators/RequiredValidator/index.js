@@ -18,7 +18,9 @@ export default class RequiredValidator extends Validator {
             $requiredPropertyName, $requiredProperty
           ] of Object.entries(requiredProperties)) {
             const requiredProperty = recursiveAssign({}, $requiredProperty)
+            // ?:START
             requiredProperty.required.value = false
+            // ?:STOP
             if($requiredPropertyName === $key) { continue iterateRequiredProperties }
             const sourcePropertyDescriptor = Object.getOwnPropertyDescriptor($source, $requiredPropertyName)
             if(sourcePropertyDescriptor !== undefined) {
@@ -48,7 +50,10 @@ export default class RequiredValidator extends Validator {
             ] of Object.entries(corequiredContentProperties)) {
               const corequiredContentPropertyName = $corequiredContextPropertyName
               const corequiredContentProperty = corequiredContentProperties[corequiredContentPropertyName]
-              const coschemaPropertyValidation = coschema.validateProperty($corequiredContextPropertyName, corequiredContentProperty)
+              const coschemaPropertyValidation = coschema.validateProperty(
+                $corequiredContextPropertyName, corequiredContentProperty,
+                $source, $target
+              )
               validations.push(coschemaPropertyValidation)
             }
             const nonvalidValidation = (validations.find(($validation) => $validation.valid === false))

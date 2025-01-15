@@ -2,12 +2,13 @@ import { impandTree, typedObjectLiteral } from '../../../../../../Coutil/index.j
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../Events/index.js'
 export default function defineProperties() {
-  const $content = Array.prototype.shift.call(arguments)
-  const $options = Array.prototype.shift.call(arguments)
+  const $arguments = [...arguments]
+  const $content = $arguments.shift()
+  const $options = $arguments.shift()
+  const $propertyDescriptors = $arguments.shift()
   const { events } = $options
   const { path, proxy } = $content
   // const {} = $content.options
-  const $propertyDescriptors = arguments[0]
   const propertyDescriptorEntries = Object.entries($propertyDescriptors)
   const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value')
   let properties = typedObjectLiteral($content.object)
@@ -17,7 +18,7 @@ export default function defineProperties() {
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
     // Property Descriptor Value Is Direct Instance Of Array/Object/Map
-    proxy.defineProperty($propertyKey, $propertyDescriptor)
+    proxy.defineProperty($propertyKey, $propertyDescriptor, $propertyDescriptors)
   }
   // Define Properties Event
   if(events && events['defineProperties']) {

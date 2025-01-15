@@ -16,7 +16,7 @@ export default function setContentProperty() {
   }, $options, arguments[2])
   const contentOptions = $content.options
   // contentOptions.traps.accessor.set = ulteroptions
-  const { events, pathkey, subpathError, recursive } = ulteroptions
+  const { events, pathkey, subpathError, recursive, setObject } = ulteroptions
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -59,7 +59,7 @@ export default function setContentProperty() {
     }
     // Validation
     if(schema && enableValidation) {
-      const validTargetProp = schema.validateProperty(propertyKey, $value, $content, proxy)
+      const validTargetProp = schema.validateProperty(propertyKey, $value, setObject, proxy)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

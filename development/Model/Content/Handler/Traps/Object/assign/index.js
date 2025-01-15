@@ -26,7 +26,9 @@ export default function assign() {
       ) ? true : false
       // Validation
       if(schema && enableValidation) {
-        const validSourceProp = schema.validateProperty($assignSourcePropKey, $assignSourcePropVal, $assignSource, proxy)
+        const validSourceProp = schema.validateProperty(
+          $assignSourcePropKey, $assignSourcePropVal, $assignSource, proxy
+        )
         if(validationEvents) {
           let type, propertyType
           const validatorEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey)

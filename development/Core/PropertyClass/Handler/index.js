@@ -1,5 +1,5 @@
 import Core from '../../index.js'
-import { CoreClassInstantiator } from '../../Instantiators/index.js'
+import { CoreClassInstantiator } from '../../PropertyInstantiators/index.js'
 export default class Handler {
   #propertyClass
   constructor($propertyClass) {

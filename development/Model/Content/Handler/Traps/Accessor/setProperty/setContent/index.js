@@ -3,19 +3,22 @@ import { ContentEvent } from '../../../../../Events/index.js'
 export default function setContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { path } = $content
-  const { proxy } = $content
+  const { path, proxy } = $content
   // Delete Preterproperties
   // proxy.delete()
   proxy.delete({
     events: {
-      ['delete']: false, ['deleteProperty']: false, ['deleteProperty:$key']: false
+      ['delete']: false, 
+      ['deleteProperty']: false, 
+      ['deleteProperty:$key']: false
     }
   })
   // Arguments
   const $value = arguments[0]
   // Ulteroptions
-  const ulteroptions = Object.assign({}, $options, arguments[1])
+  const ulteroptions = Object.assign({
+    setObject: $value
+  }, $options, arguments[1])
   const contentOptions = $content.options
   contentOptions.traps.accessor.set = ulteroptions
   const { events } = ulteroptions

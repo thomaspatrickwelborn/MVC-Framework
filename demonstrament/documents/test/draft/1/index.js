@@ -4,51 +4,53 @@ const control = new Control({
   models: {
     model: [{
       schema: {
-        // propertyA: {
-        //   propertyB: {
-        //     propertyC: Boolean,
-        //     propertyD: Number,
-        //     propertyE: String,
-        //   },
-          // propertyF: Boolean,
-        //   propertyG: Number,
-        //   propertyH: String,
-        // },
-        // propertyI: Boolean,
-        // propertyJ: Number,
+        propertyA: {
+          propertyB: {
+            propertyC: Boolean,
+            propertyD: Number,
+            propertyE: String,
+          },
+          propertyF: Boolean,
+          propertyG: Number,
+          propertyH: String,
+        },
+        propertyI: Boolean,
+        propertyJ: Number,
         propertyK: String,
       },
       content: {
-        // propertyA: {
-        //   propertyB: {
-        //     propertyC: false,
-        //     propertyD: 0,
-        //     propertyE: "false",
-        //   },
-          // propertyF: true,
-        //   propertyG: 1,
-        //   propertyH: "true",
-        // },
-        // propertyI: false,
-        // propertyJ: 0,
+        propertyA: {
+          propertyB: {
+            propertyC: false,
+            propertyD: 0,
+            propertyE: "false",
+          },
+          propertyF: true,
+          propertyG: 1,
+          propertyH: "true",
+        },
+        propertyI: false,
+        propertyJ: 0,
         propertyK: "false",
       },
     }, { schema: { required: true } }]
   },
   events: {
-    'models.model.content assign': ($event) => console.log($event)
+    // 'models.model.content assign': ($event) => console.log($event.type, $event),
+    // 'models.model.content defineProperties': ($event) => console.log($event.type, $event),
+    'models.model.content defineProperty': ($event) => console.log("EVENT", $event.type, $event.key, $event.value),
   },
 }, { enableEvents: true })
-console.log(control)
 const { content } = control.models.model
 // NONVALID
-console.log(content.assign({ propertyK: 11111 }))
-console.log(content.defineProperty("propertyK", 11111))
-console.log(content.defineProperties({ propertyK: { value: 11111 } }))
+content.assign({ propertyK: 11111 })
+content.defineProperties({ propertyK: { value: 11111 } })
+content.defineProperty("propertyK", 11111)
 // VALID
-console.log(content.assign({ propertyK: "11111" }))
-console.log(content.defineProperty("propertyK", "11111"))
-console.log(content.defineProperties({ propertyK: { value: "11111" } }))
+content.assign({ propertyK: "11111" })
+content.defineProperties({ propertyK: { value: "11111" } })
+content.defineProperty("propertyK", { value: "11111" })
+// console.log(control)
 // const model = new Model({
 //   schema: {
 //     propertyA: {

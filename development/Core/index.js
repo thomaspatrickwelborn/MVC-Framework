@@ -4,7 +4,7 @@ import PropertyClass from './PropertyClass/index.js'
 import CoreClassEvents from './PropertyEvents/index.js'
 import Settings from './Settings/index.js' 
 import Options from './Options/index.js' 
-import { CoreClassInstantiator, CoreClassDeinstantiator } from './Instantiators/index.js'
+import { CoreClassInstantiator, CoreClassDeinstantiator } from './PropertyInstantiators/index.js'
 import { CoreClassValidator } from './PropertyValidators/index.js'
 export default class Core extends EventTarget {
   #_settings
