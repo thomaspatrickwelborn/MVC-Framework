@@ -1,4 +1,5 @@
 export default {
-  defineProperties: {},
   assign: [],
+  defineProperties: {},
+  enableEvents: false,
 }

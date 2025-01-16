@@ -2,8 +2,7 @@ import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function unshift() {
   const $arguments = [...arguments]
-  const $content = $arguments.shift()
-  const $options = $arguments.shift()
+  const [$content, $options] = [...$arguments]
   const { events } = $options
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options

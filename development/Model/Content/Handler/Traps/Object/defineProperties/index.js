@@ -3,9 +3,7 @@ import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../Events/index.js'
 export default function defineProperties() {
   const $arguments = [...arguments]
-  const $content = $arguments.shift()
-  const $options = $arguments.shift()
-  const $propertyDescriptors = $arguments.shift()
+  const [$content, $options, $propertyDescriptors] = $arguments
   const { events } = $options
   const { path, proxy } = $content
   // const {} = $content.options

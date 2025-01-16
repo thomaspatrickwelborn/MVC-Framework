@@ -2,18 +2,14 @@ import { regularExpressions, recursiveAssign } from '../../../../../../../Coutil
 import Content from '../../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../../Events/index.js'
 export default function setContentProperty() {
-  const $content = Array.prototype.shift.call(arguments)
-  const $options = Array.prototype.shift.call(arguments)
+  const [$content, $options, $path, $value, $ulteroptions] = [...arguments]
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
-  // Arguments
-  const $path = arguments[0]
-  const $value = arguments[1]
   // Options
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
-  }, $options, arguments[2])
+  }, $options, $ulteroptions)
   const contentOptions = $content.options
   // contentOptions.traps.accessor.set = ulteroptions
   const { events, pathkey, subpathError, recursive, setObject } = ulteroptions

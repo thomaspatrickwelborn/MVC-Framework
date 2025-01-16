@@ -1,1 +1,4 @@
-export default { Assign: "addEventListener", Deassign: "removeEventListener" }
+export default {
+  Assign: "addEventListener",
+  Deassign: "removeEventListener"
+}

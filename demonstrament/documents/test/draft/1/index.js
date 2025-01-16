@@ -36,8 +36,8 @@ const control = new Control({
     }, { schema: { required: true } }]
   },
   events: {
-    // 'models.model.content assign': ($event) => console.log($event.type, $event),
-    // 'models.model.content defineProperties': ($event) => console.log($event.type, $event),
+    'models.model.content assign': ($event) => console.log("EVENT", $event.type, $event),
+    'models.model.content defineProperties': ($event) => console.log("EVENT", $event.type, $event),
     'models.model.content defineProperty': ($event) => console.log("EVENT", $event.type, $event.key, $event.value),
   },
 }, { enableEvents: true })

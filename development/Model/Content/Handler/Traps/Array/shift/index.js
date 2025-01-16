@@ -1,7 +1,6 @@
 import { ContentEvent } from '../../../../Events/index.js'
 export default function shift() {
-  const $content = Array.prototype.shift.call(arguments)
-  const $options = Array.prototype.shift.call(arguments)
+  const [$content, $options] = [...arguments]
   const { events } = $options
   const { target, path } = $content
   const shiftElement = Array.prototype.shift.call(target)

@@ -398,6 +398,45 @@ var index = /*#__PURE__*/Object.freeze({
   variables: Variables
 });
 
+var CoreClassEvents = {
+  Assign: "addEventListener",
+  Deassign: "removeEventListener"
+};
+
+// Core Class Instantiation
+function CoreClassInstantiator($propertyClass, $property, $value) {
+  const { core, target, Class, ClassInstantiator, Names } = $propertyClass;
+  const valueInstanceOfClass = $value instanceof Class;
+  if(valueInstanceOfClass === false) {
+    const parent = core;
+    const path = (core.path)
+      ? [core.path, Names.Multiple.Nonformal, $property].join('.')
+      : [Names.Multiple.Nonformal, $property].join('.');
+    const propertyClassInstanceParameters = [].concat($value);
+    const $settings = Object.assign({ path, parent }, propertyClassInstanceParameters.shift());
+    const $options = propertyClassInstanceParameters.shift();
+    target[$property] = new Class($settings, $options);
+  }
+  else if(valueInstanceOfClass === true) {
+    if($value.parent === undefined && $value.path === undefined) {
+      $value.parent = parent;
+      $value.path = path;
+    }
+    target[$property] = $value;
+  }
+  return target[$property]
+}
+// Core Class Deinstantiation
+function CoreClassDeinstantiator($propertyClass, $property) {
+  const { target } = $propertyClass;
+  return delete target[$property]
+}
+
+function CoreClassValidator($propertyClass, $property, $value) {
+  const { core, target, Class, ClassInstantiator, Names } = $propertyClass;
+  return $value instanceof Class
+}
+
 class ContentEvent extends Event {
   #settings
   #content
@@ -667,9 +706,7 @@ function assign() {
 
 function defineProperties() {
   const $arguments = [...arguments];
-  const $content = $arguments.shift();
-  const $options = $arguments.shift();
-  const $propertyDescriptors = $arguments.shift();
+  const [$content, $options, $propertyDescriptors] = $arguments;
   const { events } = $options;
   const { path, proxy } = $content;
   // const {} = $content.options
@@ -705,11 +742,12 @@ function defineProperties() {
 
 function defineProperty() {
   const $arguments = [...arguments];
-  const $content = $arguments.shift();
-  const $options = $arguments.shift();
-  const $propertyKey = $arguments.shift();
-  const $propertyDescriptor = $arguments.shift();
-  const $$propertyDescriptors = $arguments.shift() || {};
+  let [
+    $content, $options, 
+    $propertyKey, $propertyDescriptor, 
+    $propertyDescriptors
+  ] = $arguments;
+  $propertyDescriptors = $propertyDescriptors || {};
   const { descriptorTree, events } = $options;
   const { target, path, schema, proxy } = $content;
   const { enableValidation, validationEvents } = $content.options;
@@ -721,10 +759,7 @@ function defineProperty() {
   ) ? true : false;
   // Validation
   if(schema && enableValidation) {
-    // const impandPropertyValue = impandTree({
-    //   [$propertyKey]: $propertyDescriptor
-    // }, "value")[$propertyKey]
-    const validProperty = schema.validateProperty($propertyKey, propertyValue, $$propertyDescriptors, proxy);
+    const validProperty = schema.validateProperty($propertyKey, propertyValue, $propertyDescriptors, proxy);
     if(validationEvents) {
       let type, propertyType;
       if(validProperty.valid) {
@@ -1362,8 +1397,7 @@ function reverse() {
 }
 
 function shift() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
+  const [$content, $options] = [...arguments];
   const { events } = $options;
   const { target, path } = $content;
   const shiftElement = Array.prototype.shift.call(target);
@@ -1550,8 +1584,7 @@ function splice() {
 
 function unshift() {
   const $arguments = [...arguments];
-  const $content = $arguments.shift();
-  const $options = $arguments.shift();
+  const [$content, $options] = [...$arguments];
   const { events } = $options;
   const { target, path, schema, proxy } = $content;
   const { enableValidation, validationEvents } = $content.options;
@@ -1706,15 +1739,13 @@ function getContent() {
 }
 
 function getContentProperty() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
+  const [$content, $options, $path, $ulteroptions] = [...arguments];
   const { target, path } = $content;
   // Arguments
-  const $path = arguments[0];
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
-  }, $options, arguments[1]);
+  }, $options, $ulteroptions);
   const { events, pathkey, subpathError } = ulteroptions;
   // Path Key: true
   if(pathkey === true) {
@@ -1835,18 +1866,14 @@ function setContent() {
 }
 
 function setContentProperty() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
+  const [$content, $options, $path, $value, $ulteroptions] = [...arguments];
   const { target, path, schema, proxy } = $content;
   const { enableValidation, validationEvents } = $content.options;
-  // Arguments
-  const $path = arguments[0];
-  const $value = arguments[1];
   // Options
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
-  }, $options, arguments[2]);
+  }, $options, $ulteroptions);
   const contentOptions = $content.options;
   // contentOptions.traps.accessor.set = ulteroptions
   const { events, pathkey, subpathError, recursive, setObject } = ulteroptions;
@@ -2093,16 +2120,14 @@ function deleteContent() {
 }
 
 function deleteContentProperty() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
+  const [$content, $options, $path, $ulteroptions] = [...arguments];
   const { target, path, schema, proxy } = $content;
   const { enableValidation, /* validationEvents */ } = $content.options;
   // Arguments
-  const $path = arguments[0];
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
-  }, $options, arguments[1]);
+  }, $options, $ulteroptions);
   const { events, pathkey, subpathError, /* validationEvents */ } = ulteroptions;
   const validationEvents = ($options.validationEvents !== undefined)
     ? $options.validationEvents
@@ -3453,35 +3478,6 @@ class CoreEvent {
   }
 }
 
-// Core Class Instantiation
-function CoreClassInstantiator($propertyClass, $property, $value) {
-  const { core, target, Class, ClassInstantiator, Names } = $propertyClass;
-  const valueInstanceOfClass = $value instanceof Class;
-  if(valueInstanceOfClass === false) {
-    const parent = core;
-    const path = (core.path)
-      ? [core.path, Names.Multiple.Nonformal, $property].join('.')
-      : [Names.Multiple.Nonformal, $property].join('.');
-    const propertyClassInstanceParameters = [].concat($value);
-    const $settings = Object.assign({ path, parent }, propertyClassInstanceParameters.shift());
-    const $options = propertyClassInstanceParameters.shift();
-    target[$property] = new Class($settings, $options);
-  }
-  else if(valueInstanceOfClass === true) {
-    if($value.parent === undefined && $value.path === undefined) {
-      $value.parent = parent;
-      $value.path = path;
-    }
-    target[$property] = $value;
-  }
-  return target[$property]
-}
-// Core Class Deinstantiation
-function CoreClassDeinstantiator($propertyClass, $property) {
-  const { target } = $propertyClass;
-  return delete target[$property]
-}
-
 class Handler {
   #propertyClass
   constructor($propertyClass) {
@@ -3495,14 +3491,15 @@ class Handler {
   get set() {
     const { ClassInstantiator } = this.#propertyClass;
     return function($target, $property, $value) {
-      ClassInstantiator(this.#propertyClass, $property, $value);
-      return $target[$property]
+      $target[$property] = ClassInstantiator(this.#propertyClass, $property, $value);
+      return true
     }
   }
   get deleteProperty() {
     const { ClassDeinstantiator } = this.#propertyClass;
     return function($target, $property) {
       ClassDeinstantiator(this.#propertyClass, $property);
+      delete $target[$property];
       return true
     }
   }
@@ -3548,22 +3545,16 @@ class PropertyClass {
   get Events() { return this.#settings.Events }
 }
 
-var CoreClassEvents = { Assign: "addEventListener", Deassign: "removeEventListener" };
-
 var Settings$4 = {
   events: {},
   propertyClasses: {},
 };
 
 var Options$4 = {
-  defineProperties: {},
   assign: [],
+  defineProperties: {},
+  enableEvents: false,
 };
-
-function CoreClassValidator($propertyClass, $property, $value) {
-  const { core, target, Class, ClassInstantiator, Names } = $propertyClass;
-  return $value instanceof Class
-}
 
 class Core extends EventTarget {
   #_settings
@@ -3579,9 +3570,10 @@ class Core extends EventTarget {
     this.settings = $settings;
     this.options = $options;
     this.#propertyClasses;
-    this.addEvents();
     this.#assign();
     this.#defineProperties();
+    this.addEvents();
+    if(this.options.enableEvents === true) { this.enableEvents(); }
   }
   get #propertyClassEvents() {
     if(this.#_propertyClassEvents !== undefined) return this.#_propertyClassEvents
@@ -3617,10 +3609,15 @@ class Core extends EventTarget {
           },
           set($propertyClassInstances) {
             const propertyClassInstances = $this[$propertyClassName];
-            const propertyClassInstancesEntries = (
-              Array.isArray($propertyClassInstances)
-            ) ? $propertyClassInstances
-              : Object.entries($propertyClassInstances);
+            let propertyClassInstancesEntries;
+            if($propertyClassInstances) {
+              if(Array.isArray($propertyClassInstances)) {
+                propertyClassInstancesEntries = $propertyClassInstances;
+              }
+              else {
+                propertyClassInstancesEntries = Object.entries($propertyClassInstances);
+              }
+            } else { propertyClassInstancesEntries = []; }
             for(const [
               $propertyClassInstanceName, $propertyClassInstance
             ] of propertyClassInstancesEntries) {
@@ -3635,10 +3632,10 @@ class Core extends EventTarget {
             if($arguments.length === 1) {
               const [$values] = $arguments;
               if(Array.isArray($values)) {
-                $this[$propertyClassName] = Object.fromEntries($value);
+                $this[$propertyClassName] = Object.fromEntries($values);
               }
               else {
-                $this[$propertyClassName] = $value;
+                $this[$propertyClassName] = $values;
               }
             }
             else if($arguments.length === 2) {
@@ -3770,8 +3767,9 @@ class Core extends EventTarget {
     const $events = expandEvents(arguments[0] || this.settings.events);
     for(let $event of $events) {
       const propertyClassName = $event.path.split('.').shift();
-      const propertyClassEvents = this.#propertyClassEvents[propertyClassName];
-      propertyClassEvents[propertyClassName];
+      const propertyClassEvents = (this.#propertyClassEvents[propertyClassName])
+        ? this.#propertyClassEvents[propertyClassName] 
+        : CoreClassEvents;
       $event = Object.assign({}, $event, {
         context: this,
         propertyClassEvents,

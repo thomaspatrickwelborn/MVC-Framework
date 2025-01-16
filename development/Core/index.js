@@ -1,11 +1,11 @@
 import { expandEvents, recursiveAssign } from '../Coutil/index.js'
-import CoreEvent from './Event/index.js'
-import PropertyClass from './PropertyClass/index.js'
 import CoreClassEvents from './PropertyEvents/index.js'
-import Settings from './Settings/index.js' 
-import Options from './Options/index.js' 
 import { CoreClassInstantiator, CoreClassDeinstantiator } from './PropertyInstantiators/index.js'
 import { CoreClassValidator } from './PropertyValidators/index.js'
+import CoreEvent from './Event/index.js'
+import PropertyClass from './PropertyClass/index.js'
+import Settings from './Settings/index.js' 
+import Options from './Options/index.js' 
 export default class Core extends EventTarget {
   #_settings
   #_options
@@ -20,9 +20,10 @@ export default class Core extends EventTarget {
     this.settings = $settings
     this.options = $options
     this.#propertyClasses
-    this.addEvents()
     this.#assign()
     this.#defineProperties()
+    this.addEvents()
+    if(this.options.enableEvents === true) { this.enableEvents() }
   }
   get #propertyClassEvents() {
     if(this.#_propertyClassEvents !== undefined) return this.#_propertyClassEvents
@@ -58,10 +59,15 @@ export default class Core extends EventTarget {
           },
           set($propertyClassInstances) {
             const propertyClassInstances = $this[$propertyClassName]
-            const propertyClassInstancesEntries = (
-              Array.isArray($propertyClassInstances)
-            ) ? $propertyClassInstances
-              : Object.entries($propertyClassInstances)
+            let propertyClassInstancesEntries
+            if($propertyClassInstances) {
+              if(Array.isArray($propertyClassInstances)) {
+                propertyClassInstancesEntries = $propertyClassInstances
+              }
+              else {
+                propertyClassInstancesEntries = Object.entries($propertyClassInstances)
+              }
+            } else { propertyClassInstancesEntries = [] }
             for(const [
               $propertyClassInstanceName, $propertyClassInstance
             ] of propertyClassInstancesEntries) {
@@ -76,10 +82,10 @@ export default class Core extends EventTarget {
             if($arguments.length === 1) {
               const [$values] = $arguments
               if(Array.isArray($values)) {
-                $this[$propertyClassName] = Object.fromEntries($value)
+                $this[$propertyClassName] = Object.fromEntries($values)
               }
               else {
-                $this[$propertyClassName] = $value
+                $this[$propertyClassName] = $values
               }
             }
             else if($arguments.length === 2) {
@@ -212,8 +218,9 @@ export default class Core extends EventTarget {
     const $events = expandEvents(arguments[0] || this.settings.events)
     for(let $event of $events) {
       const propertyClassName = $event.path.split('.').shift()
-      const propertyClassEvents = this.#propertyClassEvents[propertyClassName]
-      const propertyEvent = propertyClassEvents[propertyClassName]
+      const propertyClassEvents = (this.#propertyClassEvents[propertyClassName])
+        ? this.#propertyClassEvents[propertyClassName] 
+        : CoreClassEvents
       $event = Object.assign({}, $event, {
         context: this,
         propertyClassEvents,

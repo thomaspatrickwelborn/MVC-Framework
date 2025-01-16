@@ -13,14 +13,15 @@ export default class Handler {
   get set() {
     const { ClassInstantiator } = this.#propertyClass
     return function($target, $property, $value) {
-      ClassInstantiator(this.#propertyClass, $property, $value)
-      return $target[$property]
+      $target[$property] = ClassInstantiator(this.#propertyClass, $property, $value)
+      return true
     }
   }
   get deleteProperty() {
     const { ClassDeinstantiator } = this.#propertyClass
     return function($target, $property) {
       ClassDeinstantiator(this.#propertyClass, $property)
+      delete $target[$property]
       return true
     }
   }

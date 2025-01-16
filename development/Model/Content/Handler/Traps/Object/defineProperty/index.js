@@ -3,11 +3,12 @@ import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../Events/index.js'
 export default function defineProperty() {
   const $arguments = [...arguments]
-  const $content = $arguments.shift()
-  const $options = $arguments.shift()
-  const $propertyKey = $arguments.shift()
-  const $propertyDescriptor = $arguments.shift()
-  const $$propertyDescriptors = $arguments.shift() || {}
+  let [
+    $content, $options, 
+    $propertyKey, $propertyDescriptor, 
+    $propertyDescriptors
+  ] = $arguments
+  $propertyDescriptors = $propertyDescriptors || {}
   const { descriptorTree, events } = $options
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
@@ -19,10 +20,7 @@ export default function defineProperty() {
   ) ? true : false
   // Validation
   if(schema && enableValidation) {
-    // const impandPropertyValue = impandTree({
-    //   [$propertyKey]: $propertyDescriptor
-    // }, "value")[$propertyKey]
-    const validProperty = schema.validateProperty($propertyKey, propertyValue, $$propertyDescriptors, proxy)
+    const validProperty = schema.validateProperty($propertyKey, propertyValue, $propertyDescriptors, proxy)
     if(validationEvents) {
       let type, propertyType
       const validatorPath = (path)

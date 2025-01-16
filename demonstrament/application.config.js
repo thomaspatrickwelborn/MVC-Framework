@@ -352,12 +352,12 @@ export default {
       }
     },
     {
-      name: 'Test | Draft',
+      name: 'Test | Drafts',
       url: '/test/draft',
       source: 'documents/test/draft',
       target: 'localhost/test/draft',
       main: 'index.html',
-      ignore: ["0", "1"],
+      ignore: ["0", "1", "2"],
       clear: {
         target: [
           '/**/*.{html,css,js,md}',
@@ -373,21 +373,13 @@ export default {
           type: 'style',
           input: 'index.scss',
           output: 'index.css',
-          watch: [
-            '**/*.scss', ,
-            '../classes/**',
-            '../coutil/**'
-          ],
+          watch: ['**/*.scss'],
         }],
         scripts: [{
           type: 'script',
           input: 'index.js',
           output: 'index.js',
-          watch: [
-            '**/*.js',
-            '../classes/**',
-            '../coutil/**'
-          ],
+          watch: ['**/*.js'],
           external: ['/dependencies/mvc-framework.js']
         }],
         structs: [{
@@ -430,21 +422,13 @@ export default {
           type: 'style',
           input: 'index.scss',
           output: 'index.css',
-          watch: [
-            '**/*.scss', ,
-            '../classes/**',
-            '../coutil/**'
-          ],
+          watch: ['**/*.scss'],
         }],
         scripts: [{
           type: 'script',
           input: 'index.js',
           output: 'index.js',
-          watch: [
-            '**/*.js',
-            '../classes/**',
-            '../coutil/**'
-          ],
+          watch: ['**/*.js'],
           external: ['/dependencies/mvc-framework.js']
         }],
         structs: [{
@@ -467,7 +451,7 @@ export default {
     },
     {
       name: 'Test | Draft 1',
-      url: '/test/draft/0',
+      url: '/test/draft/1',
       source: 'documents/test/draft/1',
       target: 'localhost/test/draft/1',
       main: 'index.html',
@@ -487,21 +471,62 @@ export default {
           type: 'style',
           input: 'index.scss',
           output: 'index.css',
-          watch: [
-            '**/*.scss', ,
-            '../classes/**',
-            '../coutil/**'
-          ],
+          watch: ['**/*.scss'],
         }],
         scripts: [{
           type: 'script',
           input: 'index.js',
           output: 'index.js',
-          watch: [
-            '**/*.js',
-            '../classes/**',
-            '../coutil/**'
-          ],
+          watch: ['**/*.js'],
+          external: ['/dependencies/mvc-framework.js']
+        }],
+        structs: [{
+          type: 'struct',
+          localsName: '$content',
+          outputType: 'server',
+          model: 'index.json',
+          input: 'index.ejs',
+          output: 'index.html',
+          watch: ['**/*.{ejs,json}', '!**/\$*.ejs'],
+        }, {
+          type: 'struct',
+          localsName: '$content',
+          outputType: 'client',
+          input: '**/*.ejs',
+          output: '',
+          watch: ['**/\$*.ejs'],
+        }],
+      }
+    },
+    {
+      name: 'Test | Draft 2',
+      url: '/test/draft/2',
+      source: 'documents/test/draft/2',
+      target: 'localhost/test/draft/2',
+      main: 'index.html',
+      ignore: [],
+      clear: {
+        target: [
+          '/**/*.{html,css,js,md}',
+        ],
+        source: [
+          '**/template.js',
+          '!**/$template.js'
+        ],
+      },
+      documents: {
+        simules: [],
+        styles: [{
+          type: 'style',
+          input: 'index.scss',
+          output: 'index.css',
+          watch: ['**/*.scss'],
+        }],
+        scripts: [{
+          type: 'script',
+          input: 'index.js',
+          output: 'index.js',
+          watch: ['**/*.js'],
           external: ['/dependencies/mvc-framework.js']
         }],
         structs: [{
