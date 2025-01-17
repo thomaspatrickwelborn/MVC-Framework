@@ -6,13 +6,6 @@ import { LocationRouter, FetchRouter } from '../Routers/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
 export default class Control extends Core {
-  #_models = {}
-  #_views = {}
-  #_controls = {}
-  #_routers = {
-    location: {},
-    fetch: {},
-  }
   constructor($settings = {}, $options = {}) {
     super(
       recursiveAssign({

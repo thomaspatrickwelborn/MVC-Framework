@@ -1,9 +1,9 @@
 import { match } from '../../../../node_modules/path-to-regexp/dist/index.js'
 export default class Route extends EventTarget {
   #_settings
-  #_enable
-  #_active
-  #_match
+  #enable
+  #active
+  #match
   constructor($settings = {}) {
     super()
     this.#settings = $settings
@@ -17,27 +17,27 @@ export default class Route extends EventTarget {
   }
   get pathname() { return this.#settings.pathname }
   get enable() {
-    if(this.#_enable !== undefined) return this.#_enable
+    if(this.#enable !== undefined) return this.#enable
     if(this.#settings.enable !== undefined) {
-      this.#_enable = this.#settings.enable
+      this.#enable = this.#settings.enable
     }
-    else { this.#_enable = true }
-    return this.#_enable
+    else { this.#enable = true }
+    return this.#enable
   }
   set enable($enable) {
-    if(this.#_enable !== $enable) this.#_enable = $enable
+    if(this.#enable !== $enable) this.#enable = $enable
   }
   get active() {
-    if(this.#_active !== undefined) return this.#_active
-    if(this.#settings.active === undefined) { this.#_active = false }
-    return this.#_active
+    if(this.#active !== undefined) return this.#active
+    if(this.#settings.active === undefined) { this.#active = false }
+    return this.#active
   }
   set active($active) {
-    if(this.#_active !== $active) this.#_active = $active
+    if(this.#active !== $active) this.#active = $active
   }
   get match() {
-    if(this.#_match !== undefined) return this.#_match
-    this.#_match = match(this.pathname)
-    return this.#_match
+    if(this.#match !== undefined) return this.#match
+    this.#match = match(this.pathname)
+    return this.#match
   }
 }

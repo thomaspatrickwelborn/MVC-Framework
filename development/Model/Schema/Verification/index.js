@@ -1,7 +1,7 @@
 export default class Verification extends EventTarget {
   #settings
-  #_message
-  #_pass
+  #message
+  #pass
   constructor($settings) {
     super()
     this.#settings = $settings
@@ -11,19 +11,19 @@ export default class Verification extends EventTarget {
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
   get message() {
-    if(this.#_message !== undefined) return this.#_message
+    if(this.#message !== undefined) return this.#message
     if(
       this.pass !== undefined &&
-      this.#_message === undefined
+      this.#message === undefined
     ) {
-      this.#_message = this.#settings.messages[String(this.pass)](this)
+      this.#message = this.#settings.messages[String(this.pass)](this)
     }
-    return this.#_message
+    return this.#message
   }
-  get pass() { return this.#_pass }
+  get pass() { return this.#pass }
   set pass($pass) {
-    if(this.#_pass === undefined) {
-      this.#_pass = $pass
+    if(this.#pass === undefined) {
+      this.#pass = $pass
     }
   }
 }

@@ -16,10 +16,10 @@ const ChangeEvents = [
   "assignSourceProperty", "defineProperty",
 ]
 export default class Model extends Core {
-  #_schema
-  #_content
-  #_localStorage
-  #_changeEvents
+  #schema
+  #content
+  #localStorage
+  #changeEvents
   constructor($settings = {}, $options = {}) {
     super(
       recursiveAssign({}, Settings, $settings), 
@@ -33,19 +33,19 @@ export default class Model extends Core {
     if(this.options.enableEvents === true) this.enableEvents()
   }
   get schema() {
-    if(this.#_schema !== undefined) return this.#_schema
+    if(this.#schema !== undefined) return this.#schema
     const { schema } = this.settings
-    if(!schema) { this.#_schema = null }
-    else if(schema instanceof Schema) { this.#_schema = schema }
+    if(!schema) { this.#schema = null }
+    else if(schema instanceof Schema) { this.#schema = schema }
     else {
-      this.#_schema = new Schema(
+      this.#schema = new Schema(
         schema, this.options.schema
       )
     }
-    return this.#_schema
+    return this.#schema
   }
   get content() {
-    if(this.#_content !== undefined) return this.#_content
+    if(this.#content !== undefined) return this.#content
     const { content } = this.settings
     const { localStorage, autoload, autosave } = this.options
     let properties
@@ -62,12 +62,12 @@ export default class Model extends Core {
       properties = content
     }
     if(properties !== undefined) {
-      this.#_content = new Content(properties, this.schema, this.options.content)
+      this.#content = new Content(properties, this.schema, this.options.content)
     }
-    return this.#_content
+    return this.#content
   }
   get localStorage() {
-    if(this.#_localStorage !== undefined) { return this.#_localStorage }
+    if(this.#localStorage !== undefined) { return this.#localStorage }
     const { localStorage } = this.settings
     let path
     if(localStorage !== undefined) {
@@ -80,16 +80,16 @@ export default class Model extends Core {
         if(this.path) { path.push(path) }
         path = path.join('')
       }
-      if(path !== undefined) { this.#_localStorage = new LocalStorage(path) }
+      if(path !== undefined) { this.#localStorage = new LocalStorage(path) }
     }
-    return this.#_localStorage
+    return this.#localStorage
   }
-  get changeEvents() { return this.#_changeEvents }
+  get changeEvents() { return this.#changeEvents }
   set changeEvents($changeEvents) {
-    if($changeEvents !== this.#_changeEvents) {
+    if($changeEvents !== this.#changeEvents) {
       const boundPropertyChange = this.#propertyChange.bind(this)
-      this.#_changeEvents = $changeEvents
-      switch(this.#_changeEvents) {
+      this.#changeEvents = $changeEvents
+      switch(this.#changeEvents) {
         case true:
           for(const $eventType of ChangeEvents) {
             this.content.addEventListener($eventType, boundPropertyChange)

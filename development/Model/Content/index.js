@@ -5,14 +5,14 @@ import Options from './Options/index.js'
 import ContentEvent from './Events/Content/index.js'
 export default class Content extends EventTarget {
   #_properties
-  #_options
-  #_schema
-  #_type
-  #_target
-  #_parent
-  #_key
-  #_path
-  #_proxy
+  #options
+  #schema
+  #type
+  #target
+  #parent
+  #key
+  #path
+  #proxy
   #_handler
   constructor($properties = {}, $schema = null, $options = {}) {
     super()
@@ -30,33 +30,33 @@ export default class Content extends EventTarget {
     this.#_properties = $properties
     return this.#_properties
   }
-  get options() { return this.#_options }
+  get options() { return this.#options }
   set options($options) {
-    if(this.#_options !== undefined) return
-    this.#_options = recursiveAssign({}, Options, $options)
-    return this.#_options
+    if(this.#options !== undefined) return
+    this.#options = recursiveAssign({}, Options, $options)
+    return this.#options
   }
-  get schema() { return this.#_schema }
+  get schema() { return this.#schema }
   set schema($schema) {
-    if(this.#_schema !== undefined)  { return }
+    if(this.#schema !== undefined)  { return }
     const typeOfSchema = typeOf($schema)
-    if(['undefined', 'null'].includes(typeOfSchema)) { this.#_schema = null }
-    else if($schema instanceof Schema) { this.#_schema = $schema }
-    else if(typeOfSchema === 'array') { this.#_schema = new Schema(...arguments) }
-    else if(typeOfSchema === 'object') { this.#_schema = new Schema($schema) }
+    if(['undefined', 'null'].includes(typeOfSchema)) { this.#schema = null }
+    else if($schema instanceof Schema) { this.#schema = $schema }
+    else if(typeOfSchema === 'array') { this.#schema = new Schema(...arguments) }
+    else if(typeOfSchema === 'object') { this.#schema = new Schema($schema) }
   }
   get classToString() { return Content.toString() }
   get object() { return this.#parse({ type: 'object' }) }
   get string() { return this.#parse({ type: 'string' }) }
   get type() {
-    if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.#properties)
-    return this.#_type
+    if(this.#type !== undefined) return this.#type
+    this.#type = typeOf(this.#properties)
+    return this.#type
   }
   get parent() {
-    if(this.#_parent !== undefined)  return this.#_parent
-    this.#_parent = (this.options.parent) ? this.options.parent : null
-    return this.#_parent
+    if(this.#parent !== undefined)  return this.#parent
+    this.#parent = (this.options.parent) ? this.options.parent : null
+    return this.#parent
   }
   get root() {
     let root = this
@@ -68,34 +68,34 @@ export default class Content extends EventTarget {
     return root
   }
   get key() {
-    if(this.#_key !== undefined) { return this.#_key }
-    if(this.path) { this.#_key = this.path.split('.').pop() }
-    else { this.#_key = null }
-    return this.#_key
+    if(this.#key !== undefined) { return this.#key }
+    if(this.path) { this.#key = this.path.split('.').pop() }
+    else { this.#key = null }
+    return this.#key
   }
   get path() {
-    if(this.#_path !== undefined)  return this.#_path
-    this.#_path = (this.options.path)
+    if(this.#path !== undefined)  return this.#path
+    this.#path = (this.options.path)
       ? String(this.options.path)
       : null
-    return this.#_path
+    return this.#path
   }
   get target() {
-    if(this.#_target !== undefined) return this.#_target
-    this.#_target = typedObjectLiteral(this.#properties)
-    return this.#_target
+    if(this.#target !== undefined) return this.#target
+    this.#target = typedObjectLiteral(this.#properties)
+    return this.#target
   }
   get proxy() {
-    if(this.#_proxy !== undefined) return this.#_proxy
+    if(this.#proxy !== undefined) return this.#proxy
     const { proxyAssignmentMethod } = this.options
-    this.#_proxy = new Proxy(this.target, this.#handler)
+    this.#proxy = new Proxy(this.target, this.#handler)
     if(['set', 'assign'].includes(proxyAssignmentMethod)) {
-      this.#_proxy[proxyAssignmentMethod](this.#properties)
+      this.#proxy[proxyAssignmentMethod](this.#properties)
     }
     else {
-      this.#_proxy[Options.proxyAssignmentMethod](this.#properties)
+      this.#proxy[Options.proxyAssignmentMethod](this.#properties)
     }
-    return this.#_proxy
+    return this.#proxy
   }
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler

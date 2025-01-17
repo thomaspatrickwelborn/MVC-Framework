@@ -2,42 +2,6 @@
 **MVC Framework \| Guide \| *Core***  
 See Also: [**Core Class**](../../ClassSystem/Core/index.md)  
 
-**Contents**  
- - [Overview]()
- - [Event Formats]()
-   - [Event Properties]()
-   - [Impanded Events Format]()
-     - [Impanded Event Listener]()
-     - [Impanded Event Listener With Options]()
-   - [Expanded Events Format]()
- - [Core Instantiation]()
- - [Core Ministration]()
-   - [Filter Events]()
-     - [Get `enabled` Events]()
-     - [Get `type` Events]()
-     - [Get `path` Events]()
-     - [Get `listener` Events]()
-     - [Get `enabled`, `type`, `path`, `listener` Events]()
-   - [Add, Remove, Enable, Disable All Events]()
-     - [Add All Events *(from `settings` property)*]()
-     - [Remove All Events *(from `events` property)*]()
-     - [Enable All Events *(from `events` property)*]()
-     - [Disable All Events *(from `events` property)*]()
-   - [Add, Remove, Enable, Disable Expanded Events ]()
-     - [Add Expanded Event]()
-     - [Remove Expanded Event]()
-     - [Enable Expanded Event ]()
-     - [Disable Expanded Event ]()
-   - [Add, Remove, Enable, Disable Impanded Events ]()
-     - [Add Impanded Event]()
-     - [Add Impanded Events With Options]()
-     - [Remove Impanded Event]()
-     - [Enable Impanded Event]()
-     - [Disable Impanded Event]()
- - [Core Extension]()
-   - [Core Extension Declaration]()
-   - [Core Extension Instantiation]()
-
 ## Overview
  - Stores Settings, Options, Events Properties.  
  - Ventilates scoped Event Target instances.  

@@ -5,12 +5,12 @@ import Query from './Query/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
 export default class View extends Core {
-  #_templates
-  #_scope
-  #_parentElement
+  #templates
+  #scope
+  #parentElement
   #_template
-  #_children
-  #_querySelectors = {}
+  #children
+  #querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
       Object.assign({}, Settings, $settings),
@@ -22,19 +22,19 @@ export default class View extends Core {
     if(enableEvents) this.enableEvents()
   }
   get templates() {
-    if(this.#_templates !== undefined) return this.#_templates
-    this.#_templates = this.settings.templates
-    return this.#_templates
+    if(this.#templates !== undefined) return this.#templates
+    this.#templates = this.settings.templates
+    return this.#templates
   }
   get scope() {
-    if(this.#_scope !== undefined) return this.#_scope
-    this.#_scope = this.settings.scope
-    return this.#_scope
+    if(this.#scope !== undefined) return this.#scope
+    this.#scope = this.settings.scope
+    return this.#scope
   }
   get parentElement() {
-    if(this.#_parentElement !== undefined) return this.#_parentElement
-    this.#_parentElement = this.settings.parentElement
-    return this.#_parentElement
+    if(this.#parentElement !== undefined) return this.#parentElement
+    this.#parentElement = this.settings.parentElement
+    return this.#parentElement
   }
   get #template() {
     if(this.#_template !== undefined) { return this.#_template }
@@ -51,9 +51,9 @@ export default class View extends Core {
     this.enableEvents()
   }
   get children() {
-    if(this.#_children !== undefined) return this.#_children
-    this.#_children = new Map()
-    return this.#_children
+    if(this.#children !== undefined) return this.#children
+    this.#children = new Map()
+    return this.#children
   }
   set children($children) {
     const children = this.children
@@ -63,7 +63,7 @@ export default class View extends Core {
       children.set($childIndex, $child)
     })
   }
-  get querySelectors() { return this.#_querySelectors }
+  get querySelectors() { return this.#querySelectors }
   get qs() { return this.querySelectors }
   querySelector($queryString, $queryScope) {
     const query = this.#query('querySelector', $queryString, $queryScope)

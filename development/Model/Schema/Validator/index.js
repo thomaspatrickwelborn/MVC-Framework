@@ -6,8 +6,8 @@ const Messages = {
 }
 export default class Validator extends EventTarget {
   #boundValidate
-  #_definition
-  #_schema
+  #definition
+  #schema
   constructor($definition = {}, $schema) {
     super()
     this.definition = Object.freeze(
@@ -15,13 +15,13 @@ export default class Validator extends EventTarget {
     )
     this.schema = $schema
   }
-  get definition() { return this.#_definition }
-  set definition($definition) { this.#_definition = $definition }
-  get schema() { return this.#_schema }
+  get definition() { return this.#definition }
+  set definition($definition) { this.#definition = $definition }
+  get schema() { return this.#schema }
   set schema($schema) {
-    if(this.#_schema !== undefined) { return this.#_schema }
-    this.#_schema = $schema
-    return this.#_schema
+    if(this.#schema !== undefined) { return this.#schema }
+    this.#schema = $schema
+    return this.#schema
   }
   get type() { return this.definition.type }
   get messages() { return this.definition.messages }

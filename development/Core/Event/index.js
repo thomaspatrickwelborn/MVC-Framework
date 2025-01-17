@@ -2,7 +2,7 @@ import Content from '../../Model/Content/index.js'
 export default class CoreEvent {
   #settings
   #_boundListener
-  #_enable = false
+  #enable = false
   constructor($settings) { 
     this.#settings = $settings
   }
@@ -31,10 +31,10 @@ export default class CoreEvent {
   }
   get listener() { return this.#settings.listener }
   get options() { return this.#settings.options }
-  get enable() { return this.#_enable }
+  get enable() { return this.#enable }
   set enable($enable) {
     if(
-      $enable === this.#_enable ||
+      $enable === this.#enable ||
       this.target === undefined
     ) { return }
     const eventAbility = (
@@ -48,16 +48,16 @@ export default class CoreEvent {
       for(const $target of this.target) {
         $target[eventAbility](this.type, this.#boundListener, this.options)
       }
-      this.#_enable = $enable
+      this.#enable = $enable
     }
     else if(this.target instanceof EventTarget) {
       this.target[eventAbility](this.type, this.#boundListener, this.options)
-      this.#_enable = $enable
+      this.#enable = $enable
     }
     else {
       try {
         this.target[eventAbility](this.type, this.#boundListener, this.options)
-        this.#_enable = $enable
+        this.#enable = $enable
       } catch($err) {}
     }
   }

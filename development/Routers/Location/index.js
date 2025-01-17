@@ -5,14 +5,12 @@ import RouteEvent from './RouteEvent/index.js'
 const Settings = { routes: {} }
 const Options = {}
 export default class LocationRouter extends Core {
-  #_window
-  #_hashpath
-  #_routes
-  #_location
-  #_route
-  #_enable
-  #_popstate
-  #_boundPopstate
+  #window
+  #hashpath
+  #routes
+  #location
+  #route
+  #enable
   #regularExpressions = {
     windowLocationOrigin: new RegExp(`^${this.window.location.origin}`)
   }
@@ -26,40 +24,40 @@ export default class LocationRouter extends Core {
   }
   get base() { return this.settings.base }
   get window() {
-    if(this.#_window !== undefined) return this.#_window
-    this.#_window = window
-    return this.#_window
+    if(this.#window !== undefined) return this.#window
+    this.#window = window
+    return this.#window
   }
   get hashpath() {
-    if(this.#_hashpath !== undefined) return this.#_hashpath
-    this.#_hashpath = (
+    if(this.#hashpath !== undefined) return this.#hashpath
+    this.#hashpath = (
       this.settings.hashpath === undefined
     ) ? false
       : this.settings.hashpath
-    return this.#_hashpath
+    return this.#hashpath
   }
   get routes() {
-    if(this.#_routes !== undefined) return this.#_routes
-    this.#_routes = {}
+    if(this.#routes !== undefined) return this.#routes
+    this.#routes = {}
     const routeEntries = Object.entries(this.settings.routes)
     for(const [$routePath, $routeSettings] of routeEntries) {
       this.setRoute($routePath, $routeSettings)
     }
-    return this.#_routes
+    return this.#routes
   }
-  get location() { return this.#_location }
-  get route() { return this.#_route }
-  get enable() { return this.#_enable }
+  get location() { return this.#location }
+  get route() { return this.#route }
+  get enable() { return this.#enable }
   set enable($enable) {
-    if(this.#_enable === $enable) return
+    if(this.#enable === $enable) return
     const boundPopstate = this.#popstate.bind(this)
     if($enable === true) {
-      this.#_window.addEventListener('popstate', boundPopstate)
+      this.#window.addEventListener('popstate', boundPopstate)
     }
     else if($enable === false) {
-      this.#_window.removeEventListener('popstate', boundPopstate)
+      this.#window.removeEventListener('popstate', boundPopstate)
     }
-    this.#_enable = $enable
+    this.#enable = $enable
   }
   #popstate() { this.navigate() }
   navigate($path, $method) {
@@ -99,8 +97,8 @@ export default class LocationRouter extends Core {
       location.hash = this.window.location.hash
       location.search = this.window.location.search
       delete location.path
-      this.#_route = route
-      this.#_location = location
+      this.#route = route
+      this.#location = location
       this.dispatchEvent(
         new RouteEvent("route", routeEventOptions)
       )
@@ -109,8 +107,8 @@ export default class LocationRouter extends Core {
       )
     }
     else {
-      this.#_route = null
-      this.#_location = null
+      this.#route = null
+      this.#location = null
       this.dispatchEvent(
         new RouteEvent("nonroute", routeEventOptions)
       )
@@ -133,15 +131,15 @@ export default class LocationRouter extends Core {
     const routeSettings = recursiveAssign({
       pathname: $routeSettings.pathname || $routePath,
     }, $routeSettings)
-    this.#_routes[$routePath] = new Route(routeSettings)
-    return this.#_routes[$routePath]
+    this.#routes[$routePath] = new Route(routeSettings)
+    return this.#routes[$routePath]
   }
   getRoute($routePath) {
-    return this.#_routes[$routePath]
+    return this.#routes[$routePath]
   }
   deleteRoute($routePath) {
-    delete this.#_routes[$routePath]
-    return this.#_routes[$routePath]
+    delete this.#routes[$routePath]
+    return this.#routes[$routePath]
   }
   #matchRoute($path) {
     const routeEntries = Object.entries(this.routes)

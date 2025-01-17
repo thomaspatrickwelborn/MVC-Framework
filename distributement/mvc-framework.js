@@ -440,7 +440,7 @@ function CoreClassValidator($propertyClass, $property, $value) {
 class ContentEvent extends Event {
   #settings
   #content
-  #_key
+  #key
   constructor($type, $settings, $content) {
     super($type, $settings);
     this.#settings = $settings;
@@ -465,10 +465,10 @@ class ContentEvent extends Event {
     );
   }
   get key() {
-    if(this.#_key !== undefined) { return this.#_key }
-    if(this.path) { this.#_key = this.path.split('.').pop(); }
-    else { this.#_key = null; }
-    return this.#_key
+    if(this.#key !== undefined) { return this.#key }
+    if(this.path) { this.#key = this.path.split('.').pop(); }
+    else { this.#key = null; }
+    return this.#key
   }
   get change() { return this.#settings.change }
   get value() { return this.#settings.value }
@@ -479,9 +479,9 @@ class ContentEvent extends Event {
 let ValidatorEvent$1 = class ValidatorEvent extends Event {
   #settings
   #content
-  #_key
-  #_value
-  #_valid
+  #key
+  #value
+  #valid
   constructor($type, $settings, $content) {
     super($type);
     this.#settings = $settings;
@@ -509,19 +509,19 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
     );
   }
   get key() {
-    if(this.#_key !== undefined) { return this.#_key }
-    this.#_key = this.#settings.key;
-    return this.#_key
+    if(this.#key !== undefined) { return this.#key }
+    this.#key = this.#settings.key;
+    return this.#key
   }
   get value() {
-    if(this.#_value !== undefined) { return this.#_value }
-    this.#_value = this.#settings.value;
-    return this.#_value
+    if(this.#value !== undefined) { return this.#value }
+    this.#value = this.#settings.value;
+    return this.#value
   }
   get valid() {
-    if(this.#_valid !== undefined) { return this.#_valid }
-    this.#_valid = this.#settings.valid;
-    return this.#_valid
+    if(this.#valid !== undefined) { return this.#valid }
+    this.#valid = this.#settings.valid;
+    return this.#valid
   }
 };
 
@@ -2511,8 +2511,8 @@ let Handler$2 = class Handler {
 
 class Verification extends EventTarget {
   #settings
-  #_message
-  #_pass
+  #message
+  #pass
   constructor($settings) {
     super();
     this.#settings = $settings;
@@ -2522,19 +2522,19 @@ class Verification extends EventTarget {
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
   get message() {
-    if(this.#_message !== undefined) return this.#_message
+    if(this.#message !== undefined) return this.#message
     if(
       this.pass !== undefined &&
-      this.#_message === undefined
+      this.#message === undefined
     ) {
-      this.#_message = this.#settings.messages[String(this.pass)](this);
+      this.#message = this.#settings.messages[String(this.pass)](this);
     }
-    return this.#_message
+    return this.#message
   }
-  get pass() { return this.#_pass }
+  get pass() { return this.#pass }
   set pass($pass) {
-    if(this.#_pass === undefined) {
-      this.#_pass = $pass;
+    if(this.#pass === undefined) {
+      this.#pass = $pass;
     }
   }
 }
@@ -2545,8 +2545,8 @@ const Messages$1 = {
 };
 class Validator extends EventTarget {
   #boundValidate
-  #_definition
-  #_schema
+  #definition
+  #schema
   constructor($definition = {}, $schema) {
     super();
     this.definition = Object.freeze(
@@ -2554,13 +2554,13 @@ class Validator extends EventTarget {
     );
     this.schema = $schema;
   }
-  get definition() { return this.#_definition }
-  set definition($definition) { this.#_definition = $definition; }
-  get schema() { return this.#_schema }
+  get definition() { return this.#definition }
+  set definition($definition) { this.#definition = $definition; }
+  get schema() { return this.#schema }
   set schema($schema) {
-    if(this.#_schema !== undefined) { return this.#_schema }
-    this.#_schema = $schema;
-    return this.#_schema
+    if(this.#schema !== undefined) { return this.#schema }
+    this.#schema = $schema;
+    return this.#schema
   }
   get type() { return this.definition.type }
   get messages() { return this.definition.messages }
@@ -2773,11 +2773,11 @@ let Handler$1 = class Handler {
 
 class Context extends EventTarget {
   #properties
-  #_schema
-  #_type
-  #_proxy
+  #schema
+  #type
+  #proxy
+  #target
   #_handler
-  #_target
   constructor($properties, $schema) {
     super();
     this.#properties = $properties;
@@ -2785,21 +2785,21 @@ class Context extends EventTarget {
     return this.proxy
   }
   get required() { return this.schema.options.required }
-  get schema() { return this.#_schema }
+  get schema() { return this.#schema }
   set schema($schema) {
-    if(this.#_schema !== undefined) return
-    this.#_schema = $schema;
-    return this.#_schema
+    if(this.#schema !== undefined) return
+    this.#schema = $schema;
+    return this.#schema
   }
   get type() {
-    if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(typedObjectLiteral(this.#properties));
-    return this.#_type
+    if(this.#type !== undefined) return this.#type
+    this.#type = typeOf(typedObjectLiteral(this.#properties));
+    return this.#type
   }
   get proxy() {
-    if(this.#_proxy !== undefined) return this.#_proxy
-    this.#_proxy = new Proxy(this.target, this.#handler);
-    return this.#_proxy
+    if(this.#proxy !== undefined) return this.#proxy
+    this.#proxy = new Proxy(this.target, this.#handler);
+    return this.#proxy
   }
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
@@ -2807,7 +2807,7 @@ class Context extends EventTarget {
     return this.#_handler
   }
   get target() {
-    if(this.#_target !== undefined) return this.#_target
+    if(this.#target !== undefined) return this.#target
     let properties;
     const target = typedObjectLiteral(this.type);
     if(this.type === 'array') {
@@ -2881,8 +2881,8 @@ class Context extends EventTarget {
       }
       target[$propertyKey] = propertyDefinition;
     }
-    this.#_target = target;
-    return this.#_target
+    this.#target = target;
+    return this.#target
   }
   #parsePropertyDefinition($propertyDefinition) {
     const propertyDefinition = $propertyDefinition;
@@ -2956,11 +2956,11 @@ const Messages = {
 };
 class Validation extends EventTarget {
   #settings
-  #_properties
-  #_valid
-  #_advance = []
-  #_deadvance = []
-  #_unadvance = []
+  #properties
+  #valid
+  #advance = []
+  #deadvance = []
+  #unadvance = []
   constructor($settings = {}) {
     super();
     this.#settings = Object.assign({ messages: Messages }, $settings);
@@ -2970,17 +2970,17 @@ class Validation extends EventTarget {
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
   get properties() {
-    if(this.#_properties !== undefined) return this.#_properties
-    this.#_properties = this.#settings.properties;
-    return this.#_properties
+    if(this.#properties !== undefined) return this.#properties
+    this.#properties = this.#settings.properties;
+    return this.#properties
   }
-  get advance() { return this.#_advance }
-  get deadvance() { return this.#_deadvance }
-  get unadvance() { return this.#_unadvance }
-  get valid() { return this.#_valid }
+  get advance() { return this.#advance }
+  get deadvance() { return this.#deadvance }
+  get unadvance() { return this.#unadvance }
+  get valid() { return this.#valid }
   set valid($valid) {
-    if(this.#_valid === undefined) {
-      this.#_valid = $valid;
+    if(this.#valid === undefined) {
+      this.#valid = $valid;
     }
   }
 }
@@ -2993,40 +2993,40 @@ var Options$6 = {
 class Schema extends EventTarget{
   #properties
   options
-  #_type
-  #_context
-  #_requiredProperties
-  #_requiredPropertiesSize
+  #type
+  #context
+  #requiredProperties
+  #requiredPropertiesSize
   constructor($properties = {}, $options = {}) {
     super();
     this.#properties = $properties;
     this.options = Object.assign({}, Options$6, $options);
   }
   get type() {
-    if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(typedObjectLiteral(this.#properties));
-    return this.#_type
+    if(this.#type !== undefined) return this.#type
+    this.#type = typeOf(typedObjectLiteral(this.#properties));
+    return this.#type
   }
   get required() { return this.options.required }
   get requiredProperties() {
-    if(this.#_requiredProperties !== undefined) return this.#_requiredProperties
+    if(this.#requiredProperties !== undefined) return this.#requiredProperties
     let requiredProperties = typedObjectLiteral(this.type);
     for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
       if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition; }
     }
-    this.#_requiredProperties = requiredProperties;
-    return this.#_requiredProperties
+    this.#requiredProperties = requiredProperties;
+    return this.#requiredProperties
   }
   get requiredPropertiesSize() {
-    if(this.#_requiredPropertiesSize !== undefined) return this.#_requiredPropertiesSize
-    this.#_requiredPropertiesSize = Object.keys(this.requiredProperties).length;
-    return this.#_requiredPropertiesSize
+    if(this.#requiredPropertiesSize !== undefined) return this.#requiredPropertiesSize
+    this.#requiredPropertiesSize = Object.keys(this.requiredProperties).length;
+    return this.#requiredPropertiesSize
   }
   get verificationType() { return this.options.verificationType }
   get context() {
-    if(this.#_context !== undefined) return this.#_context
-    this.#_context = new Context(this.#properties, this);
-    return this.#_context
+    if(this.#context !== undefined) return this.#context
+    this.#context = new Context(this.#properties, this);
+    return this.#context
   }
   #parseValidateArguments() {
     let $arguments = [...arguments];
@@ -3276,14 +3276,14 @@ var Options$5 = {
 
 class Content extends EventTarget {
   #_properties
-  #_options
-  #_schema
-  #_type
-  #_target
-  #_parent
-  #_key
-  #_path
-  #_proxy
+  #options
+  #schema
+  #type
+  #target
+  #parent
+  #key
+  #path
+  #proxy
   #_handler
   constructor($properties = {}, $schema = null, $options = {}) {
     super();
@@ -3301,33 +3301,33 @@ class Content extends EventTarget {
     this.#_properties = $properties;
     return this.#_properties
   }
-  get options() { return this.#_options }
+  get options() { return this.#options }
   set options($options) {
-    if(this.#_options !== undefined) return
-    this.#_options = recursiveAssign({}, Options$5, $options);
-    return this.#_options
+    if(this.#options !== undefined) return
+    this.#options = recursiveAssign({}, Options$5, $options);
+    return this.#options
   }
-  get schema() { return this.#_schema }
+  get schema() { return this.#schema }
   set schema($schema) {
-    if(this.#_schema !== undefined)  { return }
+    if(this.#schema !== undefined)  { return }
     const typeOfSchema = typeOf($schema);
-    if(['undefined', 'null'].includes(typeOfSchema)) { this.#_schema = null; }
-    else if($schema instanceof Schema) { this.#_schema = $schema; }
-    else if(typeOfSchema === 'array') { this.#_schema = new Schema(...arguments); }
-    else if(typeOfSchema === 'object') { this.#_schema = new Schema($schema); }
+    if(['undefined', 'null'].includes(typeOfSchema)) { this.#schema = null; }
+    else if($schema instanceof Schema) { this.#schema = $schema; }
+    else if(typeOfSchema === 'array') { this.#schema = new Schema(...arguments); }
+    else if(typeOfSchema === 'object') { this.#schema = new Schema($schema); }
   }
   get classToString() { return Content.toString() }
   get object() { return this.#parse({ type: 'object' }) }
   get string() { return this.#parse({ type: 'string' }) }
   get type() {
-    if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(this.#properties);
-    return this.#_type
+    if(this.#type !== undefined) return this.#type
+    this.#type = typeOf(this.#properties);
+    return this.#type
   }
   get parent() {
-    if(this.#_parent !== undefined)  return this.#_parent
-    this.#_parent = (this.options.parent) ? this.options.parent : null;
-    return this.#_parent
+    if(this.#parent !== undefined)  return this.#parent
+    this.#parent = (this.options.parent) ? this.options.parent : null;
+    return this.#parent
   }
   get root() {
     let root = this;
@@ -3339,34 +3339,34 @@ class Content extends EventTarget {
     return root
   }
   get key() {
-    if(this.#_key !== undefined) { return this.#_key }
-    if(this.path) { this.#_key = this.path.split('.').pop(); }
-    else { this.#_key = null; }
-    return this.#_key
+    if(this.#key !== undefined) { return this.#key }
+    if(this.path) { this.#key = this.path.split('.').pop(); }
+    else { this.#key = null; }
+    return this.#key
   }
   get path() {
-    if(this.#_path !== undefined)  return this.#_path
-    this.#_path = (this.options.path)
+    if(this.#path !== undefined)  return this.#path
+    this.#path = (this.options.path)
       ? String(this.options.path)
       : null;
-    return this.#_path
+    return this.#path
   }
   get target() {
-    if(this.#_target !== undefined) return this.#_target
-    this.#_target = typedObjectLiteral(this.#properties);
-    return this.#_target
+    if(this.#target !== undefined) return this.#target
+    this.#target = typedObjectLiteral(this.#properties);
+    return this.#target
   }
   get proxy() {
-    if(this.#_proxy !== undefined) return this.#_proxy
+    if(this.#proxy !== undefined) return this.#proxy
     const { proxyAssignmentMethod } = this.options;
-    this.#_proxy = new Proxy(this.target, this.#handler);
+    this.#proxy = new Proxy(this.target, this.#handler);
     if(['set', 'assign'].includes(proxyAssignmentMethod)) {
-      this.#_proxy[proxyAssignmentMethod](this.#properties);
+      this.#proxy[proxyAssignmentMethod](this.#properties);
     }
     else {
-      this.#_proxy[Options$5.proxyAssignmentMethod](this.#properties);
+      this.#proxy[Options$5.proxyAssignmentMethod](this.#properties);
     }
-    return this.#_proxy
+    return this.#proxy
   }
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
@@ -3410,7 +3410,7 @@ class Content extends EventTarget {
 class CoreEvent {
   #settings
   #_boundListener
-  #_enable = false
+  #enable = false
   constructor($settings) { 
     this.#settings = $settings;
   }
@@ -3439,10 +3439,10 @@ class CoreEvent {
   }
   get listener() { return this.#settings.listener }
   get options() { return this.#settings.options }
-  get enable() { return this.#_enable }
+  get enable() { return this.#enable }
   set enable($enable) {
     if(
-      $enable === this.#_enable ||
+      $enable === this.#enable ||
       this.target === undefined
     ) { return }
     const eventAbility = (
@@ -3456,16 +3456,16 @@ class CoreEvent {
       for(const $target of this.target) {
         $target[eventAbility](this.type, this.#boundListener, this.options);
       }
-      this.#_enable = $enable;
+      this.#enable = $enable;
     }
     else if(this.target instanceof EventTarget) {
       this.target[eventAbility](this.type, this.#boundListener, this.options);
-      this.#_enable = $enable;
+      this.#enable = $enable;
     }
     else {
       try {
         this.target[eventAbility](this.type, this.#boundListener, this.options);
-        this.#_enable = $enable;
+        this.#enable = $enable;
       } catch($err) {}
     }
   }
@@ -3507,35 +3507,35 @@ class Handler {
 
 class PropertyClass {
   #settings
-  #_core
-  #_target
-  #_handler
-  #_proxy
+  #core
+  #target
+  #handler
+  #proxy
   constructor($settings, $core) {
     this.#settings = $settings;
     this.core = $core;
     return this.proxy
   }
-  get core() { return this.#_core }
+  get core() { return this.#core }
   set core($core) {
-    if(this.#_core !== undefined) return
-    this.#_core = $core;
-    return this.#_core
+    if(this.#core !== undefined) return
+    this.#core = $core;
+    return this.#core
   }
   get target() {
-    if(this.#_target !== undefined) { return this.#_target }
-    this.#_target = {};
-    return this.#_target
+    if(this.#target !== undefined) { return this.#target }
+    this.#target = {};
+    return this.#target
   }
   get handler() {
-    if(this.#_handler !== undefined) { return this.#_handler }
-    this.#_handler = new Handler(this);
-    return this.#_handler
+    if(this.#handler !== undefined) { return this.#handler }
+    this.#handler = new Handler(this);
+    return this.#handler
   }
   get proxy() {
-    if(this.#_proxy !== undefined) { return this.#_proxy }
-    this.#_proxy = new Proxy(this.target, this.handler);
-    return this.#_proxy
+    if(this.#proxy !== undefined) { return this.#proxy }
+    this.#proxy = new Proxy(this.target, this.handler);
+    return this.#proxy
   }
   get Class() { return this.#settings.Class }
   get ClassInstanceValidator() { return this.#settings.ClassInstanceValidator }
@@ -3557,14 +3557,14 @@ var Options$4 = {
 };
 
 class Core extends EventTarget {
-  #_settings
-  #_options
+  #settings
+  #options
+  #events
+  #key
+  #path
+  #parent
   #_propertyClassEvents
   #_propertyClasses
-  #_events
-  #_key
-  #_path
-  #_parent
   constructor($settings, $options) {
     super();
     this.settings = $settings;
@@ -3665,13 +3665,13 @@ class Core extends EventTarget {
     }
     return this.#_propertyClasses
   }
-  get settings() { return this.#_settings }
+  get settings() { return this.#settings }
   set settings($settings) {
-    if(this.#_settings !== undefined) return
-    this.#_settings = Object.assign({}, Settings$4, $settings);
+    if(this.#settings !== undefined) return
+    this.#settings = Object.assign({}, Settings$4, $settings);
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
-    ] of Object.entries(this.#_settings.propertyClasses)) {
+    ] of Object.entries(this.#settings.propertyClasses)) {
       // Events
       if($propertyClassInstantiatorSettings.Events === undefined) {
         $propertyClassInstantiatorSettings.Events = CoreClassEvents;
@@ -3692,38 +3692,38 @@ class Core extends EventTarget {
     // Expanded Events
     $settings.events = expandEvents($settings.events);
   }
-  get options() { return this.#_options }
+  get options() { return this.#options }
   set options($options) {
-    if(this.#_options !== undefined) return
-    this.#_options = recursiveAssign(structuredClone(Options$4), $options);
+    if(this.#options !== undefined) return
+    this.#options = recursiveAssign(structuredClone(Options$4), $options);
   }
   get key() {
-    if(this.#_key !== undefined) return this.#_key
-    this.#_key = this.path?.split('.').pop() || null;
-    return this.#_key
+    if(this.#key !== undefined) return this.#key
+    this.#key = this.path?.split('.').pop() || null;
+    return this.#key
   }
   get path() {
-    if(this.#_path !== undefined) return this.#_path
-    this.#_path = (this.settings.path !== undefined)
+    if(this.#path !== undefined) return this.#path
+    this.#path = (this.settings.path !== undefined)
       ? this.settings.path
       : undefined;
-    return this.#_path
+    return this.#path
   }
   set path($path) {
-    if(this.#_path !== undefined) return
-    this.#_path = $path;
+    if(this.#path !== undefined) return
+    this.#path = $path;
   }
   get parent() {
-    if(this.#_parent !== undefined) return this.#_parent
-    this.#_parent = (
+    if(this.#parent !== undefined) return this.#parent
+    this.#parent = (
       this.settings.parent !== undefined
     ) ? this.settings.parent
       : undefined;
-    return this.#_parent
+    return this.#parent
   }
   set parent($parent) {
-    if(this.#_parent !== undefined) return
-    this.#_parent = $parent;
+    if(this.#parent !== undefined) return
+    this.#parent = $parent;
   }
   get root() {
     let root = this;
@@ -3731,9 +3731,9 @@ class Core extends EventTarget {
     return root
   }
   get events() {
-    if(this.#_events !== undefined) return this.#_events
-    this.#_events = [];
-    return this.#_events
+    if(this.#events !== undefined) return this.#events
+    this.#events = [];
+    return this.#events
   }
   getEvents() {
     const getEvents = [];
@@ -3841,15 +3841,15 @@ class Core extends EventTarget {
 
 class LocalStorage extends EventTarget {
   #db = localStorage
-  #_path
+  #path
   constructor($path) {
     super();
     this.path = $path;
   }
-  get path() { return this.#_path }
+  get path() { return this.#path }
   set path($path) {
-    if(this.#_path !== undefined) return
-    this.#_path = $path;
+    if(this.#path !== undefined) return
+    this.#path = $path;
   }
   get() {
     try{ return JSON.parse(this.#db.getItem(this.path)) }
@@ -3886,17 +3886,17 @@ var Options$3 = {
 class ChangeEvent extends CustomEvent {
   #settings
   #content
-  #_key
+  #key
   constructor($type, $settings, $content) {
     super($type, $settings);
     this.#settings = $settings;
   }
   get originalEvent() { return this.#settings.originalEvent }
   get key() {
-    if(this.#_key !== undefined) { return this.#_key }
-    if(this.path) { this.#_key = this.path.split('.').pop(); }
-    else { this.#_key = null; }
-    return this.#_key
+    if(this.#key !== undefined) { return this.#key }
+    if(this.path) { this.#key = this.path.split('.').pop(); }
+    else { this.#key = null; }
+    return this.#key
   }
   get change() { return this.#settings.change }
   get value() { return this.#settings.value }
@@ -3914,10 +3914,10 @@ const ChangeEvents = [
   "assignSourceProperty", "defineProperty",
 ];
 class Model extends Core {
-  #_schema
-  #_content
-  #_localStorage
-  #_changeEvents
+  #schema
+  #content
+  #localStorage
+  #changeEvents
   constructor($settings = {}, $options = {}) {
     super(
       recursiveAssign({}, Settings$3, $settings), 
@@ -3931,19 +3931,19 @@ class Model extends Core {
     if(this.options.enableEvents === true) this.enableEvents();
   }
   get schema() {
-    if(this.#_schema !== undefined) return this.#_schema
+    if(this.#schema !== undefined) return this.#schema
     const { schema } = this.settings;
-    if(!schema) { this.#_schema = null; }
-    else if(schema instanceof Schema) { this.#_schema = schema; }
+    if(!schema) { this.#schema = null; }
+    else if(schema instanceof Schema) { this.#schema = schema; }
     else {
-      this.#_schema = new Schema(
+      this.#schema = new Schema(
         schema, this.options.schema
       );
     }
-    return this.#_schema
+    return this.#schema
   }
   get content() {
-    if(this.#_content !== undefined) return this.#_content
+    if(this.#content !== undefined) return this.#content
     const { content } = this.settings;
     const { localStorage, autoload, autosave } = this.options;
     let properties;
@@ -3960,12 +3960,12 @@ class Model extends Core {
       properties = content;
     }
     if(properties !== undefined) {
-      this.#_content = new Content(properties, this.schema, this.options.content);
+      this.#content = new Content(properties, this.schema, this.options.content);
     }
-    return this.#_content
+    return this.#content
   }
   get localStorage() {
-    if(this.#_localStorage !== undefined) { return this.#_localStorage }
+    if(this.#localStorage !== undefined) { return this.#localStorage }
     const { localStorage } = this.settings;
     let path;
     if(localStorage !== undefined) {
@@ -3978,16 +3978,16 @@ class Model extends Core {
         if(this.path) { path.push(path); }
         path = path.join('');
       }
-      if(path !== undefined) { this.#_localStorage = new LocalStorage(path); }
+      if(path !== undefined) { this.#localStorage = new LocalStorage(path); }
     }
-    return this.#_localStorage
+    return this.#localStorage
   }
-  get changeEvents() { return this.#_changeEvents }
+  get changeEvents() { return this.#changeEvents }
   set changeEvents($changeEvents) {
-    if($changeEvents !== this.#_changeEvents) {
+    if($changeEvents !== this.#changeEvents) {
       const boundPropertyChange = this.#propertyChange.bind(this);
-      this.#_changeEvents = $changeEvents;
-      switch(this.#_changeEvents) {
+      this.#changeEvents = $changeEvents;
+      switch(this.#changeEvents) {
         case true:
           for(const $eventType of ChangeEvents) {
             this.content.addEventListener($eventType, boundPropertyChange);
@@ -4367,7 +4367,7 @@ function stringify(listOrNode) {
 
 class QuerySelector {
   #settings
-  #_enable
+  #enable
   constructor($settings) {
     this.#settings = $settings;
   }
@@ -4375,10 +4375,10 @@ class QuerySelector {
   get method() { return this.#settings.method }
   get name() { return this.#settings.name }
   get selector() { return this.#settings.selector }
-  get enable() { return this.#_enable }
+  get enable() { return this.#enable }
   set enable($enable) {
     // Unable
-    if($enable === this.#_enable) return
+    if($enable === this.#enable) return
     // Enable
     if($enable === true) {
       const { context, name, method, selector } = this;
@@ -4390,7 +4390,7 @@ class QuerySelector {
     else if($enable === false) {
       delete this.context.querySelectors[this.name];
     }
-    this.#_enable = $enable;
+    this.#enable = $enable;
   }
 }
 
@@ -4477,12 +4477,12 @@ var Options$2 = {
 };
 
 class View extends Core {
-  #_templates
-  #_scope
-  #_parentElement
+  #templates
+  #scope
+  #parentElement
   #_template
-  #_children
-  #_querySelectors = {}
+  #children
+  #querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
       Object.assign({}, Settings$2, $settings),
@@ -4494,19 +4494,19 @@ class View extends Core {
     if(enableEvents) this.enableEvents();
   }
   get templates() {
-    if(this.#_templates !== undefined) return this.#_templates
-    this.#_templates = this.settings.templates;
-    return this.#_templates
+    if(this.#templates !== undefined) return this.#templates
+    this.#templates = this.settings.templates;
+    return this.#templates
   }
   get scope() {
-    if(this.#_scope !== undefined) return this.#_scope
-    this.#_scope = this.settings.scope;
-    return this.#_scope
+    if(this.#scope !== undefined) return this.#scope
+    this.#scope = this.settings.scope;
+    return this.#scope
   }
   get parentElement() {
-    if(this.#_parentElement !== undefined) return this.#_parentElement
-    this.#_parentElement = this.settings.parentElement;
-    return this.#_parentElement
+    if(this.#parentElement !== undefined) return this.#parentElement
+    this.#parentElement = this.settings.parentElement;
+    return this.#parentElement
   }
   get #template() {
     if(this.#_template !== undefined) { return this.#_template }
@@ -4523,9 +4523,9 @@ class View extends Core {
     this.enableEvents();
   }
   get children() {
-    if(this.#_children !== undefined) return this.#_children
-    this.#_children = new Map();
-    return this.#_children
+    if(this.#children !== undefined) return this.#children
+    this.#children = new Map();
+    return this.#children
   }
   set children($children) {
     const children = this.children;
@@ -4535,7 +4535,7 @@ class View extends Core {
       children.set($childIndex, $child);
     });
   }
-  get querySelectors() { return this.#_querySelectors }
+  get querySelectors() { return this.#querySelectors }
   get qs() { return this.querySelectors }
   querySelector($queryString, $queryScope) {
     const query = this.#query('querySelector', $queryString, $queryScope);
@@ -4802,6 +4802,8 @@ class FetchRouter extends Core {
   #domain
   #port
   #_authority
+  #_origin
+  #routes = {}
   get #authority() {
     if(this.#_authority === undefined) {
       this.#_authority = String.prototype.concat(
@@ -4810,7 +4812,6 @@ class FetchRouter extends Core {
     }
     return this.#_authority
   }
-  #_origin
   get #origin() {
     if(this.#_origin === undefined) {
       this.#_origin = String.prototype.concat(
@@ -4828,11 +4829,10 @@ class FetchRouter extends Core {
     this.routes = routes;
     if($options.enableEvents === true) this.enableEvents();
   }
-  #_routes = {}
-  get routes() { return this.#_routes }
+  get routes() { return this.#routes }
   set routes($routes) { this.addRoutes($routes); }
   addRoutes($routes) {
-    const _routes = this.#_routes;
+    const _routes = this.#routes;
     for(let [
       $routePath, $routeSettings
     ] of Object.entries($routes)) {
@@ -4843,7 +4843,7 @@ class FetchRouter extends Core {
     return this
   }
   removeRoutes($routes) {
-    const _routes = this.#_routes;
+    const _routes = this.#routes;
     for(const $path of $routes) {
       delete _routes[$path];
     }
@@ -5267,9 +5267,9 @@ var distExports = requireDist();
 
 class Route extends EventTarget {
   #_settings
-  #_enable
-  #_active
-  #_match
+  #enable
+  #active
+  #match
   constructor($settings = {}) {
     super();
     this.#settings = $settings;
@@ -5283,28 +5283,28 @@ class Route extends EventTarget {
   }
   get pathname() { return this.#settings.pathname }
   get enable() {
-    if(this.#_enable !== undefined) return this.#_enable
+    if(this.#enable !== undefined) return this.#enable
     if(this.#settings.enable !== undefined) {
-      this.#_enable = this.#settings.enable;
+      this.#enable = this.#settings.enable;
     }
-    else { this.#_enable = true; }
-    return this.#_enable
+    else { this.#enable = true; }
+    return this.#enable
   }
   set enable($enable) {
-    if(this.#_enable !== $enable) this.#_enable = $enable;
+    if(this.#enable !== $enable) this.#enable = $enable;
   }
   get active() {
-    if(this.#_active !== undefined) return this.#_active
-    if(this.#settings.active === undefined) { this.#_active = false; }
-    return this.#_active
+    if(this.#active !== undefined) return this.#active
+    if(this.#settings.active === undefined) { this.#active = false; }
+    return this.#active
   }
   set active($active) {
-    if(this.#_active !== $active) this.#_active = $active;
+    if(this.#active !== $active) this.#active = $active;
   }
   get match() {
-    if(this.#_match !== undefined) return this.#_match
-    this.#_match = distExports.match(this.pathname);
-    return this.#_match
+    if(this.#match !== undefined) return this.#match
+    this.#match = distExports.match(this.pathname);
+    return this.#match
   }
 }
 
@@ -5322,14 +5322,12 @@ class RouteEvent extends Event {
 const Settings$1 = { routes: {} };
 const Options$1 = {};
 class LocationRouter extends Core {
-  #_window
-  #_hashpath
-  #_routes
-  #_location
-  #_route
-  #_enable
-  #_popstate
-  #_boundPopstate
+  #window
+  #hashpath
+  #routes
+  #location
+  #route
+  #enable
   #regularExpressions = {
     windowLocationOrigin: new RegExp(`^${this.window.location.origin}`)
   }
@@ -5343,40 +5341,40 @@ class LocationRouter extends Core {
   }
   get base() { return this.settings.base }
   get window() {
-    if(this.#_window !== undefined) return this.#_window
-    this.#_window = window;
-    return this.#_window
+    if(this.#window !== undefined) return this.#window
+    this.#window = window;
+    return this.#window
   }
   get hashpath() {
-    if(this.#_hashpath !== undefined) return this.#_hashpath
-    this.#_hashpath = (
+    if(this.#hashpath !== undefined) return this.#hashpath
+    this.#hashpath = (
       this.settings.hashpath === undefined
     ) ? false
       : this.settings.hashpath;
-    return this.#_hashpath
+    return this.#hashpath
   }
   get routes() {
-    if(this.#_routes !== undefined) return this.#_routes
-    this.#_routes = {};
+    if(this.#routes !== undefined) return this.#routes
+    this.#routes = {};
     const routeEntries = Object.entries(this.settings.routes);
     for(const [$routePath, $routeSettings] of routeEntries) {
       this.setRoute($routePath, $routeSettings);
     }
-    return this.#_routes
+    return this.#routes
   }
-  get location() { return this.#_location }
-  get route() { return this.#_route }
-  get enable() { return this.#_enable }
+  get location() { return this.#location }
+  get route() { return this.#route }
+  get enable() { return this.#enable }
   set enable($enable) {
-    if(this.#_enable === $enable) return
+    if(this.#enable === $enable) return
     const boundPopstate = this.#popstate.bind(this);
     if($enable === true) {
-      this.#_window.addEventListener('popstate', boundPopstate);
+      this.#window.addEventListener('popstate', boundPopstate);
     }
     else if($enable === false) {
-      this.#_window.removeEventListener('popstate', boundPopstate);
+      this.#window.removeEventListener('popstate', boundPopstate);
     }
-    this.#_enable = $enable;
+    this.#enable = $enable;
   }
   #popstate() { this.navigate(); }
   navigate($path, $method) {
@@ -5416,8 +5414,8 @@ class LocationRouter extends Core {
       location.hash = this.window.location.hash;
       location.search = this.window.location.search;
       delete location.path;
-      this.#_route = route;
-      this.#_location = location;
+      this.#route = route;
+      this.#location = location;
       this.dispatchEvent(
         new RouteEvent("route", routeEventOptions)
       );
@@ -5426,8 +5424,8 @@ class LocationRouter extends Core {
       );
     }
     else {
-      this.#_route = null;
-      this.#_location = null;
+      this.#route = null;
+      this.#location = null;
       this.dispatchEvent(
         new RouteEvent("nonroute", routeEventOptions)
       );
@@ -5450,15 +5448,15 @@ class LocationRouter extends Core {
     const routeSettings = recursiveAssign({
       pathname: $routeSettings.pathname || $routePath,
     }, $routeSettings);
-    this.#_routes[$routePath] = new Route(routeSettings);
-    return this.#_routes[$routePath]
+    this.#routes[$routePath] = new Route(routeSettings);
+    return this.#routes[$routePath]
   }
   getRoute($routePath) {
-    return this.#_routes[$routePath]
+    return this.#routes[$routePath]
   }
   deleteRoute($routePath) {
-    delete this.#_routes[$routePath];
-    return this.#_routes[$routePath]
+    delete this.#routes[$routePath];
+    return this.#routes[$routePath]
   }
   #matchRoute($path) {
     const routeEntries = Object.entries(this.routes);
@@ -5492,13 +5490,6 @@ var Options = {
 };
 
 class Control extends Core {
-  #_models = {}
-  #_views = {}
-  #_controls = {}
-  #_routers = {
-    location: {},
-    fetch: {},
-  }
   constructor($settings = {}, $options = {}) {
     super(
       recursiveAssign({

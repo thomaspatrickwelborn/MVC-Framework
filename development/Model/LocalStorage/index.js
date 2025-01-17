@@ -1,14 +1,14 @@
 export default class LocalStorage extends EventTarget {
   #db = localStorage
-  #_path
+  #path
   constructor($path) {
     super()
     this.path = $path
   }
-  get path() { return this.#_path }
+  get path() { return this.#path }
   set path($path) {
-    if(this.#_path !== undefined) return
-    this.#_path = $path
+    if(this.#path !== undefined) return
+    this.#path = $path
   }
   get() {
     let dbItem

@@ -7,14 +7,14 @@ import PropertyClass from './PropertyClass/index.js'
 import Settings from './Settings/index.js' 
 import Options from './Options/index.js' 
 export default class Core extends EventTarget {
-  #_settings
-  #_options
+  #settings
+  #options
+  #events
+  #key
+  #path
+  #parent
   #_propertyClassEvents
   #_propertyClasses
-  #_events
-  #_key
-  #_path
-  #_parent
   constructor($settings, $options) {
     super()
     this.settings = $settings
@@ -115,13 +115,13 @@ export default class Core extends EventTarget {
     }
     return this.#_propertyClasses
   }
-  get settings() { return this.#_settings }
+  get settings() { return this.#settings }
   set settings($settings) {
-    if(this.#_settings !== undefined) return
-    this.#_settings = Object.assign({}, Settings, $settings)
+    if(this.#settings !== undefined) return
+    this.#settings = Object.assign({}, Settings, $settings)
     for(const [
       $propertyClassName, $propertyClassInstantiatorSettings
-    ] of Object.entries(this.#_settings.propertyClasses)) {
+    ] of Object.entries(this.#settings.propertyClasses)) {
       // Events
       if($propertyClassInstantiatorSettings.Events === undefined) {
         $propertyClassInstantiatorSettings.Events = CoreClassEvents
@@ -142,38 +142,38 @@ export default class Core extends EventTarget {
     // Expanded Events
     $settings.events = expandEvents($settings.events)
   }
-  get options() { return this.#_options }
+  get options() { return this.#options }
   set options($options) {
-    if(this.#_options !== undefined) return
-    this.#_options = recursiveAssign(structuredClone(Options), $options)
+    if(this.#options !== undefined) return
+    this.#options = recursiveAssign(structuredClone(Options), $options)
   }
   get key() {
-    if(this.#_key !== undefined) return this.#_key
-    this.#_key = this.path?.split('.').pop() || null
-    return this.#_key
+    if(this.#key !== undefined) return this.#key
+    this.#key = this.path?.split('.').pop() || null
+    return this.#key
   }
   get path() {
-    if(this.#_path !== undefined) return this.#_path
-    this.#_path = (this.settings.path !== undefined)
+    if(this.#path !== undefined) return this.#path
+    this.#path = (this.settings.path !== undefined)
       ? this.settings.path
       : undefined
-    return this.#_path
+    return this.#path
   }
   set path($path) {
-    if(this.#_path !== undefined) return
-    this.#_path = $path
+    if(this.#path !== undefined) return
+    this.#path = $path
   }
   get parent() {
-    if(this.#_parent !== undefined) return this.#_parent
-    this.#_parent = (
+    if(this.#parent !== undefined) return this.#parent
+    this.#parent = (
       this.settings.parent !== undefined
     ) ? this.settings.parent
       : undefined
-    return this.#_parent
+    return this.#parent
   }
   set parent($parent) {
-    if(this.#_parent !== undefined) return
-    this.#_parent = $parent
+    if(this.#parent !== undefined) return
+    this.#parent = $parent
   }
   get root() {
     let root = this
@@ -181,9 +181,9 @@ export default class Core extends EventTarget {
     return root
   }
   get events() {
-    if(this.#_events !== undefined) return this.#_events
-    this.#_events = []
-    return this.#_events
+    if(this.#events !== undefined) return this.#events
+    this.#events = []
+    return this.#events
   }
   getEvents() {
     const getEvents = []

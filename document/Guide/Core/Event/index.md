@@ -1,8 +1,2 @@
-# MVC Framework - Core Event Class Guide
-**Contents**  
- - [Overview]()
- 
-## Overview
- - Evoke `addEventListener`, `removeEventListener` methods through `enable` property valuation. 
- - Store `addEventListener`, `removeEventListener` parameters through `type`, `target`, `listener`, and `options` properties. 
- - Access event `target` through `path` property. 
+# Core \| Event Guide
+**MVC Framework \| Guide \| *Core***  

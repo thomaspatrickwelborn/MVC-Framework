@@ -5,6 +5,8 @@ export default class FetchRouter extends Core {
   #domain
   #port
   #_authority
+  #_origin
+  #routes = {}
   get #authority() {
     if(this.#_authority === undefined) {
       this.#_authority = String.prototype.concat(
@@ -13,7 +15,6 @@ export default class FetchRouter extends Core {
     }
     return this.#_authority
   }
-  #_origin
   get #origin() {
     if(this.#_origin === undefined) {
       this.#_origin = String.prototype.concat(
@@ -31,12 +32,11 @@ export default class FetchRouter extends Core {
     this.routes = routes
     if($options.enableEvents === true) this.enableEvents()
   }
-  #_routes = {}
-  get routes() { return this.#_routes }
+  get routes() { return this.#routes }
   set routes($routes) { this.addRoutes($routes) }
   addRoutes($routes) {
     const $this = this
-    const _routes = this.#_routes
+    const _routes = this.#routes
     for(let [
       $routePath, $routeSettings
     ] of Object.entries($routes)) {
@@ -47,7 +47,7 @@ export default class FetchRouter extends Core {
     return this
   }
   removeRoutes($routes) {
-    const _routes = this.#_routes
+    const _routes = this.#routes
     for(const $path of $routes) {
       delete _routes[$path]
     }

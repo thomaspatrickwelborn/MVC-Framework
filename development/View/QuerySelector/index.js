@@ -1,6 +1,6 @@
 export default class QuerySelector {
   #settings
-  #_enable
+  #enable
   constructor($settings) {
     this.#settings = $settings
   }
@@ -8,10 +8,10 @@ export default class QuerySelector {
   get method() { return this.#settings.method }
   get name() { return this.#settings.name }
   get selector() { return this.#settings.selector }
-  get enable() { return this.#_enable }
+  get enable() { return this.#enable }
   set enable($enable) {
     // Unable
-    if($enable === this.#_enable) return
+    if($enable === this.#enable) return
     // Enable
     if($enable === true) {
       const { context, name, method, selector } = this
@@ -24,6 +24,6 @@ export default class QuerySelector {
     else if($enable === false) {
       delete this.context.querySelectors[this.name]
     }
-    this.#_enable = $enable
+    this.#enable = $enable
   }
 }

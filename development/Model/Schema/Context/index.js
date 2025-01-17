@@ -8,11 +8,11 @@ import Schema from '../index.js'
 import Handler from './Handler/index.js'
 export default class Context extends EventTarget {
   #properties
-  #_schema
-  #_type
-  #_proxy
+  #schema
+  #type
+  #proxy
+  #target
   #_handler
-  #_target
   constructor($properties, $schema) {
     super()
     this.#properties = $properties
@@ -20,21 +20,21 @@ export default class Context extends EventTarget {
     return this.proxy
   }
   get required() { return this.schema.options.required }
-  get schema() { return this.#_schema }
+  get schema() { return this.#schema }
   set schema($schema) {
-    if(this.#_schema !== undefined) return
-    this.#_schema = $schema
-    return this.#_schema
+    if(this.#schema !== undefined) return
+    this.#schema = $schema
+    return this.#schema
   }
   get type() {
-    if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(typedObjectLiteral(this.#properties))
-    return this.#_type
+    if(this.#type !== undefined) return this.#type
+    this.#type = typeOf(typedObjectLiteral(this.#properties))
+    return this.#type
   }
   get proxy() {
-    if(this.#_proxy !== undefined) return this.#_proxy
-    this.#_proxy = new Proxy(this.target, this.#handler)
-    return this.#_proxy
+    if(this.#proxy !== undefined) return this.#proxy
+    this.#proxy = new Proxy(this.target, this.#handler)
+    return this.#proxy
   }
   get #handler() {
     if(this.#_handler !== undefined) return this.#_handler
@@ -42,7 +42,7 @@ export default class Context extends EventTarget {
     return this.#_handler
   }
   get target() {
-    if(this.#_target !== undefined) return this.#_target
+    if(this.#target !== undefined) return this.#target
     let properties
     const target = typedObjectLiteral(this.type)
     if(this.type === 'array') {
@@ -118,8 +118,8 @@ export default class Context extends EventTarget {
       }
       target[$propertyKey] = propertyDefinition
     }
-    this.#_target = target
-    return this.#_target
+    this.#target = target
+    return this.#target
   }
   #parsePropertyDefinition($propertyDefinition) {
     const propertyDefinition = $propertyDefinition

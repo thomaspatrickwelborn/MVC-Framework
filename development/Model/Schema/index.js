@@ -11,41 +11,41 @@ import Options from './Options/index.js'
 export default class Schema extends EventTarget{
   #properties
   options
-  #_type
-  #_context
-  #_requiredProperties
-  #_requiredPropertiesSize
+  #type
+  #context
+  #requiredProperties
+  #requiredPropertiesSize
   constructor($properties = {}, $options = {}) {
     super()
     this.#properties = $properties
     this.options = Object.assign({}, Options, $options)
   }
   get type() {
-    if(this.#_type !== undefined) return this.#_type
-    this.#_type = typeOf(typedObjectLiteral(this.#properties))
-    return this.#_type
+    if(this.#type !== undefined) return this.#type
+    this.#type = typeOf(typedObjectLiteral(this.#properties))
+    return this.#type
   }
   get required() { return this.options.required }
   get requiredProperties() {
-    if(this.#_requiredProperties !== undefined) return this.#_requiredProperties
+    if(this.#requiredProperties !== undefined) return this.#requiredProperties
     let requiredProperties = typedObjectLiteral(this.type)
     iterateContextEntries: 
     for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
       if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition }
     }
-    this.#_requiredProperties = requiredProperties
-    return this.#_requiredProperties
+    this.#requiredProperties = requiredProperties
+    return this.#requiredProperties
   }
   get requiredPropertiesSize() {
-    if(this.#_requiredPropertiesSize !== undefined) return this.#_requiredPropertiesSize
-    this.#_requiredPropertiesSize = Object.keys(this.requiredProperties).length
-    return this.#_requiredPropertiesSize
+    if(this.#requiredPropertiesSize !== undefined) return this.#requiredPropertiesSize
+    this.#requiredPropertiesSize = Object.keys(this.requiredProperties).length
+    return this.#requiredPropertiesSize
   }
   get verificationType() { return this.options.verificationType }
   get context() {
-    if(this.#_context !== undefined) return this.#_context
-    this.#_context = new Context(this.#properties, this)
-    return this.#_context
+    if(this.#context !== undefined) return this.#context
+    this.#context = new Context(this.#properties, this)
+    return this.#context
   }
   #parseValidateArguments() {
     let $arguments = [...arguments]

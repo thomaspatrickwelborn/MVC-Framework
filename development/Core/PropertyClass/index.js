@@ -1,35 +1,35 @@
 import Handler from './Handler/index.js'
 export default class PropertyClass {
   #settings
-  #_core
-  #_target
-  #_handler
-  #_proxy
+  #core
+  #target
+  #handler
+  #proxy
   constructor($settings, $core) {
     this.#settings = $settings
     this.core = $core
     return this.proxy
   }
-  get core() { return this.#_core }
+  get core() { return this.#core }
   set core($core) {
-    if(this.#_core !== undefined) return
-    this.#_core = $core
-    return this.#_core
+    if(this.#core !== undefined) return
+    this.#core = $core
+    return this.#core
   }
   get target() {
-    if(this.#_target !== undefined) { return this.#_target }
-    this.#_target = {}
-    return this.#_target
+    if(this.#target !== undefined) { return this.#target }
+    this.#target = {}
+    return this.#target
   }
   get handler() {
-    if(this.#_handler !== undefined) { return this.#_handler }
-    this.#_handler = new Handler(this)
-    return this.#_handler
+    if(this.#handler !== undefined) { return this.#handler }
+    this.#handler = new Handler(this)
+    return this.#handler
   }
   get proxy() {
-    if(this.#_proxy !== undefined) { return this.#_proxy }
-    this.#_proxy = new Proxy(this.target, this.handler)
-    return this.#_proxy
+    if(this.#proxy !== undefined) { return this.#proxy }
+    this.#proxy = new Proxy(this.target, this.handler)
+    return this.#proxy
   }
   get Class() { return this.#settings.Class }
   get ClassInstanceValidator() { return this.#settings.ClassInstanceValidator }

@@ -4,11 +4,11 @@ const Messages = {
 }
 export default class Validation extends EventTarget {
   #settings
-  #_properties
-  #_valid
-  #_advance = []
-  #_deadvance = []
-  #_unadvance = []
+  #properties
+  #valid
+  #advance = []
+  #deadvance = []
+  #unadvance = []
   constructor($settings = {}) {
     super()
     this.#settings = Object.assign({ messages: Messages }, $settings)
@@ -18,17 +18,17 @@ export default class Validation extends EventTarget {
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
   get properties() {
-    if(this.#_properties !== undefined) return this.#_properties
-    this.#_properties = this.#settings.properties
-    return this.#_properties
+    if(this.#properties !== undefined) return this.#properties
+    this.#properties = this.#settings.properties
+    return this.#properties
   }
-  get advance() { return this.#_advance }
-  get deadvance() { return this.#_deadvance }
-  get unadvance() { return this.#_unadvance }
-  get valid() { return this.#_valid }
+  get advance() { return this.#advance }
+  get deadvance() { return this.#deadvance }
+  get unadvance() { return this.#unadvance }
+  get valid() { return this.#valid }
   set valid($valid) {
-    if(this.#_valid === undefined) {
-      this.#_valid = $valid
+    if(this.#valid === undefined) {
+      this.#valid = $valid
     }
   }
 }
