@@ -1,6 +1,5 @@
 export default {
   // Class: Model, View, Control, FetchRouter, LocationRouter, etc
-  // ClassValidator: Function
   // ClassInstantiator: Function
   // ClassDeinstantiator: Function
   // Names

@@ -1,10 +1,12 @@
 import Content from '../../Model/Content/index.js'
 export default class CoreEvent {
   #settings
-  #_boundListener
   #enable = false
+  #_boundListener
   constructor($settings) { 
+    console.log($settings)
     this.#settings = $settings
+    this.enable = this.#settings.enable
   }
   get type() { return this.#settings.type }
   get path() { return this.#settings.path }

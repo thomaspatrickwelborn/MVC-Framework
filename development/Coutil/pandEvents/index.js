@@ -28,7 +28,8 @@ function expandEvents($propEvents) {
     if(propEventSettings.length === 1) {
       path = ':scope'
       type = propEventSettings[0]
-    } else if(propEventSettings.length > 1) {
+    }
+    else if(propEventSettings.length > 1) {
       path = propEventSettings[0]
       type = propEventSettings[1]
     }

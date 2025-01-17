@@ -1,7 +1,8 @@
 // Core Class Instantiation
 function CoreClassInstantiator($propertyClass, $property, $value) {
-  const { core, target, Class, ClassInstantiator, Names } = $propertyClass
+  const { core, target, Class, Names } = $propertyClass
   const valueInstanceOfClass = $value instanceof Class
+  let value
   if(valueInstanceOfClass === false) {
     const parent = core
     const path = (core.path)
@@ -10,21 +11,22 @@ function CoreClassInstantiator($propertyClass, $property, $value) {
     const propertyClassInstanceParameters = [].concat($value)
     const $settings = Object.assign({ path, parent }, propertyClassInstanceParameters.shift())
     const $options = propertyClassInstanceParameters.shift()
-    target[$property] = new Class($settings, $options)
+    value = new Class($settings, $options)
   }
   else if(valueInstanceOfClass === true) {
     if($value.parent === undefined && $value.path === undefined) {
       $value.parent = parent
       $value.path = path
     }
-    target[$property] = $value
+    value = $value
   }
-  return target[$property]
+  return value
 }
 // Core Class Deinstantiation
 function CoreClassDeinstantiator($propertyClass, $property) {
   const { target } = $propertyClass
-  return delete target[$property]
+  // NOOP
+  return target[$property]
 }
 export {
   CoreClassInstantiator,

@@ -2,205 +2,289 @@
 **MVC Framework \| Guide \| *Core***  
 See Also: [**Core Class**](../../ClassSystem/Core/index.md)  
 
-## Overview
- - Stores Settings, Options, Events Properties.  
- - Ventilates scoped Event Target instances.  
- - Ministrates Core Event Class instances.  
- - Assigns, defines Settings Properties to Core Class instances when Options Properties specify.  
+MVC Framework `Core` extends `EventTarget` class and is extended by `Model`, `View`, `Control`, `FetchRouter`, and `LocationRouter` primary classes. It ministrates scoped property events and serializable property class instances. It maintains a traversible property class instance tree through `path`, `parent`, and `root` properties. 
+ - [Core Class Importation](#core-class-importation)
+ - [Core Class Extension](#core-class-extension)
+ - [Core Class Instantiation](#core-class-instantiation)
+ - [Core Event Ministration](#core-event-ministration)
+ - [Core Property Class Ministration](#core-property-class-ministration)
 
-## Event Formats
-### Event Properties
+## `Core` Class Importation
 ```
-const $type = "click"
-const $path = "eventTargetProperty"
-const $listener = ($event) => {
-  console.log($event.type, $event.currentTarget)
-}
-const $options = {}
+import { Core } from '/dependencies/mvc-framework.js'
 ```
-### Impanded Events Format
- - Object literal with property keys containing `$path`, `$type` properties and property values containing `$listener`, `$options` properties.  
- - Events ministrated nonsequentially. 
-#### Impanded Event Listener
- - Property key contains `$path`, `$type` properties. 
- - Property value is `$listener`. 
+
+## `Core` Class Extension
+### Default Extended `Core`
 ```
-const $events = {
-  [`${$path} ${$type}`]: $listener
+class CustomCore extends Core {
+  constructor() { super(...arguments) }
 }
 ```
-#### Impanded Event Listener With Options
- - Property key contains `$path`, `$type` properties. 
- - Property value is Array literal containing `$listener`, `$options` properties. 
+
+### Override Default Extended `Core` `constructor` Arguments
+#### ...With Object Assignment
 ```
-const $events = {
-  [`${$path} ${$type}`]: [$listener, $options]
+class CustomCore extends Core {
+  constructor($settings, $options) { super(
+    Object.assign({ events: {
+      'customCoreEvent': function customCoreEvent($event) { console.log($event) }
+    } }, $settings),
+    Object.assign({ enableEvents: true }, $options)
+  ) }
 }
 ```
-### Expanded Events Format
- - Array literal containing object literals with `type`, `path`, `listener`, and `options` properties.  
- - Events ministrated sequentially. 
+#### ...With Recursive Object Assignment
 ```
-const $events = [{
-  type: $type,
-  path: $path,
-  listener: $listener,
-  options: $options,
-}]
+import { Coutil } from '/dependencies/mvc-framework.js' 
+const {
+  recursiveAssign, // Assigns Properties Recursively
+  recursiveAssignConcat, // Assign Properties Recursively, Concatenating Arrays
+} = Coutil
 ```
-## Core Instantiation
+*...*  
 ```
-import { Core } from 'mvc-framework'
+class CustomCore extends Core {
+  constructor($settings, $options) { super(
+    recursiveAssignConcat({ events: [{
+      type: 'customCoreEvent',
+      path: 'property.path',
+      listener: function customCoreEvent($event) { console.log($event) },
+    }] }, $settings),
+    recursiveAssign({ enableEvents: true }, $options)
+  ) }
+}
+```
+
+
+### Extended `Core` Properties, Methods
+```
+class CustomCore extends Core {
+  constructor() { super(...arguments) }
+  #customProperty
+  get customProperty() { return this.#customProperty }
+  set customProperty($customProperty) { this.#customProperty = $customProperty }
+  customMethod() { console.log("customMethod") }
+}
+```
+
+## Core Class Instantiation
+### Default Instantiated `Core`
+```
+const core = new Core()
+```
+
+### Core Instantiated With `settings`, `options` Parameters
+```
+const settings = { events: { "customCoreEvent": function($event) {} } }
+const options = { eventsEnabled: true }
+const core = new Core(settings, options)
+```
+
+### Core Instantiated With Defined, Assigned Properties
+```
 const core = new Core({
-  eventTargetProperty: document.querySelector('body'),
-  events: $events,
-}, { defineProperties: {
-  "eventTargetProperty": {
-    enumerable: false,
-    writable: false,
-    configurable: false,
+  events: { 'body click': function bodyClick($event) {
+    this.clicks++; console.log(`this.clicks: ${this.clicks}`)
+  } }
+}, {
+  enableEvents: true,
+  assign: { clicks: 0 },
+  defineProperties: {
+    body: { get() { return document.querySelector('body') } }
   }
-} })
+})
 ```
-## Core Ministration
-### Filter Events
-#### Get `enabled` Events
+
+## Core Event Ministration
+Add, remove, enable, disable, and filter events mapped to `Core` properties that are EventTarget instances. 
 ```
-core.getEvents([{ enabled: true }])
+const core = new Core({
+  events: { 'body click': function bodyClick($event) {
+    this.clicks++; console.log(`this.clicks: ${this.clicks}`)
+  } }
+}, {
+  assign: { clicks: 0 },
+  defineProperties: {
+    body: { get() { return document.querySelector('body') } }
+  }
+})
 ```
-#### Get `type` Events
+### `addEvents` Method
+#### Add Impanded Events
 ```
-core.getEvents([{ type: $type }])
+core.addEvents({
+  'body click': function bodyClick($event) {
+    this.clicks++; console.log(`this.clicks: ${this.clicks}`)
+  }
+})
 ```
-#### Get `path` Events
+#### Add Expanded Events
 ```
-core.getEvents([{ path: $path }])
-```
-#### Get `listener` Events
-```
-core.getEvents([{ listener: $listener }])
-```
-#### Get `enabled`, `type`, `path`, `listener` Events
-```
-core.getEvents([{
-  type: $type,
-  path: $path,
-  listener: $listener,
+core.addEvents([{
+  path: 'body',
+  type: 'click',
+  listener: function bodyClick($event) {
+    this.clicks++; console.log(`this.clicks: ${this.clicks}`)
+  },
   enable: true,
 }])
 ```
-### Add, Remove, Enable, Disable All Events
-#### Add All Events *(from `settings` property)*
+### `getEvents` Method
+#### All Events  
 ```
-core.addEvents()
+core.getEvents()
 ```
-#### Remove All Events *(from `events` property)*
+#### Events where `path` is `"body"`  
 ```
-core.removeEvents()
+core.getEvents({
+  path: 'body'
+})
 ```
-#### Enable All Events *(from `events` property)*
+#### Events where `enabled` is `false`  
+```
+core.getEvents({
+  enabled: false
+})
+```
+#### Events where `type` is `"click"`  
+```
+core.getEvents({
+  type: 'click'
+})
+```
+#### Events where `type` is `"click"`, `enabled` is `true`, and `path` is `"body"`  
+```
+core.getEvents({
+  path: 'body',
+  enabled: true,
+  type: 'click',
+})
+```
+### `enableEvents`, `disableEvents`, and `removeEvents` Methods
+Each method performs action based on zero or one argument: 
+ - When ZERO arguments provided, action performed on ALL events.  
+ - When ONE argument provided, action performed on FILTERED events.  
+#### Enable All Events
 ```
 core.enableEvents()
 ```
-#### Disable All Events *(from `events` property)*
+#### Enable Disabled Events
+```
+core.enableEvents({ enable: false })
+```
+#### Disable Click Events
+```
+core.disableEvents({ type: 'click' })
+```
+#### Disable All Events
 ```
 core.disableEvents()
 ```
-
-### Add, Remove, Enable, Disable Expanded Events 
-#### Add Expanded Event
+#### Remove Pathed Events
 ```
-core.addEvents([{
-  type: $type,
-  path: $path,
-  listener: $listener,
-  options: $options
-}])
+core.removeEvents({ path: 'buttons.button' })
 ```
-#### Remove Expanded Event
-*Remove events with matching `$type`, `$path`, `$listener` properties.*  
+#### Remove All Events
 ```
-core.removeEvents([{
-  type: $type,
-  path: $path,
-  listener: $listener,
-}])
-```
-#### Enable Expanded Event 
-*Enable events with matching `$type`, `$path` properties.*  
-```
-core.enableEvents([{
-  type: $type,
-  path: $path,
-}])
-```
-#### Disable Expanded Event 
-*Disable events with matching `$type`, `$path`, `$listener` properties.*  
-```
-core.enableEvents([{
-  type: $type,
-  path: $path,
-  listener: $listener,
-}])
-
+core.removeEvents()
 ```
 
-### Add, Remove, Enable, Disable Impanded Events 
-#### Add Impanded Event
+## `Core` Property Class Ministration
+Add, remove classified properties from `Core` instances using customizable prototype Class, Class Instantiator/Deinstantiator, and plural/singular Names for adding/removing class instances and events. 
+### `Core` Property Classes
+#### `propertyClasses` Settings
 ```
-core.addEvents({
-  [`${$path} ${$type}`]: $listener
-})
+const propertyClasses = [{
+  Class: SomeClass,
+  ClassInstantiator: function($propertyClass, $property, $value) {
+    const { target, Class, Names } = $propertyClass
+    const targetPropertyClasses = target[Names.Multiple.Nonformal]
+    targetPropertyClasses[$property] = new Class($value)
+    return targetPropertyClasses[$property]
+  },
+  ClassDeinstantiator: function($propertyClass, $property) {
+    const { target, Names } = $propertyClass
+    return delete target[Names.Multiple.Nonformal][$property]
+  },
+  Names: {
+    Monople: {
+      Formal: "SomeClass"
+      Nonformal: "someClass"
+      },
+    Multiple: {
+      Formal: "SomeClasses",
+      Nonformal: "someClasses",
+    },
+    Minister: {
+      Ad: { Formal: "Add", Nonformal: "add" }
+      Dead: { Formal: "Remove", Nonformal: "remove" },
+    },
+  },
+  Events: {
+    Assign: "addEventListener",
+    Deassign: "removeEventListener",
+  },
+}]
 ```
-#### Add Impanded Events With Options
+#### ...With Property Classes
 ```
-core.addEvents({
-  [`${$path} ${$type}`]: [$listener, $options]
-})
-```
-#### Remove Impanded Event
-*Remove events with matching `$path`, `$type`.*  
-```
-core.removeEvents({
-  [`${$path} ${$type}`]: undefined
-})
-```
-*Remove events with matching `$path`, `$type`, `$listener`.*  
-```
-core.removeEvents({
-  [`${$path} ${$type}`]: $listener
-})
-```
-#### Enable Impanded Event
-*Enable events with matching `$path`.*  
-```
-core.enableEvents({
-  [`${$path}`]: undefined
-})
-```
-#### Disable Impanded Event
-*Disable events with matching `$path`, `$type`, `$listener`.*  
-```
-core.disableEvents({
-  [`${$path} ${$type}`]: $listener
-})
-```
-
-## Core Extension
-### Core Extension Declaration
-```
-class ExtendedCore extends Core {
+export default class CustomCore extends Core {
   constructor($settings, $options) {
-    super(...arguments)
-    if(this.options.enableEvents) { this.enableEvents() }
+    super(
+      recursiveAssignConcat({
+        propertyClasses
+      }, $settings),
+      Object.assign({}, $options)
+    )
   }
-  get eventTargetProperty() { return this.#settings.eventTargetProperty }
+}
+
+```
+#### ...With Static Property Classes
+```
+export default class CustomCore extends Core {
+  static propertyClasses = propertyClasses
+  constructor($settings, $options) {
+    super(
+      recursiveAssignConcat({
+        propertyClasses: CustomCore.propertyClasses
+      }, $settings),
+      Object.assign({}, $options)
+    )
+  }
 }
 ```
-### Core Extension Instantiation
+#### Custom Core Instantiation
 ```
-const extendedCore = new ExtendedCore({
-  eventTargetProperty: document.querySelector('body'),
-  events: { [`${$path} ${$type}`]: $listener }
-}, { enableEvents: true })
+const customCore = new CustomCore({
+  someClasses: {
+    someClassA: { someSetting: "777" },
+    someClassB: { someSetting: "333" },
+  }
+})
+```
+#### Add Multiple Property Class Instances
+```
+customCore.addSomeClasses({
+  someClassC: { someSetting: "555" },
+  someClassD: { someSetting: "777" },
+})
+```
+#### Add Single Property Class Instances
+```
+customCore.addSomeClasses("someClassC", { someSetting: "555" },
+customCore.addSomeClasses("someClassD", { someSetting: "777" },
+```
+#### Remove All Property Class Instances
+```
+customCore.removeSomeClasses()
+```
+#### Remove Some Property Class Instances By Keys
+```
+customCore.removeSomeClasses(["someClassC", "someClassD"])
+```
+#### Remove Some Property Class Instance By Key
+```
+customCore.removeSomeClasses("someClassA")
 ```

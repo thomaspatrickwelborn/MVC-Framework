@@ -1,7 +1,6 @@
 import { expandEvents, recursiveAssign } from '../Coutil/index.js'
 import CoreClassEvents from './PropertyEvents/index.js'
 import { CoreClassInstantiator, CoreClassDeinstantiator } from './PropertyInstantiators/index.js'
-import { CoreClassValidator } from './PropertyValidators/index.js'
 import CoreEvent from './Event/index.js'
 import PropertyClass from './PropertyClass/index.js'
 import Settings from './Settings/index.js' 
@@ -14,14 +13,23 @@ export default class Core extends EventTarget {
   #path
   #parent
   #_propertyClassEvents
-  #_propertyClasses
+  // #_propertyClasses
+  #propertyClasses
+  static propertyClasses = []
   constructor($settings, $options) {
     super()
     this.settings = $settings
     this.options = $options
-    this.#propertyClasses
-    this.#assign()
-    this.#defineProperties()
+    this.addPropertyClasses()
+    for(const $propertyClass of this.propertyClasses) {
+      const { Name, Names } = $propertyClass
+      this[`${Names.Minister.Ad.Nonformal}${Names.Multiple.Formal}`](this.settings[Name])
+      if(this.settings[Name] !== undefined) {
+        this[Name] = this.settings[Name]
+      }
+    }
+    this.#defineProperties(this.options.defineProperties)
+    this.#assign(...this.options.assign)
     this.addEvents()
     if(this.options.enableEvents === true) { this.enableEvents() }
   }
@@ -33,113 +41,10 @@ export default class Core extends EventTarget {
     }
     return this.#_propertyClassEvents
   }
-  get #propertyClasses() {
-    if(this.#_propertyClasses !== undefined) return this.#_propertyClasses
-    this.#_propertyClasses = this.settings.propertyClasses
-    const $this = this
-    for(const [
-      $propertyClassName, $propertyClassInstantiatorSettings
-    ] of Object.entries(this.#_propertyClasses)) {
-      const { Events, Names } = $propertyClassInstantiatorSettings
-      const propertyClassStoreName = `_${$propertyClassName}`
-      Object.defineProperties(this, {
-        [propertyClassStoreName]: {
-          configurable: false, enumerable: false, writable: true,
-          value: undefined,
-        },
-        [$propertyClassName]: {
-          get() {
-            if($this[propertyClassStoreName] !== undefined) {
-              return $this[propertyClassStoreName]
-            }
-            $this[propertyClassStoreName] = new PropertyClass(
-              $propertyClassInstantiatorSettings, $this
-            )
-            return $this[propertyClassStoreName]
-          },
-          set($propertyClassInstances) {
-            const propertyClassInstances = $this[$propertyClassName]
-            let propertyClassInstancesEntries
-            if($propertyClassInstances) {
-              if(Array.isArray($propertyClassInstances)) {
-                propertyClassInstancesEntries = $propertyClassInstances
-              }
-              else {
-                propertyClassInstancesEntries = Object.entries($propertyClassInstances)
-              }
-            } else { propertyClassInstancesEntries = [] }
-            for(const [
-              $propertyClassInstanceName, $propertyClassInstance
-            ] of propertyClassInstancesEntries) {
-              propertyClassInstances[$propertyClassInstanceName] = $propertyClassInstance
-            }
-          }
-        },
-        [`add${Names.Multiple.Formal}`]: {
-          configurable: false, enumerable: true, writable: false, 
-          value: function() {
-            const $arguments = [...arguments]
-            if($arguments.length === 1) {
-              const [$values] = $arguments
-              if(Array.isArray($values)) {
-                $this[$propertyClassName] = Object.fromEntries($values)
-              }
-              else {
-                $this[$propertyClassName] = $values
-              }
-            }
-            else if($arguments.length === 2) {
-              const [$key, $value] = $arguments
-              $this[$propertyClassName] = { [$key]: $value }
-            }
-          }
-        },
-        [`remove${Names.Multiple.Formal}`]: {
-          configurable: false, enumerable: true, writable: false, 
-          value: function() {
-            const [$removeKeys] = [...arguments]
-            const removeKeys = []
-            const typeofRemoveKeys = typeof $arguments[0]
-            if(typeofRemoveKeys === 'string') { removeKeys.push($arguments[0]) }
-            else if(typeofRemoveKeys === 'object') {
-              if(Array.isArray($removeKeys)) { removeKeys.push(...$removeKeys) }
-              else { removeKeys.push(...Object.keys($removeKeys)) }
-            }
-            for(const $removeKey of $removeKeys) {
-              delete $this[$propertyClassName][$removeKey]
-            }
-          }
-        },
-      })
-      this[$propertyClassName] = this.settings[$propertyClassName]
-    }
-    return this.#_propertyClasses
-  }
   get settings() { return this.#settings }
   set settings($settings) {
     if(this.#settings !== undefined) return
     this.#settings = Object.assign({}, Settings, $settings)
-    for(const [
-      $propertyClassName, $propertyClassInstantiatorSettings
-    ] of Object.entries(this.#settings.propertyClasses)) {
-      // Events
-      if($propertyClassInstantiatorSettings.Events === undefined) {
-        $propertyClassInstantiatorSettings.Events = CoreClassEvents
-      }
-      // Class Validator
-      if($propertyClassInstantiatorSettings.ClassValidator === undefined) {
-        $propertyClassInstantiatorSettings.ClassValidator = CoreClassValidator 
-      }
-      // Class Instantiator
-      if($propertyClassInstantiatorSettings.ClassInstantiator === undefined) {
-        $propertyClassInstantiatorSettings.ClassInstantiator = CoreClassInstantiator 
-      }
-      // Class Deinstantiator
-      if($propertyClassInstantiatorSettings.ClassDeinstantiator === undefined) {
-        $propertyClassInstantiatorSettings.ClassDeinstantiator = CoreClassDeinstantiator 
-      }
-    }
-    // Expanded Events
     $settings.events = expandEvents($settings.events)
   }
   get options() { return this.#options }
@@ -185,6 +90,167 @@ export default class Core extends EventTarget {
     this.#events = []
     return this.#events
   }
+  get propertyClasses() {
+    if(this.#propertyClasses !== undefined) return this.#propertyClasses
+    this.#propertyClasses = []
+    return this.#propertyClasses
+  }
+  getPropertyClass() {
+    const { ID, Name } = arguments[0]
+    let propertyClass
+    iteratePropertyClasses: 
+    for(const $propertyClass of this.propertyClasses) {
+      if(
+        ID && $propertyClass.ID === ID ||
+        Name && $propertyClass.Name === Name
+      ) { propertyClass = $propertyClass }
+    }
+    return propertyClass
+  }
+  addPropertyClasses() {
+    const $this = this
+    let $propertyClasses
+    if(!arguments[0]) { $propertyClasses = Object.values(this.settings.propertyClasses) }
+    else if(Array.isArray(arguments[0])) { $propertyClasses = arguments[0] }
+    else if(typeof arguments[0] === 'object') { $propertyClasses = Object.values(arguments[0]) }
+    const propertyClasses = this.propertyClasses
+    for(const $propertyClass of $propertyClasses) {
+      const propertyClassName = $propertyClass.Name
+      // Events
+      if($propertyClass.Events === undefined) {
+        $propertyClass.Events = CoreClassEvents
+      }
+      // Class Instantiator
+      if($propertyClass.ClassInstantiator === undefined) {
+        $propertyClass.ClassInstantiator = CoreClassInstantiator 
+      }
+      // Class Deinstantiator
+      if($propertyClass.ClassDeinstantiator === undefined) {
+        $propertyClass.ClassDeinstantiator = CoreClassDeinstantiator 
+      }
+      const { Events, Names } = $propertyClass
+      const propertyClassStoreName = `_${propertyClassName}`
+      Object.defineProperties(this, {
+        [propertyClassStoreName]: {
+          configurable: true, enumerable: false, writable: true,
+          value: undefined,
+        },
+        [propertyClassName]: {
+          configurable: true, enumerable: true,  
+          get() {
+            if($this[propertyClassStoreName] !== undefined) {
+              return $this[propertyClassStoreName]
+            }
+            $this[propertyClassStoreName] = new PropertyClass(
+              $propertyClass, $this
+            )
+            return $this[propertyClassStoreName]
+          },
+          set($propertyClassInstances) {
+            const propertyClassInstances = $this[propertyClassName]
+            let propertyClassInstancesEntries
+            if($propertyClassInstances) {
+              if(Array.isArray($propertyClassInstances)) {
+                propertyClassInstancesEntries = $propertyClassInstances
+              }
+              else {
+                propertyClassInstancesEntries = Object.entries($propertyClassInstances)
+              }
+            } else { propertyClassInstancesEntries = [] }
+            for(const [
+              $propertyClassInstanceName, $propertyClassInstance
+            ] of propertyClassInstancesEntries) {
+              propertyClassInstances[$propertyClassInstanceName] = $propertyClassInstance
+            }
+          }
+        },
+        // Add Property Class Instance
+        [`${Names.Minister.Ad.Nonformal}${Names.Multiple.Formal}`]: {
+          configurable: true, enumerable: true, writable: false, 
+          value: function() {
+            const $arguments = [...arguments]
+            if($arguments.length === 1) {
+              const [$values] = $arguments
+              if(Array.isArray($values)) {
+                $this[propertyClassName] = Object.fromEntries($values)
+              }
+              else {
+                $this[propertyClassName] = $values
+              }
+            }
+            else if($arguments.length === 2) {
+              const [$key, $value] = $arguments
+              $this[propertyClassName] = { [$key]: $value }
+            }
+          }
+        },
+        // Remove Property Class Instance
+        [`${Names.Minister.Dead.Nonformal}${Names.Multiple.Formal}`]: {
+          configurable: true, enumerable: true, writable: false, 
+          value: function() {
+            const [$removeKeys] = [...arguments]
+            const removeKeys = []
+            const typeofRemoveKeys = typeof $arguments[0]
+            if(typeofRemoveKeys === 'string') { removeKeys.push($arguments[0]) }
+            else if(typeofRemoveKeys === 'object') {
+              if(Array.isArray($removeKeys)) { removeKeys.push(...$removeKeys) }
+              else { removeKeys.push(...Object.keys($removeKeys)) }
+            }
+            else if(typeofRemoveKeys === 'undefined') {
+              removeKeys.push(...Object.keys($this[propertyClassName]))
+            }
+            for(const $removeKey of $removeKeys) {
+              delete $this[propertyClassName][$removeKey]
+            }
+          }
+        },
+      })
+      propertyClasses.push($propertyClass)
+    }
+  }
+  removePropertyClasses() {
+    let removePropertyClasses = []
+    if(arguments.length === 0) { removePropertyClasses = removePropertyClasses.concat(
+      Object.keys(this.propertyClasses)
+    ) }
+    else if(arguments.length === 1) {
+      const $removePropertyClasses = arguments[0]
+      const typeofRemovePropertyClasses = typeof $removePropertyClasses
+      if(
+        typeofRemovePropertyClasses === 'string'
+      ) {
+        removePropertyClasses = removePropertyClasses.concat($removePropertyClasses)
+      }
+      else if(typeofRemovePropertyClasses === 'object') {
+        if(Array.isArray($removePropertyClasses)) {
+          removePropertyClasses = removePropertyClasses.concat($removePropertyClasses)
+        }
+        else {
+          removePropertyClasses = removePropertyClasses.concat(Object.keys($removePropertyClasses))
+        }
+      }
+    }
+    iterateRemovePropertyClasses: 
+    for(const $removePropertyClassName of removePropertyClasses) {
+      const { Names } = this.getPropertyClass({ Name: $removePropertyClassName })
+      if(!Names) break iterateRemovePropertyClasses
+      const propertyClassInstances = this[Names.Multiple.Nonformal]
+      iteratePropertyClassInstances: 
+      for(const [
+        $propertyClassInstanceName, $propertyClassInstance
+      ] of Object.entries(this[Names.Multiple.Nonformal])) {
+        delete propertyClassInstances[$propertyClassInstanceName]
+      }
+      delete this[`_${Names.Multiple.Nonformal}`]
+      Object.defineProperty(this, Names.Multiple.Nonformal, {
+        configurable: true, enumerable: false, writable: true, 
+        value: undefined
+      })
+      delete this[Names.Multiple.Nonformal]
+      delete this[`${Names.Minister.Ad.Nonformal}${Names.Multiple.Formal}`]
+      delete this[`${Names.Minister.Dead.Nonformal}${Names.Multiple.Formal}`]
+    }
+  }
   getEvents() {
     const getEvents = []
     const { events } = this
@@ -214,8 +280,8 @@ export default class Core extends EventTarget {
     return getEvents
   }
   addEvents() {
-    const { events } = this
     const $events = expandEvents(arguments[0] || this.settings.events)
+    const { events } = this
     for(let $event of $events) {
       const propertyClassName = $event.path.split('.').shift()
       const propertyClassEvents = (this.#propertyClassEvents[propertyClassName])
@@ -262,21 +328,11 @@ export default class Core extends EventTarget {
     return this.#toggleEventAbility('removeEventListener', $events)
   }
   #assign() {
-    if(Object.keys(this.options.assign).length === 0) return this
-    for(const [
-        $propertyName, $propertyValue
-      ] of Object.entries(this.options.assign)) {
-      Object.assign(this, { [$propertyName]: $propertyValue })
-    }
+    Object.assign(this, ...arguments)
     return this
   }
   #defineProperties() {
-    if(Object.keys(this.options.defineProperties).length === 0) return this
-    for(const [
-      $propertyName, $propertyDescriptor
-    ] of Object.entries(this.options.defineProperties)) {
-      Object.defineProperty(this, $propertyName, $propertyDescriptor)
-    }
+    Object.defineProperties(this, arguments[0])
     return this
   }
   #toggleEventAbility($eventListenerMethod, $events) {
