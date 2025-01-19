@@ -15,6 +15,7 @@ export default class CoreEvent {
     let pathKeysIndex = 0
     iterateTargetPathKeys: 
     while(pathKeysIndex < pathKeys.length) {
+      if(target === undefined) { break iterateTargetPathKeys }
       const pathKey = pathKeys[pathKeysIndex]
       if(pathKeysIndex === 0 && pathKey === ':scope') {
         break iterateTargetPathKeys
@@ -25,7 +26,6 @@ export default class CoreEvent {
       else {
         target = target[pathKey]
       }
-      if(target === undefined) { break iterateTargetPathKeys }
       pathKeysIndex++
     }
     return target

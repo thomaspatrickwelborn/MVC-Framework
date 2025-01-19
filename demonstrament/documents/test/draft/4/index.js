@@ -14,14 +14,14 @@ content.set("propertyA", "PROPERTYA")
 */
 const model = new Model({
   schema: { propertyA: String },
-  // schema: { propertyA: Number },
-  // schema: null,
   content: { propertyA: "PROPERTYA" },
   events: { "content setProperty": function contentSetProperty($event) {
     console.log($event.type, $event.path, $event.value)
   } }
-})
-const { schema, content } = model
+}, {})
+// const { schema, content } = model
+// content.set("propertyA", "PROPERTYA")
+
 model.addEvents([{
   path: "content", 
   type: "nonvalidProperty", 
@@ -30,8 +30,17 @@ model.addEvents([{
   },
   enable: true, 
 }])
-content.set("propertyA", "PROPERTYA")
-content.set("propertyA", 1111111111)
+model.content.set("propertyA", "PROPERTYA")
+model.content.set("propertyA", 1111111111)
+model.removeEvents({ type: "nonvalidProperty" })
+model.removeEvents({ type: "setProperty" })
+model.content.set("propertyA", "PROPERTYA")
+model.content.set("propertyA", 1111111111)
+// model.content.set("propertyA", 1111111111)
+// model.content.set("propertyA", "PROPERTYA")
+// console.log(model.events)
+// content.set("propertyA", "PROPERTYA")
+// content.set("propertyA", 1111111111)
 // const ModelPropertyClass = {
 //   ID: "MODEL",
 //   Name: "models",

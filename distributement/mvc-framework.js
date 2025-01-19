@@ -3435,6 +3435,7 @@ class CoreEvent {
     let pathKeysIndex = 0;
     iterateTargetPathKeys: 
     while(pathKeysIndex < pathKeys.length) {
+      if(target === undefined) { break iterateTargetPathKeys }
       const pathKey = pathKeys[pathKeysIndex];
       if(pathKeysIndex === 0 && pathKey === ':scope') {
         break iterateTargetPathKeys
@@ -3445,7 +3446,6 @@ class CoreEvent {
       else {
         target = target[pathKey];
       }
-      if(target === undefined) { break iterateTargetPathKeys }
       pathKeysIndex++;
     }
     return target
@@ -3585,6 +3585,9 @@ class Core extends EventTarget {
   static propertyClasses = []
   constructor($settings = {}, $options = {}) {
     super();
+    this.settings = $settings;
+    this.options = $options;
+    this.addPropertyClasses(this.settings.propertyClasses);
     for(const $propertyClass of this.propertyClasses) {
       const { Name, Names } = $propertyClass;
       this[`${Names.Minister.Ad.Nonformal}${Names.Multiple.Formal}`](this.settings[Name]);
@@ -3592,9 +3595,6 @@ class Core extends EventTarget {
         this[Name] = this.settings[Name];
       }
     }
-    this.settings = $settings;
-    this.options = $options;
-    this.addPropertyClasses(this.settings.propertyClasses);
     this.addEvents(this.settings.events);
     this.#defineProperties(this.options.defineProperties);
     this.#assign(...this.options.assign);
@@ -3825,7 +3825,7 @@ class Core extends EventTarget {
   getEvents() {
     const getEvents = [];
     const { events } = this;
-    const $events = expandEvents(arguments[0]);
+    const $events = [].concat(arguments[0]);
     for(const $event of $events) {
       const { type, path, listener, enable } = $event;
       const eventFilterProperties = [];
@@ -3862,7 +3862,8 @@ class Core extends EventTarget {
         context: this,
         propertyClassEvents,
       });
-      events.push(new CoreEvent($event));
+      const coreEvent = new CoreEvent($event);
+      events.push(coreEvent);
     }
     return this
   }
@@ -3871,16 +3872,19 @@ class Core extends EventTarget {
     let $events;
     if(arguments.length === 0) { $events = events; }
     else if(arguments.length === 1) {
-      $events = this.getEvents(expandEvents(arguments[0]));
+      $events = this.getEvents(arguments[0]);
     }
+    if($events.length === 0) return this
     let eventsIndex = events.length - 1;
     while(eventsIndex > -1) {
       const event = events[eventsIndex];
       const removeEventIndex = $events.findIndex(
         ($event) => $event === event
       );
-      event.enable = false;
-      if(removeEventIndex !== -1) events.splice(eventsIndex, 1);
+      if(removeEventIndex !== -1) {
+        event.enable = false;
+        events.splice(eventsIndex, 1);
+      }
       eventsIndex--;
     }
     return this
