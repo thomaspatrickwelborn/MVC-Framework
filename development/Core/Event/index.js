@@ -4,7 +4,6 @@ export default class CoreEvent {
   #enable = false
   #_boundListener
   constructor($settings) { 
-    console.log($settings)
     this.#settings = $settings
     this.enable = this.#settings.enable
   }

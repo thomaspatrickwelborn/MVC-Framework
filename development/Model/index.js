@@ -30,7 +30,8 @@ export default class Model extends Core {
       typeof this.settings.content !== 'object'
     ) { return null }
     this.changeEvents = this.options.changeEvents
-    if(this.options.enableEvents === true) this.enableEvents()
+    const { enableEvents } = this.options
+    if(enableEvents) this.enableEvents()
   }
   get schema() {
     if(this.#schema !== undefined) return this.#schema

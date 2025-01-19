@@ -3410,7 +3410,6 @@ class CoreEvent {
   #enable = false
   #_boundListener
   constructor($settings) { 
-    console.log($settings);
     this.#settings = $settings;
     this.enable = this.#settings.enable;
   }
@@ -3569,14 +3568,10 @@ class Core extends EventTarget {
   #path
   #parent
   #_propertyClassEvents
-  // #_propertyClasses
   #propertyClasses
   static propertyClasses = []
-  constructor($settings, $options) {
+  constructor($settings = {}, $options = {}) {
     super();
-    this.settings = $settings;
-    this.options = $options;
-    this.addPropertyClasses();
     for(const $propertyClass of this.propertyClasses) {
       const { Name, Names } = $propertyClass;
       this[`${Names.Minister.Ad.Nonformal}${Names.Multiple.Formal}`](this.settings[Name]);
@@ -3584,15 +3579,17 @@ class Core extends EventTarget {
         this[Name] = this.settings[Name];
       }
     }
+    this.settings = $settings;
+    this.options = $options;
+    this.addPropertyClasses(this.settings.propertyClasses);
+    this.addEvents(this.settings.events);
     this.#defineProperties(this.options.defineProperties);
     this.#assign(...this.options.assign);
-    this.addEvents();
-    if(this.options.enableEvents === true) { this.enableEvents(); }
   }
   get #propertyClassEvents() {
     if(this.#_propertyClassEvents !== undefined) return this.#_propertyClassEvents
     this.#_propertyClassEvents = {};
-    for(const [$propertyClassName, $propertyClass] of Object.entries(this.#propertyClasses)) {
+    for(const [$propertyClassName, $propertyClass] of Object.entries(this.propertyClasses)) {
       this.#_propertyClassEvents[$propertyClassName] = $propertyClass.Events;
     }
     return this.#_propertyClassEvents
@@ -3601,7 +3598,6 @@ class Core extends EventTarget {
   set settings($settings) {
     if(this.#settings !== undefined) return
     this.#settings = Object.assign({}, Settings$4, $settings);
-    $settings.events = expandEvents($settings.events);
   }
   get options() { return this.#options }
   set options($options) {
@@ -3667,15 +3663,15 @@ class Core extends EventTarget {
     return propertyClass
   }
   addPropertyClasses() {
+    if(!arguments[0]) { return this }
     const $this = this;
     let $propertyClasses;
-    if(!arguments[0]) { $propertyClasses = Object.values(this.settings.propertyClasses); }
-    else if(Array.isArray(arguments[0])) { $propertyClasses = arguments[0]; }
+    if(Array.isArray(arguments[0])) { $propertyClasses = arguments[0]; }
     else if(typeof arguments[0] === 'object') { $propertyClasses = Object.values(arguments[0]); }
     const propertyClasses = this.propertyClasses;
     for(const $propertyClass of $propertyClasses) {
       const propertyClassName = $propertyClass.Name;
-      // Events
+      // Property Class Events
       if($propertyClass.Events === undefined) {
         $propertyClass.Events = CoreClassEvents;
       }
@@ -3690,10 +3686,12 @@ class Core extends EventTarget {
       const { Events, Names } = $propertyClass;
       const propertyClassStoreName = `_${propertyClassName}`;
       Object.defineProperties(this, {
+        // Property Class Store
         [propertyClassStoreName]: {
           configurable: true, enumerable: false, writable: true,
           value: undefined,
         },
+        // Property Class
         [propertyClassName]: {
           configurable: true, enumerable: true,  
           get() {
@@ -3766,6 +3764,7 @@ class Core extends EventTarget {
       });
       propertyClasses.push($propertyClass);
     }
+    return this
   }
   removePropertyClasses() {
     let removePropertyClasses = [];
@@ -3808,6 +3807,7 @@ class Core extends EventTarget {
       delete this[`${Names.Minister.Ad.Nonformal}${Names.Multiple.Formal}`];
       delete this[`${Names.Minister.Dead.Nonformal}${Names.Multiple.Formal}`];
     }
+    return this
   }
   getEvents() {
     const getEvents = [];
@@ -3837,7 +3837,8 @@ class Core extends EventTarget {
     return getEvents
   }
   addEvents() {
-    const $events = expandEvents(arguments[0] || this.settings.events);
+    if(arguments[0] === undefined) { return this }
+    const $events = expandEvents(arguments[0]);
     const { events } = this;
     for(let $event of $events) {
       const propertyClassName = $event.path.split('.').shift();
@@ -3992,7 +3993,8 @@ class Model extends Core {
       typeof this.settings.content !== 'object'
     ) { return null }
     this.changeEvents = this.options.changeEvents;
-    if(this.options.enableEvents === true) this.enableEvents();
+    const { enableEvents } = this.options;
+    if(enableEvents) this.enableEvents();
   }
   get schema() {
     if(this.#schema !== undefined) return this.#schema
