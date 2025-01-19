@@ -49,7 +49,9 @@ export default class Content extends EventTarget {
     if(this.#schema !== undefined)  { return }
     const typeOfSchema = typeOf($schema)
     if(['undefined', 'null'].includes(typeOfSchema)) { this.#schema = null }
-    else if($schema instanceof Schema) { this.#schema = $schema }
+    else if(
+      $schema instanceof Schema
+    ) { this.#schema = $schema }
     else if(typeOfSchema === 'array') { this.#schema = new Schema(...arguments) }
     else if(typeOfSchema === 'object') { this.#schema = new Schema($schema) }
   }
@@ -70,7 +72,7 @@ export default class Content extends EventTarget {
     let root = this
     iterateParents: 
     while(root) {
-      if(!root.parent) { break iterateParents }
+      if([undefined, null].includes(root.parent)) { break iterateParents }
       root = root.parent
     }
     return root
@@ -95,14 +97,7 @@ export default class Content extends EventTarget {
   }
   get proxy() {
     if(this.#proxy !== undefined) return this.#proxy
-    // const { proxyAssignmentMethod } = this.options
     this.#proxy = new Proxy(this.target, this.#handler)
-    // if(['set', 'assign'].includes(proxyAssignmentMethod)) {
-    //   this.#proxy[proxyAssignmentMethod](this.#properties)
-    // }
-    // else {
-    //   this.#proxy[Options.proxyAssignmentMethod](this.#properties)
-    // }
     return this.#proxy
   }
   get #handler() {

@@ -15,6 +15,7 @@ export default class Validation extends EventTarget {
   }
   // get type() { return this.#settings.type }
   get definition() { return this.#settings.definition }
+  get path() { return this.#settings.path }
   get key() { return this.#settings.key }
   get value() { return this.#settings.value }
   get properties() {

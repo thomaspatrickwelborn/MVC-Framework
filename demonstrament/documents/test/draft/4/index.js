@@ -1,6 +1,24 @@
 import { Core, Control, Model } from '/dependencies/mvc-framework.js'
 /*
 const model = new Model({
+  schema: {
+    propertyA: {
+      propertyB: {
+        propertyC: Number
+      }
+    }
+  },
+  content: {
+    propertyA: {
+      propertyB: {
+        propertyC: 333333333
+      }
+    }
+  }
+})
+*/
+/*
+const model = new Model({
   schema: { propertyA: String },
   content: { propertyA: "PROPERTYA" },
   events: { "content setProperty": function contentSetProperty($event) {
@@ -18,7 +36,10 @@ const model = new Model({
   events: { "content setProperty": function contentSetProperty($event) {
     console.log($event.type, $event.path, $event.value)
   } }
-}, {})
+}, {
+  localStorage: 'model',
+  // localStorage: true,
+})
 // const { schema, content } = model
 // content.set("propertyA", "PROPERTYA")
 
@@ -26,16 +47,26 @@ model.addEvents([{
   path: "content", 
   type: "nonvalidProperty", 
   listener: function nonvalidPropertyListener($event) {
+    console.log($event)
     console.log($event.type, $event.path, $event.value)
   },
   enable: true, 
 }])
 model.content.set("propertyA", "PROPERTYA")
 model.content.set("propertyA", 1111111111)
-model.removeEvents({ type: "nonvalidProperty" })
-model.removeEvents({ type: "setProperty" })
+model.disableEvents({ type: "nonvalidProperty" })
+model.disableEvents({ type: "setProperty" })
 model.content.set("propertyA", "PROPERTYA")
 model.content.set("propertyA", 1111111111)
+model.enableEvents({ type: "nonvalidProperty" })
+model.enableEvents({ type: "setProperty" })
+model.content.set("propertyA", "PROPERTYA")
+model.content.set("propertyA", 1111111111)
+model.removeEvents({ type: "nonvalidProperty" })
+model.removeEvents({ type: "setProperty" })
+console.log(model)
+/*
+*/
 // model.content.set("propertyA", 1111111111)
 // model.content.set("propertyA", "PROPERTYA")
 // console.log(model.events)

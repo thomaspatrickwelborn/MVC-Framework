@@ -13,6 +13,9 @@ export default class Schema extends EventTarget{
   options
   #type
   #context
+  #parent
+  #key
+  #path
   #requiredProperties
   #requiredPropertiesSize
   constructor($properties = {}, $options = {}) {
@@ -24,6 +27,33 @@ export default class Schema extends EventTarget{
     if(this.#type !== undefined) return this.#type
     this.#type = typeOf(typedObjectLiteral(this.#properties))
     return this.#type
+  }
+  get parent() {
+    if(this.#parent !== undefined)  return this.#parent
+    this.#parent = (this.options.parent) ? this.options.parent : null
+    return this.#parent
+  }
+  get root() {
+    let root = this
+    iterateParents: 
+    while(root) {
+      if([undefined, null].includes(root.parent)) { break iterateParents }
+      root = root.parent
+    }
+    return root
+  }
+  get key() {
+    if(this.#key !== undefined) { return this.#key }
+    if(this.path) { this.#key = this.path.split('.').pop() }
+    else { this.#key = null }
+    return this.#key
+  }
+  get path() {
+    if(this.#path !== undefined)  return this.#path
+    this.#path = (this.options.path)
+      ? String(this.options.path)
+      : null
+    return this.#path
   }
   get required() { return this.options.required }
   get requiredProperties() {
@@ -62,14 +92,13 @@ export default class Schema extends EventTarget{
     else if($arguments.length === 3 && typeof $arguments[0] === 'string') {
       $sourceName = $arguments.shift(); $source = $arguments.shift(); $target = $arguments.shift()
     }
-    // if($source?.classToString === Content.toString()) { $source = $source.object }
-    // if($target?.classToString === Content.toString()) { $target = $target.object }
     return { $sourceName, $source, $target }
   }
   validate() {
     const { $sourceName, $source, $target } = this.#parseValidateArguments(...arguments)
     const validation = new Validation({
       definition: this.context,
+      path: this.path,
       key: $sourceName, 
       value: $source,
       properties: typedObjectLiteral(this.type),
@@ -93,8 +122,6 @@ export default class Schema extends EventTarget{
     }
     if(this.required === true) {
       if(validation.deadvance.length) { validation.valid = false }
-      // else if(validation.unadvance.length) { validation.valid = undefined }
-      // else if(validation.advance.length) { validation.valid = true }
       else if(validation.advance.length) { validation.valid = true }
       else if(validation.unadvance.length) { validation.valid = undefined }
       else { validation.valid = false }
@@ -123,9 +150,12 @@ export default class Schema extends EventTarget{
     let propertyDefinition
     if(this.type === 'array') { propertyDefinition = this.context[0] }
     else if(this.type === 'object') { propertyDefinition = this.context[$key] }
+    const { path } = this
+    const propertyValidationPath = (path) ? [path, $key].join('.') : $key
     const propertyValidation = new Validation({
       // type: this.required,
       definition: propertyDefinition,
+      path: propertyValidationPath,
       key: $key,
       value: $value,
     })

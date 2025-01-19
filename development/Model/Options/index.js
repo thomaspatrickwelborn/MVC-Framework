@@ -5,4 +5,5 @@ export default {
   autoload: false, // Boolean
   autosave: false, // Boolean
   changeEvents: true, // Boolean
+  localStorage: false, // Boolean, String,
 }

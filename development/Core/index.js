@@ -81,7 +81,7 @@ export default class Core extends EventTarget {
     let root = this
     iterateRoots: 
     while(root) {
-      if(!root.parent) break iterateRoots
+      if([undefined, null].includes(root.parent)) break iterateRoots
       root = root.parent
     }
     return root

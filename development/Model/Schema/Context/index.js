@@ -78,7 +78,15 @@ export default class Context extends EventTarget {
       ) {
         let propertyDefinitionIsPropertyDefinition = isPropertyDefinition($propertyDefinition)
         if(propertyDefinitionIsPropertyDefinition === false) {
-          propertyDefinition = new Schema($propertyDefinition, this.schema.options)
+          const { path } = this.schema
+          const schemaPath = (path)
+            ? [path, $propertyKey].join('.')
+            : String($propertyKey)
+          const parent = this.schema
+          propertyDefinition = new Schema($propertyDefinition, Object.assign({}, this.schema.options, {
+            path: schemaPath,
+            parent: parent,
+          }))
         }
         else if(propertyDefinitionIsPropertyDefinition === true) {
           propertyDefinition = { validators: [] }
