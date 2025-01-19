@@ -1,7 +1,5 @@
 import { Core, Control, Model } from '/dependencies/mvc-framework.js'
-const control = new Control()
-control.removePropertyClasses("models")
-control.addPropertyClasses([{
+const ModelPropertyClass = {
   ID: "MODEL",
   Name: "models",
   Class: Model,
@@ -14,4 +12,15 @@ control.addPropertyClasses([{
     },
   },
   Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
-}])
+}
+const control = new Control()
+control.addModels({
+  model: new Model({
+    content: {
+      propertyA: "propertyA"
+    }
+  })
+})
+console.log(control.models.model)
+// control.addPropertyClasses([ModelPropertyClass])
+// control.removePropertyClasses("models")

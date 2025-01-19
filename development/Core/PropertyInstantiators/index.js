@@ -3,11 +3,11 @@ function CoreClassInstantiator($propertyClass, $property, $value) {
   const { core, target, Class, Names } = $propertyClass
   const valueInstanceOfClass = $value instanceof Class
   let value
+  const parent = core
+  const path = (core.path)
+    ? [core.path, Names.Multiple.Nonformal, $property].join('.')
+    : [Names.Multiple.Nonformal, $property].join('.')
   if(valueInstanceOfClass === false) {
-    const parent = core
-    const path = (core.path)
-      ? [core.path, Names.Multiple.Nonformal, $property].join('.')
-      : [Names.Multiple.Nonformal, $property].join('.')
     const propertyClassInstanceParameters = [].concat($value)
     const $settings = Object.assign({ path, parent }, propertyClassInstanceParameters.shift())
     const $options = propertyClassInstanceParameters.shift()

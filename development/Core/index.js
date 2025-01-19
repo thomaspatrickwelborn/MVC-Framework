@@ -82,7 +82,11 @@ export default class Core extends EventTarget {
   }
   get root() {
     let root = this
-    while(root !== null) { root = root.parent }
+    iterateRoots: 
+    while(root) {
+      if(!root.parent) break iterateRoots
+      root = root.parent
+    }
     return root
   }
   get events() {
