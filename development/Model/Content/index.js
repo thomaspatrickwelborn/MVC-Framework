@@ -19,7 +19,15 @@ export default class Content extends EventTarget {
     this.#properties = $properties
     this.options = $options
     this.schema = $schema
-    return this.proxy
+    const { proxyAssignmentMethod } = this.options
+    const { proxy } = this
+    if(['set', 'assign'].includes(proxyAssignmentMethod)) {
+      proxy[proxyAssignmentMethod](this.#properties)
+    }
+    else {
+      proxy[Options.proxyAssignmentMethod](this.#properties)
+    }
+    return proxy
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
@@ -87,14 +95,14 @@ export default class Content extends EventTarget {
   }
   get proxy() {
     if(this.#proxy !== undefined) return this.#proxy
-    const { proxyAssignmentMethod } = this.options
+    // const { proxyAssignmentMethod } = this.options
     this.#proxy = new Proxy(this.target, this.#handler)
-    if(['set', 'assign'].includes(proxyAssignmentMethod)) {
-      this.#proxy[proxyAssignmentMethod](this.#properties)
-    }
-    else {
-      this.#proxy[Options.proxyAssignmentMethod](this.#properties)
-    }
+    // if(['set', 'assign'].includes(proxyAssignmentMethod)) {
+    //   this.#proxy[proxyAssignmentMethod](this.#properties)
+    // }
+    // else {
+    //   this.#proxy[Options.proxyAssignmentMethod](this.#properties)
+    // }
     return this.#proxy
   }
   get #handler() {

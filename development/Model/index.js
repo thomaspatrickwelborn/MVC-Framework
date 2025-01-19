@@ -20,7 +20,7 @@ export default class Model extends Core {
   #content
   #localStorage
   #changeEvents
-  constructor($settings = {}, $options = {}) {
+  constructor($settings, $options) {
     super(
       recursiveAssign({}, Settings, $settings), 
       recursiveAssign({}, Options, $options),

@@ -1,5 +1,7 @@
 import FetchRoute from './FetchRoute/index.js'
 import Core from '../../Core/index.js'
+import Settings from './Settings/index.js'
+import Options from './Options/index.js'
 export default class FetchRouter extends Core {
   #scheme
   #domain
@@ -7,6 +9,15 @@ export default class FetchRouter extends Core {
   #_authority
   #_origin
   #routes = {}
+  constructor($settings, $options) {
+    super(...arguments)
+    const { scheme, domain, port, routes } = $settings
+    this.#scheme = scheme
+    this.#domain = domain
+    this.#port = port
+    this.routes = routes
+    if($options.enableEvents === true) this.enableEvents()
+  }
   get #authority() {
     if(this.#_authority === undefined) {
       this.#_authority = String.prototype.concat(
@@ -22,15 +33,6 @@ export default class FetchRouter extends Core {
       )
     }
     return this.#_origin
-  }
-  constructor($settings = {}, $options = { enableEvents: true }) {
-    super(...arguments)
-    const { scheme, domain, port, routes } = $settings
-    this.#scheme = scheme
-    this.#domain = domain
-    this.#port = port
-    this.routes = routes
-    if($options.enableEvents === true) this.enableEvents()
   }
   get routes() { return this.#routes }
   set routes($routes) { this.addRoutes($routes) }

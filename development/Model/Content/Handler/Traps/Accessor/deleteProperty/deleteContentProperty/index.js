@@ -46,7 +46,9 @@ export default function deleteContentProperty() {
         }
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
-            new ValidatorEvent($eventType, validTargetProp, $content)
+            new ValidatorEvent($eventType, Object.assign(validTargetProp, {
+              path: validatorEventPath
+            }), $content)
           )
         }
       }

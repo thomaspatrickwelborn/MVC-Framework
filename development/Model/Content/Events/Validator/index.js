@@ -30,6 +30,7 @@ export default class ValidatorEvent extends Event {
       }
     )
   }
+  get path() {}
   get key() {
     if(this.#key !== undefined) { return this.#key }
     this.#key = this.#settings.key

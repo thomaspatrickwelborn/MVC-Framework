@@ -506,6 +506,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends Event {
       }
     );
   }
+  get path() {}
   get key() {
     if(this.#key !== undefined) { return this.#key }
     this.#key = this.#settings.key;
@@ -2149,6 +2150,9 @@ function deleteContentProperty() {
       const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, proxy);
       if(validationEvents) {
         let type, propertyType;
+        const validatorEventPath = (path)
+          ? [path, propertyKey].join('.')
+          : String(propertyKey);
         if(validTargetProp.valid) {
           type = 'validProperty';
           propertyType = ['validProperty', ':', propertyKey].join('');
@@ -2159,7 +2163,9 @@ function deleteContentProperty() {
         }
         for(const $eventType of [type, propertyType]) {
           $content.dispatchEvent(
-            new ValidatorEvent($eventType, validTargetProp, $content)
+            new ValidatorEvent($eventType, Object.assign(validTargetProp, {
+              path: validatorEventPath
+            }), $content)
           );
         }
       }
@@ -3288,7 +3294,15 @@ class Content extends EventTarget {
     this.#properties = $properties;
     this.options = $options;
     this.schema = $schema;
-    return this.proxy
+    const { proxyAssignmentMethod } = this.options;
+    const { proxy } = this;
+    if(['set', 'assign'].includes(proxyAssignmentMethod)) {
+      proxy[proxyAssignmentMethod](this.#properties);
+    }
+    else {
+      proxy[Options$5.proxyAssignmentMethod](this.#properties);
+    }
+    return proxy
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
@@ -3356,14 +3370,14 @@ class Content extends EventTarget {
   }
   get proxy() {
     if(this.#proxy !== undefined) return this.#proxy
-    const { proxyAssignmentMethod } = this.options;
+    // const { proxyAssignmentMethod } = this.options
     this.#proxy = new Proxy(this.target, this.#handler);
-    if(['set', 'assign'].includes(proxyAssignmentMethod)) {
-      this.#proxy[proxyAssignmentMethod](this.#properties);
-    }
-    else {
-      this.#proxy[Options$5.proxyAssignmentMethod](this.#properties);
-    }
+    // if(['set', 'assign'].includes(proxyAssignmentMethod)) {
+    //   this.#proxy[proxyAssignmentMethod](this.#properties)
+    // }
+    // else {
+    //   this.#proxy[Options.proxyAssignmentMethod](this.#properties)
+    // }
     return this.#proxy
   }
   get #handler() {
@@ -3557,7 +3571,6 @@ var Settings$4 = {
 var Options$4 = {
   assign: [],
   defineProperties: {},
-  enableEvents: false,
 };
 
 class Core extends EventTarget {
@@ -3983,7 +3996,7 @@ class Model extends Core {
   #content
   #localStorage
   #changeEvents
-  constructor($settings = {}, $options = {}) {
+  constructor($settings, $options) {
     super(
       recursiveAssign({}, Settings$3, $settings), 
       recursiveAssign({}, Options$3, $options),
@@ -4870,6 +4883,15 @@ class FetchRouter extends Core {
   #_authority
   #_origin
   #routes = {}
+  constructor($settings, $options) {
+    super(...arguments);
+    const { scheme, domain, port, routes } = $settings;
+    this.#scheme = scheme;
+    this.#domain = domain;
+    this.#port = port;
+    this.routes = routes;
+    if($options.enableEvents === true) this.enableEvents();
+  }
   get #authority() {
     if(this.#_authority === undefined) {
       this.#_authority = String.prototype.concat(
@@ -4885,15 +4907,6 @@ class FetchRouter extends Core {
       );
     }
     return this.#_origin
-  }
-  constructor($settings = {}, $options = { enableEvents: true }) {
-    super(...arguments);
-    const { scheme, domain, port, routes } = $settings;
-    this.#scheme = scheme;
-    this.#domain = domain;
-    this.#port = port;
-    this.routes = routes;
-    if($options.enableEvents === true) this.enableEvents();
   }
   get routes() { return this.#routes }
   set routes($routes) { this.addRoutes($routes); }
@@ -5385,8 +5398,14 @@ class RouteEvent extends Event {
   get location() { return this.#options.location }
 }
 
-const Settings$1 = { routes: {} };
-const Options$1 = {};
+var Settings$1 = {
+  routes: {}
+};
+
+var Options$1 = {
+  enableEvents: true
+};
+
 class LocationRouter extends Core {
   #window
   #hashpath
@@ -5402,7 +5421,7 @@ class LocationRouter extends Core {
       recursiveAssign(Settings$1, $settings),
       recursiveAssign(Options$1, $options),
     );
-    this.enableEvents();
+    if($options.enableEvents === true) this.enableEvents();
     this.enable = true;
   }
   get base() { return this.settings.base }

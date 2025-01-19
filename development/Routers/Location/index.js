@@ -2,8 +2,8 @@ import { recursiveAssign } from '../../Coutil/index.js'
 import Core from '../../Core/index.js'
 import Route from './Route/index.js'
 import RouteEvent from './RouteEvent/index.js'
-const Settings = { routes: {} }
-const Options = {}
+import Settings from './Settings/index.js' 
+import Options from './Options/index.js' 
 export default class LocationRouter extends Core {
   #window
   #hashpath
@@ -19,7 +19,7 @@ export default class LocationRouter extends Core {
       recursiveAssign(Settings, $settings),
       recursiveAssign(Options, $options),
     )
-    this.enableEvents()
+    if($options.enableEvents === true) this.enableEvents()
     this.enable = true
   }
   get base() { return this.settings.base }
