@@ -4,8 +4,9 @@
   "watch": [
     "index.js",
     "package.json",
-    "nodemon.config.js",
-    "application.config.js",
-    "application"
+    "nodemon.config.json",
+    "application.config/**/*.js",
+    "application",
+    "documents/**/\\$route.js"
   ]
 }

@@ -1,17 +1,4 @@
 import { readFile } from 'node:fs/promises'
-import {
-  IndexRoute,
-  StaticCMSRoute,
-  TestRoute,
-  SchemaRoute,
-  ContentRoute,
-  DraftsRoute,
-  Draft0Route,
-  Draft1Route,
-  Draft2Route,
-  Draft3Route,
-  Draft4Route,
-} from './routes/index.js'
 import certificates from './certificates.js'
 certificates.key.file = await readFile(
   certificates.key.path
@@ -45,17 +32,9 @@ export default {
   express: {
     static: ['static', 'localhost']
   },
-  routes: [
-    IndexRoute,
-    StaticCMSRoute,
-    TestRoute,
-    SchemaRoute,
-    ContentRoute,
-    DraftsRoute,
-    Draft0Route,
-    Draft1Route,
-    Draft2Route,
-    Draft3Route,
-    Draft4Route,
-  ],
+  documents: {
+    source: 'documents',
+    target: 'localhost',
+    watch: ['documents/**/\$route.js'],
+  }
 }

@@ -5,15 +5,18 @@ import ejs from 'ejs'
 import { readFile } from 'node:fs/promises'
 import { writeFile } from 'node:fs'
 export default async function EJSPiler($settings, $route, $path) {
+  console.log("EJSPiler", "$path", $path)
   await createDir(path.dirname($path))
-  // Server
   const localsName = $settings.localsName || '$content'
+  // Server
   if($settings.outputType === 'server') {
     try {
+      const modelPath = path.join($route.source, $settings.model)
       const model = JSON.parse(
-        await readFile($settings.model)
+        await readFile(modelPath)
       )
-      const viewPile = await ejs.renderFile($settings.input, model, {
+      const templatePath = path.join($route.source, $settings.input)
+      const viewPile = await ejs.renderFile(templatePath, model, {
         async: true,
         localsName,
         root: [
@@ -27,14 +30,16 @@ export default async function EJSPiler($settings, $route, $path) {
         indentSize: 2,
         indentChar: ' ',
       })
-      writeFile($settings.output, viewPileBeautify, ($err) => console.log)
+      const writeFilePath = path.join($route.target, $settings.output)
+      writeFile(writeFilePath, viewPileBeautify, ($err) => console.log)
     }
     catch($err) { console.log($err) }
   }
   // Client
-  else if($settings.outputType === 'client') {
+  else  if($settings.outputType === 'client') {
     try {
-      const viewTemplate = await readFile($path)
+      const viewTemplatePath = $path
+      const viewTemplate = await readFile(viewTemplatePath)
       .then(($viewTemplate) => $viewTemplate.toString())
       const viewPile = ejs.compile(viewTemplate, {
         _with: false,
@@ -57,4 +62,5 @@ export default async function EJSPiler($settings, $route, $path) {
     }
     catch($err) { console.log($err) }
   }
+  
 }

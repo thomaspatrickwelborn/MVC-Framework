@@ -1,18 +1,20 @@
 export default {
-  name: 'Test | Content',
-  url: '/test/content',
-  source: 'documents/test/content',
-  target: 'localhost/test/content',
+  active: false,
+  name: 'Test | Drafts',
+  url: '/test/drafts',
+  source: 'documents/test/drafts',
+  target: 'localhost/test/drafts',
   main: 'index.html',
-  ignore: [],
+  ignore: ["0", "1", "2", "3", "4", "5"],
   clear: {
-    target: [
-      '/**/*.{html,css,js,md}',
-    ],
-    source: [
-      '**/template.js',
-      '!**/$template.js'
-    ],
+    target: {
+      path: ['/**/*.{html,css,js,md}'],
+      ignore: [],
+    },
+    source: {
+      path: ['**/template.js'],
+      ignore: ['**/$template.js'],
+    },
   },
   documents: {
     simules: [],
@@ -20,21 +22,15 @@ export default {
       type: 'style',
       input: 'index.scss',
       output: 'index.css',
-      watch: [
-        '**/*.scss', ,
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.scss'],
+      ignore: [],
     }],
     scripts: [{
       type: 'script',
       input: 'index.js',
       output: 'index.js',
-      watch: [
-        '**/*.js',
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.js'],
+      ignore: [],
       external: ['/dependencies/mvc-framework.js']
     }],
     structs: [{
@@ -45,6 +41,7 @@ export default {
       input: 'index.ejs',
       output: 'index.html',
       watch: ['**/*.{ejs,json}', '!**/\$*.ejs'],
+      ignore: [],
     }, {
       type: 'struct',
       localsName: '$content',
@@ -52,6 +49,7 @@ export default {
       input: '**/*.ejs',
       output: '',
       watch: ['**/\$*.ejs'],
+      ignore: [],
     }],
   }
 }

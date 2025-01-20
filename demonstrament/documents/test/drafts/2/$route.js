@@ -1,17 +1,20 @@
 export default {
-  name: 'Static CMS',
-  url: '/static-cms',
-  source: 'documents/static-cms',
-  target: 'localhost/static-cms',
+  active: false,
+  name: 'Test | Draft 2',
+  url: '/test/draft/2',
+  source: 'documents/test/draft/2',
+  target: 'localhost/test/draft/2',
   main: 'index.html',
   ignore: [],
   clear: {
-    target: [
-      '/**/*.{html,css,js,md}',
-    ],
-    source: [
-      '**/template.js'
-    ],
+    target: {
+      path: ['/**/*.{html,css,js,md}'],
+      ignore: [],
+    },
+    source: {
+      path: ['**/template.js'],
+      ignore: ['**/$template.js'],
+    },
   },
   documents: {
     simules: [],
@@ -20,12 +23,14 @@ export default {
       input: 'index.scss',
       output: 'index.css',
       watch: ['**/*.scss'],
+      ignore: [],
     }],
     scripts: [{
       type: 'script',
       input: 'index.js',
       output: 'index.js',
       watch: ['**/*.js'],
+      ignore: [],
       external: ['/dependencies/mvc-framework.js']
     }],
     structs: [{
@@ -35,7 +40,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+      watch: ['**/*.{ejs,json}'],
+      ignore: ['**/\$*.ejs'],
     }, {
       type: 'struct',
       localsName: '$content',
@@ -43,6 +49,7 @@ export default {
       input: '**/*.ejs',
       output: '',
       watch: ['**/\$*.ejs'],
+      ignore: [],
     }],
   }
 }

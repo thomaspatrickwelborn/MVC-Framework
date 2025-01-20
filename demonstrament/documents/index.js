@@ -1,4 +1,4 @@
-console.log("hello all dogs")
+console.log("hello all dogs");
 // import { Control, Model, Schema, Content } from '/dependencies/mvc-framework.js'
 // import DefaultTemplate from './template.js'
 // const index = new Control({
@@ -46,3 +46,4 @@ console.log("hello all dogs")
 //   }
 // })
 // index.start()
+//# sourceMappingURL=index.js.map
