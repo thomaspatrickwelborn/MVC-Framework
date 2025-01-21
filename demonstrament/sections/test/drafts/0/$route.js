@@ -1,22 +1,21 @@
 export default {
   active: false,
-  name: 'Test | Draft 1',
-  url: '/test/draft/1',
-  source: 'sections/test/draft/1',
-  target: 'localhost/test/draft/1',
+  name: 'Test | Draft 0',
+  url: '/test/draft/0',
+  source: 'sections/test/draft/0',
+  target: 'localhost/test/draft/0',
   main: 'index.html',
   ignore: [],
-  clear: {
-    target: {
+  pilers: {
+    sans: [{
+      target: 'target',
       path: ['/**/*.{html,css,js,md}'],
       ignore: [],
-    },
-    source: {
+    }, {
+      source: 'source',
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
-    },
-  },
-  pilers: {
+    }],
     simules: [],
     styles: [{
       type: 'style',
@@ -40,8 +39,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}'],
-      ignore: ['**/\$*.ejs'],
+      watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
+      ignore: [],
     }, {
       type: 'struct',
       localsName: '$content',

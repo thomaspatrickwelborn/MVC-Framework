@@ -1,43 +1,34 @@
 export default {
   active: false,
-  name: 'Test | Content',
-  url: '/test/content',
-  source: 'sections/test/content',
-  target: 'localhost/test/content',
+  name: 'Test | Draft 5',
+  url: '/test/draft/5',
+  source: 'sections/test/draft/5',
+  target: 'localhost/test/draft/5',
   main: 'index.html',
   ignore: [],
-  clear: {
-    target: {
+  pilers: {
+    sans: [{
+      target: 'target',
       path: ['/**/*.{html,css,js,md}'],
       ignore: [],
-    },
-    source: {
+    }, {
+      source: 'source',
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
-    },
-  },
-  pilers: {
+    }],
     simules: [],
     styles: [{
       type: 'style',
       input: 'index.scss',
       output: 'index.css',
-      watch: [
-        '**/*.scss', ,
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.scss'],
       ignore: [],
     }],
     scripts: [{
       type: 'script',
       input: 'index.js',
       output: 'index.js',
-      watch: [
-        '**/*.js',
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.js'],
       ignore: [],
       external: ['/dependencies/mvc-framework.js']
     }],
@@ -48,8 +39,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}'],
-      ignore: ['**/\$*.ejs'],
+      watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
+      ignore: [],
     }, {
       type: 'struct',
       localsName: '$content',

@@ -1,35 +1,42 @@
 export default {
   active: false,
-  name: 'Static CMS',
-  url: '/static-cms',
-  source: 'sections/static-cms',
-  target: 'localhost/static-cms',
+  name: 'Test | Content',
+  url: '/test/content',
+  source: 'sections/test/content',
+  target: 'localhost/test/content',
   main: 'index.html',
   ignore: [],
-  clear: {
-    target: {
+  pilers: {
+    sans: [{
+      target: 'target',
       path: ['/**/*.{html,css,js,md}'],
       ignore: [],
-    },
-    source: {
+    }, {
+      source: 'source',
       path: ['**/template.js'],
-      ignore: [],
-    },
-  },
-  pilers: {
+      ignore: ['**/$template.js'],
+    }],
     simules: [],
     styles: [{
       type: 'style',
       input: 'index.scss',
       output: 'index.css',
-      watch: ['**/*.scss'],
+      watch: [
+        '**/*.scss', ,
+        '../classes/**',
+        '../coutil/**'
+      ],
       ignore: [],
     }],
     scripts: [{
       type: 'script',
       input: 'index.js',
       output: 'index.js',
-      watch: ['**/*.js'],
+      watch: [
+        '**/*.js',
+        '../classes/**',
+        '../coutil/**'
+      ],
       ignore: [],
       external: ['/dependencies/mvc-framework.js']
     }],
@@ -40,8 +47,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
-      ignore: [],
+      watch: ['**/*.{ejs,json}'],
+      ignore: ['**/\$*.ejs'],
     }, {
       type: 'struct',
       localsName: '$content',

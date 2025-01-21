@@ -1,23 +1,29 @@
 export default {
-  active: false,
-  name: 'Test | Draft 5',
-  url: '/test/draft/5',
-  source: 'sections/test/draft/5',
-  target: 'localhost/test/draft/5',
+  active: true,
+  name: 'Index',
+  url: '/',
+  source: 'sections',
+  target: 'localhost',
   main: 'index.html',
-  ignore: [],
-  clear: {
-    target: {
-      path: ['/**/*.{html,css,js,md}'],
-      ignore: [],
-    },
-    source: {
-      path: ['**/template.js'],
-      ignore: ['**/$template.js'],
-    },
-  },
+  ignore: ['static-cms', 'test'],
   pilers: {
-    simules: [],
+    sans: [{
+      target: 'source',
+      path: ['**/template.js'],
+      ignore: ['**/\$template.js'],
+    }, 
+      target: 'target',
+      path: ['*.{html,css,js,md,map,ico}'],
+      ignore: [],
+    }],
+    simules: [{
+      type: 'simule',
+      outputType: 'path',
+      input: 'favicon.ico',
+      output: 'favicon.ico',
+      watch: ['favicon.ico'],
+      ignore: [],
+    }],
     styles: [{
       type: 'style',
       input: 'index.scss',
@@ -30,8 +36,8 @@ export default {
       input: 'index.js',
       output: 'index.js',
       watch: ['**/*.js'],
-      ignore: [],
-      external: ['/dependencies/mvc-framework.js']
+      external: ['/dependencies/mvc-framework.js'],
+      ignore: ['**/\\$route.js'],
     }],
     structs: [{
       type: 'struct',
@@ -40,8 +46,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
-      ignore: [],
+      watch: ['**/*.{ejs,json}'],
+      ignore: ['**/\$*.ejs'],
     }, {
       type: 'struct',
       localsName: '$content',

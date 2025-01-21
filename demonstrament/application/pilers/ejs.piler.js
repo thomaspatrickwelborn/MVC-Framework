@@ -6,8 +6,15 @@ import ejs from 'ejs'
 import { readFile } from 'node:fs/promises'
 import { writeFile } from 'node:fs'
 export default class EJSPiler extends Piler {
+  #model
   constructor($settings, $section) {
     super(...arguments)
+  }
+  get outputType
+  get model() {
+    if(this.#model !== undefined) { return this.#model }
+    this.#model = path.join(this.section.source, settings.model)
+    return this.#model
   }
   async pile($path) {
     const settings = this.settings
@@ -18,11 +25,9 @@ export default class EJSPiler extends Piler {
     // Server
     if(settings.outputType === 'server') {
       try {
-        const modelPath = path.join(section.source, settings.model)
-        const model = JSON.parse(
-          await readFile(modelPath)
-        )
-        const templatePath = path.join(section.source, settings.input)
+        // const modelPath = path.join(section.source, settings.model)
+        const model = JSON.parse(await readFile(this.model))
+        const templatePath = path.join(section.source, this.input)
         const viewPile = await ejs.renderFile(templatePath, model, {
           async: true,
           localsName,
@@ -37,7 +42,7 @@ export default class EJSPiler extends Piler {
           indentSize: 2,
           indentChar: ' ',
         })
-        const writeFilePath = path.join(section.target, settings.output)
+        const writeFilePath = path.join(section.target, this.output)
         writeFile(writeFilePath, viewPileBeautify, ($err) => console.log)
       }
       catch($err) { console.log($err) }

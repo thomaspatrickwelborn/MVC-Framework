@@ -4,37 +4,49 @@ import { globSync } from 'glob'
 import watch from 'glob-watcher'
 import Section from './section/index.js'
 export default class Sections extends EventTarget {
-  #sections
-  constructor($sections) {
+  length = 0
+  #_settings
+  #target
+  #handler
+  #proxy
+  constructor($settings) {
     super()
-    this.sections = $sections
+    this.#settings = $settings
   }
-  set sections($sections) {
-    if(this.#sections !== undefined) return
-    const { name, source, target } = $sections
-    const sections = []
-    for(const $watchPath of $sections.watch) {
+  get #settings() { return this.#settings }
+  set #settings($settings) {
+    if(this.#_settings !== undefined) return
+    this.#_settings = $settings
+    const { name, source, target } = $settings
+    const settings = []
+    for(const $watchPath of $settings.watch) {
       const watcher = watch($watchPath, {
         ignoreInitial: false,
         awaitWriteFinish: true,
       })
       watcher.on('add', async ($addPath) => {
-        const sectionPath = path.join(process.env.PWD, $addPath)
-        const sectionImport = await import(sectionPath).then(($sectionImport) => {
-          return $sectionImport.default
-        })
-        if(sectionImport.active) {
-          sections.push(new Section(sectionImport))
-        }
       })
-      watcher.on('change', ($path) => {
-        console.log("change", $path)
-      })
-      // watcher.on('unlink', ($path) => {
-      //   console.log("unlink", $path)
-      // })
+      watcher.on('change', this.#change)
+      watcher.on('unlink', this.#unlink)
     }
-    this.#sections = sections
-    return this.#sections
   }
+  get($filter) {
+    const sections = []
+    for(const $section of Array.from(this)) {
+      
+    }
+    return sections
+  }
+  #add($path) {
+    const sectionPath = path.join(process.env.PWD, $addPath)
+    const sectionImport = await import(sectionPath).then(($sectionImport) => {
+      return $sectionImport.default
+    })
+    if(sectionImport.active) {
+      Array.prototype.push.call(this, new Section(sectionImport))
+    }
+    return this
+  }
+  #change($path) { return this }
+  #unlink($path) { return this }
 }

@@ -6,11 +6,15 @@ import { globSync } from 'glob'
 import watch from 'glob-watcher'
 export default class Section extends EventTarget {
   #settings
+  #active
+  #source
+  #target
+  #ignore
   #scripts
   #simules
   #structs
   #styles
-  constructor($settings) {
+  constructor($settings, $sections) {
     super()
     console.log($settings)
     this.#settings = $settings
@@ -21,6 +25,29 @@ export default class Section extends EventTarget {
     //   this.scripts
     //   this.simules
     // })
+  }
+  get active() { return this.#active }
+  set active($active) {
+    if(this.#active === $active) { return }
+    if($active === true) {}
+    else if($active === false) {}
+  }
+  get name() { return this.#settings.name }
+  get url() { return this.#settings.url }
+  get source() {}
+  get target() {}
+  get main() { return this.#settings.main }
+  get ignore() {
+    if(this.#ignore !== undefined) { return this.#ignore }
+    this.#ignore = Array.prototype.concat(
+      this.settings.ignore.map(
+        ($ignorePath) => path.join(this.section.source, $ignorePath)
+      )
+      this.section.ignore.map(
+        ($ignorePath) => path.join(this.section.source, $ignorePath)
+      )
+    )
+    return this.#ignore
   }
   #clear() {
     const { source, target } = this.settings

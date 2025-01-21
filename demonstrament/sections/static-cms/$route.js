@@ -1,22 +1,21 @@
 export default {
   active: false,
-  name: 'Test | Draft 4',
-  url: '/test/draft/4',
-  source: 'sections/test/draft/4',
-  target: 'localhost/test/draft/4',
+  name: 'Static CMS',
+  url: '/static-cms',
+  source: 'sections/static-cms',
+  target: 'localhost/static-cms',
   main: 'index.html',
   ignore: [],
-  clear: {
-    target: {
+  pilers: {
+    sans: [{
+      target: 'target',
       path: ['/**/*.{html,css,js,md}'],
       ignore: [],
-    },
-    source: {
+    }, {
+      source: 'source',
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
-    },
-  },
-  pilers: {
+    }],
     simules: [],
     styles: [{
       type: 'style',
@@ -40,7 +39,7 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
+      watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
       ignore: [],
     }, {
       type: 'struct',

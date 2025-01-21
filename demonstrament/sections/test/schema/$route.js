@@ -6,17 +6,16 @@ export default {
   target: 'localhost/test/schema',
   main: 'index.html',
   ignore: [],
-  clear: {
-    target: {
+  pilers: {
+    sans: [{
+      target: 'target', 
       path: ['/**/*.{html,css,js,md}'],
       ignore: [],
-    },
-    source: {
+    }, {
+      target: 'source', 
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
-    },
-  },
-  pilers: {
+    }],
     simules: [],
     styles: [{
       type: 'style',
