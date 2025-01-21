@@ -32,9 +32,9 @@ export default {
   express: {
     static: ['static', 'localhost']
   },
-  documents: {
+  sections: {
     source: 'documents',
     target: 'localhost',
     watch: ['documents/**/\$route.js'],
-  }
+  },
 }

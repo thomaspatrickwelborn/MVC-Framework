@@ -2,7 +2,7 @@ export default {
   active: false,
   name: 'Static CMS',
   url: '/static-cms',
-  source: 'documents/static-cms',
+  source: 'sections/static-cms',
   target: 'localhost/static-cms',
   main: 'index.html',
   ignore: [],
@@ -16,7 +16,7 @@ export default {
       ignore: [],
     },
   },
-  documents: {
+  pilers: {
     simules: [],
     styles: [{
       type: 'style',

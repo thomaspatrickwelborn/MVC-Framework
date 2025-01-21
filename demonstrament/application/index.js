@@ -4,21 +4,21 @@ import inspector from 'node:inspector'
 import https from 'node:https'
 import express from 'express'
 import browserSync from 'browser-sync'
-import Documents from './documents/index.js'
+import Sections from './sections/index.js'
 export default class Application extends EventTarget {
   #settings
   #_inspector
   #_server
   #_https
   #_browserSync
-  #_documents
+  #_sections
   constructor($settings) {
     super()
     this.#settings = $settings
     this.inspector
     this.server
     this.https
-    this.documents
+    this.sections
     this.browserSync
   }
   // Node Inspector
@@ -91,12 +91,12 @@ export default class Application extends EventTarget {
     this.dispatchEvent(new CustomEvent('ready', { detail: this }))
     return this.#_browserSync
   }
-  // Documents
-  get documents() {
-    if(this.#_documents !== undefined) {
-      return this.#_documents
+  // Sections
+  get sections() {
+    if(this.#_sections !== undefined) {
+      return this.#_sections
     }
-    this.#_documents = new Documents(this.#settings.documents)
-    return this.#_documents
+    this.#_sections = new Sections(this.#settings.sections)
+    return this.#_sections
   }
 }

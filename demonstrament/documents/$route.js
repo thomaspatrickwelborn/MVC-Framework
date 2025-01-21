@@ -2,7 +2,7 @@ export default {
   active: true,
   name: 'Index',
   url: '/',
-  source: 'documents',
+  source: 'sections',
   target: 'localhost',
   main: 'index.html',
   ignore: ['static-cms', 'test'],
@@ -16,7 +16,7 @@ export default {
       ignore: [],
     },
   },
-  documents: {
+  pilers: {
     simules: [{
       type: 'simule',
       outputType: 'path',

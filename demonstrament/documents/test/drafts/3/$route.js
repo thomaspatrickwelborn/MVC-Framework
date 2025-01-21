@@ -2,7 +2,7 @@ export default {
   active: false,
   name: 'Test | Draft 3',
   url: '/test/draft/3',
-  source: 'documents/test/draft/3',
+  source: 'sections/test/draft/3',
   target: 'localhost/test/draft/3',
   main: 'index.html',
   ignore: [],
@@ -16,7 +16,7 @@ export default {
       ignore: ['**/$template.js'],
     },
   },
-  documents: {
+  pilers: {
     simules: [],
     styles: [{
       type: 'style',
