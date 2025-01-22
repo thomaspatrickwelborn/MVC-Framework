@@ -5,8 +5,8 @@
     "index.js",
     "package.json",
     "nodemon.config.json",
-    "application.config/**/*.js",
+    "application.config.js",
     "application",
-    "documents/**/\\$route.js"
+    "sections/**/\\$route.js"
   ]
 }

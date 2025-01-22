@@ -6,11 +6,15 @@ import ejs from 'ejs'
 import { readFile } from 'node:fs/promises'
 import { writeFile } from 'node:fs'
 export default class EJSPiler extends Piler {
+  #settings
+  #section
   #model
   constructor($settings, $section) {
     super(...arguments)
+    this.#settings
+    this.#section
   }
-  get outputType
+  get outputType() { return this.#settings.outputType }
   get model() {
     if(this.#model !== undefined) { return this.#model }
     this.#model = path.join(this.section.source, settings.model)

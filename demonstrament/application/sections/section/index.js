@@ -5,214 +5,100 @@ import { rm, mkdir, readFile } from 'node:fs'
 import { globSync } from 'glob'
 import watch from 'glob-watcher'
 export default class Section extends EventTarget {
+  length = 0
   #settings
-  #active
+  #sections
+  #pilers
+  #active = false
   #source
   #target
   #ignore
-  #scripts
-  #simules
-  #structs
-  #styles
+  #depiled = false
   constructor($settings, $sections) {
     super()
-    console.log($settings)
     this.#settings = $settings
-    // this.#clear()
-    // .then(() => {
-    //   this.structs
-    //   this.styles
-    //   this.scripts
-    //   this.simules
-    // })
+    this.#sections = $sections
+    this.active = this.#settings.active
   }
   get active() { return this.#active }
   set active($active) {
     if(this.#active === $active) { return }
-    if($active === true) {}
-    else if($active === false) {}
+    if($active === true) { this.#addPilers() }
+    else if($active === false) { this.#removePilers() }
+    this.#active = $active
   }
   get name() { return this.#settings.name }
   get url() { return this.#settings.url }
-  get source() {}
-  get target() {}
+  get source() {
+    if(this.#source !== undefined) return this.#source
+    this.#source = path.join(process.env.PWD, this.#settings.source)
+    return this.#source
+  }
+  get target() {
+    if(this.#target !== undefined) return this.#target
+    this.#target = path.join(process.env.PWD, this.#settings.target)
+    return this.#target
+  }
   get main() { return this.#settings.main }
   get ignore() {
     if(this.#ignore !== undefined) { return this.#ignore }
     this.#ignore = Array.prototype.concat(
+      // Settings - Ignore
       this.settings.ignore.map(
         ($ignorePath) => path.join(this.section.source, $ignorePath)
-      )
+      ),
+      // Section - Ignore
       this.section.ignore.map(
         ($ignorePath) => path.join(this.section.source, $ignorePath)
       )
     )
     return this.#ignore
   }
-  #clear() {
-    const { source, target } = this.settings
-    const clear = []
-    const clearSource = this.settings.clear.source
-    const clearTarget = this.settings.clear.target
-    const clearPaths = Array.prototype.concat(
-      clearSource.path.map(
-        ($clearSourcePath) => path.join(source, $clearSourcePath)
-      ),
-      clearTarget.path.map(
-        ($clearTargetPath) => path.join(target, $clearTargetPath)
-      ),
-    )
-    const ignorePaths = Array.prototype.concat(
-      clearSource.ignore.map(
-        ($clearSourceIgnore) => path.join(source, $clearSourceIgnore)
-      ),
-      clearTarget.ignore.map(
-        ($clearTargetIgnore) => path.join(target, $clearTargetIgnore)
-      ),
-    )
-    const paths = globSync(clearPaths, {
-      ignore: ignorePaths
-    })
-    for(const $path of paths) {
-      clear.push(
-        new Promise(($resolve, $reject) => {
-          rm($path, {
-            recursive: true,
-            force: true,
-          }, ($err) => {
-            if($err) { $reject($err) }
-            else { $resolve(true) }
-          })
-          $resolve(true)
-        })
-      )
-    }
-    return Promise.all(clear)
-  }
-  get scripts() {
-    if(this.#scripts !== undefined) return this.#scripts
-    const { documents, source, target } = this.settings
-    this.#scripts = []
-    for(const $document of this.settings.documents.scripts) {
-      const piler = new PilersRollupPiler()
-      // const watchSource = $document.watch.map(
-      //   ($watchSourcePath) => path.join(source, $watchSourcePath)
-      // )
-      // const ignoreSource = Array.prototype.concat(
-      //   $document.ignore.map(
-      //     ($ignoreSourcePath) => path.join(source, $ignoreSourcePath)
-      //   ),
-      //   this.settings.ignore.map(
-      //     ($ignoreRoutePath) => path.join(source, $ignoreRoutePath)
-      //   )
-      // )
-      // const watcher = watch(watchSource, {
-      //   ignored: ignoreSource,
-      //   ignoreInitial: false,
-      //   awaitWriteFinish: true,
-      // })
-      // watcher.on('add', ($path, $stats) => {
-      //   Pilers.RollupPiler($document, this.settings, $path)
-      // })
-      // watcher.on('change', ($path, $stats) => {
-      //   Pilers.RollupPiler($document, this.settings, $path)
-      // })
-      // this.#scripts.push(watcher)
-    }
-    return this.#scripts
-  }
-  get simules() {
-    if(this.#simules !== undefined) return this.#simules
-    const { documents, source, target } = this.settings
-    this.#simules = []
-    for(const $document of documents.simules) {
-      const watchSource = $document.watch.map(
-        ($watchSourcePath) => path.join(source, $watchSourcePath)
-      )
-      const ignoreSource = Array.prototype.concat(
-        $document.ignore.map(
-          ($ignoreSourcePath) => path.join(source, $ignoreSourcePath)
-        ),
-        this.settings.ignore.map(
-          ($ignoreRoutePath) => path.join(source, $ignoreRoutePath)
+  get pilers() { return Object.fromEntries(Array.from(this)) }
+  async #addPilers() {
+    iteratePilers: 
+    for(const $piler of [
+      'sans',
+      // 'simules',
+      // 'styles',
+      // 'scripts',
+      // 'structs'
+    ]) {
+      const pilers = []
+      iteratePilerSettings: 
+      for(const $pilers of this.#settings.pilers[$piler]) {
+        const pilerName = $pilers.name
+        const pilersIndex = pilers.findIndex(
+          ([$pilerName, $pilers]) => $pilerName === pilerName
         )
-      )
-      const watcher = watch(watchSource, {
-        ignored: ignoreSource,
-        ignoreInitial: false,
-        awaitWriteFinish: true,
-      })
-      watcher.on('add', ($path, $stats) => {
-        Pilers.SimulePiler($document, this.settings, $path)
-      })
-      watcher.on('change', ($path, $stats) => {
-        Pilers.SimulePiler($document, this.settings, $path)
-      })
-      this.#simules.push(watcher)
+        const Piler = Pilers[$pilers.name]
+        const piler = new Piler($pilers, this)
+        if(pilersIndex === -1) {
+          pilers.push([pilerName, [piler]])
+        }
+        else {
+          pilers[pilersIndex][1].push(piler)
+        }
+      }
+      Array.prototype.push.call(this, ...pilers)
     }
-    return this.#simules
+    return this.#depile()
   }
-  get structs() {
-    if(this.#structs !== undefined) return this.#structs
-    const { documents, source, target } = this.settings
-    const structs = []
-    for(const $document of documents.structs) {
-      const watchSource = $document.watch.map(
-        ($watchSourcePath) => path.join(source, $watchSourcePath)
-      )
-      const ignoreSource = Array.prototype.concat(
-        $document.ignore.map(
-          ($ignoreSourcePath) => path.join(source, $ignoreSourcePath)
-        ),
-        this.settings.ignore.map(
-          ($ignoreRoutePath) => path.join(source, $ignoreRoutePath)
-        )
-      )
-      const watcher = watch(watchSource, {
-        ignored: ignoreSource,
-        ignoreInitial: false,
-        awaitWriteFinish: true,
-      })
-      watcher.on('add', ($path, $stats) => {
-        Pilers.EJSPiler($document, this.settings, $path)
-      })
-      watcher.on('change', ($path, $stats) => {
-        Pilers.EJSPiler($document, this.settings, $path)
-      })
-      structs.push(watcher)
-    }
-    this.#structs = structs
-    return this.#structs
+  async #removePilers() {
+    return await this.#depile()
   }
-  get styles() {
-    if(this.#styles !== undefined) return this.#styles
-    const { documents, source, target } = this.settings
-    this.#styles = []
-    for(const $document of this.settings.documents.styles) {
-      const watchSource = $document.watch.map(
-        ($watchSourcePath) => path.join(source, $watchSourcePath)
-      )
-      const ignoreSource = Array.prototype.concat(
-        $document.ignore.map(
-          ($ignoreSourcePath) => path.join(source, $ignoreSourcePath)
-        ),
-        this.settings.ignore.map(
-          ($ignoreRoutePath) => path.join(source, $ignoreRoutePath)
-        )
-      )
-      const watcher = watch(watchSource, {
-        ignored: ignoreSource,
-        ignoreInitial: false,
-        awaitWriteFinish: true,
-      })
-      watcher.on('add', ($path, $stats) => {
-        Pilers.SASSPiler($document, this.settings, $path)
-      })
-      watcher.on('change', ($path, $stats) => {
-        Pilers.SASSPiler($document, this.settings, $path)
-      })
-      this.#styles.push(watcher)
+  async #depile() {
+    if(this.#depiled) { return this } 
+    iteratePilers: 
+    for(const $pilerInstances of Object.values(this.pilers)) {
+      iteratePilerInstances: 
+      for(const $pilerInstance of $pilerInstances) {
+        if($pilerInstance.type === 'sans') {
+          await $pilerInstance.pile()
+        }
+      }
     }
-    return this.#styles
+    this.#depiled = true
+    return this
   }
 }

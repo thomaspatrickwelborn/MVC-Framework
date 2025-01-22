@@ -16,11 +16,12 @@ export default class Application extends EventTarget {
     super()
     this.#settings = $settings
     this.inspector
-    this.server
-    this.https
+    // this.server
+    // this.https
     this.sections
-    this.browserSync
+    // this.browserSync
   }
+  get name() { return this.#settings.name }
   // Node Inspector
   get inspector() {
     if(this.#_inspector !== undefined) {
@@ -93,9 +94,7 @@ export default class Application extends EventTarget {
   }
   // Sections
   get sections() {
-    if(this.#_sections !== undefined) {
-      return this.#_sections
-    }
+    if(this.#_sections !== undefined) { return this.#_sections }
     this.#_sections = new Sections(this.#settings.sections)
     return this.#_sections
   }

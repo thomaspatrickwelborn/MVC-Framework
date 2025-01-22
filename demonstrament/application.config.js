@@ -7,6 +7,7 @@ certificates.cert.file = await readFile(
   certificates.cert.path
 )
 export default {
+  name: "MVC Framework Demonstrament", 
   inspector: {
     port: 9238,
     host: "127.0.0.1",
@@ -33,8 +34,8 @@ export default {
     static: ['static', 'localhost']
   },
   sections: {
-    source: 'documents',
+    source: 'sections',
     target: 'localhost',
-    watch: ['documents/**/\$route.js'],
+    key: '$route.js'
   },
 }
