@@ -1,12 +1,11 @@
 {
   "ext": "ejs,js,json",
-  "exec": "node index.js",
+  "exec": "dpm --config dpm.config.js",
   "watch": [
     "index.js",
     "package.json",
+    "dpm.config.json",
     "nodemon.config.json",
-    "application.config.js",
-    "application",
-    "sections/**/\\$route.js"
+    "../../Document-Process-Manager/development"
   ]
 }
