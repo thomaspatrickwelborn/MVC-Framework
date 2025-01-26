@@ -1,18 +1,18 @@
 export default {
   active: false,
-  name: 'Test | Content',
-  url: '/test/content',
-  source: 'sections/test/content',
-  target: 'localhost/test/content',
+  name: 'Test | Schema',
+  url: '/test/schema',
+  source: 'documents/test/schema',
+  target: 'localhost/test/schema',
   main: 'index.html',
   ignore: [],
   pilers: {
     sans: [{
-      target: 'target',
+      target: 'target', 
       path: ['/**/*.{html,css,js,md}'],
       ignore: [],
     }, {
-      source: 'source',
+      target: 'source', 
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
     }],

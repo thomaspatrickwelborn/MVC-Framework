@@ -1,18 +1,18 @@
 export default {
   active: false,
-  name: 'Test | Schema',
-  url: '/test/schema',
-  source: 'sections/test/schema',
-  target: 'localhost/test/schema',
+  name: 'Test',
+  url: '/test',
+  source: 'documents/test',
+  target: 'localhost/test',
   main: 'index.html',
-  ignore: [],
+  ignore: ['schema', "content", "view", "draft"],
   pilers: {
     sans: [{
-      target: 'target', 
+      target: "target",
       path: ['/**/*.{html,css,js,md}'],
       ignore: [],
     }, {
-      target: 'source', 
+      target: "source",
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
     }],
@@ -21,22 +21,14 @@ export default {
       type: 'style',
       input: 'index.scss',
       output: 'index.css',
-      watch: [
-        '**/*.scss', ,
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.scss'],
       ignore: [],
     }],
     scripts: [{
       type: 'script',
       input: 'index.js',
       output: 'index.js',
-      watch: [
-        '**/*.js',
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.js'],
       ignore: [],
       external: ['/dependencies/mvc-framework.js']
     }],

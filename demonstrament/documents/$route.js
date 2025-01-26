@@ -3,7 +3,7 @@ export default {
   name: 'Index',
   url: '/',
   main: 'index.html',
-  source: 'sections',
+  source: 'documents',
   target: 'localhost',
   ignore: ['static-cms', 'test'],
   pilers: {
@@ -36,35 +36,49 @@ export default {
       output: 'index.css',
       watch: ['**/*.scss'],
       ignore: [],
+      inputOptions: {},
+      outputOptions: {
+        sourceMap: true,
+      },
     }],
     scripts: [{
       name: 'RollupPiler',
       type: 'scripts',
+      watch: ['**/*.js'],
+      ignore: ['**/\\$route.js'],
       input: 'index.js',
       output: 'index.js',
-      watch: ['**/*.js'],
-      external: [],
-      ignore: ['**/\\$route.js'],
+      inputOptions: {},
+      outputOptions: {
+        format: 'es',
+        sourcemap: true,
+      },
     }],
     structs: [{
       name: 'EJSPiler',
       type: 'structs',
-      localsName: '$content',
       outputType: 'server',
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
       watch: ['**/*.{ejs,json}'],
       ignore: ['**/\$*.ejs'],
+      outputOptions: {
+        localsName: '$content',
+        root: ['templates']
+      },
     }, {
       name: 'EJSPiler',
       type: 'structs',
-      localsName: '$content',
       outputType: 'client',
       input: '**/*.ejs',
       output: '',
       watch: ['**/\$*.ejs'],
       ignore: [],
+      outputOptions: {
+        localsName: '$content',
+        root: ['']
+      }, 
     }],
   }
 }

@@ -1,9 +1,9 @@
 export default {
   active: false,
-  name: 'Test | Draft 0',
-  url: '/test/draft/0',
-  source: 'sections/test/draft/0',
-  target: 'localhost/test/draft/0',
+  name: 'Test | Draft 5',
+  url: '/test/draft/5',
+  source: 'documents/test/draft/5',
+  target: 'localhost/test/draft/5',
   main: 'index.html',
   ignore: [],
   pilers: {

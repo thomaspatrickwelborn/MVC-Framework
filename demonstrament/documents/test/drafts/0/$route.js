@@ -1,9 +1,9 @@
 export default {
   active: false,
-  name: 'Test | Draft 1',
-  url: '/test/draft/1',
-  source: 'sections/test/draft/1',
-  target: 'localhost/test/draft/1',
+  name: 'Test | Draft 0',
+  url: '/test/draft/0',
+  source: 'documents/test/draft/0',
+  target: 'localhost/test/draft/0',
   main: 'index.html',
   ignore: [],
   pilers: {
@@ -39,8 +39,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}'],
-      ignore: ['**/\$*.ejs'],
+      watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
+      ignore: [],
     }, {
       type: 'struct',
       localsName: '$content',

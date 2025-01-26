@@ -12,11 +12,13 @@ export default {
     port: 9238,
     host: "127.0.0.1",
   },
-  https: {
-    key: certificates.key.file,
-    cert: certificates.cert.file,
-    port: 3338,
-    host: "demonstrament.mvc-framework",
+  server: {
+    https: {
+      key: certificates.key.file,
+      cert: certificates.cert.file,
+      port: 3338,
+      host: "demonstrament.mvc-framework",
+    }
   },
   browserSync: {
     port: 3339,
@@ -25,17 +27,16 @@ export default {
       key: certificates.key.path,
       cert: certificates.cert.path,
     },
-    files: [
-      'localhost',
-      'static'
-    ]
+    files: ['localhost', 'static']
   },
-  express: {
-    static: ['static', 'localhost']
-  },
-  sections: {
-    source: 'sections',
+  router: {
+    routeKey: '$route.js',
+    source: 'documents',
     target: 'localhost',
-    key: '$route.js'
+    static: [
+      // $path, $options
+      ['static', {}],
+      ['localhost', {}],
+    ],
   },
 }

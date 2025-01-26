@@ -1,11 +1,11 @@
 export default {
   active: false,
-  name: 'Test | Drafts',
-  url: '/test/drafts',
-  source: 'sections/test/drafts',
-  target: 'localhost/test/drafts',
+  name: 'Test | Draft 2',
+  url: '/test/draft/2',
+  source: 'documents/test/draft/2',
+  target: 'localhost/test/draft/2',
   main: 'index.html',
-  ignore: ["0", "1", "2", "3", "4", "5"],
+  ignore: [],
   pilers: {
     sans: [{
       target: 'target',
@@ -39,8 +39,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}', '!**/\$*.ejs'],
-      ignore: [],
+      watch: ['**/*.{ejs,json}'],
+      ignore: ['**/\$*.ejs'],
     }, {
       type: 'struct',
       localsName: '$content',

@@ -1,9 +1,9 @@
 export default {
   active: false,
-  name: 'Static CMS',
-  url: '/static-cms',
-  source: 'sections/static-cms',
-  target: 'localhost/static-cms',
+  name: 'Test | Draft 4',
+  url: '/test/draft/4',
+  source: 'documents/test/draft/4',
+  target: 'localhost/test/draft/4',
   main: 'index.html',
   ignore: [],
   pilers: {
@@ -39,7 +39,7 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+      watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
       ignore: [],
     }, {
       type: 'struct',
