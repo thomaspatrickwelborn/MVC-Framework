@@ -1,15 +1,15 @@
 export default {
   active: false,
-  name: 'Test | Draft 3',
-  url: '/test/draft/3',
-  source: 'documents/test/draft/3',
-  target: 'localhost/test/draft/3',
+  name: 'Static CMS',
+  path: '/static-cms',
+  source: 'documents/static-cms',
+  target: 'localhost/static-cms',
   main: 'index.html',
   ignore: [],
   pilers: {
     sans: [{
       target: 'target',
-      path: ['/**/*.{html,css,js,md}'],
+      path: ['**/*.{html,css,js,md}'],
       ignore: [],
     }, {
       source: 'source',
@@ -29,7 +29,11 @@ export default {
       input: 'index.js',
       output: 'index.js',
       watch: ['**/*.js'],
-      ignore: [],
+      ignore: [
+        '**/$route.js',
+        '**/$document.js',
+        '**/$socket.js',
+      ],
       external: ['/dependencies/mvc-framework.js']
     }],
     structs: [{
@@ -39,8 +43,8 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}'],
-      ignore: ['**/\$*.ejs'],
+      watch: ['**/*.{ejs,json}', '!**/\$.ejs'],
+      ignore: [],
     }, {
       type: 'struct',
       localsName: '$content',

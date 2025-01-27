@@ -1,4 +1,4 @@
-import Tests from "./tests/index.js"
+import Tests from "./test/index.js"
 import PandTreeView from '../classes/views/pand-tree/index.js'
 import TestResultsModels from '../classes/models/test-results/index.js'
 

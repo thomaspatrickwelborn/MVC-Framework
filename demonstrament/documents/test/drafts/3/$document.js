@@ -1,47 +1,50 @@
 export default {
   active: false,
-  name: 'Test | Content',
-  url: '/test/content',
-  source: 'documents/test/content',
-  target: 'localhost/test/content',
+  name: 'Test | Draft 3',
+  path: '/test/draft/3',
+  source: 'documents/test/draft/3',
+  target: 'localhost/test/draft/3',
   main: 'index.html',
   ignore: [],
   pilers: {
     sans: [{
+      name: 'ClearPiler',
+      type: 'sans',
       target: 'target',
-      path: ['/**/*.{html,css,js,md}'],
+      path: ['**/*.{html,css,js,md}'],
       ignore: [],
     }, {
-      source: 'source',
+      name: 'ClearPiler',
+      type: 'sans',
+      target: 'source',
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
     }],
     simules: [],
     styles: [{
-      type: 'style',
+      name: 'SASSPiler',
+      type: 'styles',
       input: 'index.scss',
       output: 'index.css',
-      watch: [
-        '**/*.scss', ,
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.scss'],
       ignore: [],
     }],
     scripts: [{
-      type: 'script',
+      name: 'RollupPiler',
+      type: 'scripts',
       input: 'index.js',
       output: 'index.js',
-      watch: [
-        '**/*.js',
-        '../classes/**',
-        '../coutil/**'
+      watch: ['**/*.js'],
+      ignore: [
+        '**/$route.js',
+        '**/$document.js',
+        '**/$socket.js',
       ],
-      ignore: [],
       external: ['/dependencies/mvc-framework.js']
     }],
     structs: [{
-      type: 'struct',
+      name: 'EJSPiler',
+      type: 'structs',
       localsName: '$content',
       outputType: 'server',
       model: 'index.json',
@@ -50,7 +53,8 @@ export default {
       watch: ['**/*.{ejs,json}'],
       ignore: ['**/\$*.ejs'],
     }, {
-      type: 'struct',
+      name: 'EJSPiler',
+      type: 'structs',
       localsName: '$content',
       outputType: 'client',
       input: '**/*.ejs',

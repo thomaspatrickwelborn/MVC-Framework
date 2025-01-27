@@ -4,7 +4,7 @@
   "watch": [
     "index.js",
     "package.json",
-    "dpm.config.json",
+    "dpm.config.js",
     "nodemon.config.json",
     "../../Document-Process-Manager/development"
   ]

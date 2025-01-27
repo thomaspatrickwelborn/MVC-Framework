@@ -18,7 +18,7 @@ export default {
       cert: certificates.cert.file,
       port: 3338,
       host: "demonstrament.mvc-framework",
-    }
+    },
   },
   browserSync: {
     port: 3339,
@@ -27,16 +27,31 @@ export default {
       key: certificates.key.path,
       cert: certificates.cert.path,
     },
-    files: ['localhost', 'static']
+    files: ['static', 'localhost'],
+    proxy: {
+      ws: true
+    },
   },
-  router: {
-    routeKey: '$route.js',
+  sockets: {
+    protocol: "wss:",
+    port: 3338,
+    host: "demonstrament.mvc-framework",
+    config: '$socket.js',
     source: 'documents',
     target: 'localhost',
+  },
+  router: {
+    config: '$route.js',
+    source: 'documents',
     static: [
       // $path, $options
       ['static', {}],
       ['localhost', {}],
     ],
+  },
+  documents: {
+    config: '$document.js',
+    source: 'documents',
+    target: 'localhost',
   },
 }
