@@ -1,15 +1,13 @@
-const stringifyBuffer = ($buffer) => [].concat(JSON.parse(
-  JSON.stringify($buffer.toString())
-))
+import stringifyBuffer from '../../coutil/stringifyBuffer/index.js'
 export default {
   active: true,
-  name: 'Index',
+  name: 'Draft 6',
   protocol: "wss:",
   port: 3338,
   host: "demonstrament.mvc-framework",
-  path: '/',
-  source: 'documents',
-  target: 'localhost',
+  path: '/test/draft/6',
+  source: 'documents/test/draft/6',
+  target: 'localhost/test/draft/6',
   messageAdapters: [
     ['RESTAdapter', {
       name: 'RESTAdapter',
@@ -22,18 +20,22 @@ export default {
       },
       messages: {
         'get': function getMessage($webSocket, $data, $isBinary) {
-          const [$type] = [].concat(stringifyBuffer($data))
-          const content = { propertyA: "propertyA" }
+          const [$type, $detail] = [].concat(stringifyBuffer($data))
+          const content = { propertyB: "propertyB" }
           const messageString = JSON.stringify(['get', content])
           console.log("messageString", messageString)
           $webSocket.send(messageString)
-          return { type: $type, detail: content }
+          return { type: 'get', detail: $detail }
         },
         'post': function postMessage($webSocket, $data, $isBinary) {
           console.log('post', JSON.stringify(data.toString()))
+          const [$type, $detail] = [].concat(stringifyBuffer($data))
+          return { type: 'post', detail: $detail }
         },
         'delete': function deleteMessage($webSocket, $data, $isBinary) {
           console.log('delete', JSON.stringify(data.toString()))
+          const [$type, $detail] = [].concat(stringifyBuffer($data))
+          return { type: 'delete', detail: $detail }
         },
       },
     }]

@@ -1,10 +1,10 @@
 export default {
   active: false,
   name: 'Test | Drafts',
-  path: '/test/drafts',
-  source: 'documents/test/drafts',
-  target: 'localhost/test/drafts',
-  ignore: ["0", "1", "2", "3", "4", "5"],
+  path: '/test/draft',
+  source: 'documents/test/draft',
+  target: 'localhost/test/draft',
+  ignore: ["0", "1", "2", "3", "4", "5", "6"],
   main: 'index.html',
   pilers: {
     sans: [{

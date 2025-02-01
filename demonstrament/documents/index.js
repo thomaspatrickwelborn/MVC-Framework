@@ -1,16 +1,18 @@
-import { Control, Model, Schema, Content } from '/dependencies/mvc-framework.js'
-console.log(Control)
-// const socket = new WebSocket("wss://demonstrament.mvc-framework:3338/ws")
+// import {  } from '/dependencies/mvc-framework.js'
 const socket = new WebSocket("/")
+// const socket = new WebSocket("wss://demonstrament.mvc-framework:3339/")
 socket.addEventListener('open', ($event) => {
-  console.log($event.type, $event)
-  socket.send("get")
+  console.log($event)
+  socket.send('get')
+})
+socket.addEventListener('close', ($event) => {
+  console.log($event)
 })
 socket.addEventListener('error', ($event) => {
-  console.log($event.type, $event)
+  console.log($event)
 })
 socket.addEventListener("message", ($event, $isBinary) => {
-  console.log($event.type, $event)
+  console.log($event)
 })
 // new Control({}, {})
 // import DefaultTemplate from './template.js'
