@@ -53,7 +53,9 @@ export default class SocketRouter extends Core {
       try {
         const message = $messageAdapter.message($data, $isBinary)
         const { type, detail } = message
-        const messageEvent = new SocketEvent(type, { detail }, this)
+        const messageEvent = new SocketEvent(type, {
+          detail, message: $data, isBinary: $isBinary
+        }, this)
         this.webSocket.dispatchEvent(messageEvent)
       }
       catch($err) {  console.error($err)  }

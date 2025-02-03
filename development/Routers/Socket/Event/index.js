@@ -6,6 +6,7 @@ export default class SocketEvent extends CustomEvent {
     this.#settings = $settings
     this.#socket = $socket
   }
+  get isBinary() { return this.#settings.isBinary }
   get message() { return this.#settings.message }
   get detail() { return this.#settings.detail }
 }
