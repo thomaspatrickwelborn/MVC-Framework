@@ -8,6 +8,9 @@ export default {
   path: '/test/draft/6',
   source: 'documents/test/draft/6',
   target: 'localhost/test/draft/6',
+  open: function open() {},
+  close: function close() {},
+  error: function error() {},
   messageAdapters: [
     ['RESTAdapter', {
       name: 'RESTAdapter',
@@ -23,7 +26,6 @@ export default {
           const [$type, $detail] = [].concat(stringifyBuffer($data))
           const content = { propertyB: "propertyB" }
           const messageString = JSON.stringify(['get', content])
-          console.log("messageString", messageString)
           $webSocket.send(messageString)
           return { type: 'get', detail: $detail }
         },

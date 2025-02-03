@@ -5605,6 +5605,18 @@ class LocationRouter extends Core {
   }
 }
 
+class SocketEvent extends CustomEvent {
+  #settings
+  #socket
+  constructor($type, $settings, $socket) {
+    super($type, $settings);
+    this.#settings = $settings;
+    this.#socket = $socket;
+  }
+  get message() { return this.#settings.message }
+  get detail() { return this.#settings.detail }
+}
+
 class MessageAdapter extends EventTarget {
   #settings
   #socket
@@ -5642,17 +5654,12 @@ class SocketRouter extends Core {
   #active = false
   #messageAdapters
   #url
-  #boundOpen
-  #boundClose
-  #boundError
   #boundMessage
   constructor($settings, $options) {
     super(...arguments);
-    // this.#boundOpen = this.#open.bind(this)
-    // this.#boundClose = this.#close.bind(this)
-    // this.#boundError = this.#error.bind(this)
     this.#boundMessage = this.#message.bind(this);
     this.active = this.settings.active;
+    if(this.options.enableEvents === true) { this.enableEvents(); }
   }
   get active() { return this.#active }
   set active($active) {
@@ -5661,6 +5668,7 @@ class SocketRouter extends Core {
       this.webSocket;
     }
     else if($active === false) {
+
       this.#webSocket = undefined;
     }
     this.#active = $active;
@@ -5668,7 +5676,6 @@ class SocketRouter extends Core {
   get path() { return this.settings.path }
   get url() {
     if(this.#url !== undefined) { return this.#url }
-    console.log(this.settings);
     let { protocol, host, port } = this.settings;
     let base;
     if(protocol && host && port) {
@@ -5678,33 +5685,25 @@ class SocketRouter extends Core {
       base = window.location.url.origin;
     }
     this.#url = new URL(this.path, base);
-    console.log(this.#url);
     return this.#url
   }
   get webSocket() {
     if(this.#webSocket !== undefined) return this.#webSocket
     this.#webSocket = new WebSocket(this.url);
-    // this.#webSocket.addEventListener('open', this.#boundOpen)
-    // this.#webSocket.addEventListener('close', this.#boundClose)
-    // this.#webSocket.addEventListener('error', this.#boundError)
     this.#webSocket.addEventListener('message', this.#boundMessage);
     return this.#webSocket
   }
-  // #open($event) { /*this.dispatchEvent($event)*/ }
-  // #close($event) { /*this.dispatchEvent($event)*/ }
-  // #error($event) { /*this.dispatchEvent($event)*/ }
   #message($data, $isBinary) {
     for(const [
       $messageAdapterName, $messageAdapter
     ] of this.messageAdapters) {
       try {
         const message = $messageAdapter.message($data, $isBinary);
-        console.log(message.constructor.name);
-        const { type, detail } = message(this.webSocket, $data, $isBinary);
-        const messageEvent = new CustomEvent(type, { detail });
-        this.dispatchEvent(messageEvent);
+        const { type, detail } = message;
+        const messageEvent = new SocketEvent(type, { detail }, this);
+        this.webSocket.dispatchEvent(messageEvent);
       }
-      catch($err) { /* console.log($err) */ }
+      catch($err) {  console.error($err);  }
     }
   }
   get messageAdapters() {
@@ -5717,6 +5716,7 @@ class SocketRouter extends Core {
     this.#messageAdapters = messageAdapters;
     return this.#messageAdapters
   }
+  send() { this.webSocket.send(...arguments); }
 }
 
 var Settings = {

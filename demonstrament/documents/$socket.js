@@ -1,6 +1,4 @@
-const stringifyBuffer = ($buffer) => [].concat(JSON.parse(
-  JSON.stringify($buffer.toString())
-))
+import stringifyBuffer from './test/coutil/stringifyBuffer/index.js'
 export default {
   active: true,
   name: 'Index',
@@ -10,6 +8,9 @@ export default {
   path: '/',
   source: 'documents',
   target: 'localhost',
+  open: function open() {},
+  close: function close() {},
+  error: function error() {},
   messageAdapters: [
     ['RESTAdapter', {
       name: 'RESTAdapter',
@@ -25,7 +26,6 @@ export default {
           const [$type] = [].concat(stringifyBuffer($data))
           const content = { propertyA: "propertyA" }
           const messageString = JSON.stringify(['get', content])
-          console.log("messageString", messageString)
           $webSocket.send(messageString)
           return { type: $type, detail: content }
         },
