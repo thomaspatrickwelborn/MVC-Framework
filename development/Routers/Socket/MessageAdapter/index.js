@@ -1,13 +1,11 @@
 import Settings from './Settings/index.js'
 export default class MessageAdapter extends EventTarget {
   #settings
-  #socket
   #messages
   #message
-  constructor($settings, $socket) {
+  constructor($settings) {
     super()
     this.#settings = $settings
-    this.#socket = $socket
   }
   get name() { return this.#settings.name }
   get messages() {

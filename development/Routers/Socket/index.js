@@ -52,9 +52,7 @@ export default class SocketRouter extends Core {
   }
   #message($data, $isBinary) {
     iterateAdapters: 
-    for(const [
-      $messageAdapterName, $messageAdapter
-    ] of this.messageAdapters) {
+    for(const $messageAdapter of this.messageAdapters) {
       try {
         const message = $messageAdapter.message($data, $isBinary)
         const { type, detail } = message
@@ -69,9 +67,11 @@ export default class SocketRouter extends Core {
   get messageAdapters() {
     if(this.#messageAdapters !== undefined) { return this.#messageAdapters }
     const messageAdapters = []
-    for(const [$adapterName, $adapter] of this.settings.messageAdapters) {
-      const adapter = new MessageAdapter($adapter, this)
-      messageAdapters.push([$adapterName, adapter])
+    for(const $adapter of this.settings.messageAdapters) {
+      let adapter
+      if($adapter instanceof MessageAdapter) { adapter = adapter }
+      else { adapter = new MessageAdapter($adapter, this) }
+      messageAdapters.push(adapter)
     }
     this.#messageAdapters = messageAdapters
     return this.#messageAdapters

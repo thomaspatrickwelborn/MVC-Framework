@@ -5620,13 +5620,11 @@ class SocketEvent extends CustomEvent {
 
 class MessageAdapter extends EventTarget {
   #settings
-  #socket
   #messages
   #message
-  constructor($settings, $socket) {
+  constructor($settings) {
     super();
     this.#settings = $settings;
-    this.#socket = $socket;
   }
   get name() { return this.#settings.name }
   get messages() {
@@ -5718,9 +5716,7 @@ class SocketRouter extends Core {
     return this.#webSocket
   }
   #message($data, $isBinary) {
-    for(const [
-      $messageAdapterName, $messageAdapter
-    ] of this.messageAdapters) {
+    for(const $messageAdapter of this.messageAdapters) {
       try {
         const message = $messageAdapter.message($data, $isBinary);
         const { type, detail } = message;
@@ -5735,9 +5731,11 @@ class SocketRouter extends Core {
   get messageAdapters() {
     if(this.#messageAdapters !== undefined) { return this.#messageAdapters }
     const messageAdapters = [];
-    for(const [$adapterName, $adapter] of this.settings.messageAdapters) {
-      const adapter = new MessageAdapter($adapter, this);
-      messageAdapters.push([$adapterName, adapter]);
+    for(const $adapter of this.settings.messageAdapters) {
+      let adapter;
+      if($adapter instanceof MessageAdapter) { adapter = adapter; }
+      else { adapter = new MessageAdapter($adapter, this); }
+      messageAdapters.push(adapter);
     }
     this.#messageAdapters = messageAdapters;
     return this.#messageAdapters
