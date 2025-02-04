@@ -2,7 +2,7 @@ import { recursiveAssign, recursiveAssignConcat } from '../Coutil/index.js'
 import Core from '../Core/index.js'
 import Model from '../Model/index.js'
 import View from '../View/index.js'
-import { LocationRouter, FetchRouter } from '../Routers/index.js'
+import { LocationRouter, FetchRouter, SocketRouter } from '../Routers/index.js'
 import Settings from './Settings/index.js'
 import Options from './Options/index.js'
 export default class Control extends Core {
@@ -70,6 +70,20 @@ export default class Control extends Core {
       Names: {
         Monople: { Formal: "FetchRouter", Nonformal: "fetchRouter" },
         Multiple: { Formal: "FetchRouters", Nonformal: "fetchRouters" },
+        Minister: {
+          Ad: { Formal: "Add", Nonformal: "add" },
+          Dead: { Formal: "Remove", Nonformal: "remove" },
+        },
+      },
+      Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
+    },
+    socketRouters: {
+      ID: "SOCKETROUTER",
+      Name: "socketRouters",
+      Class: SocketRouter,
+      Names: {
+        Monople: { Formal: "SocketRouter", Nonformal: "socketRouter" },
+        Multiple: { Formal: "SocketRouters", Nonformal: "socketRouters" },
         Minister: {
           Ad: { Formal: "Add", Nonformal: "add" },
           Dead: { Formal: "Remove", Nonformal: "remove" },

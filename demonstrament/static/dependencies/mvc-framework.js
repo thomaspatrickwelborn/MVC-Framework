@@ -3003,7 +3003,7 @@ class Validation extends EventTarget {
   }
 }
 
-var Options$6 = {
+var Options$7 = {
   required: false,
   verificationType: 'all', // 'one'
 };
@@ -3021,7 +3021,7 @@ class Schema extends EventTarget{
   constructor($properties = {}, $options = {}) {
     super();
     this.#properties = $properties;
-    this.options = Object.assign({}, Options$6, $options);
+    this.options = Object.assign({}, Options$7, $options);
   }
   get type() {
     if(this.#type !== undefined) return this.#type
@@ -3196,7 +3196,7 @@ class Schema extends EventTarget{
   }
 }
 
-var Options$5 = {
+var Options$6 = {
   path: null, 
   parent: null, 
   enableValidation: true, 
@@ -3344,7 +3344,7 @@ class Content extends EventTarget {
       proxy[proxyAssignmentMethod](this.#properties);
     }
     else {
-      proxy[Options$5.proxyAssignmentMethod](this.#properties);
+      proxy[Options$6.proxyAssignmentMethod](this.#properties);
     }
     return proxy
   }
@@ -3360,7 +3360,7 @@ class Content extends EventTarget {
   get options() { return this.#options }
   set options($options) {
     if(this.#options !== undefined) return
-    this.#options = recursiveAssign({}, Options$5, $options);
+    this.#options = recursiveAssign({}, Options$6, $options);
     return this.#options
   }
   get schema() { return this.#schema }
@@ -3602,12 +3602,12 @@ class PropertyClass {
   get Events() { return this.#settings.Events }
 }
 
-var Settings$4 = {
+var Settings$5 = {
   events: {},
   propertyClasses: {},
 };
 
-var Options$4 = {
+var Options$5 = {
   assign: [],
   defineProperties: {},
 };
@@ -3649,12 +3649,12 @@ class Core extends EventTarget {
   get settings() { return this.#settings }
   set settings($settings) {
     if(this.#settings !== undefined) return
-    this.#settings = Object.assign({}, Settings$4, $settings);
+    this.#settings = Object.assign({}, Settings$5, $settings);
   }
   get options() { return this.#options }
   set options($options) {
     if(this.#options !== undefined) return
-    this.#options = recursiveAssign(structuredClone(Options$4), $options);
+    this.#options = recursiveAssign(structuredClone(Options$5), $options);
   }
   get key() {
     if(this.#key !== undefined) return this.#key
@@ -3989,12 +3989,12 @@ class LocalStorage extends EventTarget {
   }
 }
 
-var Settings$3 = {
+var Settings$4 = {
   schema: undefined, // Schema Settings
   content: undefined, // Content Settings
 };
 
-var Options$3 = {
+var Options$4 = {
   schema: undefined, // Schema Options
   content: undefined, // Content Options
   enableEvents: true, // Boolean
@@ -4041,8 +4041,8 @@ class Model extends Core {
   #changeEvents
   constructor($settings, $options) {
     super(
-      recursiveAssign({}, Settings$3, $settings), 
-      recursiveAssign({}, Options$3, $options),
+      recursiveAssign({}, Settings$4, $settings), 
+      recursiveAssign({}, Options$4, $options),
     );
     if(
       !this.settings.content ||
@@ -4586,14 +4586,14 @@ function Query($element, $queryMethod, $queryString) {
   return query
 }
 
-var Settings$2 = {
+var Settings$3 = {
   parentElement: undefined, // HTML Element
   scope: 'template', // 'parent',
   templates: { default: () => `` },
   querySelectors: {},
 };
 
-var Options$2 = {
+var Options$3 = {
   enableEvents: true,
   enableQuerySelectors: true
 };
@@ -4607,8 +4607,8 @@ class View extends Core {
   #querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
-      Object.assign({}, Settings$2, $settings),
-      Object.assign({}, Options$2, $options),
+      Object.assign({}, Settings$3, $settings),
+      Object.assign({}, Options$3, $options),
     );
     this.addQuerySelectors(this.settings.querySelectors);
     const { enableQuerySelectors, enableEvents } = this.options;
@@ -5441,11 +5441,11 @@ class RouteEvent extends Event {
   get location() { return this.#options.location }
 }
 
-var Settings$1 = {
+var Settings$2 = {
   routes: {}
 };
 
-var Options$1 = {
+var Options$2 = {
   enableEvents: true
 };
 
@@ -5461,8 +5461,8 @@ class LocationRouter extends Core {
   }
   constructor($settings, $options) {
     super(
-      recursiveAssign(Settings$1, $settings),
-      recursiveAssign(Options$1, $options),
+      recursiveAssign(Settings$2, $settings),
+      recursiveAssign(Options$2, $options),
     );
     if($options.enableEvents === true) this.enableEvents();
     this.enable = true;
@@ -5613,6 +5613,7 @@ class SocketEvent extends CustomEvent {
     this.#settings = $settings;
     this.#socket = $socket;
   }
+  get isBinary() { return this.#settings.isBinary }
   get message() { return this.#settings.message }
   get detail() { return this.#settings.detail }
 }
@@ -5649,14 +5650,38 @@ class MessageAdapter extends EventTarget {
   }
 }
 
+var Settings$1 = {
+  active: false, // Boolean
+  /*
+  name: String, // "$name",
+  protocol: String, // ["wss:", "ws:"],
+  port: Number, // 3338
+  host: String, // "demonstrament.mvc-framework",
+  path: String, // '/',
+  open: function() {},
+  close: function() {},
+  error: function() {},
+  messageAdapters: [
+    // ['MessageAdapter', $MessageAdapter]
+  ],
+  */
+};
+
+var Options$1 = {
+  enableEvents: true, // Boolean
+};
+
 class SocketRouter extends Core {
   #webSocket
   #active = false
   #messageAdapters
   #url
   #boundMessage
-  constructor($settings, $options) {
-    super(...arguments);
+  constructor($settings = {}, $options = {}) {
+    super(
+      recursiveAssignConcat(Settings$1, $settings), 
+      Object.assign(Options$1, $options),
+    );
     this.#boundMessage = this.#message.bind(this);
     this.active = this.settings.active;
     if(this.options.enableEvents === true) { this.enableEvents(); }
@@ -5668,7 +5693,6 @@ class SocketRouter extends Core {
       this.webSocket;
     }
     else if($active === false) {
-
       this.#webSocket = undefined;
     }
     this.#active = $active;
@@ -5700,7 +5724,9 @@ class SocketRouter extends Core {
       try {
         const message = $messageAdapter.message($data, $isBinary);
         const { type, detail } = message;
-        const messageEvent = new SocketEvent(type, { detail }, this);
+        const messageEvent = new SocketEvent(type, {
+          detail, message: $data, isBinary: $isBinary
+        }, this);
         this.webSocket.dispatchEvent(messageEvent);
       }
       catch($err) {  console.error($err);  }
@@ -5796,6 +5822,20 @@ class Control extends Core {
       Names: {
         Monople: { Formal: "FetchRouter", Nonformal: "fetchRouter" },
         Multiple: { Formal: "FetchRouters", Nonformal: "fetchRouters" },
+        Minister: {
+          Ad: { Formal: "Add", Nonformal: "add" },
+          Dead: { Formal: "Remove", Nonformal: "remove" },
+        },
+      },
+      Events: { Assign: "addEventListener", Deassign: "removeEventListener" },
+    },
+    socketRouters: {
+      ID: "SOCKETROUTER",
+      Name: "socketRouters",
+      Class: SocketRouter,
+      Names: {
+        Monople: { Formal: "SocketRouter", Nonformal: "socketRouter" },
+        Multiple: { Formal: "SocketRouters", Nonformal: "socketRouters" },
         Minister: {
           Ad: { Formal: "Add", Nonformal: "add" },
           Dead: { Formal: "Remove", Nonformal: "remove" },

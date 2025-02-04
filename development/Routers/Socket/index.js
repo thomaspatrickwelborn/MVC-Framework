@@ -1,14 +1,20 @@
+import { recursiveAssignConcat } from '../../Coutil/index.js'
 import SocketEvent from './Event/index.js'
 import Core from '../../Core/index.js'
 import MessageAdapter from './MessageAdapter/index.js'
+import Settings from './Settings/index.js'
+import Options from './Options/index.js'
 export default class SocketRouter extends Core {
   #webSocket
   #active = false
   #messageAdapters
   #url
   #boundMessage
-  constructor($settings, $options) {
-    super(...arguments)
+  constructor($settings = {}, $options = {}) {
+    super(
+      recursiveAssignConcat(Settings, $settings), 
+      Object.assign(Options, $options),
+    )
     this.#boundMessage = this.#message.bind(this)
     this.active = this.settings.active
     if(this.options.enableEvents === true) { this.enableEvents() }
@@ -20,7 +26,6 @@ export default class SocketRouter extends Core {
       this.webSocket
     }
     else if($active === false) {
-
       this.#webSocket = undefined
     }
     this.#active = $active
