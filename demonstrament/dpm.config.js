@@ -1,27 +1,23 @@
 import { readFile } from 'node:fs/promises'
 import certificates from './certificates.js'
-certificates.key.file = await readFile(
-  certificates.key.path
-)
-certificates.cert.file = await readFile(
-  certificates.cert.path
-)
 export default {
-  name: "MVC Framework Demonstrament", 
+  name: "MVC Framework Demonstrament",
   inspector: {
     port: 9238,
     host: "127.0.0.1",
   },
   server: {
     https: {
-      key: certificates.key.file,
-      cert: certificates.cert.file,
+      key: await readFile(certificates.key.path),
+      cert: await readFile(certificates.cert.path),
       port: 3338,
       host: "demonstrament.mvc-framework",
     },
   },
   browserSync: {
     port: 3339,
+    open: false,
+    ui: false, 
     host: "demonstrament.mvc-framework",
     https: {
       key: certificates.key.path,
@@ -29,12 +25,11 @@ export default {
     },
     files: ['static', 'localhost'],
     proxy: {
-      ws: true
+      ws: true,
     },
   },
   sockets: {
     protocol: "wss:",
-    port: 3338,
     host: "demonstrament.mvc-framework",
     config: '$socket.js',
     source: 'documents',

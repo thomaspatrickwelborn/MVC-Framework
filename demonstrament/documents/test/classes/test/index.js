@@ -4,6 +4,7 @@ export default class Test extends EventTarget {
   #_boundMethod
   #_detail
   #_pass
+  #boundMethod = this.method.bind(this)
   constructor($settings) {
     super()
     this.#settings = $settings
@@ -29,11 +30,6 @@ export default class Test extends EventTarget {
     if(this.#_method !== undefined) return this.#_method
     this.#_method = this.#settings.method
     return this.#_method
-  }
-  get #boundMethod() {
-    if(this.#_boundMethod !== undefined) return this.#_boundMethod
-    this.#_boundMethod = this.method.bind(this)
-    return this.#_boundMethod
   }
   execute() {
     if(this.pass !== undefined) return this
