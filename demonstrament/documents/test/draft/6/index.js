@@ -8,7 +8,7 @@ const socket = new SocketRouter({
   host: "demonstrament.mvc-framework",
   path: '/test/draft/6',
   messageAdapters: [
-    ['RESTAdapter', {
+    {
       name: 'RESTAdapter',
       message: function message($event, $isBinary) {
         const { data } = $event
@@ -19,7 +19,7 @@ const socket = new SocketRouter({
         catch($err) { console.log($err) }
       },
       messages: ['get', 'post', 'delete'],
-    }]
+    }
   ],
   events: {
     'webSocket open': function openWebSocket($event) {

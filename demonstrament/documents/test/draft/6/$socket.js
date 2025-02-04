@@ -12,7 +12,7 @@ export default {
   close: function close() {},
   error: function error() {},
   messageAdapters: [
-    ['RESTAdapter', {
+    {
       name: 'RESTAdapter',
       message: function message($data, $isBinary) {
         try {
@@ -40,6 +40,6 @@ export default {
           return { type: 'delete', detail: $detail }
         },
       },
-    }]
+    }
   ],
 }
