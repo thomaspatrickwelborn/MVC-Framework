@@ -4,9 +4,15 @@ export default {
   path: '/',
   source: 'documents',
   target: 'localhost',
+  middlewares: [
+    ['json', [{}]],
+    ['static', ['static', {}]],
+    ['static', ['localhost', {}]],
+  ],
   methods: [
-    ['get', function getIndex($request, $response, $next) {
+    ['get', function getIndex($request, $response) {
       $response.send("HELLO ALL DOGS")
     }]
   ],
+  errors: [],
 }

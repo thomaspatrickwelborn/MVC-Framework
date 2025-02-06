@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import certificates from './certificates.js'
 export default {
-  name: "MVC Framework Demonstrament",
+  name: "MVC Framework Demonstrament | Documents",
   inspector: {
     port: 9238,
     host: "127.0.0.1",
@@ -29,7 +29,6 @@ export default {
     },
   },
   sockets: {
-    protocol: "wss:",
     host: "demonstrament.mvc-framework",
     config: '$socket.js',
     source: 'documents',
@@ -38,11 +37,6 @@ export default {
   router: {
     config: '$route.js',
     source: 'documents',
-    static: [
-      // $path, $options
-      ['static', {}],
-      ['localhost', {}],
-    ],
   },
   documents: {
     config: '$document.js',

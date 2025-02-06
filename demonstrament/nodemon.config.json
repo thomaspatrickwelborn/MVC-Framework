@@ -1,6 +1,6 @@
 {
   "ext": "ejs,js,json",
-  "exec": "dpm --config dpm.config.js",
+  "exec": "dpm --config dpm.config.documents.js",
   "watch": [
     "index.js",
     "package.json",
