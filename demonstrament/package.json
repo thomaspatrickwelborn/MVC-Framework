@@ -6,6 +6,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --config nodemon.config.json"
+    "documents": "nodemon --config nodemon.config.documents.json",
+    "databases": "nodemon --config nodemon.config.databases.json"
   }
 }

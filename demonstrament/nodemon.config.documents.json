@@ -1,0 +1,11 @@
+{
+  "ext": "ejs,js,json",
+  "exec": "dpm --config dpm.config.documents.js",
+  "watch": [
+    "index.js",
+    "package.json",
+    "dpm.config.documents.js",
+    "nodemon.config.documents.json",
+    "../../Document-Process-Manager/development"
+  ]
+}

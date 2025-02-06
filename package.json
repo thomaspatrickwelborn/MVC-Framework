@@ -4,7 +4,8 @@
   "version": "1.5.3",
   "type": "module",
   "scripts": {
-    "demonstrate": "concurrently \"npm run start --workspace development\" \"npm run start --workspace demonstrament\"",
+    "demonstrate:documents": "concurrently \"npm run start --workspace development\" \"npm run documents --workspace demonstrament\"",
+    "demonstrate:databases": "concurrently \"npm run start --workspace development\" \"npm run databases --workspace demonstrament\"",
     "develop": "npm run start --workspace development",
     "distribute": "npm run distribute --workspace development"
   },
