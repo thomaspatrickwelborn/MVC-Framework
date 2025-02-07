@@ -1049,7 +1049,7 @@ function copyWithin() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { target, path } = $content;
-  $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   const copyTarget = (
     arguments[0] >= 0
   ) ? arguments[0]
@@ -1597,7 +1597,6 @@ function unshift() {
   let elementIndex = elementsLength - 1;
   let elementCoindex = 0;
   while(elementIndex > -1) {
-    $arguments.length;
     let $element = $arguments[elementIndex];
     let element;
     const targetElement = target[elementIndex];
@@ -1745,6 +1744,7 @@ function getContent() {
 function getContentProperty() {
   const [$content, $options, $path, $ulteroptions] = [...arguments];
   const { target, path } = $content;
+  const { proxy } = $content;
   // Arguments
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
@@ -2101,7 +2101,7 @@ function deleteContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { target, path, schema, proxy } = $content;
-  $content.options;
+  const { enableValidation, validationEvents } = $content.options;
   // Arguments
   const ulteroptions = Object.assign({}, $options, arguments[0], { validationEvents: false });
   const { events } = ulteroptions;
@@ -2445,6 +2445,7 @@ let Handler$2 = class Handler {
   get get() {
     const content = this.#content;
     const traps = this.#traps;
+    const { target, schema, path } = content;
     return function get($target, $property, $receiver) {
       // Accessor Traps
       if(this.#isAccessorProperty($property)) {

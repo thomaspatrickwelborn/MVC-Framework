@@ -6,7 +6,11 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "documents": "nodemon --config nodemon.config.documents.json",
-    "databases": "nodemon --config nodemon.config.databases.json"
-  }
+    "start": "pm2 start ecosystem.config.cjs",
+    "restart": "pm2 restart ecosystem.config.cjs",
+    "stop": "pm2 stop ecosystem.config.cjs",
+    "delete": "pm2 delete ecosystem.config.cjs",
+    "dfc:documents": "dfc --config \"./dfc.documents.json\""
+  },
+  "devDependencies": {}
 }

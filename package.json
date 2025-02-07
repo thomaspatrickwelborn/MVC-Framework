@@ -1,12 +1,17 @@
 {
   "name": "js-mvc-framework",
   "author": "Thomas Patrick Welborn",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "type": "module",
   "scripts": {
-    "demonstrate:documents": "concurrently \"npm run start --workspace development\" \"npm run documents --workspace demonstrament\"",
-    "demonstrate:databases": "concurrently \"npm run start --workspace development\" \"npm run databases --workspace demonstrament\"",
-    "develop": "npm run start --workspace development",
+    "demonstrate:start": "concurrently \"npm run start --workspace development\" \"npm run start --workspace demonstrament\"",
+    "demonstrate:restart": "concurrently \"npm run restart --workspace development\" \"npm run restart --workspace demonstrament\"",
+    "demonstrate:stop": "concurrently \"npm run stop --workspace development\" \"npm run stop --workspace demonstrament\"",
+    "demonstrate:delete": "concurrently \"npm run delete --workspace development\" \"npm run delete --workspace demonstrament\"",
+    "develop:start": "npm run start --workspace development",
+    "develop:restart": "npm run restart --workspace development",
+    "develop:stop": "npm run stop --workspace development",
+    "develop:delete": "npm run delete --workspace development",
     "distribute": "npm run distribute --workspace development"
   },
   "imports": {},
@@ -18,6 +23,8 @@
   "license": "ISC",
   "description": "MVC Framework is a Javascript implementation of the Presentation-Abstraction-Control (PAC) Pattern",
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "concurrently": "^9.0.1",
+    "digital-flux-capacitor": "^1.2.9",
+    "pm2": "^5.4.3"
   }
 }
