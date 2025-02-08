@@ -2,12 +2,14 @@ const EcosystemConfig = {
   apps: [
     {
       name: "MVC-Framework-Development",
-      script: "rollup",
+      autorestart: false,
+      script: "npx",
       watch: [
         "index.js",
-        "**/*,js"
+        "package.json",
+        "**/*.js"
       ],
-      args: "--config \"./rollup.config.js\"",
+      args: "rollup --config rollup.config.js",
       execMode: "fork"
     },
   ]

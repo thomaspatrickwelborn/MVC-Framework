@@ -1,5 +1,5 @@
 export default {
-  active: false,
+  active: true,
   name: 'Test | Content',
   path: '/test/content',
   source: 'documents/test/content',
@@ -32,12 +32,14 @@ export default {
         '../coutil/**'
       ],
       ignore: [],
+      inputOptions: {},
+      outputOptions: {
+        sourceMap: true,
+      },
     }],
     scripts: [{
       name: 'RollupPiler',
       type: 'scripts',
-      input: 'index.js',
-      output: 'index.js',
       watch: [
         '**/*.js',
         '../classes/**',
@@ -48,27 +50,42 @@ export default {
         '**/$document.js',
         '**/$socket.js',
       ],
-      external: ['/dependencies/mvc-framework.js']
+      input: 'index.js',
+      output: 'index.js',
+      inputOptions: {
+        logLevel: 'silent', 
+        external: ['/dependencies/mvc-framework.js']
+      },
+      outputOptions: {
+        format: 'es',
+        sourcemap: true,
+      },
     }],
     structs: [{
       name: 'EJSPiler',
       type: 'structs',
-      localsName: '$content',
       outputType: 'server',
       model: 'index.json',
+      watch: ['**/*.{ejs,json}'],
+      ignore: ['**/$*.ejs'],
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}'],
-      ignore: ['**/\$*.ejs'],
+      outputOptions: {
+        localsName: '$content',
+        root: ['templates'],
+      },
     }, {
       name: 'EJSPiler',
       type: 'structs',
-      localsName: '$content',
       outputType: 'client',
+      watch: ['**/$*.ejs'],
+      ignore: [],
       input: '**/*.ejs',
       output: '',
-      watch: ['**/\$*.ejs'],
-      ignore: [],
+      outputOptions: {
+        localsName: '$content',
+        root: [''],
+      },
     }],
   }
 }

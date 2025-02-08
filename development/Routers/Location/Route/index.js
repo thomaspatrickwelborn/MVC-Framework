@@ -1,4 +1,4 @@
-import { match } from '../../../../node_modules/path-to-regexp/dist/index.js'
+import { match } from 'path-to-regexp'
 export default class Route extends EventTarget {
   #_settings
   #enable

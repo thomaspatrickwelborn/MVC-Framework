@@ -1,13 +1,14 @@
 export default class Test extends EventTarget {
   #settings
-  #_method
-  #_boundMethod
-  #_detail
-  #_pass
-  #boundMethod = this.method.bind(this)
+  #method
+  #detail
+  #pass
+  #boundMethod
   constructor($settings) {
     super()
+    console.log($settings)
     this.#settings = $settings
+    this.#boundMethod = this.method.bind(this)
   }
   get id() { return this.#settings.id }
   get name() { return this.#settings.name }
@@ -15,21 +16,21 @@ export default class Test extends EventTarget {
   get type() { return this.#settings.type }
   get collectName() { return this.#settings.collectName }
   get collect() { return this.#settings.collect }
-  get detail() { return this.#_detail }
+  get detail() { return this.#detail }
   set detail($detail) {
-    if(this.#_detail !== undefined) return
-    this.#_detail = $detail
+    if(this.#detail !== undefined) return
+    this.#detail = $detail
   }
-  get pass() { return this.#_pass }
+  get pass() { return this.#pass }
   set pass($pass) {
-    if(this.#_pass !== undefined) return
-    this.#_pass = $pass
+    if(this.#pass !== undefined) return
+    this.#pass = $pass
   }
   get async() { return this.#settings.async }
   get method() {
-    if(this.#_method !== undefined) return this.#_method
-    this.#_method = this.#settings.method
-    return this.#_method
+    if(this.#method !== undefined) return this.#method
+    this.#method = this.#settings.method
+    return this.#method
   }
   execute() {
     if(this.pass !== undefined) return this

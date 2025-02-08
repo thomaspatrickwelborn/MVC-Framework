@@ -64,8 +64,7 @@ export default async function TestResultsModels($tests) {
         group: testGroup.get('name'),
       })
       const testPath = [testGroup.path, $testID].join('/')
-      // const 
-      const testVerification = new Test($testSettings)
+      const testVerification = new Test(testSettings)
       if(testVerification.method.constructor.name === 'AsyncFunction') {
         await testVerification.asyncExecute()
       }
