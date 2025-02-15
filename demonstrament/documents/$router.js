@@ -5,14 +5,14 @@ export default {
   source: 'documents',
   target: 'localhost',
   middlewares: [
-    ['json', [{}]],
+    // ['json', [{}]],
     ['static', ['static', {}]],
     ['static', ['localhost', {}]],
   ],
   methods: [
-    ['get', function getIndex($request, $response) {
-      $response.send("HELLO ALL DOGS")
-    }]
+    // ['get', function getIndex($request, $response) {
+    //   $response.send("~~~~~")
+    // }]
   ],
   errors: [],
 }

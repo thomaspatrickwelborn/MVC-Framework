@@ -19,8 +19,8 @@ export default {
     config: '$socket.js',
     source: 'databases',
   },
-  router: {
-    config: '$route.js',
+  routers: {
+    config: '$router.js',
     source: 'databases',
   },
   databases: {

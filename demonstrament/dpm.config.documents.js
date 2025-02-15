@@ -34,8 +34,8 @@ export default {
     source: 'documents',
     target: 'localhost',
   },
-  router: {
-    config: '$route.js',
+  routers: {
+    config: '$router.js',
     source: 'documents',
   },
   documents: {

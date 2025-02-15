@@ -26,6 +26,7 @@ export default {
           const [$type] = [].concat(stringifyBuffer($data))
           const content = { propertyA: "propertyA" }
           const messageString = JSON.stringify(['get', content])
+          console.log(this)
           $webSocket.send(messageString)
           return { type: $type, detail: content }
         },
