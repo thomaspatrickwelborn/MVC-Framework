@@ -1,23 +1,23 @@
 // Ordinary Imports
-import * as Coutil from './Coutil/index.js'
-import Core from './Core/index.js'
+import * as Coutil from './coutil/index.js'
+import Core from './core/index.js'
 // Primary Imports
-import Model from './Model/index.js'
-import View from './View/index.js'
-import Control from './Control/index.js'
+import Model from './model/index.js'
+import View from './view/index.js'
+import Control from './control/index.js'
 import {
   LocationRouter, FetchRouter, SocketRouter
-} from './Routers/index.js'
+} from './routers/index.js'
 // Secondary Imports
-import Schema from './Model/Schema/index.js'
-import Content from './Model/Content/index.js'
+import Schema from './model/schema/index.js'
+import Content from './model/content/index.js'
 // Tertiary Imports
 // Tertiary Schema Imports
-import Validator from './Model/Schema/Validator/index.js'
-import Validation from './Model/Schema/Validation/index.js'
-import Verification from './Model/Schema/Verification/index.js'
+import Validator from './model/schema/validator/index.js'
+import Validation from './model/schema/validation/index.js'
+import Verification from './model/schema/verification/index.js'
 // Tertiary Socket Router Imports
-import MessageAdapter from './Routers/Socket/MessageAdapter/index.js'
+import MessageAdapter from './routers/socket/messageAdapter/index.js'
 
 export {
   // Ordinary Exports

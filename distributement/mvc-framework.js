@@ -721,7 +721,7 @@ function defineProperties() {
   for(const [
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
-    // Property Descriptor Value Is Direct Instance Of Array/Object/Map
+    // Property Descriptor Value Is Direct Instance Of Array/object/Map
     proxy.defineProperty($propertyKey, $propertyDescriptor, $propertyDescriptors);
   }
   // Define Properties Event
