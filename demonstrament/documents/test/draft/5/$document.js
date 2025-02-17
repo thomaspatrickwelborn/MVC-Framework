@@ -40,27 +40,40 @@ export default {
         '**/$document.js',
         '**/$socket.js',
       ],
-      external: ['/dependencies/mvc-framework.js']
+      inputOptions: {
+        logLevel: 'silent', 
+        external: ['/dependencies/mvc-framework.js'],
+      },
+      outputOptions: {
+        format: 'es',
+        sourcemap: true,
+      },
     }],
     structs: [{
       name: 'EJSPiler',
       type: 'structs',
-      localsName: '$content',
       outputType: 'server',
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
       watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
       ignore: [],
+      outputOptions: {
+        localsName: '$content',
+        root: ['templates'],
+      },
     }, {
       name: 'EJSPiler',
       type: 'structs',
-      localsName: '$content',
       outputType: 'client',
       input: '**/*.ejs',
       output: '',
       watch: ['**/\$*.ejs'],
       ignore: [],
+      outputOptions: {
+        localsName: '$content',
+        root: ['templates'],
+      },
     }],
   }
 }

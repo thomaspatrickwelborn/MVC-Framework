@@ -3724,10 +3724,6 @@ class Core extends EventTarget {
     const propertyClasses = this.propertyClasses;
     for(const $propertyClass of $propertyClasses) {
       const propertyClassName = $propertyClass.Name;
-      // Property Class Events
-      if($propertyClass.Events === undefined) {
-        $propertyClass.Events = CoreClassEvents;
-      }
       // Class Instantiator
       if($propertyClass.ClassInstantiator === undefined) {
         $propertyClass.ClassInstantiator = CoreClassInstantiator; 
@@ -3895,14 +3891,22 @@ class Core extends EventTarget {
     const { events } = this;
     for(let $event of $events) {
       const propertyClassName = $event.path.split('.').shift();
-      const propertyClassEvents = (this.#propertyClassEvents[propertyClassName])
-        ? this.#propertyClassEvents[propertyClassName] 
-        : CoreClassEvents;
-      $event = Object.assign({}, $event, {
-        context: this,
-        propertyClassEvents,
-      });
+      const propertyClassEvents = Object.assign(
+        {}, 
+        CoreClassEvents,
+        this.#propertyClassEvents[propertyClassName]?.Events,
+        $event?.sign, 
+      );
+      $event = Object.assign(
+        {}, 
+        $event,
+        {
+          context: this,
+          propertyClassEvents,
+        }
+      );
       const coreEvent = new CoreEvent($event);
+      console.log(coreEvent);
       events.push(coreEvent);
     }
     return this
