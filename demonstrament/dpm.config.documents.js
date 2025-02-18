@@ -37,6 +37,7 @@ export default {
   routers: {
     config: '$router.js',
     source: 'documents',
+    target: 'localhost',
   },
   documents: {
     config: '$document.js',

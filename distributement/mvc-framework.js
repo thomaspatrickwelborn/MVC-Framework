@@ -3906,7 +3906,6 @@ class Core extends EventTarget {
         }
       );
       const coreEvent = new CoreEvent($event);
-      console.log(coreEvent);
       events.push(coreEvent);
     }
     return this
