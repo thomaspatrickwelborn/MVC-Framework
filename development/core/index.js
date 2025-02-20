@@ -289,7 +289,7 @@ export default class Core extends EventTarget {
       const propertyClassEvents = Object.assign(
         {}, 
         CoreClassEvents,
-        this.#propertyClassEvents[propertyClassName]?.Events,
+        this.#propertyClassEvents[propertyClassName],
         $event?.sign, 
       )
       $event = Object.assign(
