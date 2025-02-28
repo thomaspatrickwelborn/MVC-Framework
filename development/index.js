@@ -1,6 +1,6 @@
 // Ordinary Imports
 import * as Coutil from './coutil/index.js'
-import Core from './core/index.js'
+import { Core } from 'core-plex'
 // Primary Imports
 import Model from './model/index.js'
 import View from './view/index.js'
