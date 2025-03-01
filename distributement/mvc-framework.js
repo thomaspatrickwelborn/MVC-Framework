@@ -2871,6 +2871,7 @@ class Core extends EventTarget {
     iteratePropertyClasses: 
     for(const $propertyClass of this.#propertyClasses) {
       const { Name, Names, Definition } = $propertyClass;
+      if(!Definition) { continue iteratePropertyClasses }
       if($properties[Name] === undefined) { continue iteratePropertyClasses }
       if(Definition.Object !== undefined) {
         this[`${Names.Minister.Ad.Nonformal}${Names.Multiple.Formal}`](this.settings[Name]);
@@ -2887,12 +2888,17 @@ class Core extends EventTarget {
       ? this.settings.propertyClasses
       : [].concat(...arguments);
     const propertyClasses = this.#propertyClasses;
+    iteratePropertyClasses: 
     for(const $addPropertyClass of $addPropertyClasses) {
+      if(!$addPropertyClass.Definition) {
+        propertyClasses.push($addPropertyClass);
+        continue iteratePropertyClasses
+      }
       // Class States
       $addPropertyClass.States = $addPropertyClass.States || {};
       $addPropertyClass.Definition = $addPropertyClass.Definition || {};
       // Class Instate
-      if($addPropertyClass.States.Instate === undefined) {
+      if($addPropertyClass?.States.Instate === undefined) {
         $addPropertyClass.States.Instate = Instate; 
       }
       // Class Deinstate
@@ -2989,7 +2995,10 @@ class Core extends EventTarget {
           },
         });
       }
-      else {
+      else if(
+        Definition !== undefined &&
+        Names?.Monople.Nonformal !== undefined
+      ) {
         Object.defineProperties(this, {
           [Names.Monople.Nonformal]: {
             get() {

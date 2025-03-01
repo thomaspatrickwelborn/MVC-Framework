@@ -14,6 +14,7 @@ export default {
       sourcemap: true,
     }
   ],
+  external: [],
   plugins: [
     nodeResolve(),
     commonjs({ transformMixedEsModules: true }),
