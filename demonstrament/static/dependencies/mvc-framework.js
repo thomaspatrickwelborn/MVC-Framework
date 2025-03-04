@@ -1154,12 +1154,13 @@ class CoreEvent {
   constructor($settings) { 
     this.#settings = $settings;
     this.enable = this.#settings.enable;
+    console.log("this.enable", this.enable);
   }
   get type() { return this.#settings.type }
   get path() { return this.#settings.path }
   get #targets() {
     const pretargets = this.#_targets;
-    const propertyDirectory = this.#context.propertyDirectory; 
+    let propertyDirectory = [this.path].concat(this.#context.propertyDirectory);
     const targetPaths = [];
     const targets = [];
     const propertyPathMatcher = outmatch(this.path, {
@@ -1173,9 +1174,8 @@ class CoreEvent {
       const pretargetElement = pretargets.find(
         ($pretarget) => $pretarget?.path === $targetPath
       );
-      let target;
+      let target = this.#context;
       let targetElement;
-      target = this.#context;
       const pathKeys = $targetPath.split('.');
       let pathKeysIndex = 0;
       iterateTargetPathKeys: 
@@ -1186,6 +1186,7 @@ class CoreEvent {
         }
         iterateTargetAccessors: 
         for(const $targetAccessor of this.#settings.target.accessors) {
+          if(target === undefined) { break iterateTargetAccessors }
           if($targetAccessor === '[]') {
             target = target[pathKey];
           }
@@ -1196,17 +1197,19 @@ class CoreEvent {
         }
         pathKeysIndex++;
       }
-      if(target === pretargetElement?.target) {
-        targetElement = pretargetElement;
+      if(target !== undefined) {
+        if(target === pretargetElement?.target) {
+          targetElement = pretargetElement;
+        }
+        else {
+          targetElement = {
+            path: $targetPath,
+            target: target,
+            enable: false,
+          };
+        }
       }
-      else {
-        targetElement = {
-          path: $targetPath,
-          target: target,
-          enable: false,
-        };
-      }
-      targets.push(targetElement);
+      if(targetElement !== undefined) { targets.push(targetElement); }
     }
     this.#_targets = targets;
     return this.#_targets
@@ -1222,12 +1225,13 @@ class CoreEvent {
     ) ? this.#settings.target.assign
       : this.#settings.target.deassign;
     iterateTargets: 
-    for(const { path, target, enable } of targets) {
+    for(const targetElement of targets) {
+      const { path, target, enable } = targetElement;
       if(enable === eventAbility) { continue iterateTargets }
       try {
         target[eventAbility](this.type, this.#boundListener, this.options);
-        target.enable = eventAbility;
-      } catch($err) {}
+        targetElement.enable = eventAbility;
+      } catch($err) { console.error($err); }
     }
     this.#enable = $enable;
   }
@@ -1277,9 +1281,8 @@ var Settings$5 = {
 var Options$7 = {
   enableEvents: false,
   propertyDirectory: {
-    depth: 0,
     maxDepth: 10,
-  },
+  }
 };
 
 class Core extends EventTarget {
@@ -5186,12 +5189,12 @@ class QuerySelector {
   get selector() { return this.#settings.selector }
   get enable() { return this.#enable }
   set enable($enable) {
-    // Unable
     if($enable === this.#enable) return
     // Enable
     if($enable === true) {
       const { context, name, method, selector } = this;
       Object.defineProperty(context.querySelectors, name, {
+        configurable: true, enumerable: true, 
         get() { return context[method](selector) }
       });
     }
@@ -5282,7 +5285,10 @@ var Settings$3 = {
 
 var Options$3 = {
   enableEvents: true,
-  enableQuerySelectors: true
+  enableQuerySelectors: true,
+  propertyDirectory: {
+    maxDepth: 3,
+  }
 };
 
 class View extends Core {
@@ -5291,12 +5297,26 @@ class View extends Core {
   #parentElement
   #_template
   #children
-  #querySelectors = {}
+  // #querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
       Object.assign({}, Settings$3, $settings),
       Object.assign({}, Options$3, $options),
     );
+    Object.defineProperties(this, {
+      _querySelectors: {
+        enumerable: false, writable: false, configurable: false,
+        value: {},
+      },
+      querySelectors: {
+        enumerable: true,
+        get() { return this._querySelectors },
+      },
+      qs: {
+        enumerable: true,
+        get() { return this.querySelectors },
+      },
+    });
     this.addQuerySelectors(this.settings.querySelectors);
     const { enableQuerySelectors, enableEvents } = this.options;
     if(enableQuerySelectors) this.enableQuerySelectors();
@@ -5344,8 +5364,6 @@ class View extends Core {
       children.set($childIndex, $child);
     });
   }
-  get querySelectors() { return this.#querySelectors }
-  get qs() { return this.querySelectors }
   querySelector($queryString, $queryScope) {
     const query = this.#query('querySelector', $queryString, $queryScope);
     return query[0] || null

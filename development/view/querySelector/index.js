@@ -10,17 +10,15 @@ export default class QuerySelector {
   get selector() { return this.#settings.selector }
   get enable() { return this.#enable }
   set enable($enable) {
-    // Unable
     if($enable === this.#enable) return
-    // Enable
     if($enable === true) {
       const { context, name, method, selector } = this
       const $this = this
       Object.defineProperty(context.querySelectors, name, {
+        configurable: true, enumerable: true, 
         get() { return context[method](selector) }
       })
     }
-    // Disable
     else if($enable === false) {
       delete this.context.querySelectors[this.name]
     }

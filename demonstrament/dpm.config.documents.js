@@ -28,8 +28,10 @@ export default {
     proxy: {
       ws: true,
     },
+    reloadDelay: 500,
     reloadDebounce: 500,
-    reloadThrottle: 500,
+    reloadThrottle: 0,
+    injectChanges: true,
   },
   sockets: {
     host: "demonstrament.mvc-framework",

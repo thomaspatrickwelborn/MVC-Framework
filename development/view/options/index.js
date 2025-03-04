@@ -1,4 +1,7 @@
 export default {
   enableEvents: true,
-  enableQuerySelectors: true
+  enableQuerySelectors: true,
+  propertyDirectory: {
+    maxDepth: 3,
+  }
 }

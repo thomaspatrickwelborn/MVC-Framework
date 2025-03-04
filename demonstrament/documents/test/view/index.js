@@ -1,6 +1,5 @@
 import { View } from '/dependencies/mvc-framework.js'
 const QuerySelectors = {
-  // querySelector: {
   querySelectorAll: {
     'div#_1 ~ div': 'div#_1 ~ div',
     'div#_1 + div': 'div#_1 + div',
@@ -10,8 +9,6 @@ const QuerySelectors = {
     ':scope > div#_1 ~ div#_3': ':scope > div#_1 ~ div#_3',
     ':scope > div#_1 ~ div#_3 > subdiv#_3_2': ':scope > div#_1 ~ div#_3 > subdiv#_3_2',
     'div#_1 ~ div#_3 > subdiv#_3_2': 'div#_1 ~ div#_3 > subdiv#_3_2',
-    ':scope > div#_1 ~ div#_3': ':scope > div#_1 ~ div#_3',
-    
     'div#_1 ~ div#_3 > subdiv': 'div#_1 ~ div#_3 > subdiv',
     ':scope > subdiv': ':scope > subdiv',
     ':scope > div > subdiv': ':scope > div > subdiv',
@@ -33,13 +30,14 @@ const view = new View({
   ` },
   querySelectors: QuerySelectors,
   events: {
-    'qs.div click': function divClick($event) { console.log($event.type, $event) },
-    'qs.subdiv click': function subdivClick($event) { console.log($event.type, $event) },
+    'qs.div.[0-9] click': function divClick($event) { console.log($event.type, $event) },
+    'qs.subdiv.[0-9] click': function subdivClick($event) { console.log($event.type, $event) },
   }
 })
 view.render()
+view.enableEvents()
 console.log(view)
-
+// console.log(view.enableEvents())
 // Query Selector
 // console.log(Object.entries(QuerySelectors))
 /*

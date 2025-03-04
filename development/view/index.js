@@ -10,12 +10,26 @@ export default class View extends Core {
   #parentElement
   #_template
   #children
-  #querySelectors = {}
+  // #querySelectors = {}
   constructor($settings = {}, $options = {}) {
     super(
       Object.assign({}, Settings, $settings),
       Object.assign({}, Options, $options),
     )
+    Object.defineProperties(this, {
+      _querySelectors: {
+        enumerable: false, writable: false, configurable: false,
+        value: {},
+      },
+      querySelectors: {
+        enumerable: true,
+        get() { return this._querySelectors },
+      },
+      qs: {
+        enumerable: true,
+        get() { return this.querySelectors },
+      },
+    })
     this.addQuerySelectors(this.settings.querySelectors)
     const { enableQuerySelectors, enableEvents } = this.options
     if(enableQuerySelectors) this.enableQuerySelectors()
@@ -63,8 +77,6 @@ export default class View extends Core {
       children.set($childIndex, $child)
     })
   }
-  get querySelectors() { return this.#querySelectors }
-  get qs() { return this.querySelectors }
   querySelector($queryString, $queryScope) {
     const query = this.#query('querySelector', $queryString, $queryScope)
     return query[0] || null
