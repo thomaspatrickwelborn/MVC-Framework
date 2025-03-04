@@ -23,6 +23,7 @@ export default {
       },
       messages: {
         'get': function getMessage($webSocket, $data, $isBinary) {
+          console.log($data)
           const [$type, $detail] = [].concat(stringifyBuffer($data))
           const content = { propertyB: "propertyB" }
           const messageString = JSON.stringify(['get', content])

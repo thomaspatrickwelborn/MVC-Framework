@@ -23,10 +23,13 @@ const socket = new SocketRouter({
   ],
   events: {
     'webSocket open': function openWebSocket($event) {
-      this.send('get')
+      this.send("get")
     },
     'webSocket get': function getWebSocket($event) {
-      console.log($event)
+      console.log($event.type, $event.detail)
+    },
+    'webSocket message': function messageWebSocket($event) {
+      console.log(this)
     },
   },
 }, { enableEvents: true })

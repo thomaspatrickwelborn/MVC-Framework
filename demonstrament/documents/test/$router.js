@@ -6,12 +6,12 @@ export default {
   target: 'localhost/test',
   middlewares: [
     // $path, $options
-    ['static', ['static', {}]],
-    ['static', ['localhost', {}]],
+    // ['static', ['static', {}]],
+    // ['static', ['localhost', {}]],
   ],
   methods: [
-    ['get', function getIndex($request, $response, $next) {
-      $response.send("HELLO ALL DOGS")
-    }]
+    // ['get', function getIndex($request, $response, $next) {
+    //   $response.send("HELLO ALL DOGS")
+    // }]
   ],
 }

@@ -16,6 +16,17 @@ export default class SocketRouter extends Core {
       Object.assign(Options, $options),
     )
     this.#boundMessage = this.#message.bind(this)
+    Object.defineProperties(this, {
+      webSocket: {
+        enumerable: true,
+        get() {
+          if(this.#webSocket !== undefined) return this.#webSocket
+          this.#webSocket = new WebSocket(this.url)
+          this.#webSocket.addEventListener('message', this.#boundMessage)
+          return this.#webSocket
+        },
+      }
+    })
     this.active = this.settings.active
     if(this.options.enableEvents === true) { this.enableEvents() }
   }
@@ -43,12 +54,6 @@ export default class SocketRouter extends Core {
     }
     this.#url = new URL(this.path, base)
     return this.#url
-  }
-  get webSocket() {
-    if(this.#webSocket !== undefined) return this.#webSocket
-    this.#webSocket = new WebSocket(this.url)
-    this.#webSocket.addEventListener('message', this.#boundMessage)
-    return this.#webSocket
   }
   #message($data, $isBinary) {
     iterateAdapters: 

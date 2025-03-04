@@ -14,14 +14,16 @@ const EcosystemConfig = {
     // },
     {
       name: "MVC-Framework-Demonstrament-Documents",
-      script: "npx",
+      script: "dpm",
       watch: [
         "index.js",
         "package.json",
         "dpm.config.documents.js",
-        "../../Document-Process-Manager/development"
+        "ecosystem.config.cjs",
+        "../../Document-Process-Manager/development",
+        "../../Core-Plex/development",
       ],
-      args: "dpm --config dpm.config.documents.js",
+      args: "--config dpm.config.documents.js",
       autorestart: false,
       execMode: "fork",
     },

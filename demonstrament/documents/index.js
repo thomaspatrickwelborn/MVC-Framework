@@ -2,7 +2,7 @@
 const socket = new WebSocket("/")
 // const socket = new WebSocket("wss://demonstrament.mvc-framework:3339/")
 socket.addEventListener('open', ($event) => {
-  console.log($event)
+  console.log("open", socket)
   socket.send('get')
 })
 socket.addEventListener('close', ($event) => {

@@ -18,6 +18,7 @@ export default {
     port: 3339,
     open: false,
     ui: false, 
+    ghostMode: false,
     host: "demonstrament.mvc-framework",
     https: {
       key: certificates.key.path,
@@ -27,6 +28,8 @@ export default {
     proxy: {
       ws: true,
     },
+    reloadDebounce: 500,
+    reloadThrottle: 500,
   },
   sockets: {
     host: "demonstrament.mvc-framework",

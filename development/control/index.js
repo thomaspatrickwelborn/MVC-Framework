@@ -11,11 +11,10 @@ const Names = {
     Dead: { Formal: "Remove", Nonformal: "remove" },
   }
 }
-const Events = { Assign: "addEventListener", Deassign: "removeEventListener" }
 const Definition = { Object: 'Object' }
 const States = {
   Instate: function Instate($propertyClass, $property, $value) {
-    const { /*Name, */ Class /*, Names, Events, Definition*/ } = $propertyClass
+    const { Class } = $propertyClass
     return new Class(...$value)
   },
   Deinstate: function Deinstate($propertyClass, $property) {},
@@ -23,59 +22,65 @@ const States = {
 
 export default class Control extends Core {
   static propertyClasses = [{
-    Name: "models",
-    Class: Model,
-    Names: {
-      Monople: { Formal: "Model", Nonformal: "model" },
-      Multiple: { Formal: "Models", Nonformal: "models" },
-      Minister: Names.Minister,
+    name: "models",
+    class: Model,
+    names: {
+      monople: { formal: "Model", nonformal: "model" },
+      multiple: { formal: "Models", nonformal: "models" },
+      minister: Names.Minister,
     },
-    Events, Definition, States,
+    definition: Definition,
+    states: States,
   }, {
-    Name: "views",
-    Class: View,
-    Names: {
-      Monople: { Formal: "View", Nonformal: "view" },
-      Multiple: { Formal: "Views", Nonformal: "views" },
-      Minister: Names.Minister,
+    name: "views",
+    class: View,
+    names: {
+      monople: { formal: "View", nonformal: "view" },
+      multiple: { formal: "Views", nonformal: "views" },
+      minister: Names.Minister,
     },
-    Events, Definition, States,
+    definition: Definition,
+    states: States,
   }, {
-    Name: "controls",
-    Class: Control,
-    Names: {
-      Monople: { Formal: "Control", Nonformal: "control" },
-      Multiple: { Formal: "Controls", Nonformal: "controls" },
-      Minister: Names.Minister,
+    name: "controls",
+    class: Control,
+    names: {
+      monople: { formal: "Control", nonformal: "control" },
+      multiple: { formal: "Controls", nonformal: "controls" },
+      minister: Names.Minister,
     },
-    Events, Definition, States,
+    definition: Definition,
+    states: States,
   }, {
-    Name: "locationRouters",
-    Class: LocationRouter,
-    Names: {
-      Monople: { Formal: "LocationRouter", Nonformal: "locationRouter" },
-      Multiple: { Formal: "LocationRouters", Nonformal: "locationRouters" },
-      Minister: Names.Minister,
+    name: "locationRouters",
+    class: LocationRouter,
+    names: {
+      monople: { formal: "LocationRouter", nonformal: "locationRouter" },
+      multiple: { formal: "LocationRouters", nonformal: "locationRouters" },
+      minister: Names.Minister,
     },
-    Events, Definition, States,
+    definition: Definition,
+    states: States,
   }, {
-    Name: "fetchRouters",
-    Class: FetchRouter,
-    Names: {
-      Monople: { Formal: "FetchRouter", Nonformal: "fetchRouter" },
-      Multiple: { Formal: "FetchRouters", Nonformal: "fetchRouters" },
-      Minister: Names.Minister,
+    name: "fetchRouters",
+    class: FetchRouter,
+    names: {
+      monople: { formal: "FetchRouter", nonformal: "fetchRouter" },
+      multiple: { formal: "FetchRouters", nonformal: "fetchRouters" },
+      minister: Names.Minister,
     },
-    Events, Definition, States,
+    definition: Definition,
+    states: States,
   }, {
-    Name: "socketRouters",
-    Class: SocketRouter,
-    Names: {
-      Monople: { Formal: "SocketRouter", Nonformal: "socketRouter" },
-      Multiple: { Formal: "SocketRouters", Nonformal: "socketRouters" },
-      Minister: Names.Minister,
+    name: "socketRouters",
+    class: SocketRouter,
+    names: {
+      monople: { formal: "SocketRouter", nonformal: "socketRouter" },
+      multiple: { formal: "SocketRouters", nonformal: "socketRouters" },
+      minister: Names.Minister,
     },
-    Events, Definition, States,
+    definition: Definition,
+    states: States,
   }]
   constructor($settings = {}, $options = {}) {
     super(
