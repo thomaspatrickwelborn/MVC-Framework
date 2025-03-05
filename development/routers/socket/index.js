@@ -1,6 +1,6 @@
 import { recursiveAssignConcat } from '../../coutil/index.js'
 import SocketEvent from './event/index.js'
-import { Core } from 'core-plex'
+import Core from '../../core/index.js'
 import MessageAdapter from './messageAdapter/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'

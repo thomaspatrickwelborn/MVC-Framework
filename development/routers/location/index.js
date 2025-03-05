@@ -1,5 +1,5 @@
 import { recursiveAssign } from '../../coutil/index.js'
-import { Core } from 'core-plex'
+import Core from '../../core/index.js'
 import Route from './route/index.js'
 import RouteEvent from './routeEvent/index.js'
 import Settings from './settings/index.js' 

@@ -1,86 +1,47 @@
 import { recursiveAssign, recursiveAssignConcat } from '../coutil/index.js'
-import { Core } from 'core-plex'
+import Core from '../core/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'
 import Model from '../model/index.js'
 import View from '../view/index.js'
 import { LocationRouter, FetchRouter, SocketRouter } from '../routers/index.js'
-const Names = {
-  Minister: {
-    Ad: { Formal: "Add", Nonformal: "add" },
-    Dead: { Formal: "Remove", Nonformal: "remove" },
-  }
+function Instate($propertyClass, $property, $value) {
+  const { Class } = $propertyClass
+  return new Class(...$value)
 }
-const Definition = { Object: 'Object' }
-const States = {
-  Instate: function Instate($propertyClass, $property, $value) {
-    const { Class } = $propertyClass
-    return new Class(...$value)
-  },
-  Deinstate: function Deinstate($propertyClass, $property) {},
-}
+function Deinstate($propertyClass, $property) {}
 
 export default class Control extends Core {
   static propertyClasses = [{
-    name: "models",
-    class: Model,
-    names: {
-      monople: { formal: "Model", nonformal: "model" },
-      multiple: { formal: "Models", nonformal: "models" },
-      minister: Names.Minister,
-    },
-    definition: Definition,
-    states: States,
+    name: "models", definitionValue: 'Object',
+    administer: "addModels", deadminister: "removeModels",
+    instate: Instate, deinstate: Deinstate,
+    Class: Model,
   }, {
-    name: "views",
-    class: View,
-    names: {
-      monople: { formal: "View", nonformal: "view" },
-      multiple: { formal: "Views", nonformal: "views" },
-      minister: Names.Minister,
-    },
-    definition: Definition,
-    states: States,
+    name: "views", definitionValue: 'Object',
+    administer: "addViews", deadminister: "removeViews",
+    instate: Instate, deinstate: Deinstate,
+    Class: View,
   }, {
-    name: "controls",
-    class: Control,
-    names: {
-      monople: { formal: "Control", nonformal: "control" },
-      multiple: { formal: "Controls", nonformal: "controls" },
-      minister: Names.Minister,
-    },
-    definition: Definition,
-    states: States,
+    name: "controls", definitionValue: 'Object',
+    administer: "addControls", deadminister: "removeControls",
+    instate: Instate, deinstate: Deinstate,
+    Class: Control,
   }, {
-    name: "locationRouters",
-    class: LocationRouter,
-    names: {
-      monople: { formal: "LocationRouter", nonformal: "locationRouter" },
-      multiple: { formal: "LocationRouters", nonformal: "locationRouters" },
-      minister: Names.Minister,
-    },
-    definition: Definition,
-    states: States,
+    name: "locationRouters", definitionValue: 'Object',
+    administer: "addLocationRouters", deadminister: "removeLocationRouters",
+    instate: Instate, deinstate: Deinstate,
+    Class: LocationRouter,
   }, {
-    name: "fetchRouters",
-    class: FetchRouter,
-    names: {
-      monople: { formal: "FetchRouter", nonformal: "fetchRouter" },
-      multiple: { formal: "FetchRouters", nonformal: "fetchRouters" },
-      minister: Names.Minister,
-    },
-    definition: Definition,
-    states: States,
+    name: "fetchRouters", definitionValue: 'Object',
+    administer: "addFetchRouters", deadminister: "removeFetchRouters",
+    instate: Instate, deinstate: Deinstate,
+    Class: FetchRouter,
   }, {
-    name: "socketRouters",
-    class: SocketRouter,
-    names: {
-      monople: { formal: "SocketRouter", nonformal: "socketRouter" },
-      multiple: { formal: "SocketRouters", nonformal: "socketRouters" },
-      minister: Names.Minister,
-    },
-    definition: Definition,
-    states: States,
+    name: "socketRouters", definitionValue: 'Object',
+    administer: "addSocketRouters", deadminister: "removeSocketRouters",
+    instate: Instate, deinstate: Deinstate,
+    Class: SocketRouter,
   }]
   constructor($settings = {}, $options = {}) {
     super(

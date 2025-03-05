@@ -20,11 +20,15 @@ export default {
     ui: false, 
     ghostMode: false,
     host: "demonstrament.mvc-framework",
+    logPrefix: "MVC Framework | Demonstrament",
     https: {
       key: certificates.key.path,
       cert: certificates.cert.path,
     },
-    files: ['static', 'localhost'],
+    files: [
+      'static/*.{js,css,html}',
+      'localhost/*.{js,css,html}',
+    ],
     proxy: {
       ws: true,
     },

@@ -1,5 +1,5 @@
 import * as parsel from '../../node_modules/parsel-js/dist/parsel.js'
-import { Core } from 'core-plex'
+import Core from '../core/index.js'
 import QuerySelector from './querySelector/index.js'
 import Query from './query/index.js'
 import Settings from './settings/index.js'

@@ -1,5 +1,5 @@
 import FetchRoute from './fetchRoute/index.js'
-import { Core } from 'core-plex'
+import Core from '../../core/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'
 export default class FetchRouter extends Core {

@@ -1,6 +1,6 @@
 import { recursiveAssign } from '../coutil/index.js'
 import Content from './content/index.js'
-import { Core } from 'core-plex'
+import Core from '../core/index.js'
 import Schema from './schema/index.js'
 import LocalStorage from './localStorage/index.js'
 import Settings from './settings/index.js'
