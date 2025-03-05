@@ -15,12 +15,12 @@ export default {
     },
   },
   browserSync: {
+    logPrefix: "MVC Framework | Demonstrament",
     port: 3339,
     open: false,
     ui: false, 
     ghostMode: false,
     host: "demonstrament.mvc-framework",
-    logPrefix: "MVC Framework | Demonstrament",
     https: {
       key: certificates.key.path,
       cert: certificates.cert.path,

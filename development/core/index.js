@@ -1,17 +1,28 @@
-import { Core } from 'core-plex'
+import { Core, Coutil } from 'core-plex'
+const { recursiveAssign } = Coutil
+import Settings from './settings/index.js'
 import Options from './options/index.js'
 import PropertyClass from './property-class/index.js'
 import { instate, deinstate } from './property-class/states/index.js'
 export default class MVCFrameworkCore extends Core {
   #_propertyClasses = []
   static propertyClasses = []
+  #settings
+  #options
   constructor($settings, $options) {
-    super($settings, Object.assign({}, $options, Options))
+    super({
+      events: $settings.events || {},
+      propertyDefinitions: $settings.propertyDefinitions || {},
+    })
+    this.#settings = recursiveAssign({}, Settings, $settings)
+    this.#options = recursiveAssign({}, Options, $options)
     if(this.settings.propertyClasses) {
       this.addPropertyClasses(this.settings.propertyClasses)
       this.#addProperties(this.settings)
     }
   }
+  get settings() { return this.#settings }
+  get options() { return this.#options }
   get #propertyClasses() { return this.#_propertyClasses }
   #getPropertyClasses() {
     let $getPropertyClasses
