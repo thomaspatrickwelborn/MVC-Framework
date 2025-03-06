@@ -161,6 +161,7 @@ var Settings$1$1 = {
   events: {},
   enableEvents: false,
   propertyDefinitions: {
+    settings: 'settings',
     events: 'events',
     enableEvents: 'enableEvents',
     getEvents: 'getEvents',
@@ -715,7 +716,7 @@ class EventDefinition {
   get path() { return this.#settings.path }
   get #targets() {
     const pretargets = this.#_targets;
-    let propertyDirectory = [this.path].concat(this.propertyDirectory);
+    let propertyDirectory = [/*this.path*/].concat(this.propertyDirectory);
     const targetPaths = [];
     const targets = [];
     const propertyPathMatcher = outmatch(this.path, {
@@ -775,18 +776,18 @@ class EventDefinition {
   set enable($enable) {
     const targets = this.#targets;
     if(this.#targets.length === 0) { return }
-    const eventAbility = (
+    const eventSign = (
       $enable === true
     ) ? this.#settings.target.assign
       : this.#settings.target.deassign;
     iterateTargets: 
     for(const targetElement of targets) {
       const { path, target, enable } = targetElement;
-      if(enable === eventAbility) { continue iterateTargets }
-      try {
-        target[eventAbility](this.type, this.#boundListener, this.options);
-        targetElement.enable = eventAbility;
-      } catch($err) { console.error($err); }
+      if(enable === $enable) { continue iterateTargets }
+      if(target[eventSign]) {
+        target[eventSign](this.type, this.#boundListener, this.options);
+        targetElement.enable = $enable;
+      }
     }
     this.#enable = $enable;
   }
@@ -839,7 +840,6 @@ class Core extends EventTarget {
       ]
     );
     if(settings.enableEvents) $target.enableEvents(settings.enableEvents);
-    console.log("$target", $target);
     return $target
   }
   constructor($settings = {}) {
