@@ -40,7 +40,6 @@ export default class Traps {
         }
         // Property Class Method: Default Trap Call
         else if(propertyClassDefaultTrap.Call.Keys.includes($methodName))  {
-          const method = 
           Object.defineProperty(propertyClassTrap, $methodName, {
             value: propertyClassDefaultTrap.Call.Method($methodName)
           }) 

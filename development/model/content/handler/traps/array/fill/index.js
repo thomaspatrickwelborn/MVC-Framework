@@ -57,7 +57,7 @@ export default function fill() {
       const subschema = schema?.context[0] || null
       value = new Content(value, subschema, {
         path: contentPath,
-        parent: proxy,
+        parent: $content,
       })
     }
     Array.prototype.fill.call(

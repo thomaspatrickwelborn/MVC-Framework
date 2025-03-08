@@ -1,7 +1,7 @@
 import { Schema, Content, Coutil } from '/dependencies/mvc-framework.js'
 import * as AssignmentKeys from '../coutil/assignmentKeys.js'
 import * as Assignments from '../coutil/assignments/index.js'
-const { pathkeytree, objectCount, recursiveAssign } = Coutil
+const { objectCount } = Coutil
 const { AssignmentSourceProperties } = AssignmentKeys
 const ContentOptions = {
   traps: { object: { assign: {

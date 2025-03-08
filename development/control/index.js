@@ -1,5 +1,5 @@
-import { recursiveAssign, recursiveAssignConcat } from '../coutil/index.js'
 import Core from '../core/index.js'
+import { recursiveAssign } from '../coutil/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'
 import Model from '../model/index.js'

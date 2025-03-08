@@ -22,7 +22,8 @@ export default {
   descript: `
     <ul>
       <li><code>content.schema</code>: <code>null</code></li>
-      <li><code>content.events</code>: <code>true</code></li>
+      <li><code>content.)
+</code>: <code>true</code></li>
       <ul>
         <li><code>"assignSourceProperty"</code></li>
       </ul>
@@ -83,7 +84,11 @@ export default {
         }
         assignSourcePropertyEventsIndex = 0
         function assignSourcePropertyListener($event) {
-          console.log($event.path)
+          console.log(
+            "\n", $event.type,
+            "\n", $event.detail,
+            "\n", $event
+          )
           const { path } = $event
           const promiseResolvers = assignSourcePropertyValidatorEvents[assignSourcePropertyEventsIndex]
           const promiseResolution = true
@@ -104,7 +109,7 @@ export default {
               }
             })
             $resolve(true)
-          }, 1)
+          }, 100)
         })
       }
     }

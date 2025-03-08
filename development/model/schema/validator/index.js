@@ -33,7 +33,7 @@ export default class Validator extends EventTarget {
         definition: definition,
         key: $key,
         value: $value,
-        messages: recursiveAssign(this.messages, definition.messages),
+        messages: recursiveAssign({}, this.messages, definition.messages),
       })
       verification.pass = definition.validate(...arguments)
       return verification

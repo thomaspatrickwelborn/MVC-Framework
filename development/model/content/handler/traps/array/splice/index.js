@@ -96,7 +96,7 @@ export default function splice() {
       const subschema = schema?.context[0] || null
       addItem = new Content(addItem, subschema, {
         path: contentPath,
-        parent: proxy,
+        parent: $content,
       })
       Array.prototype.splice.call(
         target, startIndex, 0, addItem

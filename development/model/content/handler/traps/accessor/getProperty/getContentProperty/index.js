@@ -1,4 +1,4 @@
-import { regularExpressions, recursiveAssign } from '../../../../../../../coutil/index.js'
+import { recursiveAssign, regularExpressions } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../events/index.js'
 export default function getContentProperty() {

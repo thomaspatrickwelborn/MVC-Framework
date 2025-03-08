@@ -1,4 +1,4 @@
-export default class ValidatorEvent extends Event {
+export default class ValidatorEvent extends CustomEvent {
   #settings
   #content
   #key

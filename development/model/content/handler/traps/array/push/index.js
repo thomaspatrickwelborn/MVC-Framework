@@ -41,7 +41,7 @@ export default function push() {
       const subschema = schema?.context[0] || null
       $element = new Content($element, subschema, {
         path: contentPath,
-        parent: proxy,
+        parent: $content,
       })
       elements.push($element)
       Array.prototype.push.call(target, $element)

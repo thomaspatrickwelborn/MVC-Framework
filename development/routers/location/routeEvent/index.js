@@ -1,4 +1,4 @@
-export default class RouteEvent extends Event {
+export default class RouteEvent extends CustomEvent {
   #options
   constructor($type, $options) {
     super($type, $options)

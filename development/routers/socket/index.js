@@ -1,4 +1,4 @@
-import { recursiveAssignConcat } from '../../coutil/index.js'
+import { recursiveAssignConcat } from '../../coutil/index'
 import SocketEvent from './event/index.js'
 import Core from '../../core/index.js'
 import MessageAdapter from './messageAdapter/index.js'
@@ -12,7 +12,7 @@ export default class SocketRouter extends Core {
   #boundMessage
   constructor($settings = {}, $options = {}) {
     super(
-      recursiveAssignConcat(Settings, $settings), 
+      recursiveAssignConcat({}, Settings, $settings), 
       Object.assign(Options, $options),
     )
     this.#boundMessage = this.#message.bind(this)

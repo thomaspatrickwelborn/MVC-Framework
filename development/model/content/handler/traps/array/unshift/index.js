@@ -60,7 +60,7 @@ export default function unshift() {
         : String(elementCoindex)
       element = new Content($element, subschema, {
         path: contentPath,
-        parent: proxy,
+        parent: $content,
       })
       elements.unshift(element)
       Array.prototype.unshift.call(target, element)

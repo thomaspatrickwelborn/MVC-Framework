@@ -50,7 +50,7 @@ export default function concat() {
       let subschema = schema?.context[0] || null
       const value = new Content($value, subschema, {
         path: contentPath,
-        parent: proxy,
+        parent: $content,
       })
       values[valueIndex] = value
     }

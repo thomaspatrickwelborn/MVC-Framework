@@ -12,7 +12,7 @@ export default {
   type: "test-result", collectName: 'detail',
   descript: `
     <ul>
-      <li><code>content.contentEvents</code>: <code>false</code></li>
+      <li><code>content.events</code>: <code>false</code></li>
     </ul>
   `, 
   collect: new Map([
@@ -93,7 +93,7 @@ export default {
                   resolvers.resolved = true
                 }
                 $resolve()
-              }, 10)
+              }, 1)
             })
           }
           $quest.splice(0, $quest.length, ...await Promise.all($quest))
@@ -121,7 +121,7 @@ export default {
                 })
               }
               $resolve(true)
-            }, 10)
+            }, 1)
           })
           $quest.splice(0, $quest.length, ...await Promise.all($quest.map(($resolver) => $resolver.promise)))
         }
@@ -131,6 +131,7 @@ export default {
             const resolvers = Object.assign(Promise.withResolvers(), { resolved: false })
             $quest.push(resolvers)
           }
+          let propertyResolversIndex = 0
           function assignSourceListener($event) {
             const { type, key, value, detail } = $event
             const resolvers = $quest[propertyResolversIndex]
@@ -148,7 +149,7 @@ export default {
                 })
               }
               $resolve()
-            }, 10)
+            }, 1)
           })
           $quest.splice(0, $quest.length, ...await Promise.all($quest.map(($resolver) => $resolver.promise)))
         }
@@ -156,6 +157,7 @@ export default {
           const contentAssignmentSources = ContentAssignments[$contentAssignmentName]
           const resolvers = Object.assign(Promise.withResolvers(), { resolved: false })
           $quest.push(resolvers)
+          let propertyResolversIndex = 0
           function assignListener($event) {
             const { type, key, value, detail } = $event
             const resolvers = $quest[propertyResolversIndex]
@@ -173,7 +175,7 @@ export default {
                 })
               }
               $resolve()
-            }, 10)
+            }, 1)
           })
           $quest.splice(0, $quest.length, ...await Promise.all($quest.map(($resolver) => $resolver.promise)))
         }

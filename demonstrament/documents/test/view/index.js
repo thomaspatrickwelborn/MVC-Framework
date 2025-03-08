@@ -36,7 +36,6 @@ const view = new View({
 })
 view.render()
 view.enableEvents()
-console.log(view)
 // console.log(view.enableEvents())
 // Query Selector
 // console.log(Object.entries(QuerySelectors))

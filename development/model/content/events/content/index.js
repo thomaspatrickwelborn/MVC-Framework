@@ -1,4 +1,4 @@
-export default class ContentEvent extends Event {
+export default class ContentEvent extends CustomEvent {
   #settings
   #content
   #key
@@ -25,6 +25,7 @@ export default class ContentEvent extends Event {
       }
     )
   }
+  get content() { return this.#content }
   get key() {
     if(this.#key !== undefined) { return this.#key }
     if(this.path) { this.#key = this.path.split('.').pop() }

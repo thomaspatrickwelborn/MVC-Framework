@@ -2,13 +2,15 @@ import { recursiveAssign, typedObjectLiteral } from '../../../../../../coutil/in
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function assign() {
-  const $content = Array.prototype.shift.call(arguments)
-  const $options = Array.prototype.shift.call(arguments)
+  const $arguments = [...arguments]
+  const $content = $arguments.shift()
+  const $options = $arguments.shift()
   const { path, target, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
   const { sourceTree } = $options
-  const events = ($content.options.events !== undefined) ? $content.options.events : $options.events
-  const assignSources = [...arguments]
+  const events = $content.options.events || $options.events
+  console.log("events", events)
+  const assignSources = $arguments
   const assignedSources = []
   // Iterate Sources
   iterateAssignSources: 
@@ -79,7 +81,7 @@ export default function assign() {
           targetPropVal = new Content(contentTypedLiteral, subschema, 
             recursiveAssign({}, $content.options, {
               path: contentPath,
-              parent: proxy,
+              parent: $content,
             })
           )
           targetPropVal.assign($assignSourcePropVal)
@@ -96,7 +98,7 @@ export default function assign() {
             targetPropVal = new Content(contentTypedLiteral, subschema, 
               recursiveAssign({}, $content.options, {
                 path: contentPath,
-                parent: proxy,
+                parent: $content,
               })
             )
             targetPropVal.assign($assignSourcePropVal)

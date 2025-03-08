@@ -1,9 +1,5 @@
 import { Coutil } from 'core-plex'
-const {
-  impandEvents, expandEvents, 
-  recursiveAssign, recursiveAssignConcat, 
-  typeOf, 
-} = Coutil
+const { recursiveAssign, recursiveAssignConcat, typeOf } = Coutil
 import { expandTree, impandTree } from './pandTree/index.js'
 import isPropertyDefinition from './isPropertyDefinition/index.js'
 import isPropertyValidator from './isPropertyValidator/index.js'
@@ -17,13 +13,13 @@ import typedObjectLiteral from './typedObjectLiteral/index.js'
 import typedObjectLiteralFromPath from './typedObjectLiteralFromPath/index.js'
 import * as variables from './variables/index.js'
 
+
 export {
-  // Pand Events
-  expandEvents, impandEvents, 
   // Pand Tree
   expandTree, impandTree, 
   // Recursive Assign
-  recursiveAssign, recursiveAssignConcat, 
+  recursiveAssign,
+  recursiveAssignConcat,
   isPropertyDefinition,
   isPropertyValidator,
   keytree,
@@ -32,8 +28,8 @@ export {
   pathkeytree,
   regularExpressions, 
   tree, 
-  typeOf, 
   typedObjectLiteral, 
   typedObjectLiteralFromPath, 
+  typeOf,
   variables, 
 }

@@ -1,4 +1,4 @@
-import { typeOf, recursiveAssign, typedObjectLiteral } from '../../coutil/index.js'
+import { typedObjectLiteral, typeOf, recursiveAssign } from '../../coutil/index.js'
 import Handler from './handler/index.js'
 import Schema from '../schema/index.js'
 import Options from './options/index.js'

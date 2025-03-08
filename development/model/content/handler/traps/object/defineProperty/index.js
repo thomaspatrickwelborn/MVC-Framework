@@ -65,7 +65,7 @@ export default function defineProperty() {
     if(targetPropertyValueIsContentInstance) {
       // Descriptor Tree: true
       if(descriptorTree === true) {
-        // propertyValue = Object.assign(propertyValue, { path: contentPath, parent: proxy })
+        // propertyValue = Object.assign(propertyValue, { path: contentPath, parent: $content })
         targetPropertyValue.defineProperties(propertyValue)
       }
       // Descriptor Tree: false
@@ -79,7 +79,7 @@ export default function defineProperty() {
       const contentObject = new Content(
         _target, subschema, {
           path: contentPath,
-          parent: proxy,
+          parent: $content,
         }
       )
       // Root Define Properties, Descriptor Tree

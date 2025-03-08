@@ -1,5 +1,5 @@
-import { recursiveAssign } from '../../coutil/index.js'
 import Core from '../../core/index.js'
+import { recursiveAssign } from '../../coutil/index.js'
 import Route from './route/index.js'
 import RouteEvent from './routeEvent/index.js'
 import Settings from './settings/index.js' 
@@ -16,8 +16,8 @@ export default class LocationRouter extends Core {
   }
   constructor($settings, $options) {
     super(
-      recursiveAssign(Settings, $settings),
-      recursiveAssign(Options, $options),
+      recursiveAssign({}, Settings, $settings),
+      recursiveAssign({}, Options, $options),
     )
     if($options.enableEvents === true) this.enableEvents()
     this.enable = true

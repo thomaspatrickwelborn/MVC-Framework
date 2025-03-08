@@ -1,8 +1,9 @@
-import { regularExpressions, recursiveAssign } from '../../../../../../../coutil/index.js'
+import { recursiveAssign, regularExpressions } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../../events/index.js'
 export default function setContentProperty() {
-  const [$content, $options, $path, $value, $ulteroptions] = [...arguments]
+  const $arguments = [...arguments]
+  const [$content, $options, $path, $value, $ulteroptions] = [...$arguments]
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
   // Options
@@ -13,6 +14,7 @@ export default function setContentProperty() {
   const contentOptions = $content.options
   // contentOptions.traps.accessor.set = ulteroptions
   const { events, pathkey, subpathError, recursive, setObject } = ulteroptions
+  console.log(events)
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -40,9 +42,9 @@ export default function setContentProperty() {
           if(Number(propertyKey)) { subcontent = [] }
           else { subcontent = {} }
         }
-        propertyValue = new Content(subcontent, subschema, Object.assign({}, contentOptions, {
+        propertyValue = new Content(subcontent, subschema, recursiveAssign({}, contentOptions, {
           path: contentPath,
-          parent: proxy,
+          parent: $content,
         }))
       }
       else {
@@ -95,10 +97,10 @@ export default function setContentProperty() {
       if(schema?.type === 'array') { subschema = schema.context[0] }
       else if(schema?.type === 'object') { subschema = schema.context[propertyKey] }
       else { subschema = undefined }
-      propertyValue = new Content($value, subschema, Object.assign(
+      propertyValue = new Content($value, subschema, recursiveAssign(
         {}, contentOptions, {
           path: contentPath,
-          parent: proxy,
+          parent: $content,
         }
       ))
     }
@@ -156,10 +158,10 @@ export default function setContentProperty() {
       const contentPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey)
-      propertyValue = new Content($value, subschema, Object.assign(
+      propertyValue = new Content($value, subschema, recursiveAssign(
         {}, contentOptions, {
           path: contentPath,
-          parent: proxy,
+          parent: $content,
         }
       ))
     }

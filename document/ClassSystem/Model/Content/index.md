@@ -12,7 +12,7 @@ Default Content Options.
   parent: null, 
   enableValidation: true, 
   validationEvents: true, 
-  contentEvents: true, 
+  events: true, 
   enableEvents: true, 
   pathkey: true,
   subpathError: false,
