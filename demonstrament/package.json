@@ -13,6 +13,6 @@
     "dfc:documents": "dfc --config \"./dfc.documents.json\""
   },
   "dependencies": {
-    "document-process-manager": "^1.2.0"
+    "document-process-manager": "^1.3.3"
   }
 }
