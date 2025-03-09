@@ -5,11 +5,11 @@ export default function assign() {
   const $arguments = [...arguments]
   const $content = $arguments.shift()
   const $options = $arguments.shift()
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("assign", "ulteroptions", ulteroptions)
   const { path, target, schema, proxy } = $content
-  const { enableValidation, validationEvents } = $content.options
-  const { sourceTree } = $options
-  const events = $content.options.events || $options.events
-  console.log("events", events)
+  const { events, sourceTree, enableValidation, validationEvents } = ulteroptions
+  // const { sourceTree } = $options
   const assignSources = $arguments
   const assignedSources = []
   // Iterate Sources

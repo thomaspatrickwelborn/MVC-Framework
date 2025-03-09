@@ -1,3 +1,4 @@
+import { recursiveAssign } from '../../../../../../coutil/index.js'
 import { typeOf, typedObjectLiteral, impandTree } from '../../../../../../coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../events/index.js'
@@ -9,6 +10,8 @@ export default function defineProperty() {
     $propertyDescriptors
   ] = $arguments
   $propertyDescriptors = $propertyDescriptors || {}
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("defineProperty", "ulteroptions", ulteroptions)
   const { descriptorTree, events } = $options
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options

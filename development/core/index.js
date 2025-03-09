@@ -61,12 +61,10 @@ export default class MVCFrameworkCore extends Core {
   }
   addPropertyClasses() {
     const $this = this
-    console.log("arguments", arguments)
     let $addPropertyClasses = (arguments.length === 0)
       ? this.settings.propertyClasses
       : [].concat(...arguments)
     const propertyClasses = this.#propertyClasses
-    console.log("$addPropertyClass", this.#propertyClasses)
     iteratePropertyClasses: 
     for(const $addPropertyClass of $addPropertyClasses) {
       if(!$addPropertyClass.definitionValue) {

@@ -1,6 +1,9 @@
+import { recursiveAssign } from '../../../../../../coutil/index.js'
 import { ContentEvent } from '../../../../events/index.js'
 export default function shift() {
   const [$content, $options] = [...arguments]
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("shift", "ulteroptions", ulteroptions)
   const { events } = $options
   const { target, path } = $content
   const shiftElement = Array.prototype.shift.call(target)

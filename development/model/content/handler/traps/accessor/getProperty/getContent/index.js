@@ -1,3 +1,4 @@
+import { recursiveAssign } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../events/index.js'
 export default function getContent() {
@@ -5,6 +6,7 @@ export default function getContent() {
   const $options = Array.prototype.shift.call(arguments)
   const { target, path } = $content
   const ulteroptions = Object.assign({}, $options, arguments[0] || {})
+  // console.log("getContent", "ulteroptions", ulteroptions)
   const { events } = ulteroptions
   // Get Property Event
   if(events && events['get']) {

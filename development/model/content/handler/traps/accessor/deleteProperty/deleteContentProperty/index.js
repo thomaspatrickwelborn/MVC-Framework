@@ -10,6 +10,7 @@ export default function deleteContentProperty() {
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
   }, $options, $ulteroptions)
+  // console.log("deleteContentProperty", "ulteroptions", ulteroptions)
   const { events, pathkey, subpathError, /* validationEvents */ } = ulteroptions
   const validationEvents = ($options.validationEvents !== undefined)
     ? $options.validationEvents

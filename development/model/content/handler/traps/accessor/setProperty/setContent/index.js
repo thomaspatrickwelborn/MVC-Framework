@@ -20,6 +20,7 @@ export default function setContent() {
   const ulteroptions = Object.assign({
     setObject: $value
   }, $options, $arguments[1])
+  // console.log("setContent", "ulteroptions", ulteroptions)
   const contentOptions = $content.options
   contentOptions.traps.accessor.set = ulteroptions
   const { events } = ulteroptions

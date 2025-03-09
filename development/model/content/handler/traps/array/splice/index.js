@@ -1,3 +1,4 @@
+import { recursiveAssign } from '../../../../../../coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../events/index.js'
 export default function splice() {
@@ -5,6 +6,8 @@ export default function splice() {
   const $options = Array.prototype.shift.call(arguments)
   const { events } = $options
   const { target, path, schema } = $content
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("splice", "ulteroptions", ulteroptions)
   const { enableValidation, validationEvents } = $content.options
   const $arguments = [...arguments]
   const $start = ($arguments[0] >= 0)

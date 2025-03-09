@@ -33,4 +33,3 @@ const socket = new SocketRouter({
     },
   },
 }, { enableEvents: true })
-console.log(socket)

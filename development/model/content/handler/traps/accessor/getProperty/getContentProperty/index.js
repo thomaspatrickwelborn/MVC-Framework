@@ -9,7 +9,8 @@ export default function getContentProperty() {
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
-  }, $options, $ulteroptions)
+  }, $options, /* $content.options, */$ulteroptions)
+  // console.log("getContentProperty", "ulteroptions", ulteroptions)
   const { events, pathkey, subpathError } = ulteroptions
   // Path Key: true
   if(pathkey === true) {

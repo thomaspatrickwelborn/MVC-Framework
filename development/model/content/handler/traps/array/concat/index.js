@@ -3,6 +3,8 @@ import { ContentEvent } from '../../../../events/index.js'
 export default function concat() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("concat", "ulteroptions", ulteroptions)
   const { events } = $options
   const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options

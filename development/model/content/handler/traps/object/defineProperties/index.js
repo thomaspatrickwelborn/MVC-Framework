@@ -1,9 +1,11 @@
-import { impandTree, typedObjectLiteral } from '../../../../../../coutil/index.js'
+import { recursiveAssign, impandTree, typedObjectLiteral } from '../../../../../../coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../events/index.js'
 export default function defineProperties() {
   const $arguments = [...arguments]
   const [$content, $options, $propertyDescriptors] = $arguments
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("defineProperties", "ulteroptions", ulteroptions)
   const { events } = $options
   const { path, proxy } = $content
   // const {} = $content.options

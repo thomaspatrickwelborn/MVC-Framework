@@ -30,7 +30,6 @@ export default class View extends Core {
         get() { return this.querySelectors },
       },
     })
-    console.log(this)
     this.addQuerySelectors(this.settings.querySelectors)
     const { enableQuerySelectors, enableEvents } = this.options
     if(enableQuerySelectors) this.enableQuerySelectors()

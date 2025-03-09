@@ -1,8 +1,11 @@
+import { recursiveAssign } from '../../../../../../coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent } from '../../../../events/index.js'
 export default function fill() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("fill", "ulteroptions", ulteroptions)
   const { events } = $options
   const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options

@@ -81,7 +81,7 @@ export default class FetchRoute extends EventTarget {
               .createEvent($this, 'statusTextMessage', $fetchSource.clone(), $methodName)
               return $fetchSource
             })
-            .catch(($err) => { /* console.log($err) */ })
+            .catch(($err) => { /* console.error($err) */ })
             return fetchSource
           }
         }

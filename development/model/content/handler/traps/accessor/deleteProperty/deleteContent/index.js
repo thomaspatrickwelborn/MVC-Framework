@@ -8,6 +8,7 @@ export default function deleteContent() {
   // Arguments
   const ulteroptions = Object.assign({}, $options, arguments[0], { validationEvents: false })
   const { events } = ulteroptions
+  // console.log("deleteContent", "ulteroptions", ulteroptions)
   const targetPropertyEntries = Object.entries(target)
   for(const [$targetPropertyKey, $targetPropertyValue] of targetPropertyEntries) {
     proxy.delete($targetPropertyKey, ulteroptions)

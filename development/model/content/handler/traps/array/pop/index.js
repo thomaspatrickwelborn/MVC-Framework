@@ -1,7 +1,10 @@
+import { recursiveAssign } from '../../../../../../coutil/index.js'
 import { ContentEvent } from '../../../../events/index.js'
 export default function pop() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("pop", "ulteroptions", ulteroptions)
   const { events } = $options
   const { target, path } = $content
   const popElement = Array.prototype.pop.call(target)

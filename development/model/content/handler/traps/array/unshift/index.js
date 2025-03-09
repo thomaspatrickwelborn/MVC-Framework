@@ -1,3 +1,4 @@
+import { recursiveAssign } from '../../../../../../coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function unshift() {
@@ -5,6 +6,8 @@ export default function unshift() {
   const [$content, $options] = [...$arguments]
   const { events } = $options
   const { target, path, schema, proxy } = $content
+  const ulteroptions = recursiveAssign({}, $options, $content.options)
+  // console.log("unshift", "ulteroptions", ulteroptions)
   const { enableValidation, validationEvents } = $content.options
   const elements = []
   const elementsLength = $arguments.length
