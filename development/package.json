@@ -1,5 +1,5 @@
 {
-  "name": "js-mvc-framework-development",
+  "name": "mvc-framework-development",
   "author": "Thomas Patrick Welborn",
   "description": "",
   "license": "ISC",
@@ -18,7 +18,7 @@
     "rollup": "^4.34.6"
   },
   "dependencies": {
-    "core-plex": "^1.5.0",
+    "core-plex": "^1.5.2",
     "parsel-js": "^1.2.1",
     "path-to-regexp": "^8.2.0"
   }
