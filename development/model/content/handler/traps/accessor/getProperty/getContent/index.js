@@ -5,8 +5,7 @@ export default function getContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
   const { target, path } = $content
-  const ulteroptions = Object.assign({}, $options, arguments[0] || {})
-  // console.log("getContent", "ulteroptions", ulteroptions)
+  const ulteroptions = recursiveAssign({}, $options, arguments[0] || {})
   const { events } = ulteroptions
   // Get Property Event
   if(events && events['get']) {

@@ -1,4 +1,3 @@
-import { recursiveAssign, recursiveAssignConcat } from '../../coutil/index'
 import SocketEvent from './event/index.js'
 import Core from '../../core/index.js'
 import MessageAdapter from './messageAdapter/index.js'
@@ -11,10 +10,7 @@ export default class SocketRouter extends Core {
   #url
   #boundMessage
   constructor($settings = {}, $options = {}) {
-    super(
-      recursiveAssignConcat({}, Settings, $settings), 
-      recursiveAssign({}, Options, $options),
-    )
+    super(Settings($settings), Options($options))
     this.#boundMessage = this.#message.bind(this)
     Object.defineProperties(this, {
       webSocket: {

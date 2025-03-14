@@ -12,10 +12,7 @@ export default class View extends Core {
   #children
   // #querySelectors = {}
   constructor($settings = {}, $options = {}) {
-    super(
-      Object.assign({}, Settings, $settings),
-      Object.assign({}, Options, $options),
-    )
+    super(Settings($settings), Options($options))
     Object.defineProperties(this, {
       _querySelectors: {
         enumerable: false, writable: false, configurable: false,

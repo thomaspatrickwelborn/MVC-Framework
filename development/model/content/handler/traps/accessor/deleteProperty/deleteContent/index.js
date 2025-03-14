@@ -1,3 +1,4 @@
+import { recursiveAssign } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../events/index.js'
 export default function deleteContent() {
@@ -6,7 +7,7 @@ export default function deleteContent() {
   const { target, path, schema, proxy } = $content
   const { enableValidation, validationEvents } = $content.options
   // Arguments
-  const ulteroptions = Object.assign({}, $options, arguments[0], { validationEvents: false })
+  const ulteroptions = recursiveAssign({}, $options, arguments[0], { validationEvents: false })
   const { events } = ulteroptions
   // console.log("deleteContent", "ulteroptions", ulteroptions)
   const targetPropertyEntries = Object.entries(target)

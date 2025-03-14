@@ -1,4 +1,4 @@
-export default {
+export default (...$options) => Object.assign({
   schema: undefined, // Schema Options
   content: undefined, // Content Options
   enableEvents: true, // Boolean
@@ -6,4 +6,4 @@ export default {
   autosave: false, // Boolean
   changeEvents: true, // Boolean
   localStorage: false, // Boolean, String,
-}
+}, ...$options)

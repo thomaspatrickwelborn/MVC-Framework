@@ -1,4 +1,4 @@
-import { typedObjectLiteral, typeOf, recursiveAssign } from '../../coutil/index.js'
+import { typedObjectLiteral, typeOf } from '../../coutil/index.js'
 import Handler from './handler/index.js'
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
@@ -17,7 +17,7 @@ export default class Content extends EventTarget {
   constructor($properties = {}, $schema = null, $options = {}) {
     super()
     this.#properties = $properties
-    this.options = $options
+    this.#options = Options($options)
     this.schema = $schema
     const { proxyAssignmentMethod } = this.options
     const { proxy } = this
@@ -25,7 +25,7 @@ export default class Content extends EventTarget {
       proxy[proxyAssignmentMethod](this.#properties)
     }
     else {
-      proxy[Options.proxyAssignmentMethod](this.#properties)
+      proxy[this.#options.proxyAssignmentMethod](this.#properties)
     }
     return proxy
   }
@@ -39,11 +39,6 @@ export default class Content extends EventTarget {
     return this.#_properties
   }
   get options() { return this.#options }
-  set options($options) {
-    if(this.#options !== undefined) return
-    this.#options = recursiveAssign({}, Options, $options)
-    return this.#options
-  }
   get schema() { return this.#schema }
   set schema($schema) {
     if(this.#schema !== undefined)  { return }

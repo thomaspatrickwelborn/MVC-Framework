@@ -21,7 +21,7 @@ export default class Schema extends EventTarget{
   constructor($properties = {}, $options = {}) {
     super()
     this.#properties = $properties
-    this.options = Object.assign({}, Options, $options)
+    this.options = Options($options)
   }
   get type() {
     if(this.#type !== undefined) return this.#type

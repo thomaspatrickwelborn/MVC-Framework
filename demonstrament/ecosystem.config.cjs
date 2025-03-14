@@ -22,6 +22,7 @@ const EcosystemConfig = {
         "ecosystem.config.cjs",
         "node_modules/document-process-manager/development",
         "node_modules/core-plex/distributement/core-plex.js",
+        "../../Core-Plex/distributement"
       ],
       args: "--config dpm.config.documents.js",
       autorestart: false,

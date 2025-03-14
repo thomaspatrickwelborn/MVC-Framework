@@ -51,13 +51,13 @@ function expandEvents($propEvents) {
   return propEvents
 }
 
-const Options$8 = {
+const Options$9 = {
   depth: 0,
   maxDepth: 10,
 };
 function propertyDirectory($object, $options) {
   const target = [];
-  const options = Object.assign({}, Options$8, $options);
+  const options = Object.assign({}, Options$9, $options);
   options.depth++;
   if(options.depth > options.maxDepth) { return target }
   for(const [$key, $value] of Object.entries($object)) {
@@ -88,13 +88,15 @@ const typeOf$2 = ($data) => Object
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
-function recursiveAssign$3() {
+function recursiveAssign$1() {
   const $arguments = [...arguments];
   const $target = $arguments.shift();
   if(!$target) { return $target }
   const $sources = $arguments;
   if(!$target) { return $target}
+  iterateSources: 
   for(const $source of $sources) {
+    if(!$source) continue iterateSources
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
@@ -115,7 +117,7 @@ function recursiveAssign$3() {
         $target[$sourcePropertyKey] = $sourcePropertyValue;
       }
       else if(typeOfSourcePropertyValue === 'object') {
-        $target[$sourcePropertyKey] = recursiveAssign$3(
+        $target[$sourcePropertyKey] = recursiveAssign$1(
           $target[$sourcePropertyKey], $sourcePropertyValue
         );
       }
@@ -169,7 +171,7 @@ function recursiveAssignConcat$1() {
 function recursiveFreeze($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
-      recursiveFreeze($target);
+      recursiveFreeze($propertyValue);
     }
   }
   return Object.freeze($target)
@@ -180,27 +182,43 @@ var index$3 = /*#__PURE__*/Object.freeze({
   expandEvents: expandEvents,
   impandEvents: impandEvents,
   propertyDirectory: propertyDirectory,
-  recursiveAssign: recursiveAssign$3,
+  recursiveAssign: recursiveAssign$1,
   recursiveAssignConcat: recursiveAssignConcat$1,
   recursiveFreeze: recursiveFreeze,
   typeOf: typeOf$2
 });
 
-var Settings$1$1 = Object.freeze({
-  events: {},
-  enableEvents: false,
-  propertyDefinitions: Object.freeze({
-    getEvents: 'getEvents',
-    addEvents: 'addEvents',
-    removeEvents: 'removeEvents',
-    enableEvents: 'enableEvents',
-    disableEvents: 'disableEvents',
-    reenableEvents: 'reenableEvents',
-  }),
-  assign: 'addEventListener', 
-  deassign: 'removeEventListener', 
-  transsign: 'dispatchEvent',
-});
+var Settings$1$1 = ($settings = {}) => {
+  const Settings = {
+    events: {},
+    enableEvents: false,
+    propertyDefinitions: {
+      getEvents: 'getEvents',
+      addEvents: 'addEvents',
+      removeEvents: 'removeEvents',
+      enableEvents: 'enableEvents',
+      disableEvents: 'disableEvents',
+      reenableEvents: 'reenableEvents',
+    },
+    assign: 'addEventListener', 
+    deassign: 'removeEventListener', 
+    transsign: 'dispatchEvent',
+  };
+  for(const [$settingKey, $settingValue] of Object.entries($settings)) {
+    switch($settingKey) {
+      case 'enableEvents': 
+      case 'assign': case 'deassign': case 'transsign': 
+      case 'events': 
+      // default: 
+        Settings[$settingKey] = $settingValue;
+        break
+      case 'propertyDefinitions':
+        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
+        break
+    }
+  }
+  return Settings
+};
 
 function handleNoCommaBraces(span) {
     if (span.length < 3) {
@@ -723,58 +741,74 @@ function outmatch(pattern, options) {
     return fn;
 }
 
-var Settings$6 = {
-  propertyDirectory: {
-    maxDepth: 10,
-  },
-  path: undefined,
-  enable: false,
-  accessors: ['[]', 'get'],
-  accessors: [
-    ($target, $property) => $target[$property],
-    ($target, $property) => $target?.get($property),
-  ],
-  target: undefined,
-  methods: {
-    assign: {
-      addEventListener: function($target) {
-        const { type, listener, settings } = this;
-        const { options, useCapture } = settings;
-        return $target['addEventListener'](type, listener, options || useCapture)
+var Settings$7 = ($settings = {}) => {
+  const Settings = {
+    propertyDirectory: { maxDepth: 10 },
+    enable: false,
+    accessors: [
+      ($target, $property) => $target[$property],
+      ($target, $property) => $target?.get($property),
+    ],
+    methods: {
+      assign: {
+        addEventListener: function($target) {
+          const { type, listener, settings } = this;
+          const { options, useCapture } = settings;
+          return $target['addEventListener'](type, listener, options || useCapture)
+        },
+        on: function($target) {
+          const { type, listener, settings } = this;
+          return $target['on'](type, listener)
+        },
+        once: function($target) {
+          const { type, listener } = this;
+          return $target['once'](type, listener)
+        },
+      },  
+      deassign: {
+        removeEventListener: function($target) {
+          const { type, listener, settings } = this;
+          const { options, useCapture } = settings;
+          return $target['removeEventListener'](type, listener, options || useCapture)
+        },
+        off: function($target) {
+          const { type, listener } = this;
+          return $target['off'](type, listener)
+        },
       },
-      on: function($target) {
-        const { type, listener, settings } = this;
-        return $target['on'](type, listener)
+      transsign: {
+        dispatchEvent: function($target, $event) {
+          return $target['dispatchEvent']($event)
+        },
+        emit: function($target, ...$arguments) {
+          return $target['emit']($arguments)
+        },
+        send: function($target, $data) {
+          return $target['send']($data)
+        },
       },
-      once: function($target) {
-        const { type, listener } = this;
-        return $target['once'](type, listener)
-      },
-    },  
-    deassign: {
-      removeEventListener: function($target) {
-        const { type, listener, settings } = this;
-        const { options, useCapture } = settings;
-        return $target['removeEventListener'](type, listener, options || useCapture)
-      },
-      off: function($target) {
-        const { type, listener } = this;
-        return $target['off'](type, listener)
-      },
-    },
-    transsign: {
-      dispatchEvent: function($target, $event) {
-        return $target['dispatchEvent']($event)
-      },
-      emit: function($target, ...$arguments) {
-        console.log();
-        return $target['emit']($arguments)
-      },
-      send: function($target, $data) {
-        return $target['send']($data)
-      },
-    },
-  },
+    }
+  };
+  for(const [$settingKey, $settingValue] of Object.entries($settings)) {
+    switch($settingKey) {
+      case 'propertyDirectory':
+        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
+        break
+      case 'accessors':
+        Settings[$settingKey] = Settings[$settingKey].concat($settingValue);
+        break
+      case 'methods': 
+        Settings[$settingKey] = recursiveAssign$1(Settings[$settingKey], $settingValue);
+        break
+      case 'type': case 'path': case 'enable': 
+      case 'target': case 'listener': 
+      case 'assign': case 'deassign': case 'transsign': 
+      // default: 
+        Settings[$settingKey] = $settingValue;
+        break
+    }
+  }
+  return Settings
 };
 
 class EventDefinition {
@@ -791,7 +825,7 @@ class EventDefinition {
   #_deassign
   #_transsign
   constructor($settings, $context) { 
-    this.#settings = Object.assign({}, Settings$6, $settings);
+    this.#settings = Settings$7($settings);
     this.#context = $context;
     this.enable = this.settings.enable;
   }
@@ -806,7 +840,7 @@ class EventDefinition {
     const targetPaths = [];
     const targets = [];
     const typeOfPath = typeOf$2(this.path);
-    if(this.#target) {
+    if(this.#target !== undefined) {
       for(const $target of [].concat(this.#target)) {
         const pretargetElement = pretargets.find(
           ($pretarget) => $pretarget?.path === this.path
@@ -894,12 +928,15 @@ class EventDefinition {
   get disabled() { return this.#disabled }
   get enable() { return this.#enable }
   set enable($enable) {
-    if($enable === this.enable) { return }
+    const targets = this.#targets;
+    if(
+      targets.length === 0 ||
+      $enable === this.enable
+    ) { return }
     const enabled = this.#enabled;
     const disabled = this.#disabled;
     enabled.length = 0;
     disabled.length = 0;
-    const targets = this.#targets;
     iterateTargetElements: 
     for(const targetElement of targets) {
       const { path, target, enable } = targetElement;
@@ -911,7 +948,9 @@ class EventDefinition {
           targetElement.enable = $enable;
           enabled.push(targetElement);
         }
-        catch($err) { disabled.push(targetElement); }
+        catch($err) {
+          throw $err
+        }
       }
       else if($enable === false) {
         try {
@@ -926,8 +965,7 @@ class EventDefinition {
       $enable === true && 
       disabled.length === 0 &&
       enabled.length > 0
-    ) || 
-    (
+    ) || (
       $enable === false && 
       enabled.length === 0 && 
       disabled.length > 0
@@ -935,7 +973,7 @@ class EventDefinition {
     else if(
       disabled.length === 0 &&
       enabled.length === 0
-    ) { this.#enable = false; }
+    ) { this.#enable = null; }
     else if(
       disabled.length > 0 &&
       enabled.length > 0
@@ -953,7 +991,7 @@ class EventDefinition {
 
 class Core extends EventTarget {
   static implement = function ($target, $settings) {
-    const settings = recursiveAssign$3({}, Settings$1$1, $settings);
+    const settings = Settings$1$1($settings);
     const events = [];
     Object.defineProperties($target, {
       // Get Events
@@ -994,7 +1032,7 @@ class Core extends EventTarget {
         value: function addEvents() {
           let $events = expandEvents(arguments[0]);
           for(let $event of $events) {
-            const event = recursiveAssign$3({
+            const event = Object.assign({
               assign: settings.assign,
               deassign: settings.deassign,
               transsign: settings.transsign,
@@ -1322,7 +1360,7 @@ function typedObjectLiteralFromPath($path) {
   return tree
 }
 
-const { recursiveAssign: recursiveAssign$2, recursiveAssignConcat, typeOf } = index$3;
+const { recursiveAssign, recursiveAssignConcat, typeOf } = index$3;
 
 var index = /*#__PURE__*/Object.freeze({
   __proto__: null,
@@ -1334,7 +1372,7 @@ var index = /*#__PURE__*/Object.freeze({
   objectCount: objectCount,
   path: index$2,
   pathkeytree: pathkeytree,
-  recursiveAssign: recursiveAssign$2,
+  recursiveAssign: recursiveAssign,
   recursiveAssignConcat: recursiveAssignConcat,
   regularExpressions: regularExpressions,
   tree: index$1,
@@ -1344,11 +1382,11 @@ var index = /*#__PURE__*/Object.freeze({
   variables: Variables
 });
 
-var Settings$5 = {};
+var Settings$6 = (...$settings) => Object.assign({}, ...$settings);
 
-var Options$7 = {
+var Options$8 = (...$options) => Object.assign({
   enableEvents: true,
-};
+}, ...$options);
 
 let Handler$2 = class Handler {
   #propertyClass
@@ -1419,7 +1457,6 @@ class PropertyClass {
   get definition() { return this.#settings.definition }
 }
 
-const { recursiveAssign: recursiveAssign$1 } = index$3;
 class MVCFrameworkCore extends Core {
   #_propertyClasses = []
   static propertyClasses = []
@@ -1430,8 +1467,8 @@ class MVCFrameworkCore extends Core {
       events: $settings.events || {},
       propertyDefinitions: $settings.propertyDefinitions || {},
     });
-    this.#settings = recursiveAssign$1({}, Settings$5, $settings);
-    this.#options = recursiveAssign$1({}, Options$7, $options);
+    this.#settings = Settings$6($settings);
+    this.#options = Options$8($options);
     if(this.settings.propertyClasses) {
       this.addPropertyClasses(this.settings.propertyClasses);
       this.#addProperties(this.settings);
@@ -1740,7 +1777,7 @@ function assign() {
   const $arguments = [...arguments];
   const $content = $arguments.shift();
   const $options = $arguments.shift();
-  const ulteroptions = recursiveAssign$2({}, $options, $content.options);
+  const ulteroptions = recursiveAssign({}, $options, $content.options);
   // console.log("assign", "ulteroptions", ulteroptions)
   const { path, target, schema, proxy } = $content;
   const { events, sourceTree, enableValidation, validationEvents } = ulteroptions;
@@ -1811,7 +1848,7 @@ function assign() {
         // Source Tree: False
         if(sourceTree === false) {
           targetPropVal = new Content(contentTypedLiteral, subschema, 
-            recursiveAssign$2({}, $content.options, {
+            recursiveAssign({}, $content.options, {
               path: contentPath,
               parent: $content,
             })
@@ -1828,7 +1865,7 @@ function assign() {
           // Assignment: New Content Instance
           else {
             targetPropVal = new Content(contentTypedLiteral, subschema, 
-              recursiveAssign$2({}, $content.options, {
+              recursiveAssign({}, $content.options, {
                 path: contentPath,
                 parent: $content,
               })
@@ -1920,7 +1957,7 @@ function assign() {
 function defineProperties() {
   const $arguments = [...arguments];
   const [$content, $options, $propertyDescriptors] = $arguments;
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("defineProperties", "ulteroptions", ulteroptions)
   const { events } = $options;
   const { path, proxy } = $content;
@@ -1963,7 +2000,7 @@ function defineProperty() {
     $propertyDescriptors
   ] = $arguments;
   $propertyDescriptors = $propertyDescriptors || {};
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("defineProperty", "ulteroptions", ulteroptions)
   const { descriptorTree, events } = $options;
   const { target, path, schema, proxy } = $content;
@@ -2093,7 +2130,7 @@ function defineProperty() {
 function freeze() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("seal", "ulteroptions", ulteroptions)
   const { recursive, events } = $options;
   const { target, path } = $content;
@@ -2124,7 +2161,7 @@ function freeze() {
 function seal() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("seal", "ulteroptions", ulteroptions)
   const { recursive, events } = $options;
   const { target, path } = $content;
@@ -2266,7 +2303,7 @@ function concat() {
 function copyWithin() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("copyWithin", "ulteroptions", ulteroptions)
   const { events } = $options;
   const { target, path } = $content;
@@ -2368,7 +2405,7 @@ function copyWithin() {
 function fill() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("fill", "ulteroptions", ulteroptions)
   const { events } = $options;
   const { target, path, schema } = $content;
@@ -2481,7 +2518,7 @@ function fill() {
 function pop() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("pop", "ulteroptions", ulteroptions)
   const { events } = $options;
   const { target, path } = $content;
@@ -2513,7 +2550,7 @@ function pop() {
 function push() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("push", "ulteroptions", ulteroptions)
   const { events } = $options;
   const { target, path, schema } = $content;
@@ -2606,7 +2643,7 @@ function push() {
 function reverse() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("reverse", "ulteroptions", ulteroptions)
   const { events } = $options;
   const { target, path } = $content;
@@ -2631,7 +2668,7 @@ function reverse() {
 
 function shift() {
   const [$content, $options] = [...arguments];
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("shift", "ulteroptions", ulteroptions)
   const { events } = $options;
   const { target, path } = $content;
@@ -2665,7 +2702,7 @@ function splice() {
   const $options = Array.prototype.shift.call(arguments);
   const { events } = $options;
   const { target, path, schema } = $content;
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("splice", "ulteroptions", ulteroptions)
   const { enableValidation, validationEvents } = $content.options;
   const $arguments = [...arguments];
@@ -2824,7 +2861,7 @@ function unshift() {
   const [$content, $options] = [...$arguments];
   const { events } = $options;
   const { target, path, schema, proxy } = $content;
-  recursiveAssign$2({}, $options, $content.options);
+  recursiveAssign({}, $options, $content.options);
   // console.log("unshift", "ulteroptions", ulteroptions)
   const { enableValidation, validationEvents } = $content.options;
   const elements = [];
@@ -2959,8 +2996,7 @@ function getContent() {
   const $content = Array.prototype.shift.call(arguments);
   const $options = Array.prototype.shift.call(arguments);
   const { target, path } = $content;
-  const ulteroptions = Object.assign({}, $options, arguments[0] || {});
-  // console.log("getContent", "ulteroptions", ulteroptions)
+  const ulteroptions = recursiveAssign({}, $options, arguments[0] || {});
   const { events } = ulteroptions;
   // Get Property Event
   if(events && events['get']) {
@@ -2982,7 +3018,7 @@ function getContentProperty() {
   const { target, path } = $content;
   const { proxy } = $content;
   // Arguments
-  const ulteroptions = recursiveAssign$2({
+  const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
   }, $options, /* $content.options, */$ulteroptions);
@@ -3080,7 +3116,7 @@ function setContent() {
   // Arguments
   const $value = $arguments[0];
   // Ulteroptions
-  const ulteroptions = Object.assign({
+  const ulteroptions = recursiveAssign({
     setObject: $value
   }, $options, $arguments[1]);
   // console.log("setContent", "ulteroptions", ulteroptions)
@@ -3114,7 +3150,7 @@ function setContentProperty() {
   const { target, path, schema, proxy } = $content;
   const { enableValidation, validationEvents } = $content.options;
   // Options
-  const ulteroptions = recursiveAssign$2(
+  const ulteroptions = recursiveAssign(
     {}, $content.options, $options, $ulteroptions
   );
   // console.log("setContentProperty", "ulteroptions", ulteroptions)
@@ -3148,7 +3184,7 @@ function setContentProperty() {
           if(Number(propertyKey)) { subcontent = []; }
           else { subcontent = {}; }
         }
-        propertyValue = new Content(subcontent, subschema, recursiveAssign$2({}, contentOptions, {
+        propertyValue = new Content(subcontent, subschema, recursiveAssign({}, contentOptions, {
           path: contentPath,
           parent: $content,
         }));
@@ -3200,7 +3236,7 @@ function setContentProperty() {
       if(schema?.type === 'array') { subschema = schema.context[0]; }
       else if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
       else { subschema = undefined; }
-      propertyValue = new Content($value, subschema, recursiveAssign$2(
+      propertyValue = new Content($value, subschema, recursiveAssign(
         {}, contentOptions, {
           path: contentPath,
           parent: $content,
@@ -3261,7 +3297,7 @@ function setContentProperty() {
       const contentPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
-      propertyValue = new Content($value, subschema, recursiveAssign$2(
+      propertyValue = new Content($value, subschema, recursiveAssign(
         {}, contentOptions, {
           path: contentPath,
           parent: $content,
@@ -3343,7 +3379,7 @@ function deleteContent() {
   const { target, path, schema, proxy } = $content;
   const { enableValidation, validationEvents } = $content.options;
   // Arguments
-  const ulteroptions = Object.assign({}, $options, arguments[0], { validationEvents: false });
+  const ulteroptions = recursiveAssign({}, $options, arguments[0], { validationEvents: false });
   const { events } = ulteroptions;
   // console.log("deleteContent", "ulteroptions", ulteroptions)
   const targetPropertyEntries = Object.entries(target);
@@ -3369,7 +3405,7 @@ function deleteContentProperty() {
   const { target, path, schema, proxy } = $content;
   const { enableValidation, /* validationEvents */ } = $content.options;
   // Arguments
-  const ulteroptions = recursiveAssign$2({
+  const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,
     subpathError: $content.options.subpathError,
   }, $options, $ulteroptions);
@@ -3824,7 +3860,7 @@ class Validator extends EventTarget {
         definition: definition,
         key: $key,
         value: $value,
-        messages: recursiveAssign$2({}, this.messages, definition.messages),
+        messages: recursiveAssign({}, this.messages, definition.messages),
       });
       verification.pass = definition.validate(...arguments);
       return verification
@@ -3850,7 +3886,7 @@ class RequiredValidator extends Validator {
           for(const [
             $requiredPropertyName, $requiredProperty
           ] of Object.entries(requiredProperties)) {
-            const requiredProperty = recursiveAssign$2({}, $requiredProperty);
+            const requiredProperty = recursiveAssign({}, $requiredProperty);
             // ?:START
             requiredProperty.required.value = false;
             // ?:STOP
@@ -4246,10 +4282,10 @@ class Validation extends EventTarget {
   }
 }
 
-var Options$6 = {
+var Options$7 = (...$options) => Object.assign({
   required: false,
   verificationType: 'all', // 'one'
-};
+}, ...$options);
 
 class Schema extends EventTarget{
   #properties
@@ -4264,7 +4300,7 @@ class Schema extends EventTarget{
   constructor($properties = {}, $options = {}) {
     super();
     this.#properties = $properties;
-    this.options = Object.assign({}, Options$6, $options);
+    this.options = Options$7($options);
   }
   get type() {
     if(this.#type !== undefined) return this.#type
@@ -4439,7 +4475,7 @@ class Schema extends EventTarget{
   }
 }
 
-var Options$5 = {
+var Options$6 = (...$options) => recursiveAssign({
   path: null, 
   parent: null, 
   enableValidation: true, 
@@ -4563,7 +4599,7 @@ var Options$5 = {
       },
     },
   }
-};
+}, ...$options);
 
 class Content extends EventTarget {
   #_properties
@@ -4579,7 +4615,7 @@ class Content extends EventTarget {
   constructor($properties = {}, $schema = null, $options = {}) {
     super();
     this.#properties = $properties;
-    this.options = $options;
+    this.#options = Options$6($options);
     this.schema = $schema;
     const { proxyAssignmentMethod } = this.options;
     const { proxy } = this;
@@ -4587,7 +4623,7 @@ class Content extends EventTarget {
       proxy[proxyAssignmentMethod](this.#properties);
     }
     else {
-      proxy[Options$5.proxyAssignmentMethod](this.#properties);
+      proxy[this.#options.proxyAssignmentMethod](this.#properties);
     }
     return proxy
   }
@@ -4601,11 +4637,6 @@ class Content extends EventTarget {
     return this.#_properties
   }
   get options() { return this.#options }
-  set options($options) {
-    if(this.#options !== undefined) return
-    this.#options = recursiveAssign$2({}, Options$5, $options);
-    return this.#options
-  }
   get schema() { return this.#schema }
   set schema($schema) {
     if(this.#schema !== undefined)  { return }
@@ -4730,12 +4761,12 @@ class LocalStorage extends EventTarget {
   }
 }
 
-var Settings$4 = {
+var Settings$5 = (...$settings) => Object.assign({
   schema: undefined, // Schema Settings
   content: undefined, // Content Settings
-};
+}, ...$settings);
 
-var Options$4 = {
+var Options$5 = (...$options) => Object.assign({
   schema: undefined, // Schema Options
   content: undefined, // Content Options
   enableEvents: true, // Boolean
@@ -4743,7 +4774,7 @@ var Options$4 = {
   autosave: false, // Boolean
   changeEvents: true, // Boolean
   localStorage: false, // Boolean, String,
-};
+}, ...$options);
 
 class ChangeEvent extends CustomEvent {
   #settings
@@ -4781,10 +4812,7 @@ class Model extends MVCFrameworkCore {
   #localStorage
   #changeEvents
   constructor($settings, $options) {
-    super(
-      recursiveAssign$2({}, Settings$4, $settings), 
-      recursiveAssign$2({}, Options$4, $options),
-    );
+    super(Settings$5($settings), Options$5($options));
     if(
       !this.settings.content ||
       typeof this.settings.content !== 'object'
@@ -5325,20 +5353,20 @@ function Query($element, $queryMethod, $queryString) {
   return query
 }
 
-var Settings$3 = {
+var Settings$4 = (...$settings) => Object.assign({
   parentElement: undefined, // HTML Element
   scope: 'template', // 'parent',
   templates: { default: () => `` },
   querySelectors: {},
-};
+}, ...$settings);
 
-var Options$3 = {
+var Options$4 = (...$options) => Object.assign({
   enableEvents: true,
   enableQuerySelectors: true,
   propertyDirectory: {
     maxDepth: 3,
   }
-};
+}, ...$options);
 
 class View extends MVCFrameworkCore {
   #templates
@@ -5348,10 +5376,7 @@ class View extends MVCFrameworkCore {
   #children
   // #querySelectors = {}
   constructor($settings = {}, $options = {}) {
-    super(
-      Object.assign({}, Settings$3, $settings),
-      Object.assign({}, Options$3, $options),
-    );
+    super(Settings$4($settings), Options$4($options));
     Object.defineProperties(this, {
       _querySelectors: {
         enumerable: false, writable: false, configurable: false,
@@ -5483,16 +5508,17 @@ class View extends MVCFrameworkCore {
   }
 }
 
-var Settings$2 = {
+var Settings$3 = (...$settings) => { console.log(...$settings); Object.assign({
   models: {},
   views: {},
   controls: {},
   fetchRouters: {},
   locationRouters: {},
-};
+}, ...$settings); };
 
-var Options$2 = {
-  enableEvents: true
+var Options$3 = (...$options) => {
+  const options = Object.assign({}, ...$options);
+  return options
 };
 
 const Events = {
@@ -5685,6 +5711,12 @@ class FetchRoute extends EventTarget {
   }
 }
 
+var Settings$2 = (...$settings) => Object.assign({}, ...$settings);
+
+var Options$2 = (...$options) => Object.assign({
+  enableEvents: true
+}, ...$options);
+
 class FetchRouter extends MVCFrameworkCore {
   #scheme
   #domain
@@ -5693,7 +5725,7 @@ class FetchRouter extends MVCFrameworkCore {
   #_origin
   #routes = {}
   constructor($settings, $options) {
-    super(...arguments);
+    super(Settings$2($settings), Options$2($options));
     const { scheme, domain, port, routes } = $settings;
     this.#scheme = scheme;
     this.#domain = domain;
@@ -6207,13 +6239,13 @@ class RouteEvent extends CustomEvent {
   get location() { return this.#options.location }
 }
 
-var Settings$1 = {
+var Settings$1 = (...$settings) => Object.assign({
   routes: {}
-};
+}, ...$settings);
 
-var Options$1 = {
+var Options$1 = (...$options) => Object.assign({
   enableEvents: true
-};
+}, ...$options);
 
 class LocationRouter extends MVCFrameworkCore {
   #window
@@ -6226,10 +6258,7 @@ class LocationRouter extends MVCFrameworkCore {
     windowLocationOrigin: new RegExp(`^${this.window.location.origin}`)
   }
   constructor($settings, $options) {
-    super(
-      recursiveAssign$2({}, Settings$1, $settings),
-      recursiveAssign$2({}, Options$1, $options),
-    );
+    super(Settings$1($settings), Options$1($options));
     if($options.enableEvents === true) this.enableEvents();
     this.enable = true;
   }
@@ -6339,7 +6368,7 @@ class LocationRouter extends MVCFrameworkCore {
   }
   // Route Ministration 
   setRoute($routePath, $routeSettings) {
-    const routeSettings = recursiveAssign$2({
+    const routeSettings = recursiveAssign({
       pathname: $routeSettings.pathname || $routePath,
     }, $routeSettings);
     this.#routes[$routePath] = new Route(routeSettings);
@@ -6414,7 +6443,7 @@ class MessageAdapter extends EventTarget {
   }
 }
 
-var Settings = {
+var Settings = (...$settings) => Object.assign({
   active: false, // Boolean
   /*
   name: String, // "$name",
@@ -6429,11 +6458,11 @@ var Settings = {
     // ['MessageAdapter', $MessageAdapter]
   ],
   */
-};
+}, ...$settings);
 
-var Options = {
+var Options = (...$options) => Object.assign({
   enableEvents: true, // Boolean
-};
+}, ...$options);
 
 class SocketRouter extends MVCFrameworkCore {
   #webSocket
@@ -6442,10 +6471,7 @@ class SocketRouter extends MVCFrameworkCore {
   #url
   #boundMessage
   constructor($settings = {}, $options = {}) {
-    super(
-      recursiveAssignConcat({}, Settings, $settings), 
-      recursiveAssign$2({}, Options, $options),
-    );
+    super(Settings($settings), Options($options));
     this.#boundMessage = this.#message.bind(this);
     Object.defineProperties(this, {
       webSocket: {
@@ -6554,10 +6580,10 @@ class Control extends MVCFrameworkCore {
   }]
   constructor($settings = {}, $options = {}) {
     super(
-      recursiveAssign$2({
+      Settings$3({
         propertyClasses: Control.propertyClasses,
-      }, Settings$2, $settings),
-      recursiveAssign$2({}, Options$2, $options),
+      }, $settings),
+      Options$3($options),
     );
     const { enableEvents } = this.options;
     if(enableEvents) this.enableEvents();
