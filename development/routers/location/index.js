@@ -15,10 +15,7 @@ export default class LocationRouter extends Core {
     windowLocationOrigin: new RegExp(`^${this.window.location.origin}`)
   }
   constructor($settings, $options) {
-    super(
-      recursiveAssign({}, Settings, $settings),
-      recursiveAssign({}, Options, $options),
-    )
+    super(Settings($settings), Options($options))
     if($options.enableEvents === true) this.enableEvents()
     this.enable = true
   }

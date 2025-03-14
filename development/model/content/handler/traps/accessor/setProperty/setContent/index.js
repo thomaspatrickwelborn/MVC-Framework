@@ -1,3 +1,4 @@
+import { recursiveAssign } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../events/index.js'
 export default function setContent() {
@@ -17,7 +18,7 @@ export default function setContent() {
   // Arguments
   const $value = $arguments[0]
   // Ulteroptions
-  const ulteroptions = Object.assign({
+  const ulteroptions = recursiveAssign({
     setObject: $value
   }, $options, $arguments[1])
   // console.log("setContent", "ulteroptions", ulteroptions)

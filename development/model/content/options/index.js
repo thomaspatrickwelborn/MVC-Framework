@@ -1,4 +1,5 @@
-export default {
+import { recursiveAssign } from '../../../coutil/index.js'
+export default (...$options) => recursiveAssign({
   path: null, 
   parent: null, 
   enableValidation: true, 
@@ -122,4 +123,4 @@ export default {
       },
     },
   }
-}
+}, ...$options)

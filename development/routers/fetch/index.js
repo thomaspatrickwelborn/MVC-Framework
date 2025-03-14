@@ -10,7 +10,7 @@ export default class FetchRouter extends Core {
   #_origin
   #routes = {}
   constructor($settings, $options) {
-    super(...arguments)
+    super(Settings($settings), Options($options))
     const { scheme, domain, port, routes } = $settings
     this.#scheme = scheme
     this.#domain = domain

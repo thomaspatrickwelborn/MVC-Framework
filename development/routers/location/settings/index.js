@@ -1,3 +1,3 @@
-export default {
+export default (...$settings) => Object.assign({
   routes: {}
-}
+}, ...$settings)

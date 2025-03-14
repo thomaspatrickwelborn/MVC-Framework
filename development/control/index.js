@@ -1,5 +1,4 @@
 import Core from '../core/index.js'
-import { recursiveAssign } from '../coutil/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'
 import Model from '../model/index.js'
@@ -45,10 +44,10 @@ export default class Control extends Core {
   }]
   constructor($settings = {}, $options = {}) {
     super(
-      recursiveAssign({
+      Settings({
         propertyClasses: Control.propertyClasses,
-      }, Settings, $settings),
-      recursiveAssign({}, Options, $options),
+      }, $settings),
+      Options($options),
     )
     const { enableEvents } = this.options
     if(enableEvents) this.enableEvents()
