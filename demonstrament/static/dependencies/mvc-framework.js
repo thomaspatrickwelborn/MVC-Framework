@@ -743,10 +743,6 @@ function outmatch(pattern, options) {
 
 var Settings$7 = ($settings = {}) => {
   const Settings = {
-    // type: undefined,
-    // path: undefined, 
-    // target: undefined,
-    // listener: undefined, 
     propertyDirectory: { maxDepth: 10 },
     enable: false,
     accessors: [
@@ -755,40 +751,44 @@ var Settings$7 = ($settings = {}) => {
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
     methods: {
       assign: {
-        addEventListener: function addEventListener($target) {
-          const { type, listener, settings } = this;
+        // Event Target Add Event Listener
+        addEventListener: function addEventListener($eventDefinition, $target) {
+          const { type, listener, settings } = $eventDefinition;
           const { options, useCapture } = settings;
           return $target['addEventListener'](type, listener, options || useCapture)
         },
-        on: function on($target) {
-          const { type, listener, settings } = this;
+        // Event Emitter On
+        on: function on($eventDefinition, $target) {
+          const { type, listener } = $eventDefinition;
           return $target['on'](type, listener)
         },
-        once: function once($target) {
-          const { type, listener } = this;
+        // Event Emitter Once
+        once: function once($eventDefinition, $target) {
+          const { type, listener } = $eventDefinition;
           return $target['once'](type, listener)
         },
       },  
       deassign: {
-        removeEventListener: function removeEventListener($target) {
-          const { type, listener, settings } = this;
+        // Event Target Remove Event Listener
+        removeEventListener: function removeEventListener($eventDefinition, $target) {
+          const { type, listener, settings } = $eventDefinition;
           const { options, useCapture } = settings;
           return $target['removeEventListener'](type, listener, options || useCapture)
         },
-        off: function off($target) {
-          const { type, listener } = this;
+        // Event Emitter Off
+        off: function off($eventDefinition, $target) {
+          const { type, listener } = $eventDefinition;
           return $target['off'](type, listener)
         },
       },
       transsign: {
-        dispatchEvent: function dispatchEvent($target, $event) {
+        // Event Target Dispatch Event
+        dispatchEvent: function dispatchEvent($eventDefinition, $target, $event) {
           return $target['dispatchEvent']($event)
         },
-        emit: function emit($target, $type, ...$arguments) {
+        // Event Emitter Emit
+        emit: function emit($eventDefinition, $target, $type, ...$arguments) {
           return $target['emit']($type, ...$arguments)
-        },
-        send: function send($target, $data) {
-          return $target['send']($data)
         },
       },
     },
@@ -804,9 +804,6 @@ var Settings$7 = ($settings = {}) => {
       case 'methods': 
         Settings[$settingKey] = recursiveAssign$1(Settings[$settingKey], $settingValue);
         break
-      case 'type': case 'path': case 'enable': 
-      case 'target': case 'listener': 
-      case 'assign': case 'deassign': case 'transsign': 
       default: 
         Settings[$settingKey] = $settingValue;
         break
@@ -861,7 +858,7 @@ class EventDefinition {
         }
       }
     }
-    else if(['array', 'string'].includes(typeOfPath)) {
+    else if(typeOfPath === 'string') {
       const propertyPathMatcher = outmatch(this.path, {
         separator: '.',
       });
@@ -911,17 +908,17 @@ class EventDefinition {
   }
   get #assign() {
     if(this.#_assign !== undefined) { return this.#_assign }
-    this.#_assign = this.settings.methods.assign[this.settings.assign].bind(this);
+    this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
     return this.#_assign
   }
   get #deassign() {
     if(this.#_deassign !== undefined) { return this.#_deassign }
-    this.#_deassign = this.settings.methods.deassign[this.settings.deassign].bind(this);
+    this.#_deassign = this.settings.methods.deassign[this.settings.deassign].bind(null, this);
     return this.#_deassign
   }
   get #transsign() {
     if(this.#_transsign !== undefined) { return this.#_transsign }
-    this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(this);
+    this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
     return this.#_transsign
   }
   get #methods() { return this.settings.methods }
@@ -995,6 +992,7 @@ class EventDefinition {
 
 class Core extends EventTarget {
   static implement = function ($target, $settings) {
+    if(!$target || !$settings) { return undefined }
     const settings = Settings$1$1($settings);
     const events = [];
     Object.defineProperties($target, {
@@ -1004,27 +1002,21 @@ class Core extends EventTarget {
         value: function getEvents() {
           if(arguments.length === 0) { return events }
           const getEvents = [];
-          const $events = [].concat(arguments[0]);
-          for(const $event of $events) {
-            const eventFilterProperties = [];
-            for(const [
-              $propertyKey, $propertyValue
-            ] of Object.entries($event)) {
-              eventFilterProperties.push([$propertyKey, $propertyValue]);
-            }
-            for(const $existingEvent of events) {
+          const $filterEvents = [].concat(arguments[0]);
+          for(const $filterEvent of $filterEvents) {
+            for(const $event of events) {
               let match;
-              iterateEventFilterProperty: 
+              iterateEventFilterProperties: 
               for(const [
-                $eventFilterPropertyKey, $eventFilterPropertyValue
-              ] of eventFilterProperties) {
+                $filterEventPropertyKey, $filterEventPropertyValue
+              ] of Object.entries($filterEvent)) {
                 const eventFilterMatch = (
-                  $existingEvent[$eventFilterPropertyKey] === $eventFilterPropertyValue
+                  $event[$filterEventPropertyKey] === $filterEventPropertyValue
                 );
                 if(match !== false) { match = eventFilterMatch; }
-                else { break iterateEventFilterProperty }
+                else { break iterateEventFilterProperties }
               }
-              if(match === true) { getEvents.push($existingEvent); }
+              if(match === true) { getEvents.push($event); }
             }
           }
           return getEvents
@@ -1034,13 +1026,14 @@ class Core extends EventTarget {
       [settings.propertyDefinitions.addEvents]: {
         enumerable: false, writable: false, 
         value: function addEvents() {
-          let $events = expandEvents(arguments[0]);
-          for(let $event of $events) {
+          if(!arguments.length) { return $target }
+          let $addEvents = expandEvents(arguments[0]);
+          for(let $addEvent of $addEvents) {
             const event = Object.assign({
               assign: settings.assign,
               deassign: settings.deassign,
               transsign: settings.transsign,
-            }, $event);
+            }, $addEvent);
             const eventDefinition = new EventDefinition(event, $target);
             events.push(eventDefinition);
           }
@@ -1077,10 +1070,7 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function enableEvents() {
           let $events;
-          if(
-            arguments.length === 0 ||
-            arguments[0] === true
-          ) { $events = events; }
+          if(arguments.length === 0) { $events = events; }
           else { $events = $target[settings.propertyDefinitions.getEvents](arguments[0]); }
           for(const $event of $events) { $event.enable = true; }
           return $target
@@ -1101,14 +1091,19 @@ class Core extends EventTarget {
       [settings.propertyDefinitions.reenableEvents]: {
         enumerable: false, writable: false, 
         value: function reenableEvents() {
-          $target[settings.propertyDefinitions.disableEvents](...arguments);
-          $target[settings.propertyDefinitions.enableEvents](...arguments);
+          $target[settings.propertyDefinitions.disableEvents](arguments[0]);
+          $target[settings.propertyDefinitions.enableEvents](arguments[0]);
           return $target
         },
       },
     });
     if(settings.events) { $target[settings.propertyDefinitions.addEvents](settings.events); }
-    if(settings.enableEvents) { $target[settings.propertyDefinitions.enableEvents](settings.enableEvents); }
+    if(settings.enableEvents === true) {
+      $target[settings.propertyDefinitions.enableEvents]();
+    }
+    else if(typeof settings.enableEvents === 'object') {
+      $target[settings.propertyDefinitions.enableEvents](settings.enableEvents);
+    }
     return $target
   }
   constructor($settings = {}) {

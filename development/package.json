@@ -18,7 +18,8 @@
     "rollup": "^4.34.6"
   },
   "dependencies": {
-    "core-plex": "^1.6.2",
+    "core-plex": "^1.6.10",
+    "document-process-manager": "^1.4.6",
     "parsel-js": "^1.2.1",
     "path-to-regexp": "^8.2.0"
   }
