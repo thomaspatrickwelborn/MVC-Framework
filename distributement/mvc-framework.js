@@ -743,6 +743,7 @@ var Settings$7 = ($settings = {}) => {
       ($target, $property) => $target[$property],
     ],
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
+    bindListener: true,
     methods: {
       assign: {
         // Event Target Add Event Listener
@@ -798,6 +799,7 @@ var Settings$7 = ($settings = {}) => {
       case 'methods': 
         Settings[$settingKey] = recursiveAssign$1(Settings[$settingKey], $settingValue);
         break
+      case 'enableEvents': break
       default: 
         Settings[$settingKey] = $settingValue;
         break
@@ -809,6 +811,7 @@ var Settings$7 = ($settings = {}) => {
 class EventDefinition {
   #settings
   #context
+  #listener
   #enable = false
   #path
   #enabled = []
@@ -826,7 +829,15 @@ class EventDefinition {
   get settings() { return this.#settings }
   get path() { return this.settings.path }
   get type() { return this.settings.type }
-  get listener() { return this.settings.listener }
+  get listener() {
+    if(this.#listener !== undefined) { return this.#listener }
+    const listener = this.settings.listener;
+    if(this.settings.bindListener === true) {
+      this.#listener = listener.bind(this.#context);
+    }
+    else { this.#listener = listener; }
+    return this.#listener
+  }
   get enable() { return this.#enable }
   set enable($enable) {
     if(![true, false].includes($enable)) { return }
@@ -886,7 +897,22 @@ class EventDefinition {
     let propertyDirectory = this.#propertyDirectory;
     const targetPaths = [];
     const targets = [];
-    if(this.#target !== undefined) {
+    if(this.path === ':scope') {
+      const pretargetElement = pretargets.find(
+        ($pretarget) => $pretarget?.path === this.path
+      );
+      if(pretargetElement !== undefined) {
+        targets.push(pretargetElement);
+      }
+      else if(pretargetElement === undefined) {
+        targets.push({
+          path: this.path,
+          target: this.#context,
+          enable: false,
+        });
+      }
+    }
+    else if(this.#target !== undefined) {
       for(const $target of [].concat(this.#target)) {
         const pretargetElement = pretargets.find(
           ($pretarget) => $pretarget?.path === this.path
@@ -919,12 +945,8 @@ class EventDefinition {
         let targetElement;
         const pathKeys = $targetPath.split('.');
         let pathKeysIndex = 0;
-        iterateTargetPathKeys: 
         while(pathKeysIndex < pathKeys.length) {
           let pathKey = pathKeys[pathKeysIndex];
-          if(pathKeysIndex === 0 && pathKey === ':scope') {
-            break iterateTargetPathKeys
-          }
           iterateTargetAccessors: 
           for(const $targetAccessor of this.settings.accessors) {
             if(target === undefined) { break iterateTargetAccessors }
@@ -5406,13 +5428,14 @@ class View extends MVCFrameworkCore {
     return this.#_template
   }
   set #template($templateString) {
-    this.disableEvents();
+    const reenableEvents = this.getEvents({ enable: true });
+    reenableEvents.forEach(($reenableEvent) => $reenableEvent.enable = false);
     this.disableQuerySelectors();
     this.#template.innerHTML = $templateString;
     this.children = this.#template.content.children;
     this.parentElement.append(...this.children.values());
     this.enableQuerySelectors();
-    this.enableEvents();
+    reenableEvents.forEach(($reenableEvent) => $reenableEvent.enable = true);
   }
   get children() {
     if(this.#children !== undefined) return this.#children
