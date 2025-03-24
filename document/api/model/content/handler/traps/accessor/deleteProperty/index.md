@@ -3,7 +3,7 @@
 ### `delete` Method Options
 ```
 const contentOptions = {
-  traps: {
+  methods: {
     accessor: {
       delete: {
         recursive: true,

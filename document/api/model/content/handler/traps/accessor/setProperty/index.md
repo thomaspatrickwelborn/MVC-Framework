@@ -7,7 +7,7 @@
 #### `set` Options
 ```
 const contentOptions = {
-  traps: {
+  methods: {
     accessor: {
       set: {
         recursive: true,

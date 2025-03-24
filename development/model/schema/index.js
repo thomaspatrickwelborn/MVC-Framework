@@ -138,11 +138,11 @@ export default class Schema extends EventTarget{
   #parseValidatePropertyArguments() {
     let $arguments = [...arguments]
     let [$key, $value, $source, $target] = $arguments
-    const ContentClassString = Content.toString()
-    const sourceIsContentClassInstance = ($source?.classToString === ContentClassString)
-    $source = (sourceIsContentClassInstance) ? $source.object : $source
-    const $targetIsContentClassInstance = ($target?.classToString === ContentClassString)
-    $target = ($targetIsContentClassInstance) ? $target.object : $target
+    // const ContentClassString = Content.toString()
+    const sourceIsContentClassInstance = ($source instanceof Content)
+    $source = (sourceIsContentClassInstance) ? $source.valueOf() : $source
+    const $targetIsContentClassInstance = ($target instanceof Content)
+    $target = ($targetIsContentClassInstance) ? $target.valueOf() : $target
     return { $key, $value, $source, $target }
   }
   validateProperty() {

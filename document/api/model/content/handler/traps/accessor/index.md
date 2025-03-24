@@ -18,7 +18,7 @@ Accessor Handler Trap Options are defined with new `Content` Instance creation.
 const accessorOptions = {
   pathkey: true,
   subpathError: false,
-  traps: {
+  methods: {
     accessor: {
       get: {
         pathkey: true,
@@ -50,7 +50,7 @@ const accessorOptions = {
 }
 ```
 ### `get`, `set`, `delete` Shared Options
- - Shared Accessor Options may be set as `content` options or overriden as `content.traps.accessor.get`, `content.traps.accessor.set`, and `content.traps.accessor.delete`.  
+ - Shared Accessor Options may be set as `content` options or overriden as `content.methods.accessor.get`, `content.methods.accessor.set`, and `content.methods.accessor.delete`.  
 **All Accessor Methods**:  
 ```
 const object = new Content({}, null, {
@@ -61,7 +61,7 @@ const object = new Content({}, null, {
 **Individual Accessor Methods**:  
 ```
 const object = new Content({}, null, {
-  traps: { accessor: {
+  methods: { accessor: {
     get: { pathkey: false, subpathError: false },
     set: { pathkey: false, subpathError: false },
     delete: { pathkey: false, subpathError: false },
@@ -205,7 +205,7 @@ There are two types of events:  `get` and `getProperty`.
 const object = new Content({}, null, {
   pathkey: true,
   subpathError: true,
-  traps: { accessor: { set: { recursive: true } } },
+  methods: { accessor: { set: { recursive: true } } },
 })
 console.log(
   object.set("propertyZ.propertyY", "YYY")
@@ -217,7 +217,7 @@ console.log(
 const object = new Content({}, null, {
   pathkey: true,
   subpathError: true,
-  traps: { accessor: { set: { recursive: false } } },
+  methods: { accessor: { set: { recursive: false } } },
 })
 console.log(
   object.set("propertyZ.propertyY", "YYY")

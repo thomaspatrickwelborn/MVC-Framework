@@ -45,7 +45,7 @@ Array Handler Trap Options are defined with new `Content` Instance creation.
 ```
 import { Content } from 'mvc-framework'
 const $contentOptions = {
-  traps: {
+  methods: {
     array: {
       concat: {
         events: {

@@ -31,13 +31,6 @@ import { Content } from 'mvc-framework'
 ```
 const object = new Content({})
 object.addEventListener('assign', eventLog)
-object.assign({
-  propertyA: { propertyB: propertyC: 333 },
-  propertyD: [{
-    propertyE: 555
-  }],
-  propertyF: false,
-})
 ```
 ```
 function eventLog($event) {

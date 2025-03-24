@@ -2287,11 +2287,11 @@ class Schema extends EventTarget{
   #parseValidatePropertyArguments() {
     let $arguments = [...arguments];
     let [$key, $value, $source, $target] = $arguments;
-    const ContentClassString = Content.toString();
-    const sourceIsContentClassInstance = ($source?.classToString === ContentClassString);
-    $source = (sourceIsContentClassInstance) ? $source.object : $source;
-    const $targetIsContentClassInstance = ($target?.classToString === ContentClassString);
-    $target = ($targetIsContentClassInstance) ? $target.object : $target;
+    // const ContentClassString = Content.toString()
+    const sourceIsContentClassInstance = ($source instanceof Content);
+    $source = (sourceIsContentClassInstance) ? $source.valueOf() : $source;
+    const $targetIsContentClassInstance = ($target instanceof Content);
+    $target = ($targetIsContentClassInstance) ? $target.valueOf() : $target;
     return { $key, $value, $source, $target }
   }
   validateProperty() {
@@ -2359,7 +2359,7 @@ var Options$6 = ($options) => recursiveAssign({
   pathkey: true,
   subpathError: false,
   contentAssignmentMethod: 'set',
-  traps: {
+  methods: {
     accessor: {
       get: {
         events: {
@@ -2567,9 +2567,8 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
 };
 
 function assign($content, $options, ...$sources) {
-  const ulteroptions = recursiveAssign({}, $options, $content.options);
   const { path, target, schema } = $content;
-  const { events, sourceTree, enableValidation, validationEvents } = ulteroptions;
+  const { events, sourceTree, enableValidation, validationEvents } = $options;
   const assignedSources = [];
   // Iterate Sources
   for(let $assignSource of $sources) {
@@ -2581,7 +2580,7 @@ function assign($content, $options, ...$sources) {
     for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
       let targetPropVal = target[$assignSourcePropKey];
       const targetPropValIsContentInstance = (
-        target[$assignSourcePropKey]?.classToString === Content.toString()
+        target[$assignSourcePropKey] instanceof Content
       ) ? true : false;
       // Validation
       if(schema && enableValidation) {
@@ -2617,8 +2616,8 @@ function assign($content, $options, ...$sources) {
       };
       // Source Prop: Object Type
       if($assignSourcePropVal && typeof $assignSourcePropVal === 'object') {
-        if($assignSourcePropVal.classToString === Content.toString()) {
-          $assignSourcePropVal = $assignSourcePropVal.object;
+        if($assignSourcePropVal instanceof Content) {
+          $assignSourcePropVal = $assignSourcePropVal.valueOf();
         }
         // Subschema
         let subschema;
@@ -2677,7 +2676,7 @@ function assign($content, $options, ...$sources) {
       }
       change.anter.value = targetPropVal;
       change.conter = (targetPropValIsContentInstance)
-        ? (targetPropVal.string !== JSON.stringify(targetPropVal))
+        ? (targetPropVal.toString() !== JSON.stringify(targetPropVal))
         : (JSON.stringify(targetPropVal) !== JSON.stringify(targetPropVal));
       change.anter.value = targetPropVal;
       // Content Event: Assign Source Property
@@ -2741,23 +2740,18 @@ function assign($content, $options, ...$sources) {
   return $content
 }
 
-function defineProperties() {
-  const $arguments = [...arguments];
-  const [$content, $options, $propertyDescriptors] = $arguments;
-  recursiveAssign({}, $options, $content.options);
-  // console.log("defineProperties", "ulteroptions", ulteroptions)
+function defineProperties($content, $options, $propertyDescriptors) {
   const { events } = $options;
   const { path } = $content;
-  // const {} = $content.options
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
-  impandTree($propertyDescriptors, 'value');
-  typedObjectLiteral($content.object);
+  const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value');
+  typedObjectLiteral($content.valueOf());
   // Iterate Property Descriptors
   for(const [
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
     // Property Descriptor Value Is Direct Instance Of Array/object/Map
-    $content.defineProperty($propertyKey, $propertyDescriptor, $propertyDescriptors);
+    $content.defineProperty($propertyKey, $propertyDescriptor, impandPropertyDescriptors);
   }
   // Define Properties Event
   if(events && events['defineProperties']) {
@@ -2767,7 +2761,7 @@ function defineProperties() {
         'defineProperties',
         {
           path,
-          value: $content,
+          value: $content.valueOf(),
           detail: {
             descriptors: $propertyDescriptors,
           },
@@ -2779,28 +2773,19 @@ function defineProperties() {
   return $content
 }
 
-function defineProperty() {
-  const $arguments = [...arguments];
-  let [
-    $content, $options, 
-    $propertyKey, $propertyDescriptor, 
-    $propertyDescriptors
-  ] = $arguments;
-  $propertyDescriptors = $propertyDescriptors || {};
-  recursiveAssign({}, $options, $content.options);
-  // console.log("defineProperty", "ulteroptions", ulteroptions)
+function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
   const { descriptorTree, events } = $options;
   const { target, path, schema } = $content;
-  const { enableValidation, validationEvents } = $content.options;
+  const { enableValidation, validationEvents } = $options;
   const propertyValue = $propertyDescriptor.value;
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {};
   const targetPropertyValue = targetPropertyDescriptor.value;
   const targetPropertyValueIsContentInstance = (
-    targetPropertyValue?.classToString === Content.toString()
+    targetPropertyValue instanceof Content
   ) ? true : false;
   // Validation
   if(schema && enableValidation) {
-    const validProperty = schema.validateProperty($propertyKey, propertyValue, $propertyDescriptors, $content);
+    const validProperty = schema.validateProperty($propertyKey, propertyValue, $content);
     if(validationEvents) {
       let type, propertyType;
       if(validProperty.valid) {
@@ -2876,7 +2861,7 @@ function defineProperty() {
   }
   change.anter.value = propertyValue;
   change.conter = (targetPropertyValueIsContentInstance)
-    ? (targetPropertyValue.string !== JSON.stringify(propertyValue))
+    ? (targetPropertyValue.toString() !== JSON.stringify(propertyValue))
     : (JSON.stringify(targetPropertyValue) !== JSON.stringify(propertyValue));
   // Define Property Event
   if(events) {
@@ -2914,18 +2899,14 @@ function defineProperty() {
   return $content
 }
 
-function freeze() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("seal", "ulteroptions", ulteroptions)
+function freeze($content, $options) {
   const { recursive, events } = $options;
   const { target, path } = $content;
   if(recursive === true) {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(target)) {
-      if($propertyValue.classToString === Content.toString()) {
+      if($propertyValue instanceof Content) {
         $propertyValue.freeze();
       }
       else { Object.freeze($propertyValue); }
@@ -2944,18 +2925,14 @@ function freeze() {
   return $content
 }
 
-function seal() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("seal", "ulteroptions", ulteroptions)
+function seal($content, $options) {
   const { recursive, events } = $options;
   const { target, path } = $content;
   if(recursive === true) {
     for(const [
       $propertyKey, $propertyValue
     ] of Object.entries(target)) {
-      if($propertyValue.classToString === Content.toString()) {
+      if($propertyValue instanceof Content) {
         $propertyValue.seal();
       }
       else { Object.seal($propertyValue); }
@@ -2982,14 +2959,9 @@ var ObjectProperty = {
   seal,
 };
 
-function concat() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("concat", "ulteroptions", ulteroptions)
-  const { events } = $options;
+function concat($content, $options) {
   const { target, path, schema } = $content;
-  const { enableValidation, validationEvents } = $content.options;
+  const { enableValidation, validationEvents, events } = $options;
   const $arguments = [...arguments].reduce(($arguments, $argument) => {
     if(Array.isArray($argument)) { $arguments.push(...$argument); }
     else { $arguments.push($argument); }
@@ -3026,7 +2998,7 @@ function concat() {
     // Value: Object Type
     if(typeof $value === 'object') {
       // Value: Content
-      if($value?.classToString === Content.toString()) { $value = $value.object; }
+      if($value instanceof Content) { $value = $value.valueOf(); }
       let subschema = schema?.context[0] || null;
       const value = new Content($value, subschema, {
         path: contentPath,
@@ -3084,14 +3056,9 @@ function concat() {
   return content
 }
 
-function copyWithin() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("copyWithin", "ulteroptions", ulteroptions)
-  const { events } = $options;
+function copyWithin($content, $options) {
   const { target, path } = $content;
-  const { enableValidation, validationEvents } = $content.options;
+  const { enableValidation, validationEvents, events } = $options;
   const copyTarget = (
     arguments[0] >= 0
   ) ? arguments[0]
@@ -3186,14 +3153,9 @@ function copyWithin() {
   return $content
 }
 
-function fill() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("fill", "ulteroptions", ulteroptions)
-  const { events } = $options;
+function fill($content, $options) {
   const { target, path, schema } = $content;
-  const { enableValidation, validationEvents } = $content.options;
+  const { enableValidation, validationEvents, events } = $options;
   const $arguments = [...arguments];
   let $start;
   if(typeof $arguments[1] === 'number') {
@@ -3237,7 +3199,7 @@ function fill() {
       : String(fillIndex);
     let value = $arguments[0];
     if(typeof value === 'object') {
-      if(value?.classToString === Content.toString()) { value = value.object; }
+      if(value instanceof Content) { value = value.valueOf(); }
       const subschema = schema?.context[0] || null;
       value = new Content(value, subschema, {
         path: contentPath,
@@ -3298,11 +3260,7 @@ function fill() {
   return $content
 }
 
-function pop() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("pop", "ulteroptions", ulteroptions)
+function pop($content, $options) {
   const { events } = $options;
   const { target, path } = $content;
   const popElement = Array.prototype.pop.call(target);
@@ -3330,17 +3288,13 @@ function pop() {
   return popElement
 }
 
-function push() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("push", "ulteroptions", ulteroptions)
+function push($content, $options, ...$elements) {
   const { events } = $options;
   const { target, path, schema } = $content;
   const { enableValidation, validationEvents } = $content.options;
   const elements = [];
   let elementsIndex = 0;
-  for(let $element of arguments) {
+  for(let $element of $elements) {
     // Validation
     if(schema && enableValidation) {
       const validElement = schema.validateProperty(elementsIndex, $element, {}, $content);
@@ -3364,7 +3318,7 @@ function push() {
       ? [path, elementsIndex].join('.')
       : String(elementsIndex);
     if(typeof $element === 'object') {
-      if($element?.classToString === Content.toString()) { $element = $element.object; }
+      if($element instanceof Content) { $element = $element.valueOf(); }
       const subschema = schema?.context[0] || null;
       $element = new Content($element, subschema, {
         path: contentPath,
@@ -3422,11 +3376,7 @@ function push() {
   return target.length
 }
 
-function reverse() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
-  recursiveAssign({}, $options, $content.options);
-  // console.log("reverse", "ulteroptions", ulteroptions)
+function reverse($content, $options) {
   const { events } = $options;
   const { target, path } = $content;
   Array.prototype.reverse.call(target, ...arguments);
@@ -3447,10 +3397,7 @@ function reverse() {
   return $content
 }
 
-function shift() {
-  const [$content, $options] = [...arguments];
-  recursiveAssign({}, $options, $content.options);
-  // console.log("shift", "ulteroptions", ulteroptions)
+function shift($content, $options) {
   const { events } = $options;
   const { target, path } = $content;
   const shiftElement = Array.prototype.shift.call(target);
@@ -3478,14 +3425,10 @@ function shift() {
   return shiftElement
 }
 
-function splice() {
-  const $content = Array.prototype.shift.call(arguments);
-  const $options = Array.prototype.shift.call(arguments);
+function splice($content, $options) {
   const { events } = $options;
   const { target, path, schema } = $content;
-  recursiveAssign({}, $options, $content.options);
-  // console.log("splice", "ulteroptions", ulteroptions)
-  const { enableValidation, validationEvents } = $content.options;
+  const { enableValidation, validationEvents } = $options;
   const $arguments = [...arguments];
   const $start = ($arguments[0] >= 0)
     ? $arguments[0]
@@ -3568,7 +3511,7 @@ function splice() {
     let startIndex = $start + addItemsIndex;
     // Add Item: Object Type
     if(typeof addItem === 'object') {
-      if(addItem?.classToString === Content.toString()) { addItem = addItem.object; }
+      if(addItem instanceof Content) { addItem = addItem.valueOf(); }
       const subschema = schema?.context[0] || null;
       addItem = new Content(addItem, subschema, {
         path: contentPath,
@@ -3637,24 +3580,21 @@ function splice() {
   return deleteItems
 }
 
-function unshift() {
-  const $arguments = [...arguments];
-  const [$content, $options] = [...$arguments];
+function unshift($content, $options, ...$elements) {
   const { events } = $options;
   const { target, path, schema } = $content;
-  recursiveAssign({}, $options, $content.options);
-  // console.log("unshift", "ulteroptions", ulteroptions)
-  const { enableValidation, validationEvents } = $content.options;
+  const { enableValidation, validationEvents } = $options;
   const elements = [];
-  const elementsLength = $arguments.length;
+  const elementsLength = $elements.length;
   let elementIndex = elementsLength - 1;
   let elementCoindex = 0;
   while(elementIndex > -1) {
-    let $element = $arguments[elementIndex];
+    $elements.length;
+    let $element = $elements[elementIndex];
     let element;
     const targetElement = target[elementIndex];
     const targetElementIsContentInstance = (
-      targetElement?.classToString === Content.toString()
+      targetElement instanceof Content
     ) ? true : false;
     // Validation
     if(schema && enableValidation) {
@@ -3707,7 +3647,7 @@ function unshift() {
     }
     change.anter.value = element;
     change.conter = (targetElementIsContentInstance)
-      ? (targetElement.string !== JSON.stringify(element))
+      ? (targetElement.toString() !== JSON.stringify(element))
       : (JSON.stringify(targetElement) !== JSON.stringify(element));
     // Array Unshift Prop Event
     if(events) {
@@ -3781,9 +3721,9 @@ function getContent($content, $options) {
     $content.dispatchEvent(
       new ContentEvent('get', {
         path,
-        value: $content,
+        value: $content.valueOf(),
         detail: {
-          value: $content
+          value: $content.valueOf()
         }
       }, $content)
     );
@@ -3867,9 +3807,9 @@ function setContent($content, $options, $properties) {
     $content.dispatchEvent(
       new ContentEvent('set', {
         path,
-        value: $content,
+        value: $content.valueOf(),
         detail: {
-          value: $content
+          value: $content.valueOf()
         }
       }, $content)
     );
@@ -3879,9 +3819,7 @@ function setContent($content, $options, $properties) {
 
 function setContentProperty($content, $options, $path, $value) {
   const { target, path, schema } = $content;
-  const { enableValidation, validationEvents } = $content.options;
-  const contentOptions = $content.options;
-  const { events, pathkey, subpathError, recursive, source } = $options;
+  const { enableValidation, validationEvents, events, pathkey, subpathError, recursive, source } = $options;
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -3909,7 +3847,7 @@ function setContentProperty($content, $options, $path, $value) {
           if(Number(propertyKey)) { subcontent = []; }
           else { subcontent = {}; }
         }
-        propertyValue = new Content(subcontent, subschema, recursiveAssign({}, contentOptions, {
+        propertyValue = new Content(subcontent, subschema, recursiveAssign({}, $options, {
           path: contentPath,
           parent: $content,
         }));
@@ -3956,13 +3894,13 @@ function setContentProperty($content, $options, $path, $value) {
     // Value: Object Literal
     if(typeof $value === 'object') {
       // Value: Content
-      if($value?.classToString === Content.toString()) { $value = $value.object; }
+      if($value instanceof Content) { $value = $value.valueOf(); }
       let subschema;
       if(schema?.type === 'array') { subschema = schema.context[0]; }
       else if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
       else { subschema = undefined; }
       propertyValue = new Content($value, subschema, recursiveAssign(
-        {}, contentOptions, {
+        {}, $options, {
           path: contentPath,
           parent: $content,
         }
@@ -4014,7 +3952,7 @@ function setContentProperty($content, $options, $path, $value) {
     let propertyKey = $path;
     // Property Value: Object
     if(typeof $value === 'object') {
-      if($value.classToString === Content.toString()) { $value = $value.object; }
+      if($value instanceof Content) { $value = $value.valueOf(); }
       let subschema;
       if(schema?.type === 'array') { subschema = schema.context[0]; }
       if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
@@ -4023,7 +3961,7 @@ function setContentProperty($content, $options, $path, $value) {
         ? [path, propertyKey].join('.')
         : String(propertyKey);
       propertyValue = new Content($value, subschema, recursiveAssign(
-        {}, contentOptions, {
+        {}, $options, {
           path: contentPath,
           parent: $content,
         }
@@ -4095,7 +4033,7 @@ function deleteContent($content, $options) {
       new ContentEvent('delete', {
         path,
         detail: {
-          value: $content
+          value: $content.valueOf()
         }
       }, $content)
     );
@@ -4120,7 +4058,7 @@ function deleteContentProperty($content, $options, $path) {
     }
     // Validation
     if(schema && enableValidation) {
-      const differedPropertyProxy = $content.object;
+      const differedPropertyProxy = $content.valueOf();
       delete differedPropertyProxy[propertyKey];
       const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, $content);
       if(validationEvents) {
@@ -4187,7 +4125,7 @@ function deleteContentProperty($content, $options, $path) {
 
     // Validation
     if(schema && enableValidation) {
-      const differedPropertyProxy = $content.object;
+      const differedPropertyProxy = $content.valueOf();
       delete differedPropertyProxy[propertyKey];
       const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $content, $content);
       if(validationEvents) {
@@ -4265,27 +4203,39 @@ var AccessorProperty = {
   delete: deleteProperty,
 };
 
-const Default = Object.freeze({
+const Defaults = Object.freeze({
   object: [{
+    keys: ['valueOf'],
+    createMethod: function($methodName, $content) {
+      return function valueOf() { return $content.parse({ type: 'object' }) }
+    },
+  }, {
+    keys: ['toString'],
+    createMethod: function($methodName, $content) {
+      return function toString($parseSettings = {}) {
+        const replacer = $parseSettings.replacer || null;
+        const space = $parseSettings.space || 0;
+        return $content.parse({ type: 'string', replacer, space })
+      }
+    }, 
+  }, {
     keys: [
       'entries', 'fromEntries', 'getOwnPropertyDescriptors', 
-      'getOwnPropertyNames', 'getOwnPropertySymbols', 
+      'getOwnPropertyDescriptor', 'getOwnPropertyNames', 
+      /* 'getOwnPropertySymbols', */ 'groupBy', 'hasOwn', 'is', 
       'getPrototypeOf', 'isExtensible', 'isFrozen', 'isSealed', 
       'keys', 'preventExtensions', 'values',
     ],
     createMethod: function($methodName, $content) {
-      return Object[$methodName].bind(null, $content)
+      return Object[$methodName].bind(null, $content.valueOf())
     },
   }, {
-    keys: [
-      'getOwnPropertyDescriptor', 'groupBy', 'hasOwn', 'hasOwnProperty', 
-      'is', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 
-      'toString', 'valueOf', 
-    ], 
+    keys: ['propertyIsEnumerable', 'hasOwnProperty'], 
     createMethod: function($methodName, $content) {
-      return Object[$methodName].bind(null, $content)
+      return () => $content.parse({ type: 'object' })[$methodName]
     },
   }, {
+    type: 'mutators',
     keys: Object.keys(ObjectProperty), 
     createMethod: function($methodName, $content, $options) {
       return ObjectProperty[$methodName].bind(null, $content, $options) 
@@ -4310,18 +4260,45 @@ const Default = Object.freeze({
       return Array.prototype[$methodName].bind(null, $content)
     }
   }, {
+    type: 'mutators',
     keys: Object.keys(ArrayProperty), 
     createMethod: function($methodName, $content, $options) {
       return ArrayProperty[$methodName].bind(null, $content, $options)
     }
   }],
   accessor: [{
+    type: 'mutators',
     keys: Object.keys(AccessorProperty),
     createMethod: function($methodName, $content, $options) {
       return AccessorProperty[$methodName].bind(null, $content, $options)
     }
   }]
 });
+function Methods($content) {
+  // Object, Array, Accessor
+  for(const [$propertyClassName, $propertyClasses] of Object.entries(Defaults)) {
+    for(const $propertyClass of $propertyClasses) {
+      const { keys, createMethod, type } = $propertyClass;
+      for(const $methodName of keys) {
+        if($propertyClassName === 'accessor' || type === 'mutators') {
+          const methodOptions = $content.options?.methods[$propertyClassName][$methodName] || {};
+          Object.defineProperty($content, $methodName, {
+            enumerable: false, writable: false, configurable: false, 
+            value: createMethod($methodName, $content, methodOptions),
+          });
+        }
+        else {
+          Object.defineProperty($content, $methodName, {
+            enumerable: false, writable: false, configurable: false, 
+            value: createMethod($methodName,  $content),
+          });
+        }
+      }
+    }
+  }
+  return $content
+}
+
 class Content extends EventTarget {
   #_properties
   #options
@@ -4337,35 +4314,15 @@ class Content extends EventTarget {
     this.#properties = $properties;
     this.#options = Options$6($options);
     this.schema = $schema;
-    // Object, Array, Accessor
-    for(const [$propertyClassName, $propertyClasses] of Object.entries(Default)) {
-      for(const $propertyClass of $propertyClasses) {
-        const { keys, createMethod } = $propertyClass;
-        for(const $methodName of keys) {
-          if($propertyClassName === 'accessor') {
-            const methodOptions = this.options?.traps[$propertyClassName][$methodName] || {};
-            Object.defineProperty(this, $methodName, {
-              enumerable: false, writable: false, configurable: false, 
-              value: createMethod($methodName, this, methodOptions),
-            });
-          }
-          else {
-            Object.defineProperty(this, $methodName, {
-              enumerable: false, writable: false, configurable: false, 
-              value: createMethod($methodName,  this),
-            });
-          }
-        }
-      }
-    }
+    Methods(this);
     const { contentAssignmentMethod } = this.options;
     this[contentAssignmentMethod](this.#properties);
   }
   get #properties() { return this.#_properties }
   set #properties($properties) {
     if(this.#_properties !== undefined) return
-    if($properties?.classToString === Content.toString()) {
-      this.#_properties = $properties.object;
+    if($properties instanceof Content) {
+      this.#_properties = $properties.valueOf();
     }
     this.#_properties = $properties;
     return this.#_properties
@@ -4383,8 +4340,6 @@ class Content extends EventTarget {
     else if(typeOfSchema === 'object') { this.#schema = new Schema($schema); }
   }
   get classToString() { return Content.toString() }
-  get object() { return this.#parse({ type: 'object' }) }
-  get string() { return this.#parse({ type: 'string' }) }
   get type() {
     if(this.#type !== undefined) return this.#type
     this.#type = typeOf(this.#properties);
@@ -4422,27 +4377,32 @@ class Content extends EventTarget {
     this.#target = typedObjectLiteral(this.#properties);
     return this.#target
   }
-  #parse($settings = {
-    type: 'object',
+  parse($settings = {
+    type: 'object', // string
     replacer: null,
     space: 0,
   }) {
     let parsement;
     if(this.type === 'object') { parsement = {}; }
-    if(this.type === 'array') { parsement = []; }
-    parsement = Object.entries(
-      Object.getOwnPropertyDescriptors(this.target)
-    ).reduce(($parsement, [
+    else if(this.type === 'array') { parsement = []; }
+    for(const [
       $propertyDescriptorName, $propertyDescriptor
-    ]) => {
-      if($propertyDescriptor.value?.classToString === Content.toString()) {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value.object;
+    ] of Object.entries(
+      Object.getOwnPropertyDescriptors(this.target))
+    ) {
+      const { enumerable, value, writable, configurable } = $propertyDescriptor;
+      if($propertyDescriptor.value instanceof Content) {
+        Object.defineProperty(parsement, $propertyDescriptorName, {
+          enumerable, value: value.parse($settings), writable, configurable
+        });
       }
       else {
-        $parsement[$propertyDescriptorName] = $propertyDescriptor.value;
+        Object.defineProperty(parsement, $propertyDescriptorName, {
+          enumerable, value, writable, configurable
+        });
       }
-      return $parsement
-    }, parsement);
+      return parsement
+    }
     const { type, replacer, space } = $settings;
     if(type === 'object' || type === 'Object') {
       return parsement
@@ -4567,7 +4527,7 @@ class Model extends MVCFrameworkCore {
       }
     }
     else if(content?.classToString === Content.toString()) {
-      properties = content.object;
+      properties = content.valueOf();
     }
     else {
       properties = content;
@@ -4623,7 +4583,7 @@ class Model extends MVCFrameworkCore {
   }
   save() {
     if(this.localStorage) {
-      this.localStorage.set(this.content.object);
+      this.localStorage.set(this.content.valueOf());
       return this.localStorage.get()
     }
     return null

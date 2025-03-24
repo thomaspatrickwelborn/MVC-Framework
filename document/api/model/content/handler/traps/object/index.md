@@ -4,7 +4,7 @@
 ## Options Property
 ```
 {
-  traps: {
+  methods: {
     object: {
       assign: {
         sourceTree: true,

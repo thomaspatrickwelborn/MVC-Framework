@@ -1,0 +1,36 @@
+import { recursiveAssign, impandTree, typedObjectLiteral } from '../../../../../coutil/index.js'
+import Content from '../../../index.js'
+import { ContentEvent } from '../../../events/index.js'
+export default function defineProperties($content, $options, $propertyDescriptors) {
+  const { events } = $options
+  const { path } = $content
+  const propertyDescriptorEntries = Object.entries($propertyDescriptors)
+  const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value')
+  let properties = typedObjectLiteral($content.valueOf())
+  // Iterate Property Descriptors
+  iteratePropertyDescriptors: 
+  for(const [
+    $propertyKey, $propertyDescriptor
+  ] of propertyDescriptorEntries) {
+    // Property Descriptor Value Is Direct Instance Of Array/object/Map
+    $content.defineProperty($propertyKey, $propertyDescriptor, impandPropertyDescriptors)
+  }
+  // Define Properties Event
+  if(events && events['defineProperties']) {
+    // Define Properties Validator Event
+    $content.dispatchEvent(
+      new ContentEvent(
+        'defineProperties',
+        {
+          path,
+          value: $content.valueOf(),
+          detail: {
+            descriptors: $propertyDescriptors,
+          },
+        },
+        $content
+      )
+    )
+  }
+  return $content
+}

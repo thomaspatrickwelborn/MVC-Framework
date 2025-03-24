@@ -3,7 +3,7 @@
 ### `get` Method Options
 ```
 const contentOptions = {
-  traps: {
+  methods: {
     accessor: {
       get: {
         events: {

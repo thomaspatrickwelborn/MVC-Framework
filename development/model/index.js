@@ -53,7 +53,7 @@ export default class Model extends Core {
       }
     }
     else if(content?.classToString === Content.toString()) {
-      properties = content.object
+      properties = content.valueOf()
     }
     else {
       properties = content
@@ -109,7 +109,7 @@ export default class Model extends Core {
   }
   save() {
     if(this.localStorage) {
-      this.localStorage.set(this.content.object)
+      this.localStorage.set(this.content.valueOf())
       return this.localStorage.get()
     }
     return null
