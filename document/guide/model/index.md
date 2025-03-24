@@ -4,11 +4,3 @@
 | [Content Class](./content/index.md) | [Schema Class](./schema/index.md) |
 | :-- | :-- |
 
-## Introduction
-
-## Impetus
-
-## Impact
-
-## Illustrations
-

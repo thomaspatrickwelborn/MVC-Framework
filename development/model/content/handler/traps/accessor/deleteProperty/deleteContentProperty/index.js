@@ -1,20 +1,9 @@
 import { regularExpressions, recursiveAssign } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../events/index.js'
-export default function deleteContentProperty() {
-  const [$content, $options, $path, $ulteroptions] = [...arguments]
+export default function deleteContentProperty($content, $options, $path) {
   const { target, path, schema } = $content
-  const { enableValidation, /* validationEvents */ } = $content.options
-  // Arguments
-  const ulteroptions = recursiveAssign({
-    pathkey: $content.options.pathkey,
-    subpathError: $content.options.subpathError,
-  }, $options, $ulteroptions)
-  // console.log("deleteContentProperty", "ulteroptions", ulteroptions)
-  const { events, pathkey, subpathError, /* validationEvents */ } = ulteroptions
-  const validationEvents = ($options.validationEvents !== undefined)
-    ? $options.validationEvents
-    : $content.options.validationEvents 
+  const { events, pathkey, subpathError, enableValidation, validationEvents } = $options
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
@@ -25,7 +14,7 @@ export default function deleteContentProperty() {
     if(subpaths.length) {
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      return propertyValue.delete(subpaths.join('.'), ulteroptions)
+      return propertyValue.delete(subpaths.join('.'), $options)
     }
     // Validation
     if(schema && enableValidation) {
@@ -56,7 +45,7 @@ export default function deleteContentProperty() {
       if(!validTargetProp.valid) { return }
     }
     if(typeof propertyValue === 'object') {
-      propertyValue.delete(ulteroptions)
+      propertyValue.delete($options)
     }
     delete target[propertyKey]
     // Delete Property Event
@@ -122,7 +111,7 @@ export default function deleteContentProperty() {
     }
   
     if(propertyValue instanceof Content) {
-      propertyValue.delete(ulteroptions)
+      propertyValue.delete($options)
     }
     delete target[propertyKey]
     // Delete Property Event

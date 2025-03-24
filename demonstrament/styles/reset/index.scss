@@ -1,0 +1,19 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  &[data-color-mode="dark"] {
+    background-color: darkmagenta;
+  }
+}
+h1, h2, h3, h4, h5, h6, h7, p {
+  margin: 0;
+  padding: 0;
+}

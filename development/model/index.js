@@ -67,7 +67,7 @@ export default class Model extends Core {
     if(this.#localStorage !== undefined) { return this.#localStorage }
     const { localStorage } = this.settings
     let path
-    if(localStorage !== undefined) {
+    if(localStorage) {
       if(typeof localStorage === 'string') {
         if(path[0] !== "/") { path = "/".concat(path) }
         else { path = localStorage }
@@ -86,18 +86,15 @@ export default class Model extends Core {
     if($changeEvents !== this.#changeEvents) {
       const boundPropertyChange = this.#propertyChange.bind(this)
       this.#changeEvents = $changeEvents
-      switch(this.#changeEvents) {
-        case true:
-          for(const $eventType of ChangeEvents) {
-            this.content.addEventListener($eventType, boundPropertyChange)
-          }
-        break
-        case false:
-          for(const $eventType of ChangeEvents) {
-            this.content.removeEventListener($eventType, boundPropertyChange)
-          }
-        break
-
+      if(this.#changeEvents === true) {
+        for(const $eventType of ChangeEvents) {
+          this.content.addEventListener($eventType, boundPropertyChange)
+        }
+      }
+      else if(this.#changeEvents === false) {
+        for(const $eventType of ChangeEvents) {
+          this.content.removeEventListener($eventType, boundPropertyChange)
+        }
       }
     }
   }

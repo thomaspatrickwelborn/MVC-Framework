@@ -1,5 +1,4 @@
 import { typedObjectLiteral, typeOf } from '../../coutil/index.js'
-import Traps from './handler/traps/index.js'
 import Schema from '../schema/index.js'
 import Options from './options/index.js'
 import ContentEvent from './events/content/index.js'

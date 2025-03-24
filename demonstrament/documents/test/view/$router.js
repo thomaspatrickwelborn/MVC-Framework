@@ -1,5 +1,5 @@
 export default {
-  active: true,
+  active: false,
   name: 'Test | View',
   path: '/test/view',
   source: 'documents/test/view',

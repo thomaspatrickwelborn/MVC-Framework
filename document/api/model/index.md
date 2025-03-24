@@ -1,5 +1,8 @@
-# Model Class
-**MVC Framework \| Class System \| *Model***  
+| [MVC Framework](../../README.md) | [API](../index.md) | *Model* |
+| :-- | :-- | :-- |
+# MVC Framework API \| Model Class
+| [Content Class](./content/index.md) | [Schema Class](./schema/index.md) |
+| :-- | :-- |
 
 ## `Settings` Property
 ```
@@ -27,7 +30,7 @@
 
 ## `Options` Property
 ```
-{ schema, content, enableEvents, localStorage, autoLoad }
+{ schema, content, enableEvents, autoLoad }
 ```
 ### `schema` Option
 **Type**: `object`, `array`, `undefined`  
@@ -53,7 +56,7 @@
 **Required**: `false`  
 **Descript**:  
  - Specifies `content` saved to `localStorage` after each content property modifier event.  
-### `changEvents` Options
+### `changeEvents` Options
 **Type**: `Boolean`  
 **Default**: `false`  
 **Required**: `false`  
@@ -88,7 +91,7 @@
 **Descript**:  
  - When `$changeEvents` differs from `#_changeEvents` the new value is assigned. 
    - When `$changeEvents` is `true` an event listener is added to `content` for each `ChangeEvents` type.  
-   - When `$changeEvents` is `falase` an event listener is removed from `content` for each `ChangeEvents` type.  
+   - When `$changeEvents` is `false` an event listener is removed from `content` for each `ChangeEvents` type.  
 
 ## Public Methods
 ### `save` Method

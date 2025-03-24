@@ -1,5 +1,5 @@
 {
-  "title": "Static CMS",
+  "title": "MVC Framework | Content",
   "metas": [{
     "tag": "meta",
     "attributes": {
@@ -15,6 +15,9 @@
       "href": "./index.css"
     },
     "selfClose": true
+  }],
+  "structure": [{
+    "tag": "index"
   }],
   "scripts": [{
     "tag": "script",

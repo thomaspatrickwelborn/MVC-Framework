@@ -1,22 +1,22 @@
 export default {
-  active: false,
-  name: 'Test | View',
-  path: '/test/view',
-  source: 'documents/test/view',
-  target: 'localhost/test/view',
+  active: true,
+  name: 'Test | Content',
+  path: '/content',
+  source: 'documents/content',
+  target: 'localhost/content',
   ignore: [],
   main: 'index.html',
   pilers: {
     sans: [{
       name: 'ClearPiler',
       type: 'sans',
-      target: 'target', 
-      path: ['**/*.{html,css,js,map}'],
+      target: 'target',
+      path: ['**/*.{html,css,js,md}'],
       ignore: [],
     }, {
       name: 'ClearPiler',
       type: 'sans',
-      target: 'source', 
+      target: 'source',
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
     }],
@@ -43,7 +43,7 @@ export default {
       watch: [
         '**/*.js',
         '../classes/**',
-        '../coutil/**',
+        '../coutil/**'
       ],
       ignore: [
         '**/$route.js',
@@ -54,7 +54,7 @@ export default {
       output: 'index.js',
       inputOptions: {
         logLevel: 'silent', 
-        external: ['/dependencies/mvc-framework.js'],
+        external: ['/dependencies/mvc-framework.js']
       },
       outputOptions: {
         format: 'es',
@@ -66,25 +66,25 @@ export default {
       type: 'structs',
       outputType: 'server',
       model: 'index.json',
-      input: 'index.ejs',
-      output: 'index.html',
       watch: ['**/*.{ejs,json}'],
       ignore: ['**/$*.ejs'],
+      input: 'index.ejs',
+      output: 'index.html',
       outputOptions: {
         localsName: '$content',
-        root: ['templates']
+        root: ['templates'],
       },
     }, {
       name: 'EJSPiler',
       type: 'structs',
       outputType: 'client',
-      input: '**/*.ejs',
-      output: '',
       watch: ['**/$*.ejs'],
       ignore: [],
+      input: '**/*.ejs',
+      output: '',
       outputOptions: {
         localsName: '$content',
-        root: ['templates'],
+        root: [''],
       },
     }],
   }

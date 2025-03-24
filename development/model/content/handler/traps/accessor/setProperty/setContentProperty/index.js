@@ -1,17 +1,11 @@
 import { recursiveAssign, regularExpressions } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../../events/index.js'
-export default function setContentProperty($content, $options, $path, $value, $ulteroptions) {
+export default function setContentProperty($content, $options, $path, $value) {
   const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
-  // Options
-  const ulteroptions = recursiveAssign(
-    {}, $content.options, $options, $ulteroptions
-  )
   const contentOptions = $content.options
-  // contentOptions.traps.accessor.set = ulteroptions
-  const { events, pathkey, subpathError, recursive, source } = ulteroptions
-  
+  const { events, pathkey, subpathError, recursive, source } = $options
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -49,7 +43,7 @@ export default function setContentProperty($content, $options, $path, $value, $u
       }
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      propertyValue.set(subpaths.join('.'), $value, ulteroptions)
+      propertyValue.set(subpaths.join('.'), $value, $options)
       return propertyValue
     }
     // Validation

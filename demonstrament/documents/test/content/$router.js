@@ -1,5 +1,5 @@
 export default {
-  active: true,
+  active: false,
   name: 'Test | Content',
   path: '/test/content',
   source: 'documents/test/content',

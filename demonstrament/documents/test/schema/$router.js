@@ -1,5 +1,5 @@
 export default {
-  active: true,
+  active: false,
   name: 'Test | Schema',
   path: '/test/schema',
   source: 'documents/test/schema',

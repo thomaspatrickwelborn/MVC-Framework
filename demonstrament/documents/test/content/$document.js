@@ -1,5 +1,5 @@
 export default {
-  active: true,
+  active: false,
   name: 'Test | Content',
   path: '/test/content',
   source: 'documents/test/content',
@@ -27,7 +27,7 @@ export default {
       input: 'index.scss',
       output: 'index.css',
       watch: [
-        '**/*.scss', ,
+        '**/*.scss', 
         '../classes/**',
         '../coutil/**'
       ],

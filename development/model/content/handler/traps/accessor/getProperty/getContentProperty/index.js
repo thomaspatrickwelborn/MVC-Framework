@@ -1,16 +1,10 @@
 import { recursiveAssign, regularExpressions } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../events/index.js'
-export default function getContentProperty() {
-  const [$content, $options, $path, $ulteroptions] = [...arguments]
+export default function getContentProperty($content, $options, $path) {
   const { target, path } = $content
   // Arguments
-  const ulteroptions = recursiveAssign({
-    pathkey: $content.options.pathkey,
-    subpathError: $content.options.subpathError,
-  }, $options, /* $content.options, */$ulteroptions)
-  // console.log("getContentProperty", "ulteroptions", ulteroptions)
-  const { events, pathkey, subpathError } = ulteroptions
+  const { events, pathkey, subpathError } = $options
   // Path Key: true
   if(pathkey === true) {
     const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
@@ -20,7 +14,7 @@ export default function getContentProperty() {
     if(subpaths.length) {
       // Subpath Error
       if(subpathError === false && propertyValue === undefined) { return undefined }
-      return propertyValue.get(subpaths.join('.'), ulteroptions)
+      return propertyValue.get(subpaths.join('.'), $options)
     }
     // Get Property Event
     if(events) {

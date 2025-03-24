@@ -5,5 +5,4 @@ export default (...$options) => Object.assign({
   autoload: false, // Boolean
   autosave: false, // Boolean
   changeEvents: true, // Boolean
-  localStorage: false, // Boolean, String,
 }, ...$options)

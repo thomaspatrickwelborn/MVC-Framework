@@ -1,0 +1,9 @@
+@use "../../styles/reset/index.scss" as StyleReset;
+index {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: darkcyan;
+  font-size: 16px;
+}
