@@ -3772,7 +3772,23 @@ var ArrayProperty = {
   unshift: unshift,
 };
 
-function getContent($content, $options) { return $content }
+function getContent($content, $options) {
+  // Get Property Event
+  const { path } = $content;
+  const { events } = $options;
+  if(events && events['get']) {
+    $content.dispatchEvent(
+      new ContentEvent('get', {
+        path,
+        value: $content,
+        detail: {
+          value: $content
+        }
+      }, $content)
+    );
+  }
+  return $content
+}
 
 function getContentProperty($content, $options, $path) {
   const { target, path } = $content;
@@ -3836,12 +3852,19 @@ function getProperty($content, $options, ...$arguments) {
     if($arguments.length === 1) { recursiveAssign(options, $arguments[0]); }
     getProperty = getContent($content, options, ...$arguments);
   }
-  // Get Property Event
+  return getProperty
+}
+
+function setContent($content, $options, $properties) {
+  for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
+    $content.set($propertyKey, $propertyValue, $options);
+  }
+  // Set Property Event
   const { path } = $content;
-  const { events } = options;
-  if(events && events['get']) {
+  const { events } = $options;
+  if(events && events['set']) {
     $content.dispatchEvent(
-      new ContentEvent('get', {
+      new ContentEvent('set', {
         path,
         value: $content,
         detail: {
@@ -3849,13 +3872,6 @@ function getProperty($content, $options, ...$arguments) {
         }
       }, $content)
     );
-  }
-  return getProperty
-}
-
-function setContent($content, $options, $properties) {
-  for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
-    $content.set($propertyKey, $propertyValue, $options);
   }
   return $content
 }
@@ -4062,20 +4078,6 @@ function setProperty($content, $options, ...$arguments) {
     if($arguments.length === 2) { recursiveAssign(options, $arguments[1]); }
     setProperty = setContent($content, options, ...$arguments);
   }
-  // Set Property Event
-  const { path } = $content;
-  const { events } = options;
-  if(events && events['set']) {
-    $content.dispatchEvent(
-      new ContentEvent('set', {
-        path,
-        value: $content,
-        detail: {
-          value: $content
-        }
-      }, $content)
-    );
-  }
   return setProperty
 }
 
@@ -4084,23 +4086,9 @@ function deleteContent($content, $options) {
   for(const [$targetPropertyKey, $targetPropertyValue] of Object.entries(target)) {
     $content.delete($targetPropertyKey, $options);
   }
-  return $content
-}
-
-function deleteProperty($content, $options, ...$arguments) {
-  let deleteProperty;
-  const options = recursiveAssign({}, $content.options, $options);
-  if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 2) { recursiveAssign(options, $arguments[1]); }
-    deleteProperty = this.deleteContentProperty($content, options, ...$arguments);
-  }
-  else {
-    if($arguments.length === 1) { recursiveAssign(options, $arguments[0]); }
-    deleteProperty = deleteContent($content, options, ...$arguments);
-  }
   // Delete Property Event
   const { path } = $content;
-  const { events } = options;
+  const { events } = $options;
   if(events && events['delete']) {
     $content.dispatchEvent(
       new ContentEvent('delete', {
@@ -4110,6 +4098,162 @@ function deleteProperty($content, $options, ...$arguments) {
         }
       }, $content)
     );
+  }
+  return $content
+}
+
+function deleteContentProperty($content, $options, $path) {
+  const { target, path, schema } = $content;
+  const { events, pathkey, subpathError, enableValidation, validationEvents } = $options;
+  // Path Key: true
+  if(pathkey === true) {
+    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+    const propertyKey = subpaths.shift();
+    let propertyValue = target[propertyKey];
+
+    // Return: Subproperty
+    if(subpaths.length) {
+      // Subpath Error
+      if(subpathError === false && propertyValue === undefined) { return undefined }
+      return propertyValue.delete(subpaths.join('.'), $options)
+    }
+    // Validation
+    if(schema && enableValidation) {
+      const differedPropertyProxy = $content.object;
+      delete differedPropertyProxy[propertyKey];
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, $content);
+      if(validationEvents) {
+        let type, propertyType;
+        const validatorEventPath = (path)
+          ? [path, propertyKey].join('.')
+          : String(propertyKey);
+        if(validTargetProp.valid) {
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', propertyKey].join('');
+        }
+        else {
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', propertyKey].join('');
+        }
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, Object.assign(validTargetProp, {
+              path: validatorEventPath
+            }), $content)
+          );
+        }
+      }
+      if(!validTargetProp.valid) { return }
+    }
+    if(typeof propertyValue === 'object') {
+      propertyValue.delete($options);
+    }
+    delete target[propertyKey];
+    // Delete Property Event
+    if(events) {
+      if(events['deleteProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            path,
+            value: propertyValue,
+            detail: {
+              key: propertyKey,
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      if(events['deleteProperty:$key']) {
+        const type = ['deleteProperty', ':', propertyKey].join('');
+        const _path = [path, '.', propertyKey].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            value: propertyValue,
+            detail: {
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
+    }
+    return undefined
+  }
+  // Path Key: false
+  else if(pathkey === false) {
+    const propertyKey = $path;
+    const propertyValue = target[propertyKey];
+
+    // Validation
+    if(schema && enableValidation) {
+      const differedPropertyProxy = $content.object;
+      delete differedPropertyProxy[propertyKey];
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $content, $content);
+      if(validationEvents) {
+        let type, propertyType;
+        if(validTargetProp.valid) {
+          type = 'validProperty';
+          propertyType = ['validProperty', ':', propertyKey].join('');
+        }
+        else {
+          type = 'nonvalidProperty';
+          propertyType = ['nonvalidProperty', ':', propertyKey].join('');
+        }
+        for(const $eventType of [type, propertyType]) {
+          $content.dispatchEvent(
+            new ValidatorEvent($eventType, validTargetProp, $content)
+          );
+        }
+      }
+      if(!validTargetProp.valid) { return }
+    }
+  
+    if(propertyValue instanceof Content) {
+      propertyValue.delete($options);
+    }
+    delete target[propertyKey];
+    // Delete Property Event
+    if(events) {
+      if(events['deleteProperty']) {
+        $content.dispatchEvent(
+          new ContentEvent('deleteProperty', {
+            path,
+            value: propertyValue,
+            detail: {
+              key: propertyKey,
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
+      if(events['deleteProperty:$key']) {
+        const type = ['deleteProperty', ':', propertyKey].join('');
+        const _path = [path, '.', propertyKey].join('');
+        $content.dispatchEvent(
+          new ContentEvent(type, {
+            path: _path,
+            value: propertyValue,
+            detail: {
+              value: propertyValue,
+            }
+          }, $content)
+        );
+      }
+    }
+    return undefined
+  }
+}
+
+function deleteProperty($content, $options, ...$arguments) {
+  let deleteProperty;
+  const options = recursiveAssign({}, $content.options, $options);
+  if(typeof $arguments[0] === 'string') {
+    if($arguments.length === 2) { recursiveAssign(options, $arguments[1]); }
+    deleteProperty = deleteContentProperty($content, options, ...$arguments);
+  }
+  else {
+    if($arguments.length === 1) { recursiveAssign(options, $arguments[0]); }
+    deleteProperty = deleteContent($content, options, ...$arguments);
   }
   return deleteProperty
 }
