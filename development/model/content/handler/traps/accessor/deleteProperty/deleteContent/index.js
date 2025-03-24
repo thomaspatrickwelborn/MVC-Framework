@@ -4,7 +4,7 @@ import { ContentEvent } from '../../../../../events/index.js'
 export default function deleteContent() {
   const $content = Array.prototype.shift.call(arguments)
   const $options = Array.prototype.shift.call(arguments)
-  const { target, path, schema, proxy } = $content
+  const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
   // Arguments
   const ulteroptions = recursiveAssign({}, $options, arguments[0], { validationEvents: false })
@@ -12,7 +12,7 @@ export default function deleteContent() {
   // console.log("deleteContent", "ulteroptions", ulteroptions)
   const targetPropertyEntries = Object.entries(target)
   for(const [$targetPropertyKey, $targetPropertyValue] of targetPropertyEntries) {
-    proxy.delete($targetPropertyKey, ulteroptions)
+    $content.delete($targetPropertyKey, ulteroptions)
   }
   // Delete Property Event
   if(events && events['delete']) {
@@ -20,10 +20,10 @@ export default function deleteContent() {
       new ContentEvent('delete', {
         path,
         detail: {
-          value: proxy
+          value: $content
         }
       }, $content)
     )
   }
-  return proxy
+  return $content
 }

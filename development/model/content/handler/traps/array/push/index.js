@@ -9,14 +9,13 @@ export default function push() {
   const { events } = $options
   const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
-  const { proxy } = $content
   const elements = []
   let elementsIndex = 0
   iterateElements:
   for(let $element of arguments) {
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementsIndex, $element, {}, proxy)
+      const validElement = schema.validateProperty(elementsIndex, $element, {}, $content)
       if(validationEvents) {
         let type, propertyType
         const validatorPath = (path)

@@ -8,7 +8,6 @@ export default function seal() {
   // console.log("seal", "ulteroptions", ulteroptions)
   const { recursive, events } = $options
   const { target, path } = $content
-  const { proxy } = $content
   if(recursive === true) {
     iterateProperties: 
     for(const [
@@ -30,5 +29,5 @@ export default function seal() {
     }
   }
   Object.seal(target)
-  return proxy
+  return $content
 }

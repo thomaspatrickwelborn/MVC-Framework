@@ -3,7 +3,7 @@ import Content from '../../../../../index.js'
 import { ContentEvent } from '../../../../../events/index.js'
 export default function deleteContentProperty() {
   const [$content, $options, $path, $ulteroptions] = [...arguments]
-  const { target, path, schema, proxy } = $content
+  const { target, path, schema } = $content
   const { enableValidation, /* validationEvents */ } = $content.options
   // Arguments
   const ulteroptions = recursiveAssign({
@@ -29,9 +29,9 @@ export default function deleteContentProperty() {
     }
     // Validation
     if(schema && enableValidation) {
-      const differedPropertyProxy = proxy.object
+      const differedPropertyProxy = $content.object
       delete differedPropertyProxy[propertyKey]
-      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, proxy)
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, {}, $content)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)
@@ -96,9 +96,9 @@ export default function deleteContentProperty() {
 
     // Validation
     if(schema && enableValidation) {
-      const differedPropertyProxy = proxy.object
+      const differedPropertyProxy = $content.object
       delete differedPropertyProxy[propertyKey]
-      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $content, proxy)
+      const validTargetProp = schema.validate(propertyKey, differedPropertyProxy, $content, $content)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

@@ -1,19 +1,17 @@
 import { recursiveAssign, regularExpressions } from '../../../../../../../coutil/index.js'
 import Content from '../../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../../events/index.js'
-export default function setContentProperty() {
-  const $arguments = [...arguments]
-  const [$content, $options, $path, $value, $ulteroptions] = [...$arguments]
-  const { target, path, schema, proxy } = $content
+export default function setContentProperty($content, $options, $path, $value, $ulteroptions) {
+  const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
   // Options
   const ulteroptions = recursiveAssign(
     {}, $content.options, $options, $ulteroptions
   )
-  // console.log("setContentProperty", "ulteroptions", ulteroptions)
   const contentOptions = $content.options
   // contentOptions.traps.accessor.set = ulteroptions
-  const { events, pathkey, subpathError, recursive, setObject } = ulteroptions
+  const { events, pathkey, subpathError, recursive, source } = ulteroptions
+  
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
@@ -56,7 +54,7 @@ export default function setContentProperty() {
     }
     // Validation
     if(schema && enableValidation) {
-      const validTargetProp = schema.validateProperty(propertyKey, $value, setObject, proxy)
+      const validTargetProp = schema.validateProperty(propertyKey, $value, source, $content)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)

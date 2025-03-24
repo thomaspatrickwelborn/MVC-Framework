@@ -13,7 +13,7 @@ export default function defineProperty() {
   const ulteroptions = recursiveAssign({}, $options, $content.options)
   // console.log("defineProperty", "ulteroptions", ulteroptions)
   const { descriptorTree, events } = $options
-  const { target, path, schema, proxy } = $content
+  const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
   const propertyValue = $propertyDescriptor.value
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {}
@@ -23,7 +23,7 @@ export default function defineProperty() {
   ) ? true : false
   // Validation
   if(schema && enableValidation) {
-    const validProperty = schema.validateProperty($propertyKey, propertyValue, $propertyDescriptors, proxy)
+    const validProperty = schema.validateProperty($propertyKey, propertyValue, $propertyDescriptors, $content)
     if(validationEvents) {
       let type, propertyType
       const validatorPath = (path)
@@ -41,7 +41,7 @@ export default function defineProperty() {
         $content.dispatchEvent(new ValidatorEvent($eventType, validProperty, $content))
       }
     }
-    if(!validProperty.valid) { return proxy }
+    if(!validProperty.valid) { return $content }
   }
   const change = {
     preter: {
@@ -137,5 +137,5 @@ export default function defineProperty() {
       ))
     }
   }
-  return proxy
+  return $content
 }

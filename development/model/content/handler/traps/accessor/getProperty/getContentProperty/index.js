@@ -4,7 +4,6 @@ import { ContentEvent } from '../../../../../events/index.js'
 export default function getContentProperty() {
   const [$content, $options, $path, $ulteroptions] = [...arguments]
   const { target, path } = $content
-  const { proxy } = $content
   // Arguments
   const ulteroptions = recursiveAssign({
     pathkey: $content.options.pathkey,

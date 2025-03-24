@@ -9,7 +9,6 @@ export default function concat() {
   const { events } = $options
   const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
-  const { proxy } = $content
   const $arguments = [...arguments].reduce(($arguments, $argument) => {
     if(Array.isArray($argument)) { $arguments.push(...$argument) }
     else { $arguments.push($argument) }
@@ -18,12 +17,12 @@ export default function concat() {
   let valueIndex = target.length
   const values = []
   let targetConcat = [...Array.from(target)]
-  let proxyConcat
+  let content
   iterateValues: 
   for(const $value of $arguments) {
     // Validation: Value
     if(schema && enableValidation) {
-      const validValue = schema.validateProperty(valueIndex, $subvalue, {}, proxy)
+      const validValue = schema.validateProperty(valueIndex, $subvalue, {}, $content)
       if(schema &&validationEvents) {
         let type, propertyType
         const validatorPath = (path)
@@ -94,16 +93,16 @@ export default function concat() {
     }
     valueIndex++
   }
-  proxyConcat = new Content(targetConcat, schema, $content.options)
+  content = new Content(targetConcat, schema, $content.options)
   if(events && events['concat']) {
     $content.dispatchEvent(
       new ContentEvent('concat', {
         path,
         detail: {
-          values: proxyConcat,
+          values: content,
         },
       }, $content)
     )
   }
-  return proxyConcat
+  return content
 }

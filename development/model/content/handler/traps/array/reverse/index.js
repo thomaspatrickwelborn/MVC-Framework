@@ -7,7 +7,6 @@ export default function reverse() {
   // console.log("reverse", "ulteroptions", ulteroptions)
   const { events } = $options
   const { target, path } = $content
-  const { proxy } = $content
   Array.prototype.reverse.call(target, ...arguments)
   if(events && events['reverse']) {
     $content.dispatchEvent(
@@ -23,5 +22,5 @@ export default function reverse() {
       )
     )
   }
-  return proxy
+  return $content
 }

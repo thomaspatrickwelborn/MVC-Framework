@@ -4,7 +4,7 @@ export default {
   path: '/test/draft',
   source: 'documents/test/draft',
   target: 'localhost/test/draft',
-  ignore: ["0", "1", "2", "3", "4", "5", "6"],
+  ignore: ["0", "1", "2", "3", "4", "5", "6", "7"],
   main: 'index.html',
   pilers: {
     sans: [{

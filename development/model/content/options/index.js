@@ -1,5 +1,5 @@
-import { recursiveAssign } from '../../../coutil/index.js'
-export default (...$options) => recursiveAssign({
+import { recursiveAssign, typeOf } from '../../../coutil/index.js'
+export default ($options) => recursiveAssign({
   path: null, 
   parent: null, 
   enableValidation: true, 
@@ -11,7 +11,7 @@ export default (...$options) => recursiveAssign({
   },
   pathkey: true,
   subpathError: false,
-  proxyAssignmentMethod: 'set',
+  contentAssignmentMethod: 'set',
   traps: {
     accessor: {
       get: {
@@ -122,5 +122,5 @@ export default (...$options) => recursiveAssign({
         events: { 'seal': true  },
       },
     },
-  }
-}, ...$options)
+  },
+}, $options)

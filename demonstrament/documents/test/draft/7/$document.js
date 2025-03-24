@@ -1,22 +1,22 @@
 export default {
   active: true,
-  name: 'Test | View',
-  path: '/test/view',
-  source: 'documents/test/view',
-  target: 'localhost/test/view',
-  ignore: [],
+  name: 'Test | Draft 7',
+  path: '/test/draft/7',
+  source: 'documents/test/draft/7',
+  target: 'localhost/test/draft/7',
   main: 'index.html',
+  ignore: [],
   pilers: {
     sans: [{
       name: 'ClearPiler',
       type: 'sans',
-      target: 'target', 
-      path: ['**/*.{html,css,js,map}'],
+      target: 'target',
+      path: ['**/*.{html,css,js,md}'],
       ignore: [],
     }, {
       name: 'ClearPiler',
       type: 'sans',
-      target: 'source', 
+      target: 'source',
       path: ['**/template.js'],
       ignore: ['**/$template.js'],
     }],
@@ -26,32 +26,20 @@ export default {
       type: 'styles',
       input: 'index.scss',
       output: 'index.css',
-      watch: [
-        '**/*.scss', ,
-        '../classes/**',
-        '../coutil/**'
-      ],
+      watch: ['**/*.scss'],
       ignore: [],
-      inputOptions: {},
-      outputOptions: {
-        sourceMap: true,
-      },
     }],
     scripts: [{
       name: 'RollupPiler',
       type: 'scripts',
-      watch: [
-        '**/*.js',
-        '../classes/**',
-        '../coutil/**',
-      ],
+      input: 'index.js',
+      output: 'index.js',
+      watch: ['**/*.js'],
       ignore: [
         '**/$route.js',
         '**/$document.js',
         '**/$socket.js',
       ],
-      input: 'index.js',
-      output: 'index.js',
       inputOptions: {
         logLevel: 'silent', 
         external: ['/dependencies/mvc-framework.js'],
@@ -68,11 +56,11 @@ export default {
       model: 'index.json',
       input: 'index.ejs',
       output: 'index.html',
-      watch: ['**/*.{ejs,json}'],
-      ignore: ['**/$*.ejs'],
+      watch: ['**/*.{ejs,json}', '**/\$*.ejs'],
+      ignore: [],
       outputOptions: {
         localsName: '$content',
-        root: ['templates']
+        root: ['templates'],
       },
     }, {
       name: 'EJSPiler',
@@ -80,7 +68,7 @@ export default {
       outputType: 'client',
       input: '**/*.ejs',
       output: '',
-      watch: ['**/$*.ejs'],
+      watch: ['**/\$*.ejs'],
       ignore: [],
       outputOptions: {
         localsName: '$content',

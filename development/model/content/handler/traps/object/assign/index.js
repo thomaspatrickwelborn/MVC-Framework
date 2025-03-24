@@ -1,20 +1,14 @@
 import { recursiveAssign, typedObjectLiteral } from '../../../../../../coutil/index.js'
 import Content from '../../../../index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../events/index.js'
-export default function assign() {
-  const $arguments = [...arguments]
-  const $content = $arguments.shift()
-  const $options = $arguments.shift()
+export default function assign($content, $options, ...$sources) {
   const ulteroptions = recursiveAssign({}, $options, $content.options)
-  // console.log("assign", "ulteroptions", ulteroptions)
-  const { path, target, schema, proxy } = $content
+  const { path, target, schema } = $content
   const { events, sourceTree, enableValidation, validationEvents } = ulteroptions
-  // const { sourceTree } = $options
-  const assignSources = $arguments
   const assignedSources = []
   // Iterate Sources
   iterateAssignSources: 
-  for(let $assignSource of assignSources) {
+  for(let $assignSource of $sources) {
     let assignedSource
     if(Array.isArray($assignSource)) { assignedSource = [] }
     else if(typeof $assignSource === 'object') { assignedSource = {} }
@@ -29,7 +23,7 @@ export default function assign() {
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty(
-          $assignSourcePropKey, $assignSourcePropVal, $assignSource, proxy
+          $assignSourcePropKey, $assignSourcePropVal, $assignSource, $content
         )
         if(validationEvents) {
           let type, propertyType
@@ -182,5 +176,5 @@ export default function assign() {
       }, $content)
     )
   }
-  return proxy
+  return $content
 }

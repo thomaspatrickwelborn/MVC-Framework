@@ -101,5 +101,5 @@ export default function copyWithin() {
       )
     )
   }
-  return proxy
+  return $content
 }

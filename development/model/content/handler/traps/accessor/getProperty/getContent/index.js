@@ -12,12 +12,12 @@ export default function getContent() {
     $content.dispatchEvent(
       new ContentEvent('get', {
         path,
-        value: proxy,
+        value: $content,
         detail: {
-          value: proxy
+          value: $content
         }
       }, $content)
     )
   }
-  return proxy
+  return $content
 }

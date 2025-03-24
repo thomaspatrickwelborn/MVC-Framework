@@ -5,7 +5,7 @@ export default function unshift() {
   const $arguments = [...arguments]
   const [$content, $options] = [...$arguments]
   const { events } = $options
-  const { target, path, schema, proxy } = $content
+  const { target, path, schema } = $content
   const ulteroptions = recursiveAssign({}, $options, $content.options)
   // console.log("unshift", "ulteroptions", ulteroptions)
   const { enableValidation, validationEvents } = $content.options
@@ -24,7 +24,7 @@ export default function unshift() {
     ) ? true : false
     // Validation
     if(schema && enableValidation) {
-      const validElement = schema.validateProperty(elementIndex, $element, {}, proxy)
+      const validElement = schema.validateProperty(elementIndex, $element, {}, $content)
       if(validationEvents) {
         let type, propertyType
         const validatorEventPath = (path)
@@ -42,7 +42,7 @@ export default function unshift() {
           $content.dispatchEvent(new ValidatorEvent($eventType, validElement, $content))
         }
       }
-      if(!validElement.valid) { return proxy.length }
+      if(!validElement.valid) { return $content.length }
     }
     const change = {
       preter: {
@@ -127,5 +127,5 @@ export default function unshift() {
       $content)
     )
   }
-  return proxy.length
+  return $content.length
 }

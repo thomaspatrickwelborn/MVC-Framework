@@ -9,7 +9,6 @@ export default function fill() {
   const { events } = $options
   const { target, path, schema } = $content
   const { enableValidation, validationEvents } = $content.options
-  const { proxy } = $content
   const $arguments = [...arguments]
   let $start
   if(typeof $arguments[1] === 'number') {
@@ -114,5 +113,5 @@ export default function fill() {
       $content)
     )
   }
-  return proxy
+  return $content
 }

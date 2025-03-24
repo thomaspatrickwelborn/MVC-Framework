@@ -7,7 +7,7 @@ export default function defineProperties() {
   const ulteroptions = recursiveAssign({}, $options, $content.options)
   // console.log("defineProperties", "ulteroptions", ulteroptions)
   const { events } = $options
-  const { path, proxy } = $content
+  const { path } = $content
   // const {} = $content.options
   const propertyDescriptorEntries = Object.entries($propertyDescriptors)
   const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value')
@@ -18,7 +18,7 @@ export default function defineProperties() {
     $propertyKey, $propertyDescriptor
   ] of propertyDescriptorEntries) {
     // Property Descriptor Value Is Direct Instance Of Array/object/Map
-    proxy.defineProperty($propertyKey, $propertyDescriptor, $propertyDescriptors)
+    $content.defineProperty($propertyKey, $propertyDescriptor, $propertyDescriptors)
   }
   // Define Properties Event
   if(events && events['defineProperties']) {
@@ -28,7 +28,7 @@ export default function defineProperties() {
         'defineProperties',
         {
           path,
-          value: proxy,
+          value: $content,
           detail: {
             descriptors: $propertyDescriptors,
           },
@@ -37,5 +37,5 @@ export default function defineProperties() {
       )
     )
   }
-  return proxy
+  return $content
 }

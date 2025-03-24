@@ -16,7 +16,7 @@ Default Content Options.
   enableEvents: true, 
   pathkey: true,
   subpathError: false,
-  proxyAssignmentMethod: 'set',
+  contentAssignmentMethod: 'set',
 }
 ```
 ### `path` Option
@@ -67,7 +67,7 @@ Default Content Options.
 **Descript**:  
  - When `true` and `pathkey` is `true` accessing nonexistent content properties using path notation throws error.  
  - When `false` and `pathkey` is `true` accessing nonexistent content properties using path notation catches error silently.  
-### `proxyAssignmentMethod` Option
+### `contentAssignmentMethod` Option
 **Type**: `string`  
 **Default**: `set`  
 **Enum**: [`set`, `assign`]
