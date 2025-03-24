@@ -65,7 +65,7 @@ export default class Context extends EventTarget {
       else if(Variables.TypeValues.includes($propertyDefinition)) {
         propertyDefinition = expandTree($propertyDefinition, 'type.value')
       }
-      // Property Definition: 'string', 'number', 'boolean', 'object', 'array', 'null', 'undefined'
+      // Property Definition: 'string', 'number', 'bigint', 'boolean', 'object', 'array', 'null', 'undefined'
       else if(Variables.TypeKeys.includes($propertyDefinition)) {
         propertyDefinition = expandTree(Variables.TypeValues[
           Variables.TypeKeys.indexOf($propertyDefinition)

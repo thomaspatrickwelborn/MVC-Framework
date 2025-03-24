@@ -2,7 +2,6 @@ import {
   typeOf, variables as Variables
 } from '../../../../coutil/index.js'
 import Validator from '../../validator/index.js'
-import Schema from '../../index.js'
 const { PrimitiveKeys, PrimitiveValues } = Variables
 export default class TypeValidator extends Validator {
   constructor($definition = {}, $schema) {

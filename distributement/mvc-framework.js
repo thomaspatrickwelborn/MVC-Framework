@@ -1102,6 +1102,7 @@ const Primitives = {
   'string': String, 
   'number': Number, 
   'boolean': Boolean, 
+  'bigint': BigInt, 
   'undefined': undefined,
   'null': null,
 };
@@ -1987,7 +1988,7 @@ class Context extends EventTarget {
       else if(TypeValues.includes($propertyDefinition)) {
         propertyDefinition = expandTree($propertyDefinition, 'type.value');
       }
-      // Property Definition: 'string', 'number', 'boolean', 'object', 'array', 'null', 'undefined'
+      // Property Definition: 'string', 'number', 'bigint', 'boolean', 'object', 'array', 'null', 'undefined'
       else if(TypeKeys.includes($propertyDefinition)) {
         propertyDefinition = expandTree(TypeValues[
           TypeKeys.indexOf($propertyDefinition)
