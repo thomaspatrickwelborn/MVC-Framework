@@ -1,4 +1,4 @@
-export default (...$settings) => { console.log(...$settings); Object.assign({
+export default (...$settings) => { Object.assign({
   models: {},
   views: {},
   controls: {},

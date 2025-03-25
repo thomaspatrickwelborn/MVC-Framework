@@ -1,25 +1,30 @@
+console.log("=============")
+console.log("assign Method")
+console.log("=============")
+
 import { Content } from '/dependencies/mvc-framework.js'
 function eventLog($event) {
-  console.log(`type: ${$event.type}\npath: ${$event.path}\ndetail: `, JSON.stringify($event.detail, null, 2))
+  console.log(
+    `type: ${$event.type}\npath: ${$event.path}\ndetail: `, 
+    JSON.stringify($event.detail, null, 2), 
+    '\n', `conter: ${$event.change.conter}`
+  )
 }
 const object = new Content({})
 
 
-console.log("------")
-console.log("assign")
-console.log("------")
-object.addEventListener('assign', eventLog)
+console.log("--------------------")
+console.log("assignSourceProperty")
+console.log("--------------------")
+object.addEventListener('assignSourceProperty', eventLog)
 object.assign({
-  propertyF: false,
+  propertyF: false
 }, {
-  propertyA: { propertyB: { propertyC: 333 } },
-  propertyD: [{
-    propertyE: 555
-  }],
+  propertyA: { propertyB: { propertyH: 101010 } },
+  propertyD: { '2': { propertyE: 555 } },
 }, {
-  propertyF: true,
+  propertyF: true
 })
-object.removeEventListener('assign', eventLog)
 console.log(object.toString({ replacer: null, space: 2 }))
 
 
@@ -39,15 +44,19 @@ object.removeEventListener('assignSource', eventLog)
 console.log(object.toString({ replacer: null, space: 2 }))
 
 
-console.log("--------------------")
-console.log("assignSourceProperty")
-console.log("--------------------")
-object.addEventListener('assignSourceProperty', eventLog)
+console.log("------")
+console.log("assign")
+console.log("------")
+object.addEventListener('assign', eventLog)
 object.assign({
-  propertyF: false
+  propertyF: false,
 }, {
-  propertyA: { propertyB: { propertyH: 101010 } },
-  propertyD: { '2': { propertyE: 555 } },
+  propertyA: { propertyB: { propertyC: 333 } },
+  propertyD: [{
+    propertyE: 555
+  }],
 }, {
-  propertyF: true
+  propertyF: true,
 })
+object.removeEventListener('assign', eventLog)
+console.log(object.toString({ replacer: null, space: 2 }))

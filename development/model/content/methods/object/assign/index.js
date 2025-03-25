@@ -1,9 +1,16 @@
 import { recursiveAssign, typedObjectLiteral } from '../../../../../coutil/index.js'
 import Content from '../../../index.js'
+import Change from '../../../change/index.js'
 import { ContentEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($content, $options, ...$sources) {
   const { path, target, schema } = $content
   const { events, sourceTree, enableValidation, validationEvents } = $options
+  const changes = {
+    assignChange: new Change({ preter: $content }),
+    assignSourceChange: new Change({ preter: $content }),
+    assignSourcePropertyChange: new Change(),
+    assignSourcePropertyKeyChange: new Change(),
+  }
   const assignedSources = []
   // Iterate Sources
   iterateAssignSources: 
@@ -13,27 +20,24 @@ export default function assign($content, $options, ...$sources) {
     else if(typeof $assignSource === 'object') { assignedSource = {} }
     // Iterate Source Props
     iterateSourceProps:
-    for(let [$assignSourcePropKey, $assignSourcePropVal] of Object.entries($assignSource)) {
-      let targetPropVal = target[$assignSourcePropKey]
-      let assignSourcePropVal
-      const targetPropValIsContentInstance = (
-        target[$assignSourcePropKey] instanceof Content
-      ) ? true : false
+    for(let [$sourceKey, $sourceValue] of Object.entries($assignSource)) {
+      changes.assignSourcePropertyChange.preter = target[$sourceKey]
+      changes.assignSourcePropertyKeyChange.preter = target[$sourceKey]
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty(
-          $assignSourcePropKey, $assignSourcePropVal, $assignSource, $content
+          $sourceKey, $sourceValue, $assignSource, $content
         )
         if(validationEvents) {
           let type, propertyType
-          const validatorEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey)
+          const validatorEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)
           if(validSourceProp.valid) {
             type = 'validProperty'
-            propertyType = ['validProperty', $assignSourcePropKey].join(':')
+            propertyType = ['validProperty', $sourceKey].join(':')
           }
           else {
             type = 'nonvalidProperty'
-            propertyType = ['nonvalidProperty', $assignSourcePropKey].join(':')
+            propertyType = ['nonvalidProperty', $sourceKey].join(':')
           }
           for(const $eventType of [type, propertyType]) {
             $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
@@ -41,62 +45,52 @@ export default function assign($content, $options, ...$sources) {
         }
         if(!validSourceProp.valid) { continue iterateSourceProps }
       }
-      const change = {
-        preter: {
-          key: $assignSourcePropKey,
-          value: target[$assignSourcePropKey],
-        },
-        anter: {
-          key: $assignSourcePropKey,
-          value: undefined,
-        },
-        conter: undefined
-      }
       // Source Prop: Object Type
-      if($assignSourcePropVal && typeof $assignSourcePropVal === 'object') {
-        if($assignSourcePropVal instanceof Content) {
-          $assignSourcePropVal = $assignSourcePropVal.valueOf()
+      if($sourceValue && typeof $sourceValue === 'object') {
+        if($sourceValue instanceof Content) {
+          $sourceValue = $sourceValue.valueOf()
         }
         // Subschema
         let subschema
         if(schema?.type === 'array') { subschema = schema.context[0] }
-        else if(schema?.type === 'object') { subschema = schema.context[$assignSourcePropKey] }
+        else if(schema?.type === 'object') { subschema = schema.context[$sourceKey] }
         else { subschema = null }
         // Content
         const contentPath = (path)
-          ? [path, $assignSourcePropKey].join('.')
-          : String($assignSourcePropKey)
-        let contentTypedLiteral = typedObjectLiteral($assignSourcePropVal)
+          ? [path, $sourceKey].join('.')
+          : String($sourceKey)
+        let contentTypedLiteral = typedObjectLiteral($sourceValue)
         // Assignment
         let assignment
+        let sourceValue
         // Source Tree: False
         if(sourceTree === false) {
-          targetPropVal = new Content(contentTypedLiteral, subschema, 
+          sourceValue = new Content(contentTypedLiteral, subschema, 
             recursiveAssign({}, $content.options, {
               path: contentPath,
               parent: $content,
             })
           )
-          targetPropVal.assign($assignSourcePropVal)
-          assignment = { [$assignSourcePropKey]: targetPropVal }
+          sourceValue.assign($sourceValue)
+          assignment = { [$sourceKey]: sourceValue }
         }
         // Source Tree: true
         else {
           // Assignment: Existing Content Instance
-          if(targetPropValIsContentInstance) {
-            targetPropVal.assign($assignSourcePropVal)
+          if(target[$sourceKey] instanceof Content) {
+            target[$sourceKey].assign($sourceValue)
           }
           // Assignment: New Content Instance
           else {
-            targetPropVal = new Content(contentTypedLiteral, subschema, 
+            sourceValue = new Content(contentTypedLiteral, subschema, 
               recursiveAssign({}, $content.options, {
                 path: contentPath,
                 parent: $content,
               })
             )
-            targetPropVal.assign($assignSourcePropVal)
+            sourceValue.assign($sourceValue)
           }
-          assignment = { [$assignSourcePropKey]: targetPropVal }
+          assignment = { [$sourceKey]: sourceValue }
         }
         // Assignment
         Object.assign(target, assignment)
@@ -104,46 +98,41 @@ export default function assign($content, $options, ...$sources) {
       }
       // Source Prop: Primitive Type
       else {
-        let assignment = {
-          [$assignSourcePropKey]: $assignSourcePropVal
-        }
+        let assignment = { [$sourceKey]: $sourceValue }
         // Assign Root
         Object.assign(target, assignment)
         // Assigned Source
         Object.assign(assignedSource, assignment)
       }
-      change.anter.value = targetPropVal
-      change.conter = (targetPropValIsContentInstance)
-        ? (targetPropVal.toString() !== JSON.stringify(targetPropVal))
-        : (JSON.stringify(targetPropVal) !== JSON.stringify(targetPropVal))
-      change.anter.value = targetPropVal
       // Content Event: Assign Source Property
       if(events) {
-        const contentEventPath = (path) ? [path, $assignSourcePropKey].join('.') : String($assignSourcePropKey)
+        const contentEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)
         if(events['assignSourceProperty:$key']) {
-          const type = ['assignSourceProperty', $assignSourcePropKey].join(':')
+          changes.assignSourcePropertyKeyChange.anter = target[$sourceKey]
+          const type = ['assignSourceProperty', $sourceKey].join(':')
           $content.dispatchEvent(
             new ContentEvent(type, {
               path: contentEventPath,
-              value: $assignSourcePropVal,
-              change,
+              value: $sourceValue,
+              change: changes.assignSourcePropertyKeyChange,
               detail: {
-                key: $assignSourcePropKey,
-                value: $assignSourcePropVal,
+                key: $sourceKey,
+                value: $sourceValue,
                 source: $assignSource,
               }
             }, $content)
           )
         }
         if(events['assignSourceProperty']) {
+          changes.assignSourcePropertyChange.anter = $sourceValue
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
-              value: $assignSourcePropVal,
-              change,
+              value: $sourceValue,
+              change: changes.assignSourcePropertyChange,
               detail: {
-                key: $assignSourcePropKey,
-                value: $assignSourcePropVal,
+                key: $sourceKey,
+                value: $sourceValue,
                 source: $assignSource,
               }
             }, $content)
@@ -157,6 +146,7 @@ export default function assign($content, $options, ...$sources) {
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
           path,
+          change: changes.assignSourceChange,
           detail: {
             source: assignedSource,
           },
@@ -169,6 +159,7 @@ export default function assign($content, $options, ...$sources) {
     $content.dispatchEvent(
       new ContentEvent('assign', { 
         path,
+        change: changes.assignChange,
         detail: {
           sources: assignedSources
         },

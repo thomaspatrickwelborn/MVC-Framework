@@ -66,17 +66,17 @@ export default function setContentProperty($content, $options, $path, $value) {
       }
       if(!validTargetProp.valid) { return }
     }
-    const change = {
-      preter: {
-        key: propertyKey,
-        value: target[propertyKey],
-      },
-      anter: {
-        key: propertyKey,
-        value: $value,
-      },
-      conter: undefined,
-    }
+    // const change = {
+    //   preter: {
+    //     key: propertyKey,
+    //     value: target[propertyKey],
+    //   },
+    //   anter: {
+    //     key: propertyKey,
+    //     value: $value,
+    //   },
+    //   conter: undefined,
+    // }
     // Return: Property
     // Value: Object Literal
     if(typeof $value === 'object') {
@@ -109,7 +109,7 @@ export default function setContentProperty($content, $options, $path, $value) {
           new ContentEvent('setProperty', {
             path: contentEventPath, 
             value: propertyValue,
-            change,
+            // change,
             detail: {
               key: propertyKey,
               value: propertyValue,
@@ -123,7 +123,7 @@ export default function setContentProperty($content, $options, $path, $value) {
           new ContentEvent(type, {
             path: contentEventPath, 
             value: propertyValue,
-            change,
+            // change,
             detail: {
               value: propertyValue,
             }

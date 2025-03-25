@@ -13,7 +13,7 @@ export default class ChangeEvent extends CustomEvent {
     else { this.#key = null }
     return this.#key
   }
-  get change() { return this.#settings.change }
+  // get change() { return this.#settings.change }
   get value() { return this.#settings.value }
   get path() { return this.#settings.path }
   get detail() { return this.#settings.detail }

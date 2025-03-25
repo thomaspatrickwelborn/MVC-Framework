@@ -4,7 +4,7 @@ import Schema from './schema/index.js'
 import LocalStorage from './localStorage/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'
-import ChangeEvent from './changeEvent/index.js'
+import ChangeEvent from './events/change/index.js'
 const ChangeEvents = [
   // Accessor
   "getProperty", "setProperty", "deleteProperty", 

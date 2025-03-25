@@ -87,9 +87,7 @@ export default class Content extends EventTarget {
     replacer: null,
     space: 0,
   }) {
-    let parsement
-    if(this.type === 'object') { parsement = {} }
-    else if(this.type === 'array') { parsement = [] }
+    let parsement = typedObjectLiteral(this.type)
     for(const [
       $propertyDescriptorName, $propertyDescriptor
     ] of Object.entries(
@@ -98,7 +96,7 @@ export default class Content extends EventTarget {
       const { enumerable, value, writable, configurable } = $propertyDescriptor
       if($propertyDescriptor.value instanceof Content) {
         Object.defineProperty(parsement, $propertyDescriptorName, {
-          enumerable, value: value.parse($settings), writable, configurable
+          enumerable, value: value.parse({ type: 'object' }), writable, configurable
         })
       }
       else {
@@ -106,15 +104,10 @@ export default class Content extends EventTarget {
           enumerable, value, writable, configurable
         })
       }
-      return parsement
     }
     const { type, replacer, space } = $settings
-    if(type === 'object' || type === 'Object') {
-      return parsement
-    }
-    else if(type === 'string' || type === 'String') {
-      return JSON.stringify(parsement, replacer, space)
-    }
+    if(type === 'object') { return parsement }
+    else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }
   }
 }

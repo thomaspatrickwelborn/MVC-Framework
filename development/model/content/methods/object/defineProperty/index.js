@@ -34,17 +34,17 @@ export default function defineProperty($content, $options, $propertyKey, $proper
     }
     if(!validProperty.valid) { return $content }
   }
-  const change = {
-    preter: {
-      key: $propertyKey,
-      value: target[$propertyKey],
-    },
-    anter: {
-      key: $propertyKey,
-      value: undefined,
-    },
-    conter: undefined,
-  }
+  // const change = {
+  //   preter: {
+  //     key: $propertyKey,
+  //     value: target[$propertyKey],
+  //   },
+  //   anter: {
+  //     key: $propertyKey,
+  //     value: undefined,
+  //   },
+  //   conter: undefined,
+  // }
   // Property Descriptor Value: Object Type
   if(typeof propertyValue === 'object') {
     // Subschema
@@ -91,10 +91,10 @@ export default function defineProperty($content, $options, $propertyKey, $proper
   else {
     Object.defineProperty(target, $propertyKey, $propertyDescriptor)
   }
-  change.anter.value = propertyValue
-  change.conter = (targetPropertyValueIsContentInstance)
-    ? (targetPropertyValue.toString() !== JSON.stringify(propertyValue))
-    : (JSON.stringify(targetPropertyValue) !== JSON.stringify(propertyValue))
+  // change.anter.value = propertyValue
+  // change.conter = (targetPropertyValueIsContentInstance)
+  //   ? (targetPropertyValue.toString() !== JSON.stringify(propertyValue))
+  //   : (JSON.stringify(targetPropertyValue) !== JSON.stringify(propertyValue))
   // Define Property Event
   if(events) {
     const contentEventPath = (path)
@@ -105,7 +105,7 @@ export default function defineProperty($content, $options, $propertyKey, $proper
         new ContentEvent('defineProperty', {
           path: contentEventPath,
           value: propertyValue,
-          change, 
+          // change, 
           detail: {
             prop: $propertyKey,
             descriptor: $propertyDescriptor,
@@ -119,7 +119,7 @@ export default function defineProperty($content, $options, $propertyKey, $proper
         new ContentEvent(type, {
           path: contentEventPath,
           value: propertyValue,
-          change, 
+          // change, 
           detail: {
             prop: $propertyKey,
             descriptor: $propertyDescriptor,

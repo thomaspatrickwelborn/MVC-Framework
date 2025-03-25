@@ -11,8 +11,10 @@ const Defaults = Object.freeze({
     keys: ['toString'],
     createMethod: function($methodName, $content) {
       return function toString($parseSettings = {}) {
-        const replacer = $parseSettings.replacer || null
-        const space = $parseSettings.space || 0
+        const replacer = ($parseSettings.replacer !== undefined)
+          ? $parseSettings.replacer : null
+        const space = ($parseSettings.space !== undefined)
+          ? $parseSettings.space : 0
         return $content.parse({ type: 'string', replacer, space })
       }
     }, 

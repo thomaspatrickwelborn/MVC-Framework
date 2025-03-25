@@ -40,17 +40,17 @@ export default function unshift($content, $options, ...$elements) {
       }
       if(!validElement.valid) { return $content.length }
     }
-    const change = {
-      preter: {
-        key: elementCoindex,
-        value: target[elementCoindex],
-      },
-      anter: {
-        key: elementCoindex,
-        value: undefined,
-      },
-      conter: undefined,
-    }
+    // const change = {
+    //   preter: {
+    //     key: elementCoindex,
+    //     value: target[elementCoindex],
+    //   },
+    //   anter: {
+    //     key: elementCoindex,
+    //     value: undefined,
+    //   },
+    //   conter: undefined,
+    // }
     // Element: Object Type
     if(typeof $element === 'object') {
       const subschema = schema?.context[0] || null
@@ -70,10 +70,10 @@ export default function unshift($content, $options, ...$elements) {
       elements.unshift(element)
       Array.prototype.unshift.call(target, $element)
     }
-    change.anter.value = element
-    change.conter = (targetElementIsContentInstance)
-      ? (targetElement.toString() !== JSON.stringify(element))
-      : (JSON.stringify(targetElement) !== JSON.stringify(element))
+    // change.anter.value = element
+    // change.conter = (targetElementIsContentInstance)
+    //   ? (targetElement.toString() !== JSON.stringify(element))
+    //   : (JSON.stringify(targetElement) !== JSON.stringify(element))
     // Array Unshift Prop Event
     if(events) {
       const type = ['unshiftProp', elementCoindex].join(':')
@@ -85,7 +85,7 @@ export default function unshift($content, $options, ...$elements) {
           new ContentEvent('unshiftProp', {
             path: contentEventPath,
             value: element,
-            change,
+            // change,
             detail: {
               elementIndex: elementCoindex, 
               element: element,
@@ -98,7 +98,7 @@ export default function unshift($content, $options, ...$elements) {
           new ContentEvent(type, {
             path: contentEventPath,
             value: element,
-            change,
+            // change,
             detail: {
               elementIndex: elementCoindex, 
               element: element,
