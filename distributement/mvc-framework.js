@@ -2521,20 +2521,7 @@ class Change {
   #anter
   #conter
   constructor($settings = {}) {
-    for(const [$key, $value] of Object.entries($settings)) {
-      switch($key) {
-        case 'keyter': this.#keyter = $value; break
-        case 'preter': this.#preter = $value; break
-        case 'anter': this.#anter = $value; break
-      }
-    }
-  }
-  get keyter() { return this.#keyter }
-  set keyter($keyter) {
-    if(this.#_keyter === true) { return this.#keyter }
-    if($keyter instanceof Content) { this.#keyter = $keyter.valueOf(); }
-    else { this.#keyter = $keyter; }
-    this.#_keyter = true;
+    for(const [$key, $value] of Object.entries($settings)) { this[$key] = $value; }
   }
   get preter() { return this.#preter }
   set preter($preter) {
@@ -2553,10 +2540,12 @@ class Change {
   get conter() {
     if(
       this.#_conter === true ||
-      [this.#_keyter, this.#_preter, this.#_anter].includes(false)
+      [this.#_preter, this.#_anter].includes(false)
     ) { return this.#conter }
-    const anter = JSON.stringify(this.anter);
     const preter = JSON.stringify(this.preter);
+    const anter = JSON.stringify(this.anter);
+    console.log("preter",preter);
+    console.log("anter",anter);
     let conter;
     if(anter !== preter) { conter = true; }
     else { conter = false; }
@@ -2624,27 +2613,23 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
 function assign($content, $options, ...$sources) {
   const { path, target, schema } = $content;
   const { events, sourceTree, enableValidation, validationEvents } = $options;
-  const changes = {
-    assignChange: new Change({ preter: $content }),
-    assignSourceChange: new Change({ preter: $content }),
-    assignSourcePropertyChange: new Change(),
-    assignSourcePropertyKeyChange: new Change(),
-  };
   const assignedSources = [];
+  const assignChange = new Change({ preter: $content });
   // Iterate Sources
-  for(let $assignSource of $sources) {
+  for(let $source of $sources) {
     let assignedSource;
-    if(Array.isArray($assignSource)) { assignedSource = []; }
-    else if(typeof $assignSource === 'object') { assignedSource = {}; }
+    const assignSourceChange = new Change({ preter: $content });
+    if(Array.isArray($source)) { assignedSource = []; }
+    else if(typeof $source === 'object') { assignedSource = {}; }
     // Iterate Source Props
-    iterateSourceProps:
-    for(let [$sourceKey, $sourceValue] of Object.entries($assignSource)) {
-      changes.assignSourcePropertyChange.preter = target[$sourceKey];
-      changes.assignSourcePropertyKeyChange.preter = target[$sourceKey];
+    iterateSourceProperties:
+    for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
+      const assignSourcePropertyChange = new Change({ preter: target[$sourceKey] });
+      const assignSourcePropertyKeyChange = new Change({ preter: target[$sourceKey] });
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty(
-          $sourceKey, $sourceValue, $assignSource, $content
+          $sourceKey, $sourceValue, $source, $content
         );
         if(validationEvents) {
           let type, propertyType;
@@ -2660,12 +2645,14 @@ function assign($content, $options, ...$sources) {
             $content.dispatchEvent(new ValidatorEvent$1($eventType, validSourceProp, $content));
           }
         }
-        if(!validSourceProp.valid) { continue iterateSourceProps }
+        if(!validSourceProp.valid) { continue iterateSourceProperties }
       }
       // Source Prop: Object Type
+      let sourceValue;
+      let assignment;
       if($sourceValue && typeof $sourceValue === 'object') {
         if($sourceValue instanceof Content) {
-          $sourceValue = $sourceValue.valueOf();
+          sourceValue = $sourceValue.valueOf();
         }
         // Subschema
         let subschema;
@@ -2678,8 +2665,6 @@ function assign($content, $options, ...$sources) {
           : String($sourceKey);
         let contentTypedLiteral = typedObjectLiteral($sourceValue);
         // Assignment
-        let assignment;
-        let sourceValue;
         // Source Tree: False
         if(sourceTree === false) {
           sourceValue = new Content(contentTypedLiteral, subschema, 
@@ -2710,47 +2695,39 @@ function assign($content, $options, ...$sources) {
           assignment = { [$sourceKey]: sourceValue };
         }
         // Assignment
-        Object.assign(target, assignment);
-        Object.assign(assignedSource, assignment);
       }
       // Source Prop: Primitive Type
       else {
-        let assignment = { [$sourceKey]: $sourceValue };
-        // Assign Root
-        Object.assign(target, assignment);
-        // Assigned Source
-        Object.assign(assignedSource, assignment);
+        assignment = { [$sourceKey]: $sourceValue };
       }
+      Object.assign(target, assignment);
+      Object.assign(assignedSource, assignment);
       // Content Event: Assign Source Property
       if(events) {
         const contentEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey);
         if(events['assignSourceProperty:$key']) {
-          changes.assignSourcePropertyKeyChange.anter = target[$sourceKey];
           const type = ['assignSourceProperty', $sourceKey].join(':');
+          assignSourcePropertyKeyChange.anter = target[$sourceKey];
           $content.dispatchEvent(
             new ContentEvent(type, {
               path: contentEventPath,
-              value: $sourceValue,
-              change: changes.assignSourcePropertyKeyChange,
+              value: sourceValue,
+              change: assignSourcePropertyKeyChange,
               detail: {
-                key: $sourceKey,
-                value: $sourceValue,
-                source: $assignSource,
+                source: assignedSource,
               }
             }, $content)
           );
         }
         if(events['assignSourceProperty']) {
-          changes.assignSourcePropertyChange.anter = $sourceValue;
+          assignSourcePropertyChange.anter = target[$sourceKey];
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
-              value: $sourceValue,
-              change: changes.assignSourcePropertyChange,
+              value: sourceValue,
+              change: assignSourcePropertyChange,
               detail: {
-                key: $sourceKey,
-                value: $sourceValue,
-                source: $assignSource,
+                source: assignedSource,
               }
             }, $content)
           );
@@ -2760,10 +2737,11 @@ function assign($content, $options, ...$sources) {
     assignedSources.push(assignedSource);
     // Content Event: Assign Source
     if(events && events['assignSource']) {
+      assignSourceChange.anter = $content;
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
           path,
-          change: changes.assignSourceChange,
+          change: assignSourceChange,
           detail: {
             source: assignedSource,
           },
@@ -2773,12 +2751,13 @@ function assign($content, $options, ...$sources) {
   }
   // Content Event: Assign
   if(events && events['assign']) {
+    assignChange.anter = $content;
     $content.dispatchEvent(
       new ContentEvent('assign', { 
         path,
-        change: changes.assignChange,
+        change: assignChange,
         detail: {
-          sources: assignedSources
+          sources: assignedSources,
         },
       }, $content)
     );
@@ -2792,6 +2771,7 @@ function defineProperties($content, $options, $propertyDescriptors) {
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value');
   typedObjectLiteral($content.valueOf());
+  const definePropertiesChange = new Change({ preter: $content });
   // Iterate Property Descriptors
   for(const [
     $propertyKey, $propertyDescriptor
@@ -2802,6 +2782,7 @@ function defineProperties($content, $options, $propertyDescriptors) {
   // Define Properties Event
   if(events && events['defineProperties']) {
     // Define Properties Validator Event
+    definePropertiesChange.anter = $content;
     $content.dispatchEvent(
       new ContentEvent(
         'defineProperties',
@@ -2826,6 +2807,8 @@ function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
   const propertyValue = $propertyDescriptor.value;
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {};
   const targetPropertyValue = targetPropertyDescriptor.value;
+  const definePropertyChange = new Change({ preter: targetPropertyValue });
+  const definePropertyKeyChange = new Change({ preter: targetPropertyValue });
   const targetPropertyValueIsContentInstance = (
     targetPropertyValue instanceof Content
   ) ? true : false;
@@ -2848,17 +2831,6 @@ function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
     }
     if(!validProperty.valid) { return $content }
   }
-  // const change = {
-  //   preter: {
-  //     key: $propertyKey,
-  //     value: target[$propertyKey],
-  //   },
-  //   anter: {
-  //     key: $propertyKey,
-  //     value: undefined,
-  //   },
-  //   conter: undefined,
-  // }
   // Property Descriptor Value: Object Type
   if(typeof propertyValue === 'object') {
     // Subschema
@@ -2905,21 +2877,19 @@ function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
   else {
     Object.defineProperty(target, $propertyKey, $propertyDescriptor);
   }
-  // change.anter.value = propertyValue
-  // change.conter = (targetPropertyValueIsContentInstance)
-  //   ? (targetPropertyValue.toString() !== JSON.stringify(propertyValue))
-  //   : (JSON.stringify(targetPropertyValue) !== JSON.stringify(propertyValue))
   // Define Property Event
   if(events) {
     const contentEventPath = (path)
       ? [path, $propertyKey].join('.')
       : String($propertyKey);
-    if(events['defineProperty']) {
+    if(events['defineProperty:$key']) {
+      definePropertyKeyChange.anter = target[$sourceKey];
+      const type = ['defineProperty', $propertyKey].join(':');
       $content.dispatchEvent(
-        new ContentEvent('defineProperty', {
+        new ContentEvent(type, {
           path: contentEventPath,
           value: propertyValue,
-          // change, 
+          change: definePropertyKeyChange,
           detail: {
             prop: $propertyKey,
             descriptor: $propertyDescriptor,
@@ -2927,13 +2897,13 @@ function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
         }, $content
       ));
     }
-    if(events['defineProperty:$key']) {
-      const type = ['defineProperty', $propertyKey].join(':');
+    if(events['defineProperty']) {
+      definePropertyChange.anter = target[$sourceKey];
       $content.dispatchEvent(
-        new ContentEvent(type, {
+        new ContentEvent('defineProperty', {
           path: contentEventPath,
           value: propertyValue,
-          // change, 
+          change: definePropertyChange,
           detail: {
             prop: $propertyKey,
             descriptor: $propertyDescriptor,
@@ -3922,17 +3892,6 @@ function setContentProperty($content, $options, $path, $value) {
       }
       if(!validTargetProp.valid) { return }
     }
-    // const change = {
-    //   preter: {
-    //     key: propertyKey,
-    //     value: target[propertyKey],
-    //   },
-    //   anter: {
-    //     key: propertyKey,
-    //     value: $value,
-    //   },
-    //   conter: undefined,
-    // }
     // Return: Property
     // Value: Object Literal
     if(typeof $value === 'object') {

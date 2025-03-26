@@ -9,20 +9,7 @@ export default class Change {
   #anter
   #conter
   constructor($settings = {}) {
-    for(const [$key, $value] of Object.entries($settings)) {
-      switch($key) {
-        case 'keyter': this.#keyter = $value; break
-        case 'preter': this.#preter = $value; break
-        case 'anter': this.#anter = $value; break
-      }
-    }
-  }
-  get keyter() { return this.#keyter }
-  set keyter($keyter) {
-    if(this.#_keyter === true) { return this.#keyter }
-    if($keyter instanceof Content) { this.#keyter = $keyter.valueOf() }
-    else { this.#keyter = $keyter }
-    this.#_keyter = true
+    for(const [$key, $value] of Object.entries($settings)) { this[$key] = $value }
   }
   get preter() { return this.#preter }
   set preter($preter) {
@@ -41,10 +28,12 @@ export default class Change {
   get conter() {
     if(
       this.#_conter === true ||
-      [this.#_keyter, this.#_preter, this.#_anter].includes(false)
+      [this.#_preter, this.#_anter].includes(false)
     ) { return this.#conter }
-    const anter = JSON.stringify(this.anter)
     const preter = JSON.stringify(this.preter)
+    const anter = JSON.stringify(this.anter)
+    console.log("preter",preter)
+    console.log("anter",anter)
     let conter
     if(anter !== preter) { conter = true }
     else { conter = false }

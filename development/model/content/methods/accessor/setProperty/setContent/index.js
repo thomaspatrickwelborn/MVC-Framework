@@ -1,5 +1,6 @@
 import { ContentEvent } from '../../../../events/index.js'
 import Content from '../../../../index.js'
+import Change from '../../../../change/index.js'
 export default function setContent($content, $options, $properties) {
   iterateProperties: 
   for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {

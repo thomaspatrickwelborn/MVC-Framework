@@ -1,6 +1,7 @@
 import { recursiveAssign } from '../../../../../coutil/index.js'
 import { typeOf, typedObjectLiteral, impandTree } from '../../../../../coutil/index.js'
 import Content from '../../../index.js'
+import Change from '../../../change/index.js'
 import { ContentEvent, ValidatorEvent } from '../../../events/index.js'
 export default function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
   const { descriptorTree, events } = $options
@@ -9,6 +10,8 @@ export default function defineProperty($content, $options, $propertyKey, $proper
   const propertyValue = $propertyDescriptor.value
   const targetPropertyDescriptor = Object.getOwnPropertyDescriptor(target, $propertyKey) || {}
   const targetPropertyValue = targetPropertyDescriptor.value
+  const definePropertyChange = new Change({ preter: targetPropertyValue })
+  const definePropertyKeyChange = new Change({ preter: targetPropertyValue })
   const targetPropertyValueIsContentInstance = (
     targetPropertyValue instanceof Content
   ) ? true : false
@@ -34,17 +37,6 @@ export default function defineProperty($content, $options, $propertyKey, $proper
     }
     if(!validProperty.valid) { return $content }
   }
-  // const change = {
-  //   preter: {
-  //     key: $propertyKey,
-  //     value: target[$propertyKey],
-  //   },
-  //   anter: {
-  //     key: $propertyKey,
-  //     value: undefined,
-  //   },
-  //   conter: undefined,
-  // }
   // Property Descriptor Value: Object Type
   if(typeof propertyValue === 'object') {
     // Subschema
@@ -91,21 +83,19 @@ export default function defineProperty($content, $options, $propertyKey, $proper
   else {
     Object.defineProperty(target, $propertyKey, $propertyDescriptor)
   }
-  // change.anter.value = propertyValue
-  // change.conter = (targetPropertyValueIsContentInstance)
-  //   ? (targetPropertyValue.toString() !== JSON.stringify(propertyValue))
-  //   : (JSON.stringify(targetPropertyValue) !== JSON.stringify(propertyValue))
   // Define Property Event
   if(events) {
     const contentEventPath = (path)
       ? [path, $propertyKey].join('.')
       : String($propertyKey)
-    if(events['defineProperty']) {
+    if(events['defineProperty:$key']) {
+      definePropertyKeyChange.anter = target[$sourceKey]
+      const type = ['defineProperty', $propertyKey].join(':')
       $content.dispatchEvent(
-        new ContentEvent('defineProperty', {
+        new ContentEvent(type, {
           path: contentEventPath,
           value: propertyValue,
-          // change, 
+          change: definePropertyKeyChange,
           detail: {
             prop: $propertyKey,
             descriptor: $propertyDescriptor,
@@ -113,13 +103,13 @@ export default function defineProperty($content, $options, $propertyKey, $proper
         }, $content
       ))
     }
-    if(events['defineProperty:$key']) {
-      const type = ['defineProperty', $propertyKey].join(':')
+    if(events['defineProperty']) {
+      definePropertyChange.anter = target[$sourceKey]
       $content.dispatchEvent(
-        new ContentEvent(type, {
+        new ContentEvent('defineProperty', {
           path: contentEventPath,
           value: propertyValue,
-          // change, 
+          change: definePropertyChange,
           detail: {
             prop: $propertyKey,
             descriptor: $propertyDescriptor,

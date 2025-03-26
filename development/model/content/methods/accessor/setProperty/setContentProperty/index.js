@@ -1,5 +1,6 @@
 import { recursiveAssign, regularExpressions } from '../../../../../../coutil/index.js'
 import Content from '../../../../index.js'
+import Change from '../../../../change/index.js'
 import { ContentEvent, ValidatorEvent } from '../../../../events/index.js'
 export default function setContentProperty($content, $options, $path, $value) {
   const { target, path, schema } = $content
@@ -66,17 +67,6 @@ export default function setContentProperty($content, $options, $path, $value) {
       }
       if(!validTargetProp.valid) { return }
     }
-    // const change = {
-    //   preter: {
-    //     key: propertyKey,
-    //     value: target[propertyKey],
-    //   },
-    //   anter: {
-    //     key: propertyKey,
-    //     value: $value,
-    //   },
-    //   conter: undefined,
-    // }
     // Return: Property
     // Value: Object Literal
     if(typeof $value === 'object') {

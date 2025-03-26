@@ -5,28 +5,24 @@ import { ContentEvent, ValidatorEvent } from '../../../events/index.js'
 export default function assign($content, $options, ...$sources) {
   const { path, target, schema } = $content
   const { events, sourceTree, enableValidation, validationEvents } = $options
-  const changes = {
-    assignChange: new Change({ preter: $content }),
-    assignSourceChange: new Change({ preter: $content }),
-    assignSourcePropertyChange: new Change(),
-    assignSourcePropertyKeyChange: new Change(),
-  }
   const assignedSources = []
+  const assignChange = new Change({ preter: $content })
   // Iterate Sources
   iterateAssignSources: 
-  for(let $assignSource of $sources) {
+  for(let $source of $sources) {
     let assignedSource
-    if(Array.isArray($assignSource)) { assignedSource = [] }
-    else if(typeof $assignSource === 'object') { assignedSource = {} }
+    const assignSourceChange = new Change({ preter: $content })
+    if(Array.isArray($source)) { assignedSource = [] }
+    else if(typeof $source === 'object') { assignedSource = {} }
     // Iterate Source Props
-    iterateSourceProps:
-    for(let [$sourceKey, $sourceValue] of Object.entries($assignSource)) {
-      changes.assignSourcePropertyChange.preter = target[$sourceKey]
-      changes.assignSourcePropertyKeyChange.preter = target[$sourceKey]
+    iterateSourceProperties:
+    for(let [$sourceKey, $sourceValue] of Object.entries($source)) {
+      const assignSourcePropertyChange = new Change({ preter: target[$sourceKey] })
+      const assignSourcePropertyKeyChange = new Change({ preter: target[$sourceKey] })
       // Validation
       if(schema && enableValidation) {
         const validSourceProp = schema.validateProperty(
-          $sourceKey, $sourceValue, $assignSource, $content
+          $sourceKey, $sourceValue, $source, $content
         )
         if(validationEvents) {
           let type, propertyType
@@ -43,12 +39,14 @@ export default function assign($content, $options, ...$sources) {
             $content.dispatchEvent(new ValidatorEvent($eventType, validSourceProp, $content))
           }
         }
-        if(!validSourceProp.valid) { continue iterateSourceProps }
+        if(!validSourceProp.valid) { continue iterateSourceProperties }
       }
       // Source Prop: Object Type
+      let sourceValue
+      let assignment
       if($sourceValue && typeof $sourceValue === 'object') {
         if($sourceValue instanceof Content) {
-          $sourceValue = $sourceValue.valueOf()
+          sourceValue = $sourceValue.valueOf()
         }
         // Subschema
         let subschema
@@ -61,8 +59,6 @@ export default function assign($content, $options, ...$sources) {
           : String($sourceKey)
         let contentTypedLiteral = typedObjectLiteral($sourceValue)
         // Assignment
-        let assignment
-        let sourceValue
         // Source Tree: False
         if(sourceTree === false) {
           sourceValue = new Content(contentTypedLiteral, subschema, 
@@ -93,47 +89,39 @@ export default function assign($content, $options, ...$sources) {
           assignment = { [$sourceKey]: sourceValue }
         }
         // Assignment
-        Object.assign(target, assignment)
-        Object.assign(assignedSource, assignment)
       }
       // Source Prop: Primitive Type
       else {
-        let assignment = { [$sourceKey]: $sourceValue }
-        // Assign Root
-        Object.assign(target, assignment)
-        // Assigned Source
-        Object.assign(assignedSource, assignment)
+        assignment = { [$sourceKey]: $sourceValue }
       }
+      Object.assign(target, assignment)
+      Object.assign(assignedSource, assignment)
       // Content Event: Assign Source Property
       if(events) {
         const contentEventPath = (path) ? [path, $sourceKey].join('.') : String($sourceKey)
         if(events['assignSourceProperty:$key']) {
-          changes.assignSourcePropertyKeyChange.anter = target[$sourceKey]
           const type = ['assignSourceProperty', $sourceKey].join(':')
+          assignSourcePropertyKeyChange.anter = target[$sourceKey]
           $content.dispatchEvent(
             new ContentEvent(type, {
               path: contentEventPath,
-              value: $sourceValue,
-              change: changes.assignSourcePropertyKeyChange,
+              value: sourceValue,
+              change: assignSourcePropertyKeyChange,
               detail: {
-                key: $sourceKey,
-                value: $sourceValue,
-                source: $assignSource,
+                source: assignedSource,
               }
             }, $content)
           )
         }
         if(events['assignSourceProperty']) {
-          changes.assignSourcePropertyChange.anter = $sourceValue
+          assignSourcePropertyChange.anter = target[$sourceKey]
           $content.dispatchEvent(
             new ContentEvent('assignSourceProperty', {
               path: contentEventPath,
-              value: $sourceValue,
-              change: changes.assignSourcePropertyChange,
+              value: sourceValue,
+              change: assignSourcePropertyChange,
               detail: {
-                key: $sourceKey,
-                value: $sourceValue,
-                source: $assignSource,
+                source: assignedSource,
               }
             }, $content)
           )
@@ -143,10 +131,11 @@ export default function assign($content, $options, ...$sources) {
     assignedSources.push(assignedSource)
     // Content Event: Assign Source
     if(events && events['assignSource']) {
+      assignSourceChange.anter = $content
       $content.dispatchEvent(
         new ContentEvent('assignSource', {
           path,
-          change: changes.assignSourceChange,
+          change: assignSourceChange,
           detail: {
             source: assignedSource,
           },
@@ -156,12 +145,13 @@ export default function assign($content, $options, ...$sources) {
   }
   // Content Event: Assign
   if(events && events['assign']) {
+    assignChange.anter = $content
     $content.dispatchEvent(
       new ContentEvent('assign', { 
         path,
-        change: changes.assignChange,
+        change: assignChange,
         detail: {
-          sources: assignedSources
+          sources: assignedSources,
         },
       }, $content)
     )
