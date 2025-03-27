@@ -1,4 +1,4 @@
-import stringifyBuffer from './test/coutil/stringifyBuffer/index.js'
+import stringifyBuffer from './coutil/stringifyBuffer/index.js'
 export default {
   active: true,
   name: 'Index',

@@ -1,6 +1,6 @@
+import { Coutil } from 'core-plex'
 import * as path from '../path/index.js'
-import typedObjectLiteral from '../typedObjectLiteral/index.js'
-import regularExpressions from '../regularExpressions/index.js'
+const { regularExpressions, typedObjectLiteral } = Coutil
 function get($path, $value) {
   const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape))
   const key = subpaths.pop()

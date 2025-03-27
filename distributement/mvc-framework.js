@@ -1,3 +1,1657 @@
+function impandEvents$1($propEvents) {
+  if(!Array.isArray($propEvents)) { return $propEvents }
+  const propEvents = {};
+  for(const $propEvent of $propEvents) {
+    const { path, type, listener, options } = $propEvent;
+    const propEventSettings = `${$path} ${$type}`;
+    if(options !== undefined) {
+      propEvents[propEventSettings] = [listener, options];
+    }
+    else {
+      propEvents[propEventSettings] = listener;
+    }
+  }
+  return propEvents
+}
+
+function expandEvents$1($propEvents) {
+  if(
+    Array.isArray($propEvents) ||
+    $propEvents === undefined
+  ) { return $propEvents }
+  const propEvents = [];
+  for(const [
+    $propEventSettings, $propEventListener
+  ] of Object.entries($propEvents)) {
+    const propEventSettings = $propEventSettings.split(' ');
+    let path, type, listener;
+    if(propEventSettings.length === 1) {
+      path = ':scope';
+      type = propEventSettings[0];
+    }
+    else if(propEventSettings.length > 1) {
+      path = propEventSettings[0];
+      type = propEventSettings[1];
+    }
+    if(Array.isArray($propEventListener)) {
+      listener = $propEventListener[0];
+      $propEventListener[1];
+    }
+    else {
+      listener = $propEventListener;
+    }
+    const propEvent = {
+      type,
+      path,
+      listener,
+      enable: false,
+    };
+    propEvents.push(propEvent);
+  }
+  return propEvents
+}
+
+function isPropertyDefinition$3($propertyDefinition) {
+  if(
+    Object.getOwnPropertyDescriptor($propertyDefinition, 'type') &&
+    (
+      TypeValues$1.includes($propertyDefinition.type) ||
+      TypeKeys$1.includes($propertyDefinition.type)
+    ) || (
+      typeof $propertyDefinition.type === 'object' &&
+      Object.getOwnPropertyDescriptor($propertyDefinition.type, 'value') &&
+      (
+        TypeValues$1.includes($propertyDefinition.type.value) ||
+        TypeKeys$1.includes($propertyDefinition.type.value)
+      )
+    )
+  ) { return true } 
+  else { return false }
+}
+
+const Options$8 = {
+  depth: 0,
+  maxDepth: 10,
+};
+function propertyDirectory$1($object, $options) {
+  const target = [];
+  const options = Object.assign({}, Options$8, $options);
+  options.depth++;
+  if(options.depth > options.maxDepth) { return target }
+  for(const [$key, $value] of Object.entries($object)) {
+    target.push($key);
+    if(
+      typeof $value === 'object' &&
+      $value !== null &&
+      $value !== $object
+    ) {
+      const subtarget = propertyDirectory$1($value, options);
+      for(const $subtarget of subtarget) {
+        let path;
+        if(typeof $subtarget === 'object') {
+          path = [$key, ...$subtarget].join('.');
+        }
+        else {
+          path = [$key, $subtarget].join('.');
+        }
+        target.push(path);
+      }
+    }
+  }
+  return target
+}
+
+const typeOf$6 = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
+function recursiveAssign$a($target, ...$sources) {
+  if(!$target) { return $target}
+  iterateSources: 
+  for(const $source of $sources) {
+    if(!$source) continue iterateSources
+    for(const [
+      $sourcePropertyKey, $sourcePropertyValue
+    ] of Object.entries($source)) {
+      const typeOfTargetPropertyValue = typeOf$6($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$6($sourcePropertyValue);
+      if(
+        typeOfTargetPropertyValue === 'object' &&
+        typeOfSourcePropertyValue === 'object'
+      ) {
+        $target[$sourcePropertyKey] = recursiveAssign$a($target[$sourcePropertyKey], $sourcePropertyValue);
+      }
+      else {
+        $target[$sourcePropertyKey] = $sourcePropertyValue;
+      }
+    }
+  }
+  return $target
+}
+
+function recursiveAssignConcat$2($target, ...$sources) {
+  if(!$target) { return $target}
+  iterateSources: 
+  for(const $source of $sources) {
+    if(!$source) continue iterateSources
+    for(const [
+      $sourcePropertyKey, $sourcePropertyValue
+    ] of Object.entries($source)) {
+      const typeOfTargetPropertyValue = typeOf$6($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$6($sourcePropertyValue);
+      if( 
+        typeOfTargetPropertyValue === 'object' &&
+        typeOfSourcePropertyValue === 'object'
+      ) {
+        $target[$sourcePropertyKey] = recursiveAssignConcat$2($target[$sourcePropertyKey], $sourcePropertyValue);
+      }
+      else if(
+        typeOfTargetPropertyValue === 'array' &&
+        typeOfSourcePropertyValue === 'array'
+      ) {
+        $target[$sourcePropertyKey] = $target[$sourcePropertyKey].concat($sourcePropertyValue);
+      }
+      else {
+        $target[$sourcePropertyKey] = $sourcePropertyValue;
+      }
+    }
+  }
+  return $target
+}
+
+var index$2$1 = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
+function recursiveFreeze$1($target) {
+  for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
+    if($propertyValue && typeof $propertyValue === 'object') {
+      recursiveFreeze$1($propertyValue);
+    }
+  }
+  return Object.freeze($target)
+}
+
+function typedObjectLiteral$b($object) {
+  if(typeOf$6($object) === 'object') { return {} }
+  else if(typeOf$6($object) === 'array') { return [] }
+  else if(typeOf$6($object) === 'string') { return (
+    $object === 'object'
+  ) ? {} : (
+    $object === 'array'
+  ) ? []
+    : undefined
+  }
+  else { return undefined }
+}
+
+const Primitives$1 = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'bigint': BigInt, 
+  'undefined': undefined,
+  'null': null,
+};
+const PrimitiveKeys$2 = Object.keys(Primitives$1);
+const PrimitiveValues$2 = Object.values(Primitives$1);
+const Objects$1 = {
+  'object': Object,
+  'array': Array,
+};
+const ObjectKeys$1 = Object.keys(Objects$1);
+const ObjectValues$1 = Object.values(Objects$1);
+const Types$1 = Object.assign({}, Primitives$1, Objects$1);
+const TypeKeys$1 = Object.keys(Types$1);
+const TypeValues$1 = Object.values(Types$1);
+const TypeMethods$1 = [
+ Primitives$1.String, Primitives$1.Number, Primitives$1.Boolean, 
+ Objects$1.Object, Objects$1.Array
+];
+
+var index$1$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  ObjectKeys: ObjectKeys$1,
+  ObjectValues: ObjectValues$1,
+  Objects: Objects$1,
+  PrimitiveKeys: PrimitiveKeys$2,
+  PrimitiveValues: PrimitiveValues$2,
+  Primitives: Primitives$1,
+  TypeKeys: TypeKeys$1,
+  TypeMethods: TypeMethods$1,
+  TypeValues: TypeValues$1,
+  Types: Types$1
+});
+
+var index$6 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  expandEvents: expandEvents$1,
+  impandEvents: impandEvents$1,
+  isPropertyDefinition: isPropertyDefinition$3,
+  propertyDirectory: propertyDirectory$1,
+  recursiveAssign: recursiveAssign$a,
+  recursiveAssignConcat: recursiveAssignConcat$2,
+  recursiveFreeze: recursiveFreeze$1,
+  regularExpressions: index$2$1,
+  typeOf: typeOf$6,
+  typedObjectLiteral: typedObjectLiteral$b,
+  variables: index$1$1
+});
+
+var Settings$1$2 = ($settings = {}) => {
+  const Settings = {
+    events: {},
+    enableEvents: false,
+    propertyDefinitions: {
+      getEvents: 'getEvents',
+      addEvents: 'addEvents',
+      removeEvents: 'removeEvents',
+      enableEvents: 'enableEvents',
+      disableEvents: 'disableEvents',
+      reenableEvents: 'reenableEvents',
+    },
+  };
+  for(const [$settingKey, $settingValue] of Object.entries($settings)) {
+    switch($settingKey) {
+      case 'propertyDefinitions':
+        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
+        break
+      default: 
+        Settings[$settingKey] = $settingValue;
+        break
+    }
+  }
+  return Settings
+};
+
+function handleNoCommaBraces$1(span) {
+    if (span.length < 3) {
+        return "{" + span + "}";
+    }
+    var separatorI = -1;
+    for (var i = 2; i < span.length; i++) {
+        if (span[i] === '.' && span[i - 1] === '.' && (i < 2 || span[i - 2] !== '\\')) {
+            if (separatorI > -1) {
+                return "{" + span + "}";
+            }
+            separatorI = i - 1;
+        }
+    }
+    if (separatorI > -1) {
+        var rangeStart = span.substr(0, separatorI);
+        var rangeEnd = span.substr(separatorI + 2);
+        if (rangeStart.length > 0 && rangeEnd.length > 0) {
+            return "[" + span.substr(0, separatorI) + "-" + span.substr(separatorI + 2) + "]";
+        }
+    }
+    return "{" + span + "}";
+}
+function expand$1(pattern) {
+    if (typeof pattern !== 'string') {
+        throw new TypeError("A pattern must be a string, but " + typeof pattern + " given");
+    }
+    var scanning = false;
+    var openingBraces = 0;
+    var closingBraces = 0;
+    var handledUntil = -1;
+    var results = [''];
+    var alternatives = [];
+    var span;
+    for (var i = 0; i < pattern.length; i++) {
+        var char = pattern[i];
+        if (char === '\\') {
+            i++;
+            continue;
+        }
+        if (char === '{') {
+            if (scanning) {
+                openingBraces++;
+            }
+            else if (i > handledUntil && !openingBraces) {
+                span = pattern.substring(handledUntil + 1, i);
+                for (var j = 0; j < results.length; j++) {
+                    results[j] += span;
+                }
+                alternatives = [];
+                handledUntil = i;
+                scanning = true;
+                openingBraces++;
+            }
+            else {
+                openingBraces--;
+            }
+        }
+        else if (char === '}') {
+            if (scanning) {
+                closingBraces++;
+            }
+            else if (closingBraces === 1) {
+                span = pattern.substring(handledUntil + 1, i);
+                if (alternatives.length > 0) {
+                    var newResults = [];
+                    alternatives.push(expand$1(span));
+                    for (var j = 0; j < results.length; j++) {
+                        for (var k = 0; k < alternatives.length; k++) {
+                            for (var l = 0; l < alternatives[k].length; l++) {
+                                newResults.push(results[j] + alternatives[k][l]);
+                            }
+                        }
+                    }
+                    results = newResults;
+                }
+                else {
+                    span = handleNoCommaBraces$1(span);
+                    for (var j = 0; j < results.length; j++) {
+                        results[j] += span;
+                    }
+                }
+                handledUntil = i;
+                closingBraces--;
+            }
+            else {
+                closingBraces--;
+            }
+        }
+        else if (!scanning && char === ',' && closingBraces - openingBraces === 1) {
+            span = pattern.substring(handledUntil + 1, i);
+            alternatives.push(expand$1(span));
+            handledUntil = i;
+        }
+        if (scanning && (closingBraces === openingBraces || i === pattern.length - 1)) {
+            scanning = false;
+            i = handledUntil - 1;
+        }
+    }
+    if (handledUntil === -1) {
+        return [pattern];
+    }
+    var unhandledFrom = pattern[handledUntil] === '{' ? handledUntil : handledUntil + 1;
+    if (unhandledFrom < pattern.length) {
+        span = pattern.substr(unhandledFrom);
+        for (var j = 0; j < results.length; j++) {
+            results[j] += span;
+        }
+    }
+    return results;
+}
+
+function negate$1(pattern, options) {
+    var supportNegation = options['!'] !== false;
+    var supportParens = options['()'] !== false;
+    var isNegated = false;
+    var i;
+    if (supportNegation) {
+        for (i = 0; i < pattern.length && pattern[i] === '!'; i++) {
+            if (supportParens && pattern[i + 1] === '(') {
+                i--;
+                break;
+            }
+            isNegated = !isNegated;
+        }
+        if (i > 0) {
+            pattern = pattern.substr(i);
+        }
+    }
+    return { pattern: pattern, isNegated: isNegated };
+}
+
+function escapeRegExpChar$1(char) { if (char === '-' ||
+    char === '^' ||
+    char === '$' ||
+    char === '+' ||
+    char === '.' ||
+    char === '(' ||
+    char === ')' ||
+    char === '|' ||
+    char === '[' ||
+    char === ']' ||
+    char === '{' ||
+    char === '}' ||
+    char === '*' ||
+    char === '?' ||
+    char === '\\') {
+    return "\\" + char;
+}
+else {
+    return char;
+} }
+function escapeRegExpString$1(str) {
+    var result = '';
+    for (var i = 0; i < str.length; i++) {
+        result += escapeRegExpChar$1(str[i]);
+    }
+    return result;
+}
+
+function Pattern$1(source, options, excludeDot) {
+    var separator = typeof options.separator === 'undefined' ? true : options.separator;
+    var separatorSplitter = '';
+    var separatorMatcher = '';
+    var wildcard = '.';
+    if (separator === true) {
+        separatorSplitter = '/';
+        separatorMatcher = '[/\\\\]';
+        wildcard = '[^/\\\\]';
+    }
+    else if (separator) {
+        separatorSplitter = separator;
+        separatorMatcher = escapeRegExpString$1(separatorSplitter);
+        if (separatorMatcher.length > 1) {
+            separatorMatcher = "(?:" + separatorMatcher + ")";
+            wildcard = "((?!" + separatorMatcher + ").)";
+        }
+        else {
+            wildcard = "[^" + separatorMatcher + "]";
+        }
+    }
+    else {
+        wildcard = '.';
+    }
+    var requiredSeparator = separator ? separatorMatcher + "+?" : '';
+    var optionalSeparator = separator ? separatorMatcher + "*?" : '';
+    var segments = separator ? source.split(separatorSplitter) : [source];
+    var support = {
+        qMark: options['?'] !== false,
+        star: options['*'] !== false,
+        globstar: separator && options['**'] !== false,
+        brackets: options['[]'] !== false,
+        extglobs: options['()'] !== false,
+        excludeDot: excludeDot && options.excludeDot !== false,
+    };
+    return {
+        source: source,
+        segments: segments,
+        options: options,
+        separator: separator,
+        separatorSplitter: separatorSplitter,
+        separatorMatcher: separatorMatcher,
+        optionalSeparator: optionalSeparator,
+        requiredSeparator: requiredSeparator,
+        wildcard: wildcard,
+        support: support,
+    };
+}
+function Segment$1(source, pattern, isFirst, isLast) { return {
+    source: source,
+    isFirst: isFirst,
+    isLast: isLast,
+    end: source.length - 1,
+}; }
+function Result$1() {
+return {
+    match: '',
+    unmatch: '',
+    useUnmatch: false,
+}; }
+function State$1(pattern, segment, result) { return {
+    pattern: pattern,
+    segment: segment,
+    result: result,
+    openingBracket: segment.end + 1,
+    closingBracket: -1,
+    openingParens: 0,
+    closingParens: 0,
+    parensHandledUntil: -1,
+    extglobModifiers: [],
+    scanningForParens: false,
+    escapeChar: false,
+    addToMatch: true,
+    addToUnmatch: pattern.support.extglobs,
+    dotHandled: false,
+    i: -1,
+    char: '',
+    nextChar: '',
+}; }
+
+var EXCLUDE_DOT_PATTERN$1 = '(?!\\.)';
+function add$1(state, addition, excludeDot) {
+    if (state.addToUnmatch) {
+        state.result.unmatch += addition;
+    }
+    if (state.addToMatch) {
+        if (excludeDot && !state.dotHandled) {
+            addition = EXCLUDE_DOT_PATTERN$1 + addition;
+        }
+        state.dotHandled = true;
+        state.result.match += addition;
+    }
+    return state.result;
+}
+function convertSegment$1(pattern, segment, result) {
+    var support = pattern.support;
+    var state = State$1(pattern, segment, result);
+    var separatorMatcher = segment.isLast
+        ? pattern.optionalSeparator
+        : pattern.requiredSeparator;
+    if (!support.excludeDot) {
+        state.dotHandled = true;
+    }
+    if (segment.end === -1) {
+        return segment.isLast && !segment.isFirst ? result : add$1(state, separatorMatcher);
+    }
+    if (support.globstar && segment.source === '**') {
+        var prefix = !state.dotHandled ? EXCLUDE_DOT_PATTERN$1 : '';
+        var globstarSegment = prefix + pattern.wildcard + "*?" + separatorMatcher;
+        return add$1(state, "(?:" + globstarSegment + ")*?");
+    }
+    while (++state.i <= segment.end) {
+        state.char = state.segment.source[state.i];
+        state.nextChar = state.i < segment.end ? segment.source[state.i + 1] : '';
+        if (state.char === '\\') {
+            if (state.i < state.segment.end) {
+                state.escapeChar = true;
+                continue;
+            }
+            else {
+                state.char = '';
+            }
+        }
+        var pattern = state.pattern, segment = state.segment, char = state.char, i = state.i;
+        if (pattern.support.brackets && !state.scanningForParens) {
+            if (i > state.openingBracket && i <= state.closingBracket) {
+                if (state.escapeChar) {
+                    add$1(state, escapeRegExpChar$1(char));
+                }
+                else if (i === state.closingBracket) {
+                    add$1(state, ']');
+                    state.openingBracket = segment.source.length;
+                }
+                else if (char === '-' && i === state.closingBracket - 1) {
+                    add$1(state, '\\-');
+                }
+                else if (char === '!' && i === state.openingBracket + 1) {
+                    add$1(state, '^');
+                }
+                else if (char === ']') {
+                    add$1(state, '\\]');
+                }
+                else {
+                    add$1(state, char);
+                }
+                state.escapeChar = false;
+                continue;
+            }
+            if (i > state.openingBracket) {
+                if (char === ']' &&
+                    !state.escapeChar &&
+                    i > state.openingBracket + 1 &&
+                    i > state.closingBracket) {
+                    state.closingBracket = i;
+                    state.i = state.openingBracket;
+                    if (pattern.separator) {
+                        add$1(state, "(?!" + pattern.separatorMatcher + ")[", true);
+                    }
+                    else {
+                        add$1(state, '[', true);
+                    }
+                }
+                else if (i === segment.end) {
+                    add$1(state, '\\[');
+                    state.i = state.openingBracket;
+                    state.openingBracket = segment.source.length;
+                    state.closingBracket = segment.source.length;
+                }
+                state.escapeChar = false;
+                continue;
+            }
+            if (char === '[' &&
+                !state.escapeChar &&
+                i > state.closingBracket &&
+                i < segment.end) {
+                state.openingBracket = i;
+                state.escapeChar = false;
+                continue;
+            }
+        }
+        if (state.pattern.support.extglobs) {
+            var extglobModifiers = state.extglobModifiers, char = state.char, nextChar = state.nextChar, i = state.i;
+            if (nextChar === '(' &&
+                !state.escapeChar &&
+                (char === '@' || char === '?' || char === '*' || char === '+' || char === '!')) {
+                if (state.scanningForParens) {
+                    state.openingParens++;
+                }
+                else if (i > state.parensHandledUntil && !state.closingParens) {
+                    state.parensHandledUntil = i;
+                    state.scanningForParens = true;
+                    state.openingParens++;
+                }
+                else if (state.closingParens >= state.openingParens) {
+                    if (char === '!') {
+                        state.addToMatch = true;
+                        state.addToUnmatch = false;
+                        add$1(state, state.pattern.wildcard + "*?", true);
+                        state.addToMatch = false;
+                        state.addToUnmatch = true;
+                        state.result.useUnmatch = true;
+                    }
+                    extglobModifiers.push(char);
+                    add$1(state, '(?:', true);
+                    state.openingParens--;
+                    state.i++;
+                    continue;
+                }
+                else {
+                    state.openingParens--;
+                }
+            }
+            else if (char === ')' && !state.escapeChar) {
+                if (state.scanningForParens) {
+                    state.closingParens++;
+                }
+                else if (extglobModifiers.length) {
+                    var modifier_1 = extglobModifiers.pop();
+                    if (modifier_1 === '!' && extglobModifiers.indexOf('!') !== -1) {
+                        throw new Error("Nested negated extglobs aren't supported");
+                    }
+                    modifier_1 = modifier_1 === '!' || modifier_1 === '@' ? '' : modifier_1;
+                    add$1(state, ")" + modifier_1);
+                    state.addToMatch = true;
+                    state.addToUnmatch = true;
+                    state.closingParens--;
+                    continue;
+                }
+            }
+            else if (char === '|' && state.closingParens &&
+                !state.scanningForParens &&
+                !state.escapeChar) {
+                add$1(state, '|');
+                continue;
+            }
+            if (state.scanningForParens) {
+                if (state.closingParens === state.openingParens || i === state.segment.end) {
+                    state.scanningForParens = false;
+                    state.i = state.parensHandledUntil - 1;
+                }
+                state.escapeChar = false;
+                continue;
+            }
+        }
+        var pattern = state.pattern;
+        var support = pattern.support;
+        if (!state.escapeChar && support.star && state.char === '*') {
+            if (state.i === state.segment.end || state.nextChar !== '*') {
+                add$1(state, pattern.wildcard + "*?", true);
+            }
+        }
+        else if (!state.escapeChar && support.qMark && state.char === '?') {
+            add$1(state, pattern.wildcard, true);
+        }
+        else {
+            add$1(state, escapeRegExpChar$1(state.char));
+        }
+        state.escapeChar = false;
+    }
+    return add$1(state, separatorMatcher);
+}
+function convert$1(source, options, excludeDot) {
+    var pattern = Pattern$1(source, options, excludeDot);
+    var result = Result$1();
+    var segments = pattern.segments;
+    for (var i = 0; i < segments.length; i++) {
+        var segment = Segment$1(segments[i], pattern, i === 0, i === segments.length - 1);
+        convertSegment$1(pattern, segment, result);
+    }
+    if (result.useUnmatch) {
+        return "(?!^" + result.unmatch + "$)" + result.match;
+    }
+    else {
+        return result.match;
+    }
+}
+
+function flatMap$1(array, predicate) {
+    var results = [];
+    for (var i = 0; i < array.length; i++) {
+        var mappedValue = predicate(array[i]);
+        for (var j = 0; j < mappedValue.length; j++) {
+            results.push(mappedValue[j]);
+        }
+    }
+    return results;
+}
+function compile$1(patterns, options) {
+    patterns = Array.isArray(patterns) ? patterns : [patterns];
+    if (options['{}'] !== false) {
+        patterns = flatMap$1(patterns, expand$1);
+    }
+    var positiveResults = [];
+    var negativeResults = [];
+    var result = '';
+    for (var i = 0; i < patterns.length; i++) {
+        var negatedPattern = negate$1(patterns[i], options);
+        var convertedPattern = convert$1(negatedPattern.pattern, options, !negatedPattern.isNegated);
+        if (negatedPattern.isNegated) {
+            negativeResults.push(convertedPattern);
+        }
+        else {
+            positiveResults.push(convertedPattern);
+        }
+    }
+    if (negativeResults.length) {
+        result = "(?!(?:" + negativeResults.join('|') + ")$)";
+    }
+    if (positiveResults.length > 1) {
+        result += "(?:" + positiveResults.join('|') + ")";
+    }
+    else if (positiveResults.length === 1) {
+        result += positiveResults[0];
+    }
+    else if (result.length) {
+        result += convert$1('**', options, true);
+    }
+    return "^" + result + "$";
+}
+function isMatch$1(regexp, sample) { if (typeof sample !== 'string') {
+    throw new TypeError("Sample must be a string, but " + typeof sample + " given");
+} return regexp.test(sample); }
+/**
+ * Compiles one or more glob patterns into a RegExp and returns an isMatch function.
+ * The isMatch function takes a sample string as its only argument and returns true
+ * if the string matches the pattern(s).
+ *
+ * ```js
+ * outmatch('src/*.js')('src/index.js') //=> true
+ * ```
+ *
+ * ```js
+ * const isMatch = outmatch('*.example.com', '.')
+ * isMatch('foo.example.com') //=> true
+ * isMatch('foo.bar.com') //=> false
+ * ```
+ */
+function outmatch$1(pattern, options) {
+    if (typeof pattern !== 'string' && !Array.isArray(pattern)) {
+        throw new TypeError("The first argument must be a single pattern string or an array of patterns, but " + typeof pattern + " given");
+    }
+    if (typeof options === 'string' || typeof options === 'boolean') {
+        options = { separator: options };
+    }
+    if (arguments.length === 2 &&
+        !(typeof options === 'undefined' ||
+            (typeof options === 'object' && options !== null && !Array.isArray(options)))) {
+        throw new TypeError("The second argument must be an options object or a string/boolean separator, but " + typeof options + " given");
+    }
+    options = options || {};
+    if (options.separator === '\\') {
+        throw new Error('\\ is not a valid separator');
+    }
+    var regexpPattern = compile$1(pattern, options);
+    var regexp = new RegExp(regexpPattern, options.flags);
+    var fn = isMatch$1.bind(null, regexp);
+    fn.options = options;
+    fn.pattern = pattern;
+    fn.regexp = regexp;
+    return fn;
+}
+
+var Settings$8 = ($settings = {}) => {
+  const Settings = {
+    propertyDirectory: { maxDepth: 10 },
+    enable: false,
+    accessors: [
+      ($target, $property) => $target[$property],
+    ],
+    assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
+    bindListener: true,
+    methods: {
+      assign: {
+        // Event Target Add Event Listener
+        addEventListener: function addEventListener($eventDefinition, $target) {
+          const { type, listener, settings } = $eventDefinition;
+          const { options, useCapture } = settings;
+          return $target['addEventListener'](type, listener, options || useCapture)
+        },
+        // Event Emitter On
+        on: function on($eventDefinition, $target) {
+          const { type, listener } = $eventDefinition;
+          return $target['on'](type, listener)
+        },
+        // Event Emitter Once
+        once: function once($eventDefinition, $target) {
+          const { type, listener } = $eventDefinition;
+          return $target['once'](type, listener)
+        },
+      },  
+      deassign: {
+        // Event Target Remove Event Listener
+        removeEventListener: function removeEventListener($eventDefinition, $target) {
+          const { type, listener, settings } = $eventDefinition;
+          const { options, useCapture } = settings;
+          return $target['removeEventListener'](type, listener, options || useCapture)
+        },
+        // Event Emitter Off
+        off: function off($eventDefinition, $target) {
+          const { type, listener } = $eventDefinition;
+          return $target['off'](type, listener)
+        },
+      },
+      transsign: {
+        // Event Target Dispatch Event
+        dispatchEvent: function dispatchEvent($eventDefinition, $target, $event) {
+          return $target['dispatchEvent']($event)
+        },
+        // Event Emitter Emit
+        emit: function emit($eventDefinition, $target, $type, ...$arguments) {
+          return $target['emit']($type, ...$arguments)
+        },
+      },
+    },
+  };
+  for(const [$settingKey, $settingValue] of Object.entries($settings)) {
+    switch($settingKey) {
+      case 'propertyDirectory':
+        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
+        break
+      case 'accessors':
+        Settings[$settingKey] = Settings[$settingKey].concat($settingValue);
+        break
+      case 'methods': 
+        Settings[$settingKey] = recursiveAssign$a(Settings[$settingKey], $settingValue);
+        break
+      case 'enableEvents': break
+      default: 
+        Settings[$settingKey] = $settingValue;
+        break
+    }
+  }
+  return Settings
+};
+
+let EventDefinition$1 = class EventDefinition {
+  #settings
+  #context
+  #listener
+  #enable = false
+  #path
+  #enabled = []
+  #disabled = []
+  #_targets = []
+  #_assign
+  #_deassign
+  #_transsign
+  constructor($settings, $context) { 
+    if(!$settings || !$context) { return this }
+    this.#settings = Settings$8($settings);
+    this.#context = $context;
+    this.enable = this.settings.enable;
+  }
+  get settings() { return this.#settings }
+  get path() { return this.settings.path }
+  get type() { return this.settings.type }
+  get listener() {
+    if(this.#listener !== undefined) { return this.#listener }
+    const listener = this.settings.listener;
+    if(this.settings.bindListener === true) {
+      this.#listener = listener.bind(this.#context);
+    }
+    else { this.#listener = listener; }
+    return this.#listener
+  }
+  get enable() { return this.#enable }
+  set enable($enable) {
+    if(![true, false].includes($enable)) { return }
+    const targets = this.#targets;
+    if(targets.length === 0) { return }
+    const enabled = this.#enabled;
+    const disabled = this.#disabled;
+    enabled.length = 0;
+    disabled.length = 0;
+    iterateTargetElements: 
+    for(const $targetElement of targets) {
+      const { path, target, enable } = $targetElement;
+      this.settings;
+      if(enable === $enable) { continue iterateTargetElements }
+      if($enable === true) {
+        try {
+          this.#assign(target);
+          $targetElement.enable = $enable;
+          enabled.push($targetElement);
+        }
+        catch($err) {
+          throw $err
+        }
+      }
+      else if($enable === false) {
+        try {
+          this.#deassign(target);
+          $targetElement.enable = $enable;
+          disabled.push($targetElement);
+        }
+        catch($err) { enabled.push($targetElement); }
+      }
+    }
+    if((
+      $enable === true && 
+      disabled.length === 0 &&
+      enabled.length > 0
+    ) || (
+      $enable === false && 
+      enabled.length === 0 && 
+      disabled.length > 0
+    ) || (
+      disabled.length === 0 &&
+      enabled.length === 0
+    )) { this.#enable = $enable; }
+    else if(
+      disabled.length > 0 &&
+      enabled.length > 0
+    ) { this.#enable = null; }
+  }
+  get enabled() { return this.#enabled }
+  get disabled() { return this.#disabled }
+  get #target() { return this.settings.target }
+  get #targets() {
+    const pretargets = this.#_targets;
+    let propertyDirectory = this.#propertyDirectory;
+    const targetPaths = [];
+    const targets = [];
+    if(this.path === ':scope') {
+      const pretargetElement = pretargets.find(
+        ($pretarget) => $pretarget?.path === this.path
+      );
+      if(pretargetElement !== undefined) {
+        targets.push(pretargetElement);
+      }
+      else if(pretargetElement === undefined) {
+        targets.push({
+          path: this.path,
+          target: this.#context,
+          enable: false,
+        });
+      }
+    }
+    else if(this.#target !== undefined) {
+      for(const $target of [].concat(this.#target)) {
+        const pretargetElement = pretargets.find(
+          ($pretarget) => $pretarget?.path === this.path
+        );
+        if(pretargetElement !== undefined) {
+          targets.push(pretargetElement);
+        }
+        else if(pretargetElement === undefined) {
+          targets.push({
+            path: this.path,
+            target: $target,
+            enable: false,
+          });
+        }
+      }
+    }
+    else if(typeOf$6(this.path) === 'string') {
+      const propertyPathMatcher = outmatch$1(this.path, {
+        separator: '.',
+      });
+      for(const $propertyPath of propertyDirectory) {
+        const propertyPathMatch = propertyPathMatcher($propertyPath);
+        if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
+      }
+      for(const $targetPath of targetPaths) {
+        const pretargetElement = pretargets.find(
+          ($pretarget) => $pretarget?.path === $targetPath
+        );
+        let target = this.#context;
+        let targetElement;
+        const pathKeys = $targetPath.split('.');
+        let pathKeysIndex = 0;
+        while(pathKeysIndex < pathKeys.length) {
+          let pathKey = pathKeys[pathKeysIndex];
+          iterateTargetAccessors: 
+          for(const $targetAccessor of this.settings.accessors) {
+            if(target === undefined) { break iterateTargetAccessors }
+            target = $targetAccessor(target, pathKey);
+            if(target !== undefined) { break iterateTargetAccessors }
+          }
+          pathKeysIndex++;
+        }
+        if(target !== undefined) {
+          if(target === pretargetElement?.target) {
+            targetElement = pretargetElement;
+          }
+          else {
+            targetElement = {
+              path: $targetPath,
+              target: target,
+              enable: false,
+            };
+          }
+        }
+        if(targetElement !== undefined) { targets.push(targetElement); }
+      }
+    }
+    this.#_targets = targets;
+    return this.#_targets
+  }
+  get #assign() {
+    if(this.#_assign !== undefined) { return this.#_assign }
+    this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
+    return this.#_assign
+  }
+  get #deassign() {
+    if(this.#_deassign !== undefined) { return this.#_deassign }
+    this.#_deassign = this.settings.methods.deassign[this.settings.deassign].bind(null, this);
+    return this.#_deassign
+  }
+  get #transsign() {
+    if(this.#_transsign !== undefined) { return this.#_transsign }
+    this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
+    return this.#_transsign
+  }
+  get #methods() { return this.settings.methods }
+  get #propertyDirectory() {
+    return propertyDirectory$1(this.#context, this.settings.propertyDirectory)
+  }
+  emit() {
+    const targets = this.#targets;
+    for(const $targetElement of targets) {
+      const { target } = $targetElement;
+      this.#transsign(target, ...arguments);
+    }
+    return this
+  }
+};
+
+let Core$1 = class Core extends EventTarget {
+  static implement = function ($target, $settings) {
+    if(!$target || !$settings) { return undefined }
+    const settings = Settings$1$2($settings);
+    const events = [];
+    Object.defineProperties($target, {
+      // Get Events
+      [settings.propertyDefinitions.getEvents]: {
+        enumerable: false, writable: false, 
+        value: function getEvents() {
+          if(arguments.length === 0) { return events }
+          const getEvents = [];
+          const $filterEvents = [].concat(arguments[0]);
+          for(const $filterEvent of $filterEvents) {
+            for(const $event of events) {
+              let match;
+              iterateEventFilterProperties: 
+              for(const [
+                $filterEventPropertyKey, $filterEventPropertyValue
+              ] of Object.entries($filterEvent)) {
+                let eventFilterMatch;
+                if($filterEventPropertyKey === 'listener') {
+                  eventFilterMatch = (
+                    $event.settings[$filterEventPropertyKey] === $filterEventPropertyValue
+                  );
+                }
+                else {
+                  eventFilterMatch = (
+                    $event[$filterEventPropertyKey] === $filterEventPropertyValue
+                  );
+                }
+                if(match !== false) { match = eventFilterMatch; }
+                else { break iterateEventFilterProperties }
+              }
+              if(match === true) { getEvents.push($event); }
+            }
+          }
+          return getEvents
+        }
+      },
+      // Add Events
+      [settings.propertyDefinitions.addEvents]: {
+        enumerable: false, writable: false, 
+        value: function addEvents() {
+          if(!arguments.length) { return $target }
+          let $addEvents = expandEvents$1(arguments[0]);
+          for(let $addEvent of $addEvents) {
+            const event = Object.assign({}, settings, $addEvent);
+            const eventDefinition = new EventDefinition$1(event, $target);
+            events.push(eventDefinition);
+          }
+          return $target
+        },
+      },
+      // Remove Events
+      [settings.propertyDefinitions.removeEvents]: {
+        enumerable: false, writable: false, 
+        value: function removeEvents() {
+          let $events;
+          if(arguments.length === 0) { $events = $target[settings.propertyDefinitions.getEvents](); }
+          else if(arguments.length === 1) {
+            $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
+          }
+          if($events.length === 0) return $target
+          let eventsIndex = events.length - 1;
+          while(eventsIndex > -1) {
+            const event = events[eventsIndex];
+            if($events.includes(event)) {
+              event.enable = false;
+              events.splice(eventsIndex, 1);
+            }
+            eventsIndex--;
+          }
+          return $target
+        }
+      },
+      // Enable Events
+      [settings.propertyDefinitions.enableEvents]: {
+        enumerable: false, writable: false, 
+        value: function enableEvents() {
+          let $events;
+          if(arguments.length === 0) { $events = events; }
+          else { $events = $target[settings.propertyDefinitions.getEvents](arguments[0]); }
+          for(const $event of $events) { $event.enable = true; }
+          return $target
+        },
+      },
+      // Disable Events
+      [settings.propertyDefinitions.disableEvents]: {
+        enumerable: false, writable: false, 
+        value: function disableEvents() {
+          let $events;
+          if(arguments.length === 0) { $events = events; }
+          else { $events = $target[settings.propertyDefinitions.getEvents](arguments[0]); }
+          for(const $event of $events) { $event.enable = false; }
+          return $target
+        },
+      },
+      // Reenable Events
+      [settings.propertyDefinitions.reenableEvents]: {
+        enumerable: false, writable: false, 
+        value: function reenableEvents() {
+          $target[settings.propertyDefinitions.disableEvents](arguments[0]);
+          $target[settings.propertyDefinitions.enableEvents](arguments[0]);
+          return $target
+        },
+      },
+    });
+    if(settings.events) { $target[settings.propertyDefinitions.addEvents](settings.events); }
+    if(settings.enableEvents === true) {
+      $target[settings.propertyDefinitions.enableEvents]();
+    }
+    else if(typeof settings.enableEvents === 'object') {
+      $target[settings.propertyDefinitions.enableEvents](settings.enableEvents);
+    }
+    return $target
+  }
+  constructor($settings = {}) {
+    super();
+    return Core.implement(this, $settings)
+  }
+};
+
+const { regularExpressions: regularExpressions$5 } = index$6;
+function subpaths($path) {
+  return $path.split(
+    new RegExp(regularExpressions$5.quotationEscape)
+  )
+}
+function keypaths($path) {
+  const _subpaths = subpaths($path);
+  _subpaths.pop();
+  return _subpaths
+}
+function key($path) {
+  return subpaths($path).pop()
+}
+function root($path) {
+  return subpaths($path).shift()
+}
+function typeofRoot($path) {
+  return (Number(root($path))) ? 'array' : 'object'
+}
+function parse$1($path) {
+  return {
+    subpaths: subpaths($path),
+    keypaths: keypaths($path),
+    key: key($path),
+    root: root($path),
+    typeofRoot: typeofRoot($path),
+  }
+}
+
+var index$5 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  key: key,
+  keypaths: keypaths,
+  parse: parse$1,
+  root: root,
+  subpaths: subpaths,
+  typeofRoot: typeofRoot
+});
+
+const { regularExpressions: regularExpressions$4, typedObjectLiteral: typedObjectLiteral$a } = index$6;
+function get($path, $value) {
+  const subpaths = $path.split(new RegExp(regularExpressions$4.quotationEscape));
+  const key = subpaths.pop();
+  const tree = $value;
+  let treeNode = tree;
+  for(const $subpath of subpaths) {
+    treeNode = treeNode[$subpath];
+  }
+  return treeNode[key]
+}
+function set($path, $value) {
+  const {
+    keypaths, key, typeofRoot
+  } = parse$1($path);
+  const tree = typedObjectLiteral$a(typeofRoot);
+  let treeNode = tree;
+  for(const $subpath of keypaths) {
+    if(Number($subpath)) { treeNode[$subpath] = []; }
+    else { treeNode[$subpath] = {}; }
+    treeNode = treeNode[$subpath];
+  }
+  treeNode[key] = $value;
+  return tree
+}
+
+var index$4 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  get: get,
+  set: set
+});
+
+const { typedObjectLiteral: typedObjectLiteral$9, variables: variables$3 } = index$6;
+function impandTree$1($root, $tree) {
+  const typeofTree = typeof $tree;
+  const typeofRoot = typeof $root;
+  if(
+    !['string', 'function'].includes(typeofTree) ||
+    typeofRoot && typeofRoot !== 'object'
+  ) { return undefined /*$root*/ }
+  let tree = typedObjectLiteral$9($root);
+  if(typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+    }
+  }
+  return tree
+}
+
+function expandTree$1($root, $tree) {
+  const typeofRoot = typeof $root;
+  const typeofTree = typeof $tree;
+  if(
+    !['string', 'function'].includes(typeofTree)
+  ) { return undefined }
+  let tree;
+  if($root && typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+    }
+  }
+  else {
+    if(typeofTree === 'string') { tree = set($tree, $root); }
+    else if(typeofTree === 'function') { tree = $tree($root); }
+  }
+  return tree
+}
+
+function keytree($object) {
+  const target = [];
+  for(const [$key, $value] of Object.entries($object)) {
+    if(typeof $value === 'object') {
+      target.push([$key, keytree($value)]);
+    }
+    else {
+      target.push($key);
+    }
+  }
+  return target
+}
+
+function objectCount($object) {
+  if($object && typeof $object !== 'object') return undefined 
+  let count = 1;
+  for(const [$key, $value] of Object.entries($object)) {
+    if(typeof $value === 'object') { count += objectCount($value); }
+  }
+  return count
+}
+
+function pathkeytree($object) {
+  const target = [];
+  for(const [$key, $value] of Object.entries($object)) {
+    target.push($key);
+    if(typeof $value === 'object') {
+      const subtarget = pathkeytree($value);
+      for(const $subtarget of subtarget) {
+        let path;
+        if(typeof $subtarget === 'object') {
+          path = [$key, ...$subtarget].join('.');
+        }
+        else {
+          path = [$key, $subtarget].join('.');
+        }
+        target.push(path);
+      }
+    }
+  }
+  return target
+}
+
+const {
+  isPropertyDefinition: isPropertyDefinition$2,
+  recursiveAssign: recursiveAssign$9, recursiveAssignConcat: recursiveAssignConcat$1, regularExpressions: regularExpressions$3, 
+  typedObjectLiteral: typedObjectLiteral$8, typeOf: typeOf$5, 
+  variables: variables$2
+} = index$6;
+
+var index$3 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  expandTree: expandTree$1,
+  impandTree: impandTree$1,
+  isPropertyDefinition: isPropertyDefinition$2,
+  keytree: keytree,
+  objectCount: objectCount,
+  path: index$5,
+  pathkeytree: pathkeytree,
+  recursiveAssign: recursiveAssign$9,
+  recursiveAssignConcat: recursiveAssignConcat$1,
+  regularExpressions: regularExpressions$3,
+  tree: index$4,
+  typedObjectLiteral: typedObjectLiteral$8,
+  variables: variables$2
+});
+
+var Settings$7 = (...$settings) => Object.assign({}, ...$settings);
+
+var Options$7 = (...$options) => Object.assign({
+  enableEvents: true,
+}, ...$options);
+
+let Handler$1 = class Handler {
+  #propertyClass
+  constructor($propertyClass) {
+    this.#propertyClass = $propertyClass;
+  }
+  get get() {
+    return function get($target, $property) {
+      return $target[$property]
+    }
+  }
+  get set() {
+    const instate = this.#propertyClass.states.instate || states.instate;
+    const definition = this.#propertyClass.definition;
+    return function set($target, $property, $value) {
+      if(
+        definition.object === "Array" && 
+        $property === 'length'
+      ) {
+        $target[$property] = $value;
+      }
+      else {
+        $target[$property] = instate(this.#propertyClass, $property, $value);
+      }
+      return true
+    }
+  }
+  get deleteProperty() {
+    const deinstate = this.#propertyClass.states.deinstate || states.deinstate;
+    return function deleteProperty($target, $property) {
+      deinstate(this.#propertyClass, $property);
+      delete $target[$property];
+      return true
+    }
+  }
+};
+
+class PropertyClass {
+  #settings
+  #core
+  #_target
+  #_handler
+  #_proxy
+  constructor($settings, $core) {
+    this.#settings = $settings;
+    this.#core = $core;
+    return this.#proxy
+  }
+  get #target() {
+    if(this.#_target !== undefined) { return this.#_target }
+    this.#_target = typedObjectLiteral$8(this.definition.object);
+    return this.#_target
+  }
+  get #handler() {
+    if(this.#_handler !== undefined) { return this.#_handler }
+    this.#_handler = new Handler$1(this);
+    return this.#_handler
+  }
+  get #proxy() {
+    if(this.#_proxy !== undefined) { return this.#_proxy }
+    this.#_proxy = new Proxy(this.#target, this.#handler);
+    return this.#_proxy
+  }
+  get core() { return this.#core }
+  get name() { return this.#settings.name }
+  get names() { return this.#settings.names }
+  get states() { return this.#settings.states }
+  get definition() { return this.#settings.definition }
+}
+
+const getAccessor = ($target, $property) => $target?.get($property);
+class MVCFrameworkCore extends Core$1 {
+  #_propertyClasses = []
+  static propertyClasses = []
+  #settings
+  #options
+  constructor($settings, $options) {
+    super({
+      events: $settings.events || {},
+      accessors: ($settings.accessors)
+        ? [getAccessor].concat($settings.accessors)
+        : [getAccessor],
+      propertyDefinitions: $settings.propertyDefinitions || {},
+    });
+    this.#settings = Settings$7($settings);
+    this.#options = Options$7($options);
+    if(this.settings.propertyClasses) {
+      this.addPropertyClasses(this.settings.propertyClasses);
+      this.#addProperties(this.settings);
+    }
+  }
+  get settings() { return this.#settings }
+  get options() { return this.#options }
+  get #propertyClasses() { return this.#_propertyClasses }
+  #getPropertyClasses() {
+    let $getPropertyClasses;
+    if(arguments.length === 0) $getPropertyClasses = this.#propertyClasses;
+    else { $getPropertyClasses = [].concat(...arguments); }
+    const getPropertyClasses = [];
+    let propertyClassIndex = 0;
+    for(const $propertyClass of this.#propertyClasses) {
+      for(const $getPropertyClass of $getPropertyClasses) {
+        if($propertyClass.name === $getPropertyClass.name) {
+          getPropertyClasses.push({
+            propertyClassIndex: propertyClassIndex,
+            propertyClass: $propertyClass
+          });
+        }
+      }
+      propertyClassIndex++;
+    }
+    return getPropertyClasses
+  }
+  #addProperties($properties) {
+    iteratePropertyClasses: 
+    for(const $propertyClass of this.#propertyClasses) {
+      const { name, definitionValue } = $propertyClass;
+      if(!definitionValue) { continue iteratePropertyClasses }
+      if($properties[name] === undefined) { continue iteratePropertyClasses }
+      if(definitionValue !== undefined) {
+        this[administer](this.settings[name]);
+      }
+      else if(this.settings[name] !== undefined) {
+        this[name] = this.settings[name];
+      }
+    }
+    return this
+  }
+  addPropertyClasses() {
+    const $this = this;
+    let $addPropertyClasses = (arguments.length === 0)
+      ? this.settings.propertyClasses
+      : [].concat(...arguments);
+    const propertyClasses = this.#propertyClasses;
+    iteratePropertyClasses: 
+    for(const $addPropertyClass of $addPropertyClasses) {
+      if(!$addPropertyClass.definitionValue) {
+        propertyClasses.push($addPropertyClass);
+        continue iteratePropertyClasses
+      }
+      // $addPropertyClass.states = $addPropertyClass.states || {}
+      $addPropertyClass.definitionValue = $addPropertyClass.definitionValue || {};
+      if($addPropertyClass.instate === undefined) {
+        $addPropertyClass.instate = instate; 
+      }
+      if($addPropertyClass.deinstate === undefined) {
+        $addPropertyClass.deinstate = deinstate; 
+      }
+      const {
+        name,
+        administer, deadminister,
+        instate, deinstate,
+        definitionValue,
+      } = $addPropertyClass;
+      let propertyValue;
+      if(
+        definitionValue === 'Array' || 
+        definitionValue === 'Object'
+      ) {
+        Object.defineProperties(this, {
+          [name]: {
+            configurable: true, enumerable: true,  
+            get() {
+              if(propertyValue !== undefined) { return propertyValue }
+              propertyValue = new PropertyClass($addPropertyClass, $this);
+              return propertyValue
+            },
+            set($propertyValue) {
+              const propertyClassInstances = $this[name];
+              let propertyClassInstancesEntries;
+              if($propertyValue) {
+                if(Array.isArray($propertyValue)) {
+                  propertyClassInstancesEntries = $propertyValue;
+                }
+                else {
+                  propertyClassInstancesEntries = Object.entries($propertyValue);
+                }
+              } else { propertyClassInstancesEntries = []; }
+              for(const [
+                $propertyClassInstanceName, $propertyClassInstance
+              ] of propertyClassInstancesEntries) {
+                propertyClassInstances[$propertyClassInstanceName] = $propertyClassInstance;
+              }
+            }
+          },
+          [administer]: {
+            configurable: true, enumerable: false, writable: false, 
+            value: function() {
+              const $arguments = [...arguments];
+              if($arguments.length === 1) {
+                const [$values] = $arguments;
+                if(definitionValue === 'Array') {
+                  $this[name] = Object.entries($values);
+                }
+                else {
+                  if(Array.isArray($values)) {
+                    $this[name] = Object.fromEntries($values);
+                  }
+                  else {
+                    $this[name] = $values;
+                  }
+                }
+              }
+              else if($arguments.length === 2) {
+                const [$key, $value] = $arguments;
+                $this[name] = { [$key]: $value };
+              }
+              return $this
+            }
+          },
+          [deadminister]: {
+            configurable: true, enumerable: false, writable: false, 
+            value: function() {
+              const [$removeKeys] = [...arguments];
+              const removeKeys = [];
+              const typeofRemoveKeys = typeof $arguments[0];
+              if(typeofRemoveKeys === 'string') { removeKeys.push($arguments[0]); }
+              else if(typeofRemoveKeys === 'object') {
+                if(Array.isArray($removeKeys)) { removeKeys.push(...$removeKeys); }
+                else { removeKeys.push(...Object.keys($removeKeys)); }
+              }
+              else if(typeofRemoveKeys === 'undefined') {
+                removeKeys.push(...Object.keys($this[name]));
+              }
+              for(const $removeKey of $removeKeys) {
+                delete $this[name][$removeKey];
+              }
+              return $this
+            }
+          },
+        });
+      }
+      else  {
+        Object.defineProperties(this, {
+          [name]: {
+            get() {
+              return propertyValue
+            },
+            set($propertyValue) {
+              propertyValue = instate(Object.assign({
+                core: this
+              }, $addPropertyClass), name, $propertyValue);
+              }
+          },
+        });
+      }
+      propertyClasses.push($addPropertyClass);
+    }
+    return this
+  }
+  removePropertyClasses() {
+    const removePropertyClasses = this.#getPropertyClasses(...arguments);
+    let removePropertyClassIndex = removePropertyClasses.length - 1;
+    while(removePropertyClassIndex > -1) {
+      const { propertyClassIndex, propertyClass } = removePropertyClasses[removePropertyClassIndex];
+      const { definitionValue } = propertyClass;
+      const propertyClassInstances = this[name];
+      if(definitionValue) {
+        if(definitionValue === 'Array') {
+          let propertyClassInstanceIndex = propertyClassInstances.length - 1;
+          while(propertyClassInstanceIndex > -1) {
+            propertyClassInstances.splice(propertyClassInstanceIndex, 1);
+            propertyClassInstanceIndex--;
+          }
+        }
+        else if(definitionValue === 'Object') {
+          for(const [
+            $propertyClassInstanceName, $propertyClassInstance
+          ] of Object.entries(this[name])) {
+            delete propertyClassInstances[$propertyClassInstanceName];
+          }
+        }
+        delete this[`_${name}`];
+        Object.defineProperty(this, name, {
+          configurable: true, enumerable: false, writable: true, 
+          value: undefined
+        });
+        delete this[name];
+        delete this[administer];
+        delete this[deadminister];
+      }
+      else {
+        delete this[name];
+        Object.defineProperty(this, name, {
+          configurable: true, enumerable: false, writable: true, 
+          value: undefined
+        });
+      }
+      this.#propertyClasses.splice(propertyClassIndex, 1);
+      removePropertyClassIndex--;
+    }
+    return this
+  }
+}
+
 function impandEvents($propEvents) {
   if(!Array.isArray($propEvents)) { return $propEvents }
   const propEvents = {};
@@ -51,13 +1705,31 @@ function expandEvents($propEvents) {
   return propEvents
 }
 
-const Options$9 = {
+function isPropertyDefinition$1($propertyDefinition) {
+  if(
+    Object.getOwnPropertyDescriptor($propertyDefinition, 'type') &&
+    (
+      TypeValues.includes($propertyDefinition.type) ||
+      TypeKeys.includes($propertyDefinition.type)
+    ) || (
+      typeof $propertyDefinition.type === 'object' &&
+      Object.getOwnPropertyDescriptor($propertyDefinition.type, 'value') &&
+      (
+        TypeValues.includes($propertyDefinition.type.value) ||
+        TypeKeys.includes($propertyDefinition.type.value)
+      )
+    )
+  ) { return true } 
+  else { return false }
+}
+
+const Options$2$1 = {
   depth: 0,
   maxDepth: 10,
 };
 function propertyDirectory($object, $options) {
   const target = [];
-  const options = Object.assign({}, Options$9, $options);
+  const options = Object.assign({}, Options$2$1, $options);
   options.depth++;
   if(options.depth > options.maxDepth) { return target }
   for(const [$key, $value] of Object.entries($object)) {
@@ -83,12 +1755,12 @@ function propertyDirectory($object, $options) {
   return target
 }
 
-const typeOf$2 = ($data) => Object
+const typeOf$4 = ($data) => Object
   .prototype
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
-function recursiveAssign$1($target, ...$sources) {
+function recursiveAssign$8($target, ...$sources) {
   if(!$target) { return $target}
   iterateSources: 
   for(const $source of $sources) {
@@ -96,13 +1768,13 @@ function recursiveAssign$1($target, ...$sources) {
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf$2($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf$2($sourcePropertyValue);
+      const typeOfTargetPropertyValue = typeOf$4($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$4($sourcePropertyValue);
       if(
         typeOfTargetPropertyValue === 'object' &&
         typeOfSourcePropertyValue === 'object'
       ) {
-        $target[$sourcePropertyKey] = recursiveAssign$1($target[$sourcePropertyKey], $sourcePropertyValue);
+        $target[$sourcePropertyKey] = recursiveAssign$8($target[$sourcePropertyKey], $sourcePropertyValue);
       }
       else {
         $target[$sourcePropertyKey] = $sourcePropertyValue;
@@ -112,7 +1784,7 @@ function recursiveAssign$1($target, ...$sources) {
   return $target
 }
 
-function recursiveAssignConcat$1($target, ...$sources) {
+function recursiveAssignConcat($target, ...$sources) {
   if(!$target) { return $target}
   iterateSources: 
   for(const $source of $sources) {
@@ -120,13 +1792,13 @@ function recursiveAssignConcat$1($target, ...$sources) {
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf$2($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf$2($sourcePropertyValue);
+      const typeOfTargetPropertyValue = typeOf$4($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$4($sourcePropertyValue);
       if( 
         typeOfTargetPropertyValue === 'object' &&
         typeOfSourcePropertyValue === 'object'
       ) {
-        $target[$sourcePropertyKey] = recursiveAssignConcat$1($target[$sourcePropertyKey], $sourcePropertyValue);
+        $target[$sourcePropertyKey] = recursiveAssignConcat($target[$sourcePropertyKey], $sourcePropertyValue);
       }
       else if(
         typeOfTargetPropertyValue === 'array' &&
@@ -142,6 +1814,10 @@ function recursiveAssignConcat$1($target, ...$sources) {
   return $target
 }
 
+var index$2 = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
 function recursiveFreeze($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
@@ -151,15 +1827,70 @@ function recursiveFreeze($target) {
   return Object.freeze($target)
 }
 
-var index$3 = /*#__PURE__*/Object.freeze({
+function typedObjectLiteral$7($object) {
+  if(typeOf$4($object) === 'object') { return {} }
+  else if(typeOf$4($object) === 'array') { return [] }
+  else if(typeOf$4($object) === 'string') { return (
+    $object === 'object'
+  ) ? {} : (
+    $object === 'array'
+  ) ? []
+    : undefined
+  }
+  else { return undefined }
+}
+
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'bigint': BigInt, 
+  'undefined': undefined,
+  'null': null,
+};
+const PrimitiveKeys$1 = Object.keys(Primitives);
+const PrimitiveValues$1 = Object.values(Primitives);
+const Objects = {
+  'object': Object,
+  'array': Array,
+};
+const ObjectKeys = Object.keys(Objects);
+const ObjectValues = Object.values(Objects);
+const Types = Object.assign({}, Primitives, Objects);
+const TypeKeys = Object.keys(Types);
+const TypeValues = Object.values(Types);
+const TypeMethods = [
+ Primitives.String, Primitives.Number, Primitives.Boolean, 
+ Objects.Object, Objects.Array
+];
+
+var index$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  ObjectKeys: ObjectKeys,
+  ObjectValues: ObjectValues,
+  Objects: Objects,
+  PrimitiveKeys: PrimitiveKeys$1,
+  PrimitiveValues: PrimitiveValues$1,
+  Primitives: Primitives,
+  TypeKeys: TypeKeys,
+  TypeMethods: TypeMethods,
+  TypeValues: TypeValues,
+  Types: Types
+});
+
+var index = /*#__PURE__*/Object.freeze({
   __proto__: null,
   expandEvents: expandEvents,
   impandEvents: impandEvents,
+  isPropertyDefinition: isPropertyDefinition$1,
   propertyDirectory: propertyDirectory,
-  recursiveAssign: recursiveAssign$1,
-  recursiveAssignConcat: recursiveAssignConcat$1,
+  recursiveAssign: recursiveAssign$8,
+  recursiveAssignConcat: recursiveAssignConcat,
   recursiveFreeze: recursiveFreeze,
-  typeOf: typeOf$2
+  regularExpressions: index$2,
+  typeOf: typeOf$4,
+  typedObjectLiteral: typedObjectLiteral$7,
+  variables: index$1
 });
 
 var Settings$1$1 = ($settings = {}) => {
@@ -709,7 +2440,7 @@ function outmatch(pattern, options) {
     return fn;
 }
 
-var Settings$7 = ($settings = {}) => {
+var Settings$6 = ($settings = {}) => {
   const Settings = {
     propertyDirectory: { maxDepth: 10 },
     enable: false,
@@ -771,7 +2502,7 @@ var Settings$7 = ($settings = {}) => {
         Settings[$settingKey] = Settings[$settingKey].concat($settingValue);
         break
       case 'methods': 
-        Settings[$settingKey] = recursiveAssign$1(Settings[$settingKey], $settingValue);
+        Settings[$settingKey] = recursiveAssign$8(Settings[$settingKey], $settingValue);
         break
       case 'enableEvents': break
       default: 
@@ -796,7 +2527,7 @@ class EventDefinition {
   #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
-    this.#settings = Settings$7($settings);
+    this.#settings = Settings$6($settings);
     this.#context = $context;
     this.enable = this.settings.enable;
   }
@@ -902,7 +2633,7 @@ class EventDefinition {
         }
       }
     }
-    else if(typeOf$2(this.path) === 'string') {
+    else if(typeOf$4(this.path) === 'string') {
       const propertyPathMatcher = outmatch(this.path, {
         separator: '.',
       });
@@ -1098,576 +2829,6 @@ class Core extends EventTarget {
   }
 }
 
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'bigint': BigInt, 
-  'undefined': undefined,
-  'null': null,
-};
-const PrimitiveKeys = Object.keys(Primitives);
-const PrimitiveValues = Object.values(Primitives);
-const Objects = {
-  'object': Object,
-  'array': Array,
-};
-const ObjectKeys = Object.keys(Objects);
-const ObjectValues = Object.values(Objects);
-const Types = Object.assign({}, Primitives, Objects);
-const TypeKeys = Object.keys(Types);
-const TypeValues = Object.values(Types);
-const TypeMethods = [
- Primitives.String, Primitives.Number, Primitives.Boolean, 
- Objects.Object, Objects.Array
-];
-
-var Variables = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ObjectKeys: ObjectKeys,
-  ObjectValues: ObjectValues,
-  Objects: Objects,
-  PrimitiveKeys: PrimitiveKeys,
-  PrimitiveValues: PrimitiveValues,
-  Primitives: Primitives,
-  TypeKeys: TypeKeys,
-  TypeMethods: TypeMethods,
-  TypeValues: TypeValues,
-  Types: Types
-});
-
-var regularExpressions = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
-function subpaths($path) {
-  return $path.split(
-    new RegExp(regularExpressions.quotationEscape)
-  )
-}
-function keypaths($path) {
-  const _subpaths = subpaths($path);
-  _subpaths.pop();
-  return _subpaths
-}
-function key($path) {
-  return subpaths($path).pop()
-}
-function root($path) {
-  return subpaths($path).shift()
-}
-function typeofRoot($path) {
-  return (Number(root($path))) ? 'array' : 'object'
-}
-function parse$1($path) {
-  return {
-    subpaths: subpaths($path),
-    keypaths: keypaths($path),
-    key: key($path),
-    root: root($path),
-    typeofRoot: typeofRoot($path),
-  }
-}
-
-var index$2 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  key: key,
-  keypaths: keypaths,
-  parse: parse$1,
-  root: root,
-  subpaths: subpaths,
-  typeofRoot: typeofRoot
-});
-
-const { typeOf: typeOf$1 } = index$3;
-function typedObjectLiteral($object) {
-  if(typeOf$1($object) === 'object') { return {} }
-  else if(typeOf$1($object) === 'array') { return [] }
-  else if(typeOf$1($object) === 'string') { return (
-    $object === 'object'
-  ) ? {} : (
-    $object === 'array'
-  ) ? []
-    : undefined
-  }
-  else { return undefined }
-}
-
-function get($path, $value) {
-  const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
-  const key = subpaths.pop();
-  const tree = $value;
-  let treeNode = tree;
-  for(const $subpath of subpaths) {
-    treeNode = treeNode[$subpath];
-  }
-  return treeNode[key]
-}
-function set($path, $value) {
-  const {
-    keypaths, key, typeofRoot
-  } = parse$1($path);
-  const tree = typedObjectLiteral(typeofRoot);
-  let treeNode = tree;
-  for(const $subpath of keypaths) {
-    if(Number($subpath)) { treeNode[$subpath] = []; }
-    else { treeNode[$subpath] = {}; }
-    treeNode = treeNode[$subpath];
-  }
-  treeNode[key] = $value;
-  return tree
-}
-
-var index$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  get: get,
-  set: set
-});
-
-function impandTree($root, $tree) {
-  const typeofTree = typeof $tree;
-  const typeofRoot = typeof $root;
-  if(
-    !['string', 'function'].includes(typeofTree) ||
-    typeofRoot && typeofRoot !== 'object'
-  ) { return undefined /*$root*/ }
-  let tree = typedObjectLiteral($root);
-  if(typeofRoot === 'object') {
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree[$rootKey] = get($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree = $tree($rootValue); }
-    }
-  }
-  return tree
-}
-
-function expandTree($root, $tree) {
-  const typeofRoot = typeof $root;
-  const typeofTree = typeof $tree;
-  if(
-    !['string', 'function'].includes(typeofTree)
-  ) { return undefined }
-  let tree;
-  if($root && typeofRoot === 'object') {
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree = set($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree = $tree($rootValue); }
-    }
-  }
-  else {
-    if(typeofTree === 'string') { tree = set($tree, $root); }
-    else if(typeofTree === 'function') { tree = $tree($root); }
-  }
-  return tree
-}
-
-function isPropertyDefinition($propertyDefinition) {
-  if(
-    Object.getOwnPropertyDescriptor($propertyDefinition, 'type') &&
-    (
-      TypeValues.includes($propertyDefinition.type) ||
-      TypeKeys.includes($propertyDefinition.type)
-    ) || (
-      typeof $propertyDefinition.type === 'object' &&
-      Object.getOwnPropertyDescriptor($propertyDefinition.type, 'value') &&
-      (
-        TypeValues.includes($propertyDefinition.type.value) ||
-        TypeKeys.includes($propertyDefinition.type.value)
-      )
-    )
-  ) { return true } 
-  else { return false }
-}
-
-function isPropertyValidator($propertyValidator) {
-  if(
-    Object.getOwnPropertyDescriptor($propertyValidator, 'value') &&
-    (
-      TypeValues.includes($propertyValidator.type) ||
-      TypeKeys.includes($propertyValidator.type)
-    ) || (
-      typeof $propertyValidator.type === 'object' &&
-      Object.getOwnPropertyDescriptor($propertyValidator.type, 'value') &&
-      (
-        TypeValues.includes($propertyValidator.type.value) ||
-        TypeKeys.includes($propertyValidator.type.value)
-      )
-    )
-  ) { return true } 
-  else { return false }
-}
-
-function keytree($object) {
-  const target = [];
-  for(const [$key, $value] of Object.entries($object)) {
-    if(typeof $value === 'object') {
-      target.push([$key, keytree($value)]);
-    }
-    else {
-      target.push($key);
-    }
-  }
-  return target
-}
-
-function objectCount($object) {
-  if($object && typeof $object !== 'object') return undefined 
-  let count = 1;
-  for(const [$key, $value] of Object.entries($object)) {
-    if(typeof $value === 'object') { count += objectCount($value); }
-  }
-  return count
-}
-
-function pathkeytree($object) {
-  const target = [];
-  for(const [$key, $value] of Object.entries($object)) {
-    target.push($key);
-    if(typeof $value === 'object') {
-      const subtarget = pathkeytree($value);
-      for(const $subtarget of subtarget) {
-        let path;
-        if(typeof $subtarget === 'object') {
-          path = [$key, ...$subtarget].join('.');
-        }
-        else {
-          path = [$key, $subtarget].join('.');
-        }
-        target.push(path);
-      }
-    }
-  }
-  return target
-}
-
-function typedObjectLiteralFromPath($path) {
-  subpaths($path);
-  let tree = (Number($path[0])) ?  [] : {};
-  return tree
-}
-
-const { recursiveAssign, recursiveAssignConcat, typeOf } = index$3;
-
-var index = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  expandTree: expandTree,
-  impandTree: impandTree,
-  isPropertyDefinition: isPropertyDefinition,
-  isPropertyValidator: isPropertyValidator,
-  keytree: keytree,
-  objectCount: objectCount,
-  path: index$2,
-  pathkeytree: pathkeytree,
-  recursiveAssign: recursiveAssign,
-  recursiveAssignConcat: recursiveAssignConcat,
-  regularExpressions: regularExpressions,
-  tree: index$1,
-  typeOf: typeOf,
-  typedObjectLiteral: typedObjectLiteral,
-  typedObjectLiteralFromPath: typedObjectLiteralFromPath,
-  variables: Variables
-});
-
-var Settings$6 = (...$settings) => Object.assign({}, ...$settings);
-
-var Options$8 = (...$options) => Object.assign({
-  enableEvents: true,
-}, ...$options);
-
-let Handler$1 = class Handler {
-  #propertyClass
-  constructor($propertyClass) {
-    this.#propertyClass = $propertyClass;
-  }
-  get get() {
-    return function get($target, $property) {
-      return $target[$property]
-    }
-  }
-  get set() {
-    const instate = this.#propertyClass.states.instate || states.instate;
-    const definition = this.#propertyClass.definition;
-    return function set($target, $property, $value) {
-      if(
-        definition.object === "Array" && 
-        $property === 'length'
-      ) {
-        $target[$property] = $value;
-      }
-      else {
-        $target[$property] = instate(this.#propertyClass, $property, $value);
-      }
-      return true
-    }
-  }
-  get deleteProperty() {
-    const deinstate = this.#propertyClass.states.deinstate || states.deinstate;
-    return function deleteProperty($target, $property) {
-      deinstate(this.#propertyClass, $property);
-      delete $target[$property];
-      return true
-    }
-  }
-};
-
-class PropertyClass {
-  #settings
-  #core
-  #_target
-  #_handler
-  #_proxy
-  constructor($settings, $core) {
-    this.#settings = $settings;
-    this.#core = $core;
-    return this.#proxy
-  }
-  get #target() {
-    if(this.#_target !== undefined) { return this.#_target }
-    this.#_target = typedObjectLiteral(this.definition.object);
-    return this.#_target
-  }
-  get #handler() {
-    if(this.#_handler !== undefined) { return this.#_handler }
-    this.#_handler = new Handler$1(this);
-    return this.#_handler
-  }
-  get #proxy() {
-    if(this.#_proxy !== undefined) { return this.#_proxy }
-    this.#_proxy = new Proxy(this.#target, this.#handler);
-    return this.#_proxy
-  }
-  get core() { return this.#core }
-  get name() { return this.#settings.name }
-  get names() { return this.#settings.names }
-  get states() { return this.#settings.states }
-  get definition() { return this.#settings.definition }
-}
-
-const getAccessor = ($target, $property) => $target?.get($property);
-class MVCFrameworkCore extends Core {
-  #_propertyClasses = []
-  static propertyClasses = []
-  #settings
-  #options
-  constructor($settings, $options) {
-    super({
-      events: $settings.events || {},
-      accessors: ($settings.accessors)
-        ? [getAccessor].concat($settings.accessors)
-        : [getAccessor],
-      propertyDefinitions: $settings.propertyDefinitions || {},
-    });
-    this.#settings = Settings$6($settings);
-    this.#options = Options$8($options);
-    if(this.settings.propertyClasses) {
-      this.addPropertyClasses(this.settings.propertyClasses);
-      this.#addProperties(this.settings);
-    }
-  }
-  get settings() { return this.#settings }
-  get options() { return this.#options }
-  get #propertyClasses() { return this.#_propertyClasses }
-  #getPropertyClasses() {
-    let $getPropertyClasses;
-    if(arguments.length === 0) $getPropertyClasses = this.#propertyClasses;
-    else { $getPropertyClasses = [].concat(...arguments); }
-    const getPropertyClasses = [];
-    let propertyClassIndex = 0;
-    for(const $propertyClass of this.#propertyClasses) {
-      for(const $getPropertyClass of $getPropertyClasses) {
-        if($propertyClass.name === $getPropertyClass.name) {
-          getPropertyClasses.push({
-            propertyClassIndex: propertyClassIndex,
-            propertyClass: $propertyClass
-          });
-        }
-      }
-      propertyClassIndex++;
-    }
-    return getPropertyClasses
-  }
-  #addProperties($properties) {
-    iteratePropertyClasses: 
-    for(const $propertyClass of this.#propertyClasses) {
-      const { name, definitionValue } = $propertyClass;
-      if(!definitionValue) { continue iteratePropertyClasses }
-      if($properties[name] === undefined) { continue iteratePropertyClasses }
-      if(definitionValue !== undefined) {
-        this[administer](this.settings[name]);
-      }
-      else if(this.settings[name] !== undefined) {
-        this[name] = this.settings[name];
-      }
-    }
-    return this
-  }
-  addPropertyClasses() {
-    const $this = this;
-    let $addPropertyClasses = (arguments.length === 0)
-      ? this.settings.propertyClasses
-      : [].concat(...arguments);
-    const propertyClasses = this.#propertyClasses;
-    iteratePropertyClasses: 
-    for(const $addPropertyClass of $addPropertyClasses) {
-      if(!$addPropertyClass.definitionValue) {
-        propertyClasses.push($addPropertyClass);
-        continue iteratePropertyClasses
-      }
-      // $addPropertyClass.states = $addPropertyClass.states || {}
-      $addPropertyClass.definitionValue = $addPropertyClass.definitionValue || {};
-      if($addPropertyClass.instate === undefined) {
-        $addPropertyClass.instate = instate; 
-      }
-      if($addPropertyClass.deinstate === undefined) {
-        $addPropertyClass.deinstate = deinstate; 
-      }
-      const {
-        name,
-        administer, deadminister,
-        instate, deinstate,
-        definitionValue,
-      } = $addPropertyClass;
-      let propertyValue;
-      if(
-        definitionValue === 'Array' || 
-        definitionValue === 'Object'
-      ) {
-        Object.defineProperties(this, {
-          [name]: {
-            configurable: true, enumerable: true,  
-            get() {
-              if(propertyValue !== undefined) { return propertyValue }
-              propertyValue = new PropertyClass($addPropertyClass, $this);
-              return propertyValue
-            },
-            set($propertyValue) {
-              const propertyClassInstances = $this[name];
-              let propertyClassInstancesEntries;
-              if($propertyValue) {
-                if(Array.isArray($propertyValue)) {
-                  propertyClassInstancesEntries = $propertyValue;
-                }
-                else {
-                  propertyClassInstancesEntries = Object.entries($propertyValue);
-                }
-              } else { propertyClassInstancesEntries = []; }
-              for(const [
-                $propertyClassInstanceName, $propertyClassInstance
-              ] of propertyClassInstancesEntries) {
-                propertyClassInstances[$propertyClassInstanceName] = $propertyClassInstance;
-              }
-            }
-          },
-          [administer]: {
-            configurable: true, enumerable: false, writable: false, 
-            value: function() {
-              const $arguments = [...arguments];
-              if($arguments.length === 1) {
-                const [$values] = $arguments;
-                if(definitionValue === 'Array') {
-                  $this[name] = Object.entries($values);
-                }
-                else {
-                  if(Array.isArray($values)) {
-                    $this[name] = Object.fromEntries($values);
-                  }
-                  else {
-                    $this[name] = $values;
-                  }
-                }
-              }
-              else if($arguments.length === 2) {
-                const [$key, $value] = $arguments;
-                $this[name] = { [$key]: $value };
-              }
-              return $this
-            }
-          },
-          [deadminister]: {
-            configurable: true, enumerable: false, writable: false, 
-            value: function() {
-              const [$removeKeys] = [...arguments];
-              const removeKeys = [];
-              const typeofRemoveKeys = typeof $arguments[0];
-              if(typeofRemoveKeys === 'string') { removeKeys.push($arguments[0]); }
-              else if(typeofRemoveKeys === 'object') {
-                if(Array.isArray($removeKeys)) { removeKeys.push(...$removeKeys); }
-                else { removeKeys.push(...Object.keys($removeKeys)); }
-              }
-              else if(typeofRemoveKeys === 'undefined') {
-                removeKeys.push(...Object.keys($this[name]));
-              }
-              for(const $removeKey of $removeKeys) {
-                delete $this[name][$removeKey];
-              }
-              return $this
-            }
-          },
-        });
-      }
-      else  {
-        Object.defineProperties(this, {
-          [name]: {
-            get() {
-              return propertyValue
-            },
-            set($propertyValue) {
-              propertyValue = instate(Object.assign({
-                core: this
-              }, $addPropertyClass), name, $propertyValue);
-              }
-          },
-        });
-      }
-      propertyClasses.push($addPropertyClass);
-    }
-    return this
-  }
-  removePropertyClasses() {
-    const removePropertyClasses = this.#getPropertyClasses(...arguments);
-    let removePropertyClassIndex = removePropertyClasses.length - 1;
-    while(removePropertyClassIndex > -1) {
-      const { propertyClassIndex, propertyClass } = removePropertyClasses[removePropertyClassIndex];
-      const { definitionValue } = propertyClass;
-      const propertyClassInstances = this[name];
-      if(definitionValue) {
-        if(definitionValue === 'Array') {
-          let propertyClassInstanceIndex = propertyClassInstances.length - 1;
-          while(propertyClassInstanceIndex > -1) {
-            propertyClassInstances.splice(propertyClassInstanceIndex, 1);
-            propertyClassInstanceIndex--;
-          }
-        }
-        else if(definitionValue === 'Object') {
-          for(const [
-            $propertyClassInstanceName, $propertyClassInstance
-          ] of Object.entries(this[name])) {
-            delete propertyClassInstances[$propertyClassInstanceName];
-          }
-        }
-        delete this[`_${name}`];
-        Object.defineProperty(this, name, {
-          configurable: true, enumerable: false, writable: true, 
-          value: undefined
-        });
-        delete this[name];
-        delete this[administer];
-        delete this[deadminister];
-      }
-      else {
-        delete this[name];
-        Object.defineProperty(this, name, {
-          configurable: true, enumerable: false, writable: true, 
-          value: undefined
-        });
-      }
-      this.#propertyClasses.splice(propertyClassIndex, 1);
-      removePropertyClassIndex--;
-    }
-    return this
-  }
-}
-
 class Verification extends EventTarget {
   #settings
   #message
@@ -1698,6 +2859,7 @@ class Verification extends EventTarget {
   }
 }
 
+const { recursiveAssign: recursiveAssign$7 } = index;
 const Messages$1 = {
   'true': ($verification) => `${$verification.pass}`,
   'false': ($verification) => `${$verification.pass}`,
@@ -1731,7 +2893,7 @@ class Validator extends EventTarget {
         definition: definition,
         key: $key,
         value: $value,
-        messages: recursiveAssign({}, this.messages, definition.messages),
+        messages: recursiveAssign$7({}, this.messages, definition.messages),
       });
       verification.pass = definition.validate(...arguments);
       return verification
@@ -1741,6 +2903,7 @@ class Validator extends EventTarget {
   }
 }
 
+const { recursiveAssign: recursiveAssign$6, typedObjectLiteral: typedObjectLiteral$6 } = index;
 class RequiredValidator extends Validator {
   constructor($definition, $schema) {
     super(Object.assign($definition, {
@@ -1751,13 +2914,13 @@ class RequiredValidator extends Validator {
         const { requiredProperties, requiredPropertiesSize, type } = this.schema;
         if(requiredPropertiesSize === 0/* || definition.value === false*/) { pass = true; }
         else if(type === 'object') {
-          const corequiredContextProperties = typedObjectLiteral(type);
-          const corequiredContentProperties = typedObjectLiteral(type);
+          const corequiredContextProperties = typedObjectLiteral$6(type);
+          const corequiredContentProperties = typedObjectLiteral$6(type);
           iterateRequiredProperties: 
           for(const [
             $requiredPropertyName, $requiredProperty
           ] of Object.entries(requiredProperties)) {
-            const requiredProperty = recursiveAssign({}, $requiredProperty);
+            const requiredProperty = recursiveAssign$6({}, $requiredProperty);
             // ?:START
             requiredProperty.required.value = false;
             // ?:STOP
@@ -1810,6 +2973,10 @@ class RequiredValidator extends Validator {
   }
 }
 
+const {
+  typeOf: typeOf$3, variables: variables$1
+} = index;
+const { PrimitiveKeys, PrimitiveValues } = variables$1;
 class TypeValidator extends Validator {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
@@ -1817,11 +2984,11 @@ class TypeValidator extends Validator {
       validate: ($key, $value) => {
         const definition = this.definition;
         let pass;
-        let typeOfDefinitionValue = typeOf(definition.value);
+        let typeOfDefinitionValue = typeOf$3(definition.value);
         typeOfDefinitionValue = (typeOfDefinitionValue === 'function')
-          ? typeOf(definition.value())
+          ? typeOf$3(definition.value())
           : typeOfDefinitionValue;
-        const typeOfContentValue = typeOf($value);
+        const typeOfContentValue = typeOf$3($value);
         if(typeOfContentValue === 'undefined') { pass = false; }
         else if(typeOfDefinitionValue === 'undefined') { pass = true; }
         else { pass = (typeOfDefinitionValue === typeOfContentValue); }
@@ -1930,6 +3097,9 @@ class Handler {
   }
 }
 
+const {
+  expandTree, isPropertyDefinition, typedObjectLiteral: typedObjectLiteral$5, typeOf: typeOf$2, variables
+} = index;
 class Context extends EventTarget {
   #properties
   #schema
@@ -1952,7 +3122,7 @@ class Context extends EventTarget {
   }
   get type() {
     if(this.#type !== undefined) return this.#type
-    this.#type = typeOf(typedObjectLiteral(this.#properties));
+    this.#type = typeOf$2(typedObjectLiteral$5(this.#properties));
     return this.#type
   }
   get proxy() {
@@ -1968,7 +3138,7 @@ class Context extends EventTarget {
   get target() {
     if(this.#target !== undefined) return this.#target
     let properties;
-    const target = typedObjectLiteral(this.type);
+    const target = typedObjectLiteral$5(this.type);
     if(this.type === 'array') {
       properties = this.#properties.slice(0, 1);
     }
@@ -1978,20 +3148,20 @@ class Context extends EventTarget {
     for(const [
       $propertyKey, $propertyDefinition
     ] of Object.entries(properties)) {
-      const typeOfPropertyDefinition = typeOf($propertyDefinition);
+      const typeOfPropertyDefinition = typeOf$2($propertyDefinition);
       let propertyDefinition;
       // Property Definition: Schema
       if($propertyDefinition instanceof Schema) {
         propertyDefinition = $propertyDefinition;
       }
       // Property Definition: String, Number, Boolean, Object, Array, null, undefined
-      else if(TypeValues.includes($propertyDefinition)) {
+      else if(Variables.TypeValues.includes($propertyDefinition)) {
         propertyDefinition = expandTree($propertyDefinition, 'type.value');
       }
       // Property Definition: 'string', 'number', 'bigint', 'boolean', 'object', 'array', 'null', 'undefined'
-      else if(TypeKeys.includes($propertyDefinition)) {
-        propertyDefinition = expandTree(TypeValues[
-          TypeKeys.indexOf($propertyDefinition)
+      else if(Variables.TypeKeys.includes($propertyDefinition)) {
+        propertyDefinition = expandTree(Variables.TypeValues[
+          Variables.TypeKeys.indexOf($propertyDefinition)
         ], 'type.value');
       }
       // Property Definition: Object Literal
@@ -2019,7 +3189,7 @@ class Context extends EventTarget {
             $propertyValidatorName, $propertyValidator
           ] of Object.entries($propertyDefinition)) {
             if($propertyValidatorName === 'validators') { continue iteratePropertyValidators }
-            const typeOfPropertyValidator = typeOf($propertyValidator);
+            const typeOfPropertyValidator = typeOf$2($propertyValidator);
             let propertyValidator;
             if(typeOfPropertyValidator && typeOfPropertyValidator === 'object') {
               propertyValidator = $propertyValidator;
@@ -2153,10 +3323,12 @@ class Validation extends EventTarget {
   }
 }
 
-var Options$7 = (...$options) => Object.assign({
+var Options$1$1 = (...$options) => Object.assign({
   required: false,
   verificationType: 'all', // 'one'
 }, ...$options);
+
+const { typedObjectLiteral: typedObjectLiteral$4, typeOf: typeOf$1 } = index;
 
 class Schema extends EventTarget{
   #properties
@@ -2171,11 +3343,11 @@ class Schema extends EventTarget{
   constructor($properties = {}, $options = {}) {
     super();
     this.#properties = $properties;
-    this.options = Options$7($options);
+    this.options = Options$1$1($options);
   }
   get type() {
     if(this.#type !== undefined) return this.#type
-    this.#type = typeOf(typedObjectLiteral(this.#properties));
+    this.#type = typeOf$1(this.#properties);
     return this.#type
   }
   get parent() {
@@ -2208,7 +3380,7 @@ class Schema extends EventTarget{
   get required() { return this.options.required }
   get requiredProperties() {
     if(this.#requiredProperties !== undefined) return this.#requiredProperties
-    let requiredProperties = typedObjectLiteral(this.type);
+    let requiredProperties = typedObjectLiteral$4(this.type);
     for(const [$propertyKey, $propertyDefinition] of Object.entries(this.context)) {
       if($propertyDefinition.required?.value === true) { requiredProperties[$propertyKey] = $propertyDefinition; }
     }
@@ -2250,7 +3422,7 @@ class Schema extends EventTarget{
       path: this.path,
       key: $sourceName, 
       value: $source,
-      properties: typedObjectLiteral(this.type),
+      properties: typedObjectLiteral$4(this.type),
     });
     const sourceProperties = Object.entries($source);
     let sourcePropertyIndex = 0;
@@ -2346,7 +3518,8 @@ class Schema extends EventTarget{
   }
 }
 
-var Options$6 = ($options) => recursiveAssign({
+const { recursiveAssign: recursiveAssign$5 } = index;
+var Options$6 = ($options) => recursiveAssign$5({
   path: null, 
   parent: null, 
   enableValidation: true, 
@@ -2610,6 +3783,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
   }
 };
 
+const { recursiveAssign: recursiveAssign$4, typedObjectLiteral: typedObjectLiteral$3 } = index;
 function assign($content, $options, ...$sources) {
   const { path, target, schema } = $content;
   const { events, sourceTree, enableValidation, validationEvents } = $options;
@@ -2663,12 +3837,12 @@ function assign($content, $options, ...$sources) {
         const contentPath = (path)
           ? [path, $sourceKey].join('.')
           : String($sourceKey);
-        let contentTypedLiteral = typedObjectLiteral($sourceValue);
+        let contentTypedLiteral = typedObjectLiteral$3($sourceValue);
         // Assignment
         // Source Tree: False
         if(sourceTree === false) {
           sourceValue = new Content(contentTypedLiteral, subschema, 
-            recursiveAssign({}, $content.options, {
+            recursiveAssign$4({}, $content.options, {
               path: contentPath,
               parent: $content,
             })
@@ -2685,7 +3859,7 @@ function assign($content, $options, ...$sources) {
           // Assignment: New Content Instance
           else {
             sourceValue = new Content(contentTypedLiteral, subschema, 
-              recursiveAssign({}, $content.options, {
+              recursiveAssign$4({}, $content.options, {
                 path: contentPath,
                 parent: $content,
               })
@@ -2765,12 +3939,13 @@ function assign($content, $options, ...$sources) {
   return $content
 }
 
+const { impandTree, typedObjectLiteral: typedObjectLiteral$2 } = index;
 function defineProperties($content, $options, $propertyDescriptors) {
   const { events } = $options;
   const { path } = $content;
   const propertyDescriptorEntries = Object.entries($propertyDescriptors);
   const impandPropertyDescriptors = impandTree($propertyDescriptors, 'value');
-  typedObjectLiteral($content.valueOf());
+  typedObjectLiteral$2($content.valueOf());
   const definePropertiesChange = new Change({ preter: $content });
   // Iterate Property Descriptors
   for(const [
@@ -2800,6 +3975,7 @@ function defineProperties($content, $options, $propertyDescriptors) {
   return $content
 }
 
+const { typedObjectLiteral: typedObjectLiteral$1 } = index;
 function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
   const { descriptorTree, events } = $options;
   const { target, path, schema } = $content;
@@ -2855,7 +4031,7 @@ function defineProperty($content, $options, $propertyKey, $propertyDescriptor) {
     }
     // Root Property Descriptor Value: New Content Instance
     else {
-      let _target = typedObjectLiteral(propertyValue);
+      let _target = typedObjectLiteral$1(propertyValue);
       const contentObject = new Content(
         _target, subschema, {
           path: contentPath,
@@ -3744,13 +4920,14 @@ function getContent($content, $options) {
   return $content
 }
 
+const { regularExpressions: regularExpressions$2} = index;
 function getContentProperty($content, $options, $path) {
   const { target, path } = $content;
   // Arguments
   const { events, pathkey, subpathError } = $options;
   // Path Key: true
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+    const subpaths = $path.split(new RegExp(regularExpressions$2.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = target[propertyKey];
     // Return: Subproperty
@@ -3795,15 +4972,16 @@ function getContentProperty($content, $options, $path) {
   }
 }
 
+const { recursiveAssign: recursiveAssign$3 } = index;
 function getProperty($content, $options, ...$arguments) {
   let getProperty;
-  const options = recursiveAssign({}, $content.options, $options);
+  const options = recursiveAssign$3({}, $content.options, $options);
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 2) { recursiveAssign(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$3(options, $arguments[1]); }
     getProperty = getContentProperty($content, options, ...$arguments);
   }
   else {
-    if($arguments.length === 1) { recursiveAssign(options, $arguments[0]); }
+    if($arguments.length === 1) { recursiveAssign$3(options, $arguments[0]); }
     getProperty = getContent($content, options, ...$arguments);
   }
   return getProperty
@@ -3830,13 +5008,14 @@ function setContent($content, $options, $properties) {
   return $content
 }
 
+const { recursiveAssign: recursiveAssign$2, regularExpressions: regularExpressions$1} = index;
 function setContentProperty($content, $options, $path, $value) {
   const { target, path, schema } = $content;
   const { enableValidation, validationEvents, events, pathkey, subpathError, recursive, source } = $options;
   // Path Key: true
   if(pathkey === true) {
     // Subpaths
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+    const subpaths = $path.split(new RegExp(regularExpressions$1.quotationEscape));
     // Property Key
     const propertyKey = subpaths.shift();
     // Property Value
@@ -3860,7 +5039,7 @@ function setContentProperty($content, $options, $path, $value) {
           if(Number(propertyKey)) { subcontent = []; }
           else { subcontent = {}; }
         }
-        propertyValue = new Content(subcontent, subschema, recursiveAssign({}, $options, {
+        propertyValue = new Content(subcontent, subschema, recursiveAssign$2({}, $options, {
           path: contentPath,
           parent: $content,
         }));
@@ -3901,7 +5080,7 @@ function setContentProperty($content, $options, $path, $value) {
       if(schema?.type === 'array') { subschema = schema.context[0]; }
       else if(schema?.type === 'object') { subschema = schema.context[propertyKey]; }
       else { subschema = undefined; }
-      propertyValue = new Content($value, subschema, recursiveAssign(
+      propertyValue = new Content($value, subschema, recursiveAssign$2(
         {}, $options, {
           path: contentPath,
           parent: $content,
@@ -3962,7 +5141,7 @@ function setContentProperty($content, $options, $path, $value) {
       const contentPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
-      propertyValue = new Content($value, subschema, recursiveAssign(
+      propertyValue = new Content($value, subschema, recursiveAssign$2(
         {}, $options, {
           path: contentPath,
           parent: $content,
@@ -4008,15 +5187,16 @@ function setContentProperty($content, $options, $path, $value) {
   }
 }
 
+const { recursiveAssign: recursiveAssign$1 } = index;
 function setProperty($content, $options, ...$arguments) {
   let setProperty;
-  const options = recursiveAssign({}, $content.options, $options);
+  const options = recursiveAssign$1({}, $content.options, $options);
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 3) { recursiveAssign(options, $arguments[2]); }
+    if($arguments.length === 3) { recursiveAssign$1(options, $arguments[2]); }
     setProperty = setContentProperty($content, options, ...$arguments);
   }
   else {
-    if($arguments.length === 2) { recursiveAssign(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$1(options, $arguments[1]); }
     setProperty = setContent($content, options, ...$arguments);
   }
   return setProperty
@@ -4043,6 +5223,7 @@ function deleteContent($content, $options) {
   return $content
 }
 
+const { regularExpressions} = index;
 function deleteContentProperty($content, $options, $path) {
   const { target, path, schema } = $content;
   const { events, pathkey, subpathError, enableValidation, validationEvents } = $options;
@@ -4185,6 +5366,7 @@ function deleteContentProperty($content, $options, $path) {
   }
 }
 
+const { recursiveAssign } = index;
 function deleteProperty($content, $options, ...$arguments) {
   let deleteProperty;
   const options = recursiveAssign({}, $content.options, $options);
@@ -4303,7 +5485,9 @@ function Methods($content) {
   return $content
 }
 
-class Content extends EventTarget {
+const { typedObjectLiteral, typeOf } = index;
+
+class Content extends Core {
   #_properties
   #options
   #schema
@@ -5029,7 +6213,7 @@ function Query($element, $queryMethod, $queryString) {
   return query
 }
 
-var Settings$4 = (...$settings) => recursiveAssign({
+var Settings$4 = (...$settings) => recursiveAssign$9({
   // parentElement: undefined, // HTML Element
   scope: 'template', // 'parent',
   templates: {},
@@ -6043,7 +7227,7 @@ class LocationRouter extends MVCFrameworkCore {
   }
   // Route Ministration 
   setRoute($routePath, $routeSettings) {
-    const routeSettings = recursiveAssign({
+    const routeSettings = recursiveAssign$9({
       pathname: $routeSettings.pathname || $routePath,
     }, $routeSettings);
     this.#routes[$routePath] = new Route(routeSettings);
@@ -6265,5 +7449,5 @@ class Control extends MVCFrameworkCore {
   }
 }
 
-export { Content, Control, MVCFrameworkCore as Core, index as Coutil, FetchRouter, LocationRouter, MessageAdapter, Model, Schema, SocketRouter, Validation, Validator, Verification, View };
+export { Content, Control, MVCFrameworkCore as Core, index$3 as Coutil, FetchRouter, LocationRouter, MessageAdapter, Model, Schema, SocketRouter, Validation, Validator, Verification, View };
 //# sourceMappingURL=mvc-framework.js.map

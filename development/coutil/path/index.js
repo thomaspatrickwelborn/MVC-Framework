@@ -1,4 +1,5 @@
-import regularExpressions from '../regularExpressions/index.js'
+import { Coutil } from 'core-plex'
+const { regularExpressions } = Coutil
 function subpaths($path) {
   return $path.split(
     new RegExp(regularExpressions.quotationEscape)

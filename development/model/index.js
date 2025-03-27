@@ -1,67 +1,14 @@
-import Content from './content/index.js'
-import Core from '../core/index.js'
-import Schema from './schema/index.js'
+import { Model }  from 'objecture'
 import LocalStorage from './localStorage/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'
-import ChangeEvent from './events/change/index.js'
-const ChangeEvents = [
-  // Accessor
-  "getProperty", "setProperty", "deleteProperty", 
-  // Array
-  "concatValue", "copyWithinIndex", "fillIndex", "pushProp", 
-  "spliceDelete", "spliceAdd", "unshiftProp", 
-  // Object
-  "assignSourceProperty", "defineProperty",
-]
-export default class Model extends Core {
+export default class extends Model {
   #schema
   #content
   #localStorage
   #changeEvents
   constructor($settings, $options) {
-    super(Settings($settings), Options($options))
-    if(
-      !this.settings.content ||
-      typeof this.settings.content !== 'object'
-    ) { return null }
-    this.changeEvents = this.options.changeEvents
-    const { enableEvents } = this.options
-    if(enableEvents) this.enableEvents()
-  }
-  get schema() {
-    if(this.#schema !== undefined) return this.#schema
-    const { schema } = this.settings
-    if(!schema) { this.#schema = null }
-    else if(schema instanceof Schema) { this.#schema = schema }
-    else {
-      this.#schema = new Schema(
-        schema, this.options.schema
-      )
-    }
-    return this.#schema
-  }
-  get content() {
-    if(this.#content !== undefined) return this.#content
-    const { content } = this.settings
-    const { localStorage, autoload, autosave } = this.options
-    let properties
-    if(localStorage && autoload) {
-      const localStorageProperties = this.localStorage.get()
-      if(localStorageProperties) {
-        properties = localStorageProperties 
-      }
-    }
-    else if(content?.classToString === Content.toString()) {
-      properties = content.valueOf()
-    }
-    else {
-      properties = content
-    }
-    if(properties !== undefined) {
-      this.#content = new Content(properties, this.schema, this.options.content)
-    }
-    return this.#content
+    super($settings.properties, $settings.schema, $options)
   }
   get localStorage() {
     if(this.#localStorage !== undefined) { return this.#localStorage }
@@ -80,32 +27,6 @@ export default class Model extends Core {
       if(path !== undefined) { this.#localStorage = new LocalStorage(path) }
     }
     return this.#localStorage
-  }
-  get changeEvents() { return this.#changeEvents }
-  set changeEvents($changeEvents) {
-    if($changeEvents !== this.#changeEvents) {
-      const boundPropertyChange = this.#propertyChange.bind(this)
-      this.#changeEvents = $changeEvents
-      if(this.#changeEvents === true) {
-        for(const $eventType of ChangeEvents) {
-          this.content.addEventListener($eventType, boundPropertyChange)
-        }
-      }
-      else if(this.#changeEvents === false) {
-        for(const $eventType of ChangeEvents) {
-          this.content.removeEventListener($eventType, boundPropertyChange)
-        }
-      }
-    }
-  }
-  #propertyChange($event) {
-    this.save()
-    const { type, path, value, change } = $event
-    const detail = Object.assign({ type }, $event.detail)
-    const originalEvent = $event
-    this.dispatchEvent(
-      new ChangeEvent("change", { path, value, detail, change, originalEvent })
-    )
   }
   save() {
     if(this.localStorage) {

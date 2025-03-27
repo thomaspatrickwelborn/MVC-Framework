@@ -1,7 +1,7 @@
-import * as Variables from '../variables/index.js'
+import { Coutil } from 'core-plex'
+const { typedObjectLiteral, variables } = Coutil
 import * as Path from '../path/index.js'
 import * as Tree from '../tree/index.js'
-import typedObjectLiteral from "../typedObjectLiteral/index.js"
 function impandTree($root, $tree) {
   const typeofTree = typeof $tree
   const typeofRoot = typeof $root
