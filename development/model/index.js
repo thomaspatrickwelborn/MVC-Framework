@@ -1,4 +1,4 @@
-import { Model }  from 'objecture'
+import { Model } from 'objecture'
 import LocalStorage from './localStorage/index.js'
 import Settings from './settings/index.js'
 import Options from './options/index.js'

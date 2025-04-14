@@ -9,6 +9,7 @@ export default class MVCFrameworkCore extends Core {
   static propertyClasses = []
   #settings
   #options
+  #parent
   constructor($settings, $options) {
     super({
       events: $settings.events || {},
@@ -27,6 +28,20 @@ export default class MVCFrameworkCore extends Core {
   get settings() { return this.#settings }
   get options() { return this.#options }
   get #propertyClasses() { return this.#_propertyClasses }
+  get parent() {
+    if(this.#parent !== undefined)  return this.#parent
+    this.#parent = (this.settings.parent) ? this.settings.parent : null
+    return this.#parent
+  }
+  get root() {
+    let root = this
+    iterateParents: 
+    while(root) {
+      if([undefined, null].includes(root.parent)) { break iterateParents }
+      root = root.parent
+    }
+    return root
+  }
   #getPropertyClasses() {
     let $getPropertyClasses
     if(arguments.length === 0) $getPropertyClasses = this.#propertyClasses

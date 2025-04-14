@@ -53,14 +53,12 @@ export default class View extends Core {
     return this.#_template
   }
   set #template($templateString) {
-    const reenableEvents = this.getEvents({ enable: true })
-    reenableEvents.forEach(($reenableEvent) => $reenableEvent.enable = false)
     this.disableQuerySelectors()
     this.#template.innerHTML = $templateString
     this.children = this.#template.content.children
     this.parentElement.append(...this.children.values())
     this.enableQuerySelectors()
-    reenableEvents.forEach(($reenableEvent) => $reenableEvent.enable = true)
+    this.reenableEvents({ enable: true })
   }
   get children() {
     if(this.#children !== undefined) return this.#children

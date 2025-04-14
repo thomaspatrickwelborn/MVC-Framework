@@ -5,7 +5,7 @@ const {
   typedObjectLiteral, typeOf, 
   variables
 } = Coutil
-import { expandTree, impandTree } from './pandTree/index.js'
+import { expandTree} from './pandTree/index.js'
 import keytree from './keytree/index.js'
 import objectCount from './objectCount/index.js'
 import * as path from './path/index.js'
@@ -15,7 +15,7 @@ import * as tree from './tree/index.js'
 
 export {
   // Pand Tree
-  expandTree, impandTree, 
+  expandTree, 
   // Recursive Assign
   recursiveAssign,
   recursiveAssignConcat,

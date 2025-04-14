@@ -7,7 +7,6 @@ import {
   LocationRouter, FetchRouter, SocketRouter
 } from './routers/index.js'
 import {
-  Content, Schema, 
   Validator, Validation, Verification
 } from 'objecture'
 import MessageAdapter from './routers/socket/messageAdapter/index.js'
@@ -19,8 +18,6 @@ export {
   View, 
   Control, 
   LocationRouter, FetchRouter, SocketRouter, 
-  Schema, 
-  Content,
   Validator, Validation, Verification,
   MessageAdapter,
 }
