@@ -12,6 +12,7 @@ Javascript implementation of the **[Presentation-Abstraction-Control (PAC) Patte
 
 ## Class System
 MVC Framework Classes may be instantiated independently or interdependently.  
+
 ### Independent Classes
 | SYM | NAME | DESCRIPT | API | GUIDE |
 | -----: | :--- | :------- | :--: | :--: |
