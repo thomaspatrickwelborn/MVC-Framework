@@ -18,8 +18,8 @@
     "rollup": "^4.34.6"
   },
   "dependencies": {
-    "core-plex": "^2.3.5",
-    "objecture": "^1.7.3",
+    "core-plex": "^2.3.6",
+    "objecture": "^1.7.4",
     "parsel-js": "^1.2.1",
     "path-to-regexp": "^8.2.0"
   }
