@@ -10,7 +10,7 @@ export default class MVCFrameworkCore extends Core {
   #settings
   #options
   #parent
-  constructor($settings, $options) {
+  constructor($settings = {}, $options = {}) {
     super({
       events: $settings.events || {},
       accessors: ($settings.accessors)
@@ -65,7 +65,7 @@ export default class MVCFrameworkCore extends Core {
   #addProperties($properties) {
     iteratePropertyClasses: 
     for(const $propertyClass of this.#propertyClasses) {
-      const { name, definitionValue } = $propertyClass
+      const { administer, name, definitionValue } = $propertyClass
       if(!definitionValue) { continue iteratePropertyClasses }
       if($properties[name] === undefined) { continue iteratePropertyClasses }
       if(definitionValue !== undefined) {
@@ -89,7 +89,7 @@ export default class MVCFrameworkCore extends Core {
         propertyClasses.push($addPropertyClass)
         continue iteratePropertyClasses
       }
-      // $addPropertyClass.states = $addPropertyClass.states || {}
+      $addPropertyClass.states = $addPropertyClass.states || {}
       $addPropertyClass.definitionValue = $addPropertyClass.definitionValue || {}
       if($addPropertyClass.instate === undefined) {
         $addPropertyClass.instate = instate 

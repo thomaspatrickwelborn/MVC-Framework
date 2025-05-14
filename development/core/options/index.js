@@ -1,3 +1,3 @@
-export default (...$options) => Object.assign({
+export default ($options) => Object.assign({
   enableEvents: true,
-}, ...$options)
+}, $options)

@@ -119,14 +119,14 @@ function parse$3($path) {
   }
 }
 
-function typedObjectLiteral$i($value) {
+function typedObjectLiteral$j($value) {
   let _typedObjectLiteral;
   const typeOfValue = typeOf$8($value);
   if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
   else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
   else if(typeOfValue === 'string') {
-    if($value === 'object') { _typedObjectLiteral = {}; }
-    else if($value === 'array') { _typedObjectLiteral = []; }
+    if($value?.toLowerCase() === 'object') { _typedObjectLiteral = {}; }
+    else if($value?.toLowerCase() === 'array') { _typedObjectLiteral = []; }
   }
   else { _typedObjectLiteral = undefined; }
   return _typedObjectLiteral
@@ -143,7 +143,7 @@ function set$2($path, $source) {
   const {
     keypaths, key, typeofRoot
   } = parse$3($path);
-  const target = typedObjectLiteral$i(typeofRoot);
+  const target = typedObjectLiteral$j(typeofRoot);
   let subtarget = target;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { subtarget[$subpath] = []; }
@@ -161,7 +161,7 @@ function expandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$i($source);
+  let target = typedObjectLiteral$j($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = set$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -179,7 +179,7 @@ function impandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$i($source);
+  let target = typedObjectLiteral$j($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = get$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -306,7 +306,7 @@ var index$5 = /*#__PURE__*/Object.freeze({
   recursiveFreeze: recursiveFreeze$2,
   regularExpressions: regularExpressions$7,
   typeOf: typeOf$8,
-  typedObjectLiteral: typedObjectLiteral$i,
+  typedObjectLiteral: typedObjectLiteral$j,
   variables: index$1$1
 });
 
@@ -1288,7 +1288,7 @@ var index$4 = /*#__PURE__*/Object.freeze({
   typeofRoot: typeofRoot$1
 });
 
-const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$h } = index$5;
+const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$i } = index$5;
 function get$1($path, $value) {
   const subpaths = $path.split(new RegExp(regularExpressions$5.quotationEscape));
   const key = subpaths.pop();
@@ -1303,7 +1303,7 @@ function set$1($path, $value) {
   const {
     keypaths, key, typeofRoot
   } = parse$2($path);
-  const tree = typedObjectLiteral$h(typeofRoot);
+  const tree = typedObjectLiteral$i(typeofRoot);
   let treeNode = tree;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { treeNode[$subpath] = []; }
@@ -1320,7 +1320,7 @@ var index$3 = /*#__PURE__*/Object.freeze({
   set: set$1
 });
 
-const { typedObjectLiteral: typedObjectLiteral$g, variables: variables$3 } = index$5;
+const { typedObjectLiteral: typedObjectLiteral$h, variables: variables$3 } = index$5;
 
 function expandTree$1($root, $tree) {
   const typeofRoot = typeof $root;
@@ -1388,7 +1388,7 @@ function pathkeytree($object) {
 const {
   isPropertyDefinition,
   recursiveAssign: recursiveAssign$g, recursiveAssignConcat: recursiveAssignConcat$1, regularExpressions: regularExpressions$4, 
-  typedObjectLiteral: typedObjectLiteral$f, typeOf: typeOf$7, 
+  typedObjectLiteral: typedObjectLiteral$g, typeOf: typeOf$7, 
   variables: variables$2
 } = index$5;
 
@@ -1404,20 +1404,25 @@ var index$2 = /*#__PURE__*/Object.freeze({
   recursiveAssignConcat: recursiveAssignConcat$1,
   regularExpressions: regularExpressions$4,
   tree: index$3,
-  typedObjectLiteral: typedObjectLiteral$f,
+  typedObjectLiteral: typedObjectLiteral$g,
   variables: variables$2
 });
 
-var Settings$6 = (...$settings) => Object.assign({}, ...$settings);
+var Settings$6 = ($settings) => {
+  return Object.assign({}, $settings)
+};
 
-var Options$6 = (...$options) => Object.assign({
+var Options$6 = ($options) => Object.assign({
   enableEvents: true,
-}, ...$options);
+}, $options);
+
+function instate($propertyClass, $property, $value) { return $value }
 
 class Handler {
   #propertyClass
   constructor($propertyClass) {
     this.#propertyClass = $propertyClass;
+    // throw this
   }
   get get() {
     return function get($target, $property) {
@@ -1425,18 +1430,18 @@ class Handler {
     }
   }
   get set() {
-    const instate = this.#propertyClass.states.instate || states.instate;
-    const definition = this.#propertyClass.definition;
+    const instate$1 = this.#propertyClass.states.instate || instate;
+    this.#propertyClass.definition;
     return function set($target, $property, $value) {
-      if(
-        definition.object === "Array" && 
-        $property === 'length'
-      ) {
-        $target[$property] = $value;
-      }
-      else {
-        $target[$property] = instate(this.#propertyClass, $property, $value);
-      }
+      // if(
+      //   definition.object === "Array" && 
+      //   $property === 'length'
+      // ) {
+      //   $target[$property] = $value
+      // }
+      // else {
+        $target[$property] = instate$1(this.#propertyClass, $property, $value);
+      // }
       return true
     }
   }
@@ -1450,6 +1455,7 @@ class Handler {
   }
 }
 
+const { typedObjectLiteral: typedObjectLiteral$f } = index$5;
 class PropertyClass {
   #settings
   #core
@@ -1463,7 +1469,7 @@ class PropertyClass {
   }
   get #target() {
     if(this.#_target !== undefined) { return this.#_target }
-    this.#_target = typedObjectLiteral$f(this.definition.object);
+    this.#_target = typedObjectLiteral$f(this.#settings.definitionValue);
     return this.#_target
   }
   get #handler() {
@@ -1480,7 +1486,6 @@ class PropertyClass {
   get name() { return this.#settings.name }
   get names() { return this.#settings.names }
   get states() { return this.#settings.states }
-  get definition() { return this.#settings.definition }
 }
 
 const getAccessor$1 = ($target, $property) => $target?.get($property);
@@ -1490,7 +1495,7 @@ class MVCFrameworkCore extends Core$1 {
   #settings
   #options
   #parent
-  constructor($settings, $options) {
+  constructor($settings = {}, $options = {}) {
     super({
       events: $settings.events || {},
       accessors: ($settings.accessors)
@@ -1544,7 +1549,7 @@ class MVCFrameworkCore extends Core$1 {
   #addProperties($properties) {
     iteratePropertyClasses: 
     for(const $propertyClass of this.#propertyClasses) {
-      const { name, definitionValue } = $propertyClass;
+      const { administer, name, definitionValue } = $propertyClass;
       if(!definitionValue) { continue iteratePropertyClasses }
       if($properties[name] === undefined) { continue iteratePropertyClasses }
       if(definitionValue !== undefined) {
@@ -1568,7 +1573,7 @@ class MVCFrameworkCore extends Core$1 {
         propertyClasses.push($addPropertyClass);
         continue iteratePropertyClasses
       }
-      // $addPropertyClass.states = $addPropertyClass.states || {}
+      $addPropertyClass.states = $addPropertyClass.states || {};
       $addPropertyClass.definitionValue = $addPropertyClass.definitionValue || {};
       if($addPropertyClass.instate === undefined) {
         $addPropertyClass.instate = instate; 
@@ -6349,13 +6354,15 @@ class View extends MVCFrameworkCore {
   }
 }
 
-var Settings$3 = (...$settings) => { Object.assign({
-  models: {},
-  views: {},
-  controls: {},
-  fetchRouters: {},
-  locationRouters: {},
-}, ...$settings); };
+var Settings$3 = ($settings) => {
+  return Object.assign({
+    models: {},
+    views: {},
+    controls: {},
+    fetchRouters: {},
+    locationRouters: {},
+  }, $settings)
+};
 
 var Options$3 = (...$options) => {
   const options = Object.assign({}, ...$options);
@@ -7421,9 +7428,9 @@ class Control extends MVCFrameworkCore {
   }]
   constructor($settings = {}, $options = {}) {
     super(
-      Settings$3({
+      Settings$3(Object.assign({
         propertyClasses: Control.propertyClasses,
-      }, $settings),
+      }, $settings)),
       Options$3($options),
     );
     const { enableEvents } = this.options;

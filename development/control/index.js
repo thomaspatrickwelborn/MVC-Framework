@@ -44,9 +44,9 @@ export default class Control extends Core {
   }]
   constructor($settings = {}, $options = {}) {
     super(
-      Settings({
+      Settings(Object.assign({
         propertyClasses: Control.propertyClasses,
-      }, $settings),
+      }, $settings)),
       Options($options),
     )
     const { enableEvents } = this.options

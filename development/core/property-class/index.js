@@ -1,4 +1,5 @@
-import { typedObjectLiteral } from '../../coutil/index.js'
+import { Coutil } from 'core-plex'
+const { typedObjectLiteral } = Coutil
 import Handler from './handler/index.js'
 export default class PropertyClass {
   #settings
@@ -13,7 +14,7 @@ export default class PropertyClass {
   }
   get #target() {
     if(this.#_target !== undefined) { return this.#_target }
-    this.#_target = typedObjectLiteral(this.definition.object)
+    this.#_target = typedObjectLiteral(this.#settings.definitionValue)
     return this.#_target
   }
   get #handler() {
@@ -30,5 +31,4 @@ export default class PropertyClass {
   get name() { return this.#settings.name }
   get names() { return this.#settings.names }
   get states() { return this.#settings.states }
-  get definition() { return this.#settings.definition }
 }

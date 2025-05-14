@@ -3,6 +3,7 @@ export default class Handler {
   #propertyClass
   constructor($propertyClass) {
     this.#propertyClass = $propertyClass
+    // throw this
   }
   get get() {
     return function get($target, $property) {
@@ -10,18 +11,18 @@ export default class Handler {
     }
   }
   get set() {
-    const instate = this.#propertyClass.states.instate || states.instate
+    const instate = this.#propertyClass.states.instate || States.instate
     const definition = this.#propertyClass.definition
     return function set($target, $property, $value) {
-      if(
-        definition.object === "Array" && 
-        $property === 'length'
-      ) {
-        $target[$property] = $value
-      }
-      else {
+      // if(
+      //   definition.object === "Array" && 
+      //   $property === 'length'
+      // ) {
+      //   $target[$property] = $value
+      // }
+      // else {
         $target[$property] = instate(this.#propertyClass, $property, $value)
-      }
+      // }
       return true
     }
   }
