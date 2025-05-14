@@ -205,22 +205,25 @@ function propertyDirectory$1($object, $options) {
     const object = $accessor($object);
     if(!object) continue iterateAccessors
     for(const [$key, $value] of Object.entries(object)) {
-      _propertyDirectory.push($key);
+      if(!options.values) { _propertyDirectory.push($key); }
+      else if(options.values) { _propertyDirectory.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
         $value !== object
       ) {
-        const subtarget = propertyDirectory$1($value, options);
-        for(const $subtarget of subtarget) {
-          let path;
-          if(typeof $subtarget === 'object') {
-            path = [$key, ...$subtarget].join('.');
+        const subtargets = propertyDirectory$1($value, options);
+        if(!options.values) {
+          for(const $subtarget of subtargets) {
+            const path = [$key, $subtarget].join('.');
+            _propertyDirectory.push(path);
           }
-          else {
-            path = [$key, $subtarget].join('.');
+        }
+        else if(options.values) {
+          for(const [$subtargetKey, $subtarget] of subtargets) {
+            const path = [$key, $subtargetKey].join('.');
+            _propertyDirectory.push([path, $subtarget]);
           }
-          _propertyDirectory.push(path);
         }
       }
     }
@@ -1927,22 +1930,25 @@ function propertyDirectory($object, $options) {
     const object = $accessor($object);
     if(!object) continue iterateAccessors
     for(const [$key, $value] of Object.entries(object)) {
-      _propertyDirectory.push($key);
+      if(!options.values) { _propertyDirectory.push($key); }
+      else if(options.values) { _propertyDirectory.push([$key, $value]); }
       if(
         typeof $value === 'object' &&
         $value !== null &&
         $value !== object
       ) {
-        const subtarget = propertyDirectory($value, options);
-        for(const $subtarget of subtarget) {
-          let path;
-          if(typeof $subtarget === 'object') {
-            path = [$key, ...$subtarget].join('.');
+        const subtargets = propertyDirectory($value, options);
+        if(!options.values) {
+          for(const $subtarget of subtargets) {
+            const path = [$key, $subtarget].join('.');
+            _propertyDirectory.push(path);
           }
-          else {
-            path = [$key, $subtarget].join('.');
+        }
+        else if(options.values) {
+          for(const [$subtargetKey, $subtarget] of subtargets) {
+            const path = [$key, $subtargetKey].join('.');
+            _propertyDirectory.push([path, $subtarget]);
           }
-          _propertyDirectory.push(path);
         }
       }
     }
@@ -3023,6 +3029,7 @@ function report($format = "expand", $prevalidation) {
     return _report
   }
   if($format === "impand") {
+    if(prevalidation.valid === false) { return false }
     const _report = typedObjectLiteral$d(schema.type);
     for(const $validation of validations) {
       const verifications = [].concat(
@@ -3098,7 +3105,7 @@ class Validator extends EventTarget {
           let verification = new Verification({
             type: type,
             key: $key,
-            value: $value,
+            value: definition.value,
             messages: recursiveAssign$e({}, messages, definition.messages),
           });
           const validation = definition.validate(...arguments);
