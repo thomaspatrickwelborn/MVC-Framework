@@ -4,9 +4,9 @@ import Options from './options/index.js'
 import Model from '../model/index.js'
 import View from '../view/index.js'
 import { LocationRouter, FetchRouter, SocketRouter } from '../routers/index.js'
-function Instate($propertyClass, $property, $value) {
+function Instate($propertyClass, $property, ...$arguments) {
   const { Class } = $propertyClass
-  return new Class(...$value)
+  return new Class(...$arguments)
 }
 function Deinstate($propertyClass, $property) {}
 
@@ -44,12 +44,10 @@ export default class Control extends Core {
   }]
   constructor($settings = {}, $options = {}) {
     super(
-      Settings(Object.assign({
+      Settings(Object.assign({}, $settings)),
+      Options(Object.assign({
         propertyClasses: Control.propertyClasses,
-      }, $settings)),
-      Options($options),
+      }, $options)),
     )
-    const { enableEvents } = this.options
-    if(enableEvents) this.enableEvents()
   }
 }

@@ -1,4 +1,4 @@
-export default (...$settings) => Object.assign({
+export default ($settings) => Object.assign({
   active: false, // Boolean
   /*
   name: String, // "$name",
@@ -13,4 +13,4 @@ export default (...$settings) => Object.assign({
     // ['MessageAdapter', $MessageAdapter]
   ],
   */
-}, ...$settings)
+}, $settings)

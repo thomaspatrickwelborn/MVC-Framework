@@ -14,15 +14,7 @@ export default class Handler {
     const instate = this.#propertyClass.states.instate || States.instate
     const definition = this.#propertyClass.definition
     return function set($target, $property, $value) {
-      // if(
-      //   definition.object === "Array" && 
-      //   $property === 'length'
-      // ) {
-      //   $target[$property] = $value
-      // }
-      // else {
-        $target[$property] = instate(this.#propertyClass, $property, $value)
-      // }
+      $target[$property] = instate(this.#propertyClass, $property, $value)
       return true
     }
   }

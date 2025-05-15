@@ -1,18 +1,17 @@
 import { Model } from 'objecture'
 import LocalStorage from './localStorage/index.js'
-import Settings from './settings/index.js'
 import Options from './options/index.js'
 export default class extends Model {
   #schema
   #content
   #localStorage
   #changeEvents
-  constructor($settings, $options) {
-    super($settings.properties, $settings.schema, $options)
+  constructor($properties, $schema, $options) {
+    super(...arguments)
   }
   get localStorage() {
     if(this.#localStorage !== undefined) { return this.#localStorage }
-    const { localStorage } = this.settings
+    const { localStorage } = this.options
     let path
     if(localStorage) {
       if(typeof localStorage === 'string') {

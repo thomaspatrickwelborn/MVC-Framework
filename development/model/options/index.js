@@ -1,8 +1,8 @@
-export default (...$options) => Object.assign({
-  schema: undefined, // Schema Options
-  content: undefined, // Content Options
-  enableEvents: true, // Boolean
+export default ($options) => Object.assign({
   autoload: false, // Boolean
   autosave: false, // Boolean
   changeEvents: true, // Boolean
-}, ...$options)
+  enableEvents: true, // Boolean
+  events: false, // Array, Object
+  localStorage: false, // Boolean, String,
+}, $options)

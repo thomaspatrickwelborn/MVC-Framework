@@ -3,7 +3,6 @@ import Settings from './settings/index.js'
 import Options from './options/index.js'
 import PropertyClass from './property-class/index.js'
 import { instate, deinstate } from './property-class/states/index.js'
-const getAccessor = ($target, $property) => $target?.get($property)
 export default class MVCFrameworkCore extends Core {
   #_propertyClasses = []
   static propertyClasses = []
@@ -12,27 +11,44 @@ export default class MVCFrameworkCore extends Core {
   #parent
   constructor($settings = {}, $options = {}) {
     super({
-      events: $settings.events || {},
-      accessors: ($settings.accessors)
-        ? [getAccessor].concat($settings.accessors)
-        : [getAccessor],
-      propertyDefinitions: $settings.propertyDefinitions || {},
+      events: $options.events || {},
+      enableEvents: $options.enableEvents || false, 
+      propertyDefinitions: $options.propertyDefinitions || {},
+      accessors: [($target, $property) => {
+        if($property === undefined) { return $target }
+        else { return $target[$property] }
+      }, ($target, $property) => {
+        if($property === undefined) { return $target.target }
+        else { return $target.get($property) }
+      }]
     })
     this.#settings = Settings($settings)
     this.#options = Options($options)
-    if(this.settings.propertyClasses) {
-      this.addPropertyClasses(this.settings.propertyClasses)
+    Object.defineProperty(this, 'parent', { configurable: true, get() {
+      const options = this.options
+      const parent = (options.parent) ? options.parent : null
+      Object.defineProperty(this, 'parent', { value: parent })
+      return parent
+    } })
+    Object.defineProperty(this, 'path', { configurable: true, get() {
+      const options = this.options
+      let path = (options.path) ? String(options.path) : null
+      Object.defineProperty(this, 'path', { value: path })
+      return path
+    } })
+    if(this.options.propertyClasses) {
+      this.addPropertyClasses(this.options.propertyClasses)
       this.#addProperties(this.settings)
     }
   }
   get settings() { return this.#settings }
   get options() { return this.#options }
   get #propertyClasses() { return this.#_propertyClasses }
-  get parent() {
-    if(this.#parent !== undefined)  return this.#parent
-    this.#parent = (this.settings.parent) ? this.settings.parent : null
-    return this.#parent
-  }
+  // get parent() {
+  //   if(this.#parent !== undefined)  return this.#parent
+  //   this.#parent = (this.settings.parent) ? this.settings.parent : null
+  //   return this.#parent
+  // }
   get root() {
     let root = this
     iterateParents: 
@@ -41,6 +57,14 @@ export default class MVCFrameworkCore extends Core {
       root = root.parent
     }
     return root
+  }
+  retroReenableEvents() {
+    let core = this
+    while(core) {
+      core.reenableEvents({ enable: true })
+      core = core.parent
+    }
+    return this
   }
   #getPropertyClasses() {
     let $getPropertyClasses
@@ -80,7 +104,7 @@ export default class MVCFrameworkCore extends Core {
   addPropertyClasses() {
     const $this = this
     let $addPropertyClasses = (arguments.length === 0)
-      ? this.settings.propertyClasses
+      ? this.options.propertyClasses
       : [].concat(...arguments)
     const propertyClasses = this.#propertyClasses
     iteratePropertyClasses: 
@@ -114,6 +138,7 @@ export default class MVCFrameworkCore extends Core {
             get() {
               if(propertyValue !== undefined) { return propertyValue }
               propertyValue = new PropertyClass($addPropertyClass, $this)
+              console.log(name, propertyValue)
               return propertyValue
             },
             set($propertyValue) {
