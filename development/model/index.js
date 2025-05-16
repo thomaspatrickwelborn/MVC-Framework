@@ -2,10 +2,7 @@ import { Model } from 'objecture'
 import LocalStorage from './localStorage/index.js'
 import Options from './options/index.js'
 export default class extends Model {
-  #schema
-  #content
   #localStorage
-  #changeEvents
   constructor($properties, $schema, $options) {
     super(...arguments)
   }

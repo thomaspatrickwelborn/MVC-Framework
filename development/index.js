@@ -12,11 +12,8 @@ import {
 import MessageAdapter from './routers/socket/messageAdapter/index.js'
 
 export {
-  Core, 
-  Coutil, 
-  Model, 
-  View, 
-  Control, 
+  Core, Coutil, 
+  Model, View, Control, 
   LocationRouter, FetchRouter, SocketRouter, 
   Validator, Validation, Verification,
   MessageAdapter,
