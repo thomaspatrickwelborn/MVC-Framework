@@ -1,4 +1,5 @@
 import { Core, Coutil } from 'core-plex'
+const { typedObjectLiteral } = Coutil
 import Settings from './settings/index.js'
 import Options from './options/index.js'
 import PropertyClass from './property-class/index.js'
@@ -17,26 +18,6 @@ export default class MVCFrameworkCore extends Core {
         else { return $target.get($property) }
       }]
     })
-    const getPropertyClasses = () => {
-      let $getPropertyClasses
-      if(arguments.length === 0) $getPropertyClasses = propertyClasses
-      else { $getPropertyClasses = [].concat(...arguments) }
-      const getPropertyClasses = []
-      let propertyClassIndex = 0
-      iteratePropertyClasses: 
-      for(const $propertyClass of propertyClasses) {
-        for(const $getPropertyClass of $getPropertyClasses) {
-          if($propertyClass.name === $getPropertyClass.name) {
-            getPropertyClasses.push({
-              propertyClassIndex: propertyClassIndex,
-              propertyClass: $propertyClass
-            })
-          }
-        }
-        propertyClassIndex++
-      }
-      return getPropertyClasses
-    }
     const addProperties = ($properties) => {
       iteratePropertyClasses: 
       for(const $propertyClass of propertyClasses) {
@@ -65,7 +46,7 @@ export default class MVCFrameworkCore extends Core {
         let path = (options.path) ? String(options.path) : null
         Object.defineProperty(this, 'path', { value: path })
         return path
-      } },
+      }},
       'settings': { value: Settings($settings) },
       'options': { value: Options($options) },
       'root': { get() {
@@ -96,7 +77,6 @@ export default class MVCFrameworkCore extends Core {
             propertyClasses.push($addPropertyClass)
             continue iteratePropertyClasses
           }
-          $addPropertyClass.definitionValue = $addPropertyClass.definitionValue || {}
           const {
             name,
             administer, deadminister,
@@ -104,124 +84,66 @@ export default class MVCFrameworkCore extends Core {
             definitionValue,
           } = $addPropertyClass
           let propertyValue
-          if(
-            definitionValue === 'Array' || 
-            definitionValue === 'Object'
-          ) {
-            Object.defineProperties(this, {
-              [name]: {
-                configurable: true, enumerable: true,  
-                get() {
-                  if(propertyValue !== undefined) { return propertyValue }
-                  propertyValue = new PropertyClass($addPropertyClass, $this)
-                  return propertyValue
-                },
-                set($propertyValue) {
-                  const propertyClassInstances = $this[name]
-                  let propertyClassInstancesEntries
-                  if($propertyValue) {
-                    if(Array.isArray($propertyValue)) {
-                      propertyClassInstancesEntries = $propertyValue
-                    }
-                    else {
-                      propertyClassInstancesEntries = Object.entries($propertyValue)
-                    }
-                  } else { propertyClassInstancesEntries = [] }
-                  iteratePropertyClassInstances: 
-                  for(const [
-                    $propertyClassInstanceName, $propertyClassInstance
-                  ] of propertyClassInstancesEntries) {
-                    propertyClassInstances[$propertyClassInstanceName] = $propertyClassInstance
-                  }
+          Object.defineProperties(this, {
+            [name]: {
+              configurable: true, enumerable: true, 
+              value: typedObjectLiteral(definitionValue)
+            }, 
+            [administer]: {
+              configurable: true, enumerable: false, writable: false, 
+              value: function($properties) {
+                iterateProperties: 
+                for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
+                  $this[name][$propertyKey] = instate(
+                    $this[name], $propertyKey, $propertyValue, $addPropertyClass
+                  )
                 }
-              },
-              [administer]: {
-                configurable: true, enumerable: false, writable: false, 
-                value: function() {
-                  const $arguments = [...arguments]
-                  if($arguments.length === 1) {
-                    const [$values] = $arguments
-                    if(definitionValue === 'Array') {
-                      $this[name] = Object.entries($values)
-                    }
-                    else {
-                      if(Array.isArray($values)) {
-                        $this[name] = Object.fromEntries($values)
-                      }
-                      else {
-                        $this[name] = $values
-                      }
-                    }
-                  }
-                  else if($arguments.length === 2) {
-                    const [$key, $value] = $arguments
-                    $this[name] = { [$key]: $value }
-                  }
-                  return $this
+                return $this
+              }
+            },
+            [deadminister]: {
+              configurable: true, enumerable: false, writable: false, 
+              value: function(...$arguments) {
+                let properties
+                if($arguments.length === 0) {
+                  properties = Object.keys($this[name]).reverse()
                 }
-              },
-              [deadminister]: {
-                configurable: true, enumerable: false, writable: false, 
-                value: function() {
-                  const [$removeKeys] = [...arguments]
-                  const removeKeys = []
-                  const typeofRemoveKeys = typeof $arguments[0]
-                  if(typeofRemoveKeys === 'string') { removeKeys.push($arguments[0]) }
-                  else if(typeofRemoveKeys === 'object') {
-                    if(Array.isArray($removeKeys)) { removeKeys.push(...$removeKeys) }
-                    else { removeKeys.push(...Object.keys($removeKeys)) }
-                  }
-                  else if(typeofRemoveKeys === 'undefined') {
-                    removeKeys.push(...Object.keys($this[name]))
-                  }
-                  for(const $removeKey of $removeKeys) {
-                    delete $this[name][$removeKey]
-                  }
-                  return $this
+                else {
+                  properties = [].concat(...$arguments).reverse()
                 }
-              },
-            })
-          }
+                for(const $propertyKey of properties) {
+                  deinstate(
+                    $this[name], $propertyKey, $addPropertyClass
+                  )
+                  delete $this[name][$propertyKey]
+                }
+                return $this
+              }
+            },
+          })
           propertyClasses.push($addPropertyClass)
         }
         return this
       } },
-      'removePropertyClasses': { value: function() {
-        const removePropertyClasses = getPropertyClasses(...arguments)
-        let removePropertyClassIndex = removePropertyClasses.length - 1
+      'removePropertyClasses': { value: function(...$arguments) {
+        let $removePropertyClasses
+        if($arguments.length === 0) {
+          $removePropertyClasses = propertyClasses.reduce(($propertyClasses, propertyClass) => {
+            $propertyClasses.push($propertyClass.name)
+            return $propertyClasses
+          }, [])
+        }
+        else {
+          $removePropertyClasses = [].concat(...$arguments)
+        }
         iterateRemovePropertyClasses: 
-        while(removePropertyClassIndex > -1) {
-          const { propertyClassIndex, propertyClass } = removePropertyClasses[removePropertyClassIndex]
-          const { definitionValue } = propertyClass
-          const propertyClassInstances = this[name]
-          if(definitionValue) {
-            if(definitionValue === 'Array') {
-              let propertyClassInstanceIndex = propertyClassInstances.length - 1
-              iteratePropertyClassInstances: 
-              while(propertyClassInstanceIndex > -1) {
-                propertyClassInstances.splice(propertyClassInstanceIndex, 1)
-                propertyClassInstanceIndex--
-              }
-            }
-            else if(definitionValue === 'Object') {
-              iteratePropertyClassInstances: 
-              for(const [
-                $propertyClassInstanceName, $propertyClassInstance
-              ] of Object.entries(this[name])) {
-                delete propertyClassInstances[$propertyClassInstanceName]
-              }
-            }
-            delete this[`_${name}`]
-            Object.defineProperty(this, name, {
-              configurable: true, enumerable: false, writable: true, 
-              value: undefined
-            })
-            delete this[name]
-            delete this[administer]
-            delete this[deadminister]
-          }
-          propertyClasses.splice(propertyClassIndex, 1)
-          removePropertyClassIndex--
+        for(const $removePropertyClass of $removePropertyClasses) {
+          const propertyClassIndex = propertyClasses.findIndex(
+            ($propertyClass) => $propertyClass.name === $removePropertyClass
+          )
+          const { name, deadminister } = propertyClasses.splice(propertyClassIndex, 1)[0]
+          this[deadminister]()
+          delete this[name]
         }
         return this
       } },

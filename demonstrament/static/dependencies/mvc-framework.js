@@ -119,7 +119,7 @@ function parse$3($path) {
   }
 }
 
-function typedObjectLiteral$j($value) {
+function typedObjectLiteral$k($value) {
   let _typedObjectLiteral;
   const typeOfValue = typeOf$8($value);
   if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
@@ -143,7 +143,7 @@ function set$2($path, $source) {
   const {
     keypaths, key, typeofRoot
   } = parse$3($path);
-  const target = typedObjectLiteral$j(typeofRoot);
+  const target = typedObjectLiteral$k(typeofRoot);
   let subtarget = target;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { subtarget[$subpath] = []; }
@@ -161,7 +161,7 @@ function expandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$j($source);
+  let target = typedObjectLiteral$k($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = set$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -179,7 +179,7 @@ function impandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$j($source);
+  let target = typedObjectLiteral$k($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = get$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -306,7 +306,7 @@ var index$5 = /*#__PURE__*/Object.freeze({
   recursiveFreeze: recursiveFreeze$2,
   regularExpressions: regularExpressions$7,
   typeOf: typeOf$8,
-  typedObjectLiteral: typedObjectLiteral$j,
+  typedObjectLiteral: typedObjectLiteral$k,
   variables: index$1$1
 });
 
@@ -1288,7 +1288,7 @@ var index$4 = /*#__PURE__*/Object.freeze({
   typeofRoot: typeofRoot$1
 });
 
-const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$i } = index$5;
+const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$j } = index$5;
 function get$1($path, $value) {
   const subpaths = $path.split(new RegExp(regularExpressions$5.quotationEscape));
   const key = subpaths.pop();
@@ -1303,7 +1303,7 @@ function set$1($path, $value) {
   const {
     keypaths, key, typeofRoot
   } = parse$2($path);
-  const tree = typedObjectLiteral$i(typeofRoot);
+  const tree = typedObjectLiteral$j(typeofRoot);
   let treeNode = tree;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { treeNode[$subpath] = []; }
@@ -1320,7 +1320,7 @@ var index$3 = /*#__PURE__*/Object.freeze({
   set: set$1
 });
 
-const { typedObjectLiteral: typedObjectLiteral$h, variables: variables$3 } = index$5;
+const { typedObjectLiteral: typedObjectLiteral$i, variables: variables$3 } = index$5;
 
 function expandTree$1($root, $tree) {
   const typeofRoot = typeof $root;
@@ -1388,7 +1388,7 @@ function pathkeytree($object) {
 const {
   isPropertyDefinition,
   recursiveAssign: recursiveAssign$g, recursiveAssignConcat: recursiveAssignConcat$1, regularExpressions: regularExpressions$4, 
-  typedObjectLiteral: typedObjectLiteral$g, typeOf: typeOf$7, 
+  typedObjectLiteral: typedObjectLiteral$h, typeOf: typeOf$7, 
   variables: variables$2
 } = index$5;
 
@@ -1404,7 +1404,7 @@ var index$2 = /*#__PURE__*/Object.freeze({
   recursiveAssignConcat: recursiveAssignConcat$1,
   regularExpressions: regularExpressions$4,
   tree: index$3,
-  typedObjectLiteral: typedObjectLiteral$g,
+  typedObjectLiteral: typedObjectLiteral$h,
   variables: variables$2
 });
 
@@ -1416,30 +1416,9 @@ var Options$6 = ($options) => Object.assign({
   enableEvents: true,
 }, $options);
 
-const { typedObjectLiteral: typedObjectLiteral$f } = index$5;
-class PropertyClass {
-  constructor($settings, $core) {
-    for(const [$propertyKey, $propertyValue] of Object.entries($settings)) {
-      Object.defineProperty(this, $propertyKey, { value: $propertyValue });
-    }
-    const $this = this;
-    return new Proxy(typedObjectLiteral$f(this), {
-      get($target, $property) {
-        return $target[$property]
-      },
-      set($target, $property, $value) {
-        $target[$property] = $this.instate($this, $property, $value);
-        return true
-      },
-      deleteProperty($target, $property) {
-        $this.deinstate($this, $property);
-        delete $target[$property];
-        return true
-      },
-    })
-  }
-}
+const { typedObjectLiteral: typedObjectLiteral$g } = index$5;
 
+const { typedObjectLiteral: typedObjectLiteral$f } = index$5;
 class MVCFrameworkCore extends Core$1 {
   static propertyClasses = []
   constructor($settings = {}, $options = {}) {
@@ -1455,25 +1434,6 @@ class MVCFrameworkCore extends Core$1 {
         else { return $target.get($property) }
       }]
     });
-    const getPropertyClasses = () => {
-      let $getPropertyClasses;
-      if(arguments.length === 0) $getPropertyClasses = propertyClasses;
-      else { $getPropertyClasses = [].concat(...arguments); }
-      const getPropertyClasses = [];
-      let propertyClassIndex = 0;
-      for(const $propertyClass of propertyClasses) {
-        for(const $getPropertyClass of $getPropertyClasses) {
-          if($propertyClass.name === $getPropertyClass.name) {
-            getPropertyClasses.push({
-              propertyClassIndex: propertyClassIndex,
-              propertyClass: $propertyClass
-            });
-          }
-        }
-        propertyClassIndex++;
-      }
-      return getPropertyClasses
-    };
     const addProperties = ($properties) => {
       iteratePropertyClasses: 
       for(const $propertyClass of propertyClasses) {
@@ -1502,7 +1462,7 @@ class MVCFrameworkCore extends Core$1 {
         let path = (options.path) ? String(options.path) : null;
         Object.defineProperty(this, 'path', { value: path });
         return path
-      } },
+      }},
       'settings': { value: Settings$6($settings) },
       'options': { value: Options$6($options) },
       'root': { get() {
@@ -1533,128 +1493,70 @@ class MVCFrameworkCore extends Core$1 {
             propertyClasses.push($addPropertyClass);
             continue iteratePropertyClasses
           }
-          $addPropertyClass.definitionValue = $addPropertyClass.definitionValue || {};
           const {
             name,
             administer, deadminister,
             instate, deinstate,
             definitionValue,
           } = $addPropertyClass;
-          let propertyValue;
-          if(
-            definitionValue === 'Array' || 
-            definitionValue === 'Object'
-          ) {
-            Object.defineProperties(this, {
-              [name]: {
-                configurable: true, enumerable: true,  
-                get() {
-                  if(propertyValue !== undefined) { return propertyValue }
-                  propertyValue = new PropertyClass($addPropertyClass, $this);
-                  return propertyValue
-                },
-                set($propertyValue) {
-                  const propertyClassInstances = $this[name];
-                  let propertyClassInstancesEntries;
-                  if($propertyValue) {
-                    if(Array.isArray($propertyValue)) {
-                      propertyClassInstancesEntries = $propertyValue;
-                    }
-                    else {
-                      propertyClassInstancesEntries = Object.entries($propertyValue);
-                    }
-                  } else { propertyClassInstancesEntries = []; }
-                  for(const [
-                    $propertyClassInstanceName, $propertyClassInstance
-                  ] of propertyClassInstancesEntries) {
-                    propertyClassInstances[$propertyClassInstanceName] = $propertyClassInstance;
-                  }
+          Object.defineProperties(this, {
+            [name]: {
+              configurable: true, enumerable: true, 
+              value: typedObjectLiteral$f(definitionValue)
+            }, 
+            [administer]: {
+              configurable: true, enumerable: false, writable: false, 
+              value: function($properties) {
+                for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
+                  $this[name][$propertyKey] = instate(
+                    $this[name], $propertyKey, $propertyValue, $addPropertyClass
+                  );
                 }
-              },
-              [administer]: {
-                configurable: true, enumerable: false, writable: false, 
-                value: function() {
-                  const $arguments = [...arguments];
-                  if($arguments.length === 1) {
-                    const [$values] = $arguments;
-                    if(definitionValue === 'Array') {
-                      $this[name] = Object.entries($values);
-                    }
-                    else {
-                      if(Array.isArray($values)) {
-                        $this[name] = Object.fromEntries($values);
-                      }
-                      else {
-                        $this[name] = $values;
-                      }
-                    }
-                  }
-                  else if($arguments.length === 2) {
-                    const [$key, $value] = $arguments;
-                    $this[name] = { [$key]: $value };
-                  }
-                  return $this
+                return $this
+              }
+            },
+            [deadminister]: {
+              configurable: true, enumerable: false, writable: false, 
+              value: function(...$arguments) {
+                let properties;
+                if($arguments.length === 0) {
+                  properties = Object.keys($this[name]).reverse();
                 }
-              },
-              [deadminister]: {
-                configurable: true, enumerable: false, writable: false, 
-                value: function() {
-                  const [$removeKeys] = [...arguments];
-                  const removeKeys = [];
-                  const typeofRemoveKeys = typeof $arguments[0];
-                  if(typeofRemoveKeys === 'string') { removeKeys.push($arguments[0]); }
-                  else if(typeofRemoveKeys === 'object') {
-                    if(Array.isArray($removeKeys)) { removeKeys.push(...$removeKeys); }
-                    else { removeKeys.push(...Object.keys($removeKeys)); }
-                  }
-                  else if(typeofRemoveKeys === 'undefined') {
-                    removeKeys.push(...Object.keys($this[name]));
-                  }
-                  for(const $removeKey of $removeKeys) {
-                    delete $this[name][$removeKey];
-                  }
-                  return $this
+                else {
+                  properties = [].concat(...$arguments).reverse();
                 }
-              },
-            });
-          }
+                for(const $propertyKey of properties) {
+                  deinstate(
+                    $this[name], $propertyKey, $addPropertyClass
+                  );
+                  delete $this[name][$propertyKey];
+                }
+                return $this
+              }
+            },
+          });
           propertyClasses.push($addPropertyClass);
         }
         return this
       } },
-      'removePropertyClasses': { value: function() {
-        const removePropertyClasses = getPropertyClasses(...arguments);
-        let removePropertyClassIndex = removePropertyClasses.length - 1;
-        while(removePropertyClassIndex > -1) {
-          const { propertyClassIndex, propertyClass } = removePropertyClasses[removePropertyClassIndex];
-          const { definitionValue } = propertyClass;
-          const propertyClassInstances = this[name];
-          if(definitionValue) {
-            if(definitionValue === 'Array') {
-              let propertyClassInstanceIndex = propertyClassInstances.length - 1;
-              while(propertyClassInstanceIndex > -1) {
-                propertyClassInstances.splice(propertyClassInstanceIndex, 1);
-                propertyClassInstanceIndex--;
-              }
-            }
-            else if(definitionValue === 'Object') {
-              for(const [
-                $propertyClassInstanceName, $propertyClassInstance
-              ] of Object.entries(this[name])) {
-                delete propertyClassInstances[$propertyClassInstanceName];
-              }
-            }
-            delete this[`_${name}`];
-            Object.defineProperty(this, name, {
-              configurable: true, enumerable: false, writable: true, 
-              value: undefined
-            });
-            delete this[name];
-            delete this[administer];
-            delete this[deadminister];
-          }
-          propertyClasses.splice(propertyClassIndex, 1);
-          removePropertyClassIndex--;
+      'removePropertyClasses': { value: function(...$arguments) {
+        let $removePropertyClasses;
+        if($arguments.length === 0) {
+          $removePropertyClasses = propertyClasses.reduce(($propertyClasses, propertyClass) => {
+            $propertyClasses.push($propertyClass.name);
+            return $propertyClasses
+          }, []);
+        }
+        else {
+          $removePropertyClasses = [].concat(...$arguments);
+        }
+        for(const $removePropertyClass of $removePropertyClasses) {
+          const propertyClassIndex = propertyClasses.findIndex(
+            ($propertyClass) => $propertyClass.name === $removePropertyClass
+          );
+          const { name, deadminister } = propertyClasses.splice(propertyClassIndex, 1)[0];
+          this[deadminister]();
+          delete this[name];
         }
         return this
       } },
@@ -7326,61 +7228,33 @@ class SocketRouter extends MVCFrameworkCore {
   send() { this.webSocket.send(...arguments); }
 }
 
-function Instate($propertyClass, $target, $property, ...$arguments) {
-  console.log($propertyClass, $target, $property, ...$arguments);
-  const { Class } = $propertyClass;
-  let propertyClassInstance;
-  if(Class instanceof Model) {
-    const [$properties, $schema, $options] = $arguments;
-    const path = ($options.path) ? [$options.path, $property].join('.') : $property;
-    console.log("path", path);
-    console.log("$target", $target);
-    const parent = $target;
-    propertyClassInstance = new Class($properties, $schema, Object.assign($options, { path, parent }));
-  }
-  else {
-    const [$settings, $options = {}] = [...$arguments];
-    const path = ($options.path) ? [$options.path, $property].join('.') : $property;
-    console.log("path", path);
-    console.log("$target", $target);
-    const parent = $target;
-    propertyClassInstance = new Class($settings, Object.assign($options, { path, parent }));
-  }
-  return propertyClassInstance
-}
-function Deinstate($propertyClass, $target, $property) {}
-
+function Instate($target, $property, $value, $definition) { return $value }
+function Deinstate($target, $property, $definition) { return }
 class Control extends MVCFrameworkCore {
   static propertyClasses = [{
     name: "models", definitionValue: 'Object',
     administer: "addModels", deadminister: "removeModels",
     instate: Instate, deinstate: Deinstate,
-    Class: Model,
   }, {
     name: "views", definitionValue: 'Object',
     administer: "addViews", deadminister: "removeViews",
     instate: Instate, deinstate: Deinstate,
-    Class: View,
   }, {
     name: "controls", definitionValue: 'Object',
     administer: "addControls", deadminister: "removeControls",
     instate: Instate, deinstate: Deinstate,
-    Class: Control,
   }, {
     name: "locationRouters", definitionValue: 'Object',
     administer: "addLocationRouters", deadminister: "removeLocationRouters",
     instate: Instate, deinstate: Deinstate,
-    Class: LocationRouter,
   }, {
     name: "fetchRouters", definitionValue: 'Object',
     administer: "addFetchRouters", deadminister: "removeFetchRouters",
     instate: Instate, deinstate: Deinstate,
-    Class: FetchRouter,
   }, {
     name: "socketRouters", definitionValue: 'Object',
     administer: "addSocketRouters", deadminister: "removeSocketRouters",
     instate: Instate, deinstate: Deinstate,
-    Class: SocketRouter,
   }]
   constructor($settings = {}, $options = {}) {
     super(

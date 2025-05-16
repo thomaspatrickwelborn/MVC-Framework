@@ -11,11 +11,10 @@ export default class PropertyClass {
         return $target[$property]
       },
       set($target, $property, $value) {
-        $target[$property] = $this.instate($this, $property, $value)
+        $target[$property] = $value
         return true
       },
       deleteProperty($target, $property) {
-        $this.deinstate($this, $property)
         delete $target[$property]
         return true
       },
