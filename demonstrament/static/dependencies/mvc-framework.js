@@ -119,7 +119,7 @@ function parse$3($path) {
   }
 }
 
-function typedObjectLiteral$k($value) {
+function typedObjectLiteral$j($value) {
   let _typedObjectLiteral;
   const typeOfValue = typeOf$8($value);
   if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
@@ -143,7 +143,7 @@ function set$2($path, $source) {
   const {
     keypaths, key, typeofRoot
   } = parse$3($path);
-  const target = typedObjectLiteral$k(typeofRoot);
+  const target = typedObjectLiteral$j(typeofRoot);
   let subtarget = target;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { subtarget[$subpath] = []; }
@@ -161,7 +161,7 @@ function expandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$k($source);
+  let target = typedObjectLiteral$j($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = set$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -179,7 +179,7 @@ function impandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$k($source);
+  let target = typedObjectLiteral$j($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = get$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -306,7 +306,7 @@ var index$5 = /*#__PURE__*/Object.freeze({
   recursiveFreeze: recursiveFreeze$2,
   regularExpressions: regularExpressions$7,
   typeOf: typeOf$8,
-  typedObjectLiteral: typedObjectLiteral$k,
+  typedObjectLiteral: typedObjectLiteral$j,
   variables: index$1$1
 });
 
@@ -1288,7 +1288,7 @@ var index$4 = /*#__PURE__*/Object.freeze({
   typeofRoot: typeofRoot$1
 });
 
-const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$j } = index$5;
+const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$i } = index$5;
 function get$1($path, $value) {
   const subpaths = $path.split(new RegExp(regularExpressions$5.quotationEscape));
   const key = subpaths.pop();
@@ -1303,7 +1303,7 @@ function set$1($path, $value) {
   const {
     keypaths, key, typeofRoot
   } = parse$2($path);
-  const tree = typedObjectLiteral$j(typeofRoot);
+  const tree = typedObjectLiteral$i(typeofRoot);
   let treeNode = tree;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { treeNode[$subpath] = []; }
@@ -1320,7 +1320,7 @@ var index$3 = /*#__PURE__*/Object.freeze({
   set: set$1
 });
 
-const { typedObjectLiteral: typedObjectLiteral$i, variables: variables$3 } = index$5;
+const { typedObjectLiteral: typedObjectLiteral$h, variables: variables$3 } = index$5;
 
 function expandTree$1($root, $tree) {
   const typeofRoot = typeof $root;
@@ -1388,7 +1388,7 @@ function pathkeytree($object) {
 const {
   isPropertyDefinition,
   recursiveAssign: recursiveAssign$g, recursiveAssignConcat: recursiveAssignConcat$1, regularExpressions: regularExpressions$4, 
-  typedObjectLiteral: typedObjectLiteral$h, typeOf: typeOf$7, 
+  typedObjectLiteral: typedObjectLiteral$g, typeOf: typeOf$7, 
   variables: variables$2
 } = index$5;
 
@@ -1404,7 +1404,7 @@ var index$2 = /*#__PURE__*/Object.freeze({
   recursiveAssignConcat: recursiveAssignConcat$1,
   regularExpressions: regularExpressions$4,
   tree: index$3,
-  typedObjectLiteral: typedObjectLiteral$h,
+  typedObjectLiteral: typedObjectLiteral$g,
   variables: variables$2
 });
 
@@ -1415,8 +1415,6 @@ var Settings$6 = ($settings) => {
 var Options$6 = ($options) => Object.assign({
   enableEvents: true,
 }, $options);
-
-const { typedObjectLiteral: typedObjectLiteral$g } = index$5;
 
 const { typedObjectLiteral: typedObjectLiteral$f } = index$5;
 class MVCFrameworkCore extends Core$1 {
@@ -1450,19 +1448,30 @@ class MVCFrameworkCore extends Core$1 {
       return this
     };
     const propertyClasses = [];
+    let parent, path;
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent;
+        const mountPath = $mount.path;
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath;
+        if(parent) { parent.unmount(property); }
+        parent = mountParent;
+        path = mountPath;
+      } });
+    }
+    catch($err) { console.error($err); }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path;
+        delete this[$property];
+      } });
+    }
+    catch($err) { console.error($err); }
     Object.defineProperties(this, {
-      'parent': { configurable: true, get() {
-        const options = this.options;
-        const parent = (options.parent) ? options.parent : null;
-        Object.defineProperty(this, 'parent', { value: parent });
-        return parent
-      } },
-      'path': { configurable: true, get() {
-        const options = this.options;
-        let path = (options.path) ? String(options.path) : null;
-        Object.defineProperty(this, 'path', { value: path });
-        return path
-      }},
+      'name': { get() {} },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
       'settings': { value: Settings$6($settings) },
       'options': { value: Options$6($options) },
       'root': { get() {
@@ -1563,8 +1572,12 @@ class MVCFrameworkCore extends Core$1 {
     });
     if(this.options.propertyClasses) {
       this.addPropertyClasses(this.options.propertyClasses);
-      addProperties(this.settings);
     }
+    this.mount({
+      parent: this.options.parent,
+      path: this.options.path
+    });
+    addProperties(this.settings);
   }
 }
 
@@ -5438,67 +5451,63 @@ let Model$1 = class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
     super({ accessors: Model.accessors });
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties;
-    Object.defineProperty(this, 'options', { configurable: true, get() {
-      const options = Options$5($options);
-      if(options.events) {
-        this.addEvents(options.events);
-        delete options.events;
-      }
-      if(options.enableEvents) {
-        const typeofEnableEvents = typeof options.enableEvents;
-        if(typeofEnableEvents === 'boolean') { this.enableEvents(); }
-        else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents); }
-      }
-      Object.defineProperty(this, 'options', { value: options });
-      return options
-    } });
-    Object.defineProperty(this, 'target', { configurable: true, get() {
-      const target = typedObjectLiteral(properties);
-      Object.defineProperty(this, 'target', { value: target });
-      return target
-    } });
-    Object.defineProperty(this, 'type', { configurable: true, get() {
-      const type = typeOf(this.target);
-      Object.defineProperty(this, 'type', { value: type });
-      return type
-    } });
-    Object.defineProperty(this, 'schema', { configurable: true, get() {
-      const typeOfSchema = typeOf($schema);
-      let schema;
-      if(['undefined', 'null'].includes(typeOfSchema)) { schema = null; }
-      else if($schema instanceof Schema) { schema = $schema; }
-      else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema); }
-      Object.defineProperty(this, 'schema', { value: schema });
-      return schema
-    } });
-    Object.defineProperty(this, 'parent', { configurable: true, get() {
-      const options = this.options;
-      const parent = (options.parent) ? options.parent : null;
-      Object.defineProperty(this, 'parent', { value: parent });
-      return parent
-    } });
-    Object.defineProperty(this, 'path', { configurable: true, get() {
-      const options = this.options;
-      let path = (options.path) ? String(options.path) : null;
-      Object.defineProperty(this, 'path', { value: path });
-      return path
-    } });
-    Object.defineProperty(this, 'key', { configurable: true, get() {
-      let key = (this.path) ? this.path.split('.').pop() : null;
-      Object.defineProperty(this, 'key', {
-         value: key
-      });
-      return key
-    } });
-    Object.defineProperty(this, 'root', { get() {
-      let root = this;
-      iterateParents: 
-      while(root) {
-        if([undefined, null].includes(root.parent)) { break iterateParents }
-        root = root.parent;
-      }
-      return root
-    } });
+    let parent, path;
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent;
+        const mountPath = $mount.path;
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath;
+        if(parent) { parent.unmount(property); }
+        parent = mountParent;
+        path = mountPath;
+      } });
+    }
+    catch($err) { console.error($err); }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path;
+        delete this[$property];
+      } });
+    }
+    catch($err) { console.error($err); }
+    Object.defineProperties(this, {
+      'options': { configurable: true, get() {
+        const options = Options$5($options);
+        if(options.events) {
+          this.addEvents(options.events);
+          delete options.events;
+        }
+        if(options.enableEvents) {
+          const typeofEnableEvents = typeof options.enableEvents;
+          if(typeofEnableEvents === 'boolean') { this.enableEvents(); }
+          else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents); }
+        }
+        Object.defineProperty(this, 'options', { value: options });
+        return options
+      } },
+      'target': { configurable: true, get() {
+        const target = typedObjectLiteral(properties);
+        Object.defineProperty(this, 'target', { value: target });
+        return target
+      } },
+      'type': { configurable: true, get() {
+        const type = typeOf(this.target);
+        Object.defineProperty(this, 'type', { value: type });
+        return type
+      } },
+      'schema': { configurable: true, get() {
+        const typeOfSchema = typeOf($schema);
+        let schema;
+        if(['undefined', 'null'].includes(typeOfSchema)) { schema = null; }
+        else if($schema instanceof Schema) { schema = $schema; }
+        else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema); }
+        Object.defineProperty(this, 'schema', { value: schema });
+        return schema
+      } },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
+    });
     Methods(this);
     Assign(this, properties, this.options);
   }
@@ -7228,33 +7237,61 @@ class SocketRouter extends MVCFrameworkCore {
   send() { this.webSocket.send(...arguments); }
 }
 
-function Instate($target, $property, $value, $definition) { return $value }
+function Instate($target, $property, $value, $definition) {
+  if($value && ValidClasses.includes($value.constructor)) {
+    console.log($value);
+    $value.mount({
+      path: ($target.path) ? [$target.path, $property].join('.') : $property,
+      parent: $target,
+    });
+  }
+  else if(Array.isArray($value)) {
+    const { Class } = $definition;
+    if(Class.constructor === Model) {
+      const [properties, schema, options] = $value;
+      Object.assign(options, {
+        path: ($target.path) ? [$target.path, $property].join('.') : $property,
+        parent: $target,
+      });
+      $value = new Class(properties, schema, options);
+    }
+    else if(ValidClasses.includes(Class)) {
+      const [settings, options] = $value;
+      Object.assign(options, {
+        path: ($target.path) ? [$target.path, $property].join('.') : $property,
+        parent: $target,
+      });
+      $value = new Class(...$value);
+    }
+  }
+  return $value
+}
 function Deinstate($target, $property, $definition) { return }
 class Control extends MVCFrameworkCore {
   static propertyClasses = [{
     name: "models", definitionValue: 'Object',
     administer: "addModels", deadminister: "removeModels",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: Model,
   }, {
     name: "views", definitionValue: 'Object',
     administer: "addViews", deadminister: "removeViews",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: View,
   }, {
     name: "controls", definitionValue: 'Object',
     administer: "addControls", deadminister: "removeControls",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: Control,
   }, {
     name: "locationRouters", definitionValue: 'Object',
     administer: "addLocationRouters", deadminister: "removeLocationRouters",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: LocationRouter,
   }, {
     name: "fetchRouters", definitionValue: 'Object',
     administer: "addFetchRouters", deadminister: "removeFetchRouters",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: FetchRouter,
   }, {
     name: "socketRouters", definitionValue: 'Object',
     administer: "addSocketRouters", deadminister: "removeSocketRouters",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: SocketRouter,
   }]
   constructor($settings = {}, $options = {}) {
     super(
@@ -7265,6 +7302,7 @@ class Control extends MVCFrameworkCore {
     );
   }
 }
+const ValidClasses = [Model, View, Control, LocationRouter, FetchRouter, SocketRouter];
 
 export { Control, MVCFrameworkCore as Core, index$2 as Coutil, FetchRouter, LocationRouter, MessageAdapter, Model, SocketRouter, Validation, Validator, Verification, View };
 //# sourceMappingURL=mvc-framework.js.map

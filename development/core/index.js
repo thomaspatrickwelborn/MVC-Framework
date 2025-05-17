@@ -2,7 +2,6 @@ import { Core, Coutil } from 'core-plex'
 const { typedObjectLiteral } = Coutil
 import Settings from './settings/index.js'
 import Options from './options/index.js'
-import PropertyClass from './property-class/index.js'
 export default class MVCFrameworkCore extends Core {
   static propertyClasses = []
   constructor($settings = {}, $options = {}) {
@@ -34,19 +33,30 @@ export default class MVCFrameworkCore extends Core {
       return this
     }
     const propertyClasses = []
+    let parent, path
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent
+        const mountPath = $mount.path
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath
+        if(parent) { parent.unmount(property) }
+        parent = mountParent
+        path = mountPath
+      } })
+    }
+    catch($err) { console.error($err) }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path
+        delete this[$property]
+      } })
+    }
+    catch($err) { console.error($err) }
     Object.defineProperties(this, {
-      'parent': { configurable: true, get() {
-        const options = this.options
-        const parent = (options.parent) ? options.parent : null
-        Object.defineProperty(this, 'parent', { value: parent })
-        return parent
-      } },
-      'path': { configurable: true, get() {
-        const options = this.options
-        let path = (options.path) ? String(options.path) : null
-        Object.defineProperty(this, 'path', { value: path })
-        return path
-      }},
+      'name': { get() {} },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
       'settings': { value: Settings($settings) },
       'options': { value: Options($options) },
       'root': { get() {
@@ -150,7 +160,11 @@ export default class MVCFrameworkCore extends Core {
     })
     if(this.options.propertyClasses) {
       this.addPropertyClasses(this.options.propertyClasses)
-      addProperties(this.settings)
     }
+    this.mount({
+      parent: this.options.parent,
+      path: this.options.path
+    })
+    addProperties(this.settings)
   }
 }
