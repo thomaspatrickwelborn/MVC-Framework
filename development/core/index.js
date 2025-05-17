@@ -2,7 +2,6 @@ import { Core, Coutil } from 'core-plex'
 const { typedObjectLiteral } = Coutil
 import Settings from './settings/index.js'
 import Options from './options/index.js'
-import PropertyClass from './property-class/index.js'
 export default class MVCFrameworkCore extends Core {
   static propertyClasses = []
   constructor($settings = {}, $options = {}) {
@@ -10,21 +9,28 @@ export default class MVCFrameworkCore extends Core {
       events: $options.events || {},
       enableEvents: $options.enableEvents || false, 
       propertyDefinitions: $options.propertyDefinitions || {},
-      accessors: [($target, $property) => {
-        if($property === undefined) { return $target }
-        else { return $target[$property] }
-      }, ($target, $property) => {
-        if($property === undefined) { return $target.target }
-        else { return $target.get($property) }
-      }]
+      propertyDirectory: {
+        accessors: [function objectAccessor($target, $property) {
+          if($property === undefined) { return $target }
+          else { return $target[$property] }
+        }, function mapAccessor($target, $property) {
+          if($target instanceof Map === true) {
+            if($property === undefined) { return Object.fromEntries($target) }
+            else { return $target.get($property) }
+          }
+        }, function objectureAccessor($target, $property) {
+          if($property === undefined) { return $target.target }
+          else { return $target.target[$property] }
+        }],
+      },
     })
     const addProperties = ($properties) => {
       iteratePropertyClasses: 
       for(const $propertyClass of propertyClasses) {
-        const { administer, name, definitionValue } = $propertyClass
-        if(!definitionValue) { continue iteratePropertyClasses }
+        const { administer, name, targetType } = $propertyClass
+        if(!targetType) { continue iteratePropertyClasses }
         if($properties[name] === undefined) { continue iteratePropertyClasses }
-        if(definitionValue !== undefined) {
+        if(targetType !== undefined) {
           this[administer](this.settings[name])
         }
         else if(this.settings[name] !== undefined) {
@@ -34,20 +40,32 @@ export default class MVCFrameworkCore extends Core {
       return this
     }
     const propertyClasses = []
+    let parent = null
+    let path = null
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent
+        const mountPath = $mount.path
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath
+        if(parent) { parent.unmount(property) }
+        parent = mountParent
+        path = mountPath
+      } })
+    }
+    catch($err) { console.error($err) }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path
+        delete this[$property]
+      } })
+    }
+    catch($err) { console.error($err) }
     Object.defineProperties(this, {
-      'parent': { configurable: true, get() {
-        const options = this.options
-        const parent = (options.parent) ? options.parent : null
-        Object.defineProperty(this, 'parent', { value: parent })
-        return parent
-      } },
-      'path': { configurable: true, get() {
-        const options = this.options
-        let path = (options.path) ? String(options.path) : null
-        Object.defineProperty(this, 'path', { value: path })
-        return path
-      }},
       'settings': { value: Settings($settings) },
+      'definition': { get() { return definition } },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
       'options': { value: Options($options) },
       'root': { get() {
         let root = this
@@ -73,7 +91,7 @@ export default class MVCFrameworkCore extends Core {
           : [].concat(...arguments)
         iteratePropertyClasses: 
         for(const $addPropertyClass of $addPropertyClasses) {
-          if(!$addPropertyClass.definitionValue) {
+          if(!$addPropertyClass.targetType) {
             propertyClasses.push($addPropertyClass)
             continue iteratePropertyClasses
           }
@@ -81,21 +99,22 @@ export default class MVCFrameworkCore extends Core {
             name,
             administer, deadminister,
             instate, deinstate,
-            definitionValue,
+            targetType, definition,
           } = $addPropertyClass
           let propertyValue
           Object.defineProperties(this, {
             [name]: {
-              configurable: true, enumerable: true, 
-              value: typedObjectLiteral(definitionValue)
+              configurable: true, enumerable: true, writable: true,
+              value: typedObjectLiteral(targetType)
             }, 
             [administer]: {
               configurable: true, enumerable: false, writable: false, 
               value: function($properties) {
+                if(!$this[name]) { $this[name] = typedObjectLiteral(targetType) }
                 iterateProperties: 
                 for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
                   $this[name][$propertyKey] = instate(
-                    $this[name], $propertyKey, $propertyValue, $addPropertyClass
+                    $this, $propertyKey, $propertyValue, $addPropertyClass
                   )
                 }
                 return $this
@@ -113,7 +132,7 @@ export default class MVCFrameworkCore extends Core {
                 }
                 for(const $propertyKey of properties) {
                   deinstate(
-                    $this[name], $propertyKey, $addPropertyClass
+                    $this, $propertyKey, $addPropertyClass
                   )
                   delete $this[name][$propertyKey]
                 }
@@ -150,7 +169,11 @@ export default class MVCFrameworkCore extends Core {
     })
     if(this.options.propertyClasses) {
       this.addPropertyClasses(this.options.propertyClasses)
-      addProperties(this.settings)
     }
+    this.mount({
+      parent: this.options.parent,
+      path: this.options.path
+    })
+    addProperties(this.settings)
   }
 }

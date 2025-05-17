@@ -119,7 +119,7 @@ function parse$3($path) {
   }
 }
 
-function typedObjectLiteral$k($value) {
+function typedObjectLiteral$j($value) {
   let _typedObjectLiteral;
   const typeOfValue = typeOf$8($value);
   if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
@@ -143,7 +143,7 @@ function set$2($path, $source) {
   const {
     keypaths, key, typeofRoot
   } = parse$3($path);
-  const target = typedObjectLiteral$k(typeofRoot);
+  const target = typedObjectLiteral$j(typeofRoot);
   let subtarget = target;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { subtarget[$subpath] = []; }
@@ -161,7 +161,7 @@ function expandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$k($source);
+  let target = typedObjectLiteral$j($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = set$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -179,7 +179,7 @@ function impandTree$2($source, $property) {
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$k($source);
+  let target = typedObjectLiteral$j($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = get$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -193,7 +193,7 @@ function impandTree$2($source, $property) {
 const Options$7 = {
   depth: 0,
   maxDepth: 10,
-  accessors: [accessors$1.default /*Accessors.get*/],
+  accessors: [accessors$1.default],
 };
 function propertyDirectory$1($object, $options) {
   const _propertyDirectory = [];
@@ -202,7 +202,8 @@ function propertyDirectory$1($object, $options) {
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
-    const object = $accessor($object);
+    const accessor = $accessor.bind($object);
+    const object = accessor($object);
     if(!object) continue iterateAccessors
     for(const [$key, $value] of Object.entries(object)) {
       if(!options.values) { _propertyDirectory.push($key); }
@@ -306,7 +307,7 @@ var index$5 = /*#__PURE__*/Object.freeze({
   recursiveFreeze: recursiveFreeze$2,
   regularExpressions: regularExpressions$7,
   typeOf: typeOf$8,
-  typedObjectLiteral: typedObjectLiteral$k,
+  typedObjectLiteral: typedObjectLiteral$j,
   variables: index$1$1
 });
 
@@ -314,6 +315,11 @@ var Settings$1$2 = ($settings = {}) => {
   const Settings = {
     events: {},
     enableEvents: false,
+    propertyDirectory: {
+      accessors: [accessors$1.default],
+      scopeKey: ':scope', 
+      maxDepth: 10,
+    },
     propertyDefinitions: {
       getEvents: 'getEvents',
       addEvents: 'addEvents',
@@ -327,6 +333,7 @@ var Settings$1$2 = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'propertyDefinitions':
+      case 'propertyDirectory':
         Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
         break
       default: 
@@ -861,11 +868,8 @@ function outmatch$1(pattern, options) {
 var Settings$7 = ($settings = {}) => {
   const Settings = {
     enable: false,
-    accessors: [accessors$1.default],
-    propertyDirectory: { scopeKey: $settings.scopeKey, maxDepth: 10 },
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
     bindListener: true,
-    scopeKey: ':scope',
     errorLog: false,
     methods: {
       assign: {
@@ -906,13 +910,6 @@ var Settings$7 = ($settings = {}) => {
   };
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
-      case 'propertyDirectory':
-        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
-        break
-      case 'accessors':
-        Settings[$settingKey] = $settingValue;
-        Settings.propertyDirectory[$settingKey] = $settingValue;
-        break
       case 'methods': 
         Settings[$settingKey] = recursiveAssign$h(Settings[$settingKey], $settingValue);
         break
@@ -926,14 +923,12 @@ var Settings$7 = ($settings = {}) => {
 };
 
 let EventDefinition$1 = class EventDefinition {
-  #settings
   #context
-  #listener
+  // #listener
   #enable = false
-  #path
-  #assigned = []
-  #deassigned = []
-  #transsigned = []
+  // #assigned = []
+  // #deassigned = []
+  // #transsigned = []
   #nontranssigned = []
   #_targets = []
   #_assign
@@ -941,27 +936,35 @@ let EventDefinition$1 = class EventDefinition {
   #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
-    this.#settings = Settings$7($settings);
+    const settings = Settings$7($settings);
+    const assigned = [];
+    const deassigned = [];
+    const transsigned = [];
+    Object.defineProperties(this, {
+      'settings': { value: settings },
+      'path': { value: settings.path },
+      'type': { value: settings.type },
+      'assigned': { value: assigned },
+      'deassigned': { value: deassigned },
+      'transsigned': { value: transsigned },
+      'listener':  { configurable: true, get() {
+        let listener; 
+        if(settings.bindListener === true) {
+          listener = settings.listener.bind(this.#context);
+        }
+        else { listener = settings.listener; }
+        Object.defineProperty(this, 'listener', { value: listener });
+        return listener
+      } }
+    });
     this.#context = $context;
     this.enable = this.settings.enable;
-  }
-  get settings() { return this.#settings }
-  get path() { return this.settings.path }
-  get type() { return this.settings.type }
-  get listener() {
-    if(this.#listener !== undefined) { return this.#listener }
-    const listener = this.settings.listener;
-    if(this.settings.bindListener === true) {
-      this.#listener = listener.bind(this.#context);
-    }
-    else { this.#listener = listener; }
-    return this.#listener
   }
   get enable() { return this.#enable }
   set enable($enable) {
     const targets = this.#targets;
-    const assigned = this.#assigned;
-    const deassigned = this.#deassigned;
+    const assigned = this.assigned;
+    const deassigned = this.deassigned;
     assigned.length = 0;
     deassigned.length = 0;
     iterateTargetElements: 
@@ -989,8 +992,6 @@ let EventDefinition$1 = class EventDefinition {
     }
     this.#enable = $enable;
   }
-  get assigned() { return this.#assigned }
-  get deassigned() { return this.#deassigned }
   get #target() { return this.settings.target }
   get #targets() {
     const pretargets = this.#_targets;
@@ -1003,8 +1004,7 @@ let EventDefinition$1 = class EventDefinition {
         if(pretargetElement !== undefined) {
           targets.push(pretargetElement);
         }
-        else if(pretargetElement === undefined) {
-          targets.push({
+        else if(pretargetElement === undefined) {ptargets.push({
             path: this.path,
             target: $target,
             enable: false,
@@ -1028,9 +1028,9 @@ let EventDefinition$1 = class EventDefinition {
           const propertyPathMatcher = outmatch$1(this.path, {
             separator: '.',
           });
-          for(const $propertyPath of propertyDirectory) {
+          for(const [$propertyPath, $propertyValue] of propertyDirectory) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
-            if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
+            if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
           }
           if(this.path.charAt(0) === '*') {
             targetPaths.unshift(this.#scopeKey);
@@ -1039,26 +1039,12 @@ let EventDefinition$1 = class EventDefinition {
         else {
           targetPaths.push(this.path);
         }
-        for(const $targetPath of targetPaths) {
+        for(const [$targetPath, $targetValue] of targetPaths) {
           const pretargetElement = pretargets.find(
             ($pretarget) => $pretarget.path === $targetPath
           );
-          let target = this.#context;
+          let target = $targetValue;
           let targetElement;
-          const pathKeys = $targetPath.split('.');
-          let pathKeysIndex = 0;
-          iterateTargetPathKeys: 
-          while(pathKeysIndex < pathKeys.length) {
-            let pathKey = pathKeys[pathKeysIndex];
-            if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
-            iterateTargetAccessors: 
-            for(const $targetAccessor of this.settings.accessors) {
-              try { target = $targetAccessor(target, pathKey); }
-              catch($err) { if(this.settings.errorLog) { console.error($err); } }
-              if(target !== undefined) { break iterateTargetAccessors }
-            }
-            pathKeysIndex++;
-          }
           if(target !== undefined) {
             if(target === pretargetElement?.target) {
               targetElement = pretargetElement;
@@ -1078,7 +1064,7 @@ let EventDefinition$1 = class EventDefinition {
     this.#_targets = targets;
     return this.#_targets
   }
-  get #scopeKey() { return this.settings.scopeKey }
+  get #scopeKey() { return this.settings.propertyDirectory.scopeKey }
   get #assign() {
     if(this.#_assign !== undefined) { return this.#_assign }
     this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
@@ -1094,17 +1080,14 @@ let EventDefinition$1 = class EventDefinition {
     this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
     return this.#_transsign
   }
-  get #methods() { return this.settings.methods }
   get #propertyDirectory() {
     if(!this.settings.propertyDirectory) { return null }
-    const propertyDirectorySettings = ({
-      accessors: this.settings.accessors
-    }, this.settings.propertyDirectory);
+    const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
     return propertyDirectory$1(this.#context, propertyDirectorySettings)
   }
   emit() {
     const targets = this.#targets;
-    const transsigned = this.#transsigned;
+    const transsigned = this.transsigned;
     const nontranssigned = this.#nontranssigned;
     transsigned.length = 0;
     nontranssigned.length = 0;
@@ -1163,12 +1146,12 @@ let Core$1 = class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents$1(arguments[0], settings.scopeKey);
+          let $addEvents = expandEvents$1(arguments[0], settings.propertyDirectory.scopeKey);
           let $enableEvents = arguments[1] || false;
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'accessors', 'assign', 'deassign', 'transsign', 'propertyDirectory'
+              'assign', 'deassign', 'transsign', 'propertyDirectory'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
@@ -1288,7 +1271,7 @@ var index$4 = /*#__PURE__*/Object.freeze({
   typeofRoot: typeofRoot$1
 });
 
-const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$j } = index$5;
+const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$i } = index$5;
 function get$1($path, $value) {
   const subpaths = $path.split(new RegExp(regularExpressions$5.quotationEscape));
   const key = subpaths.pop();
@@ -1303,7 +1286,7 @@ function set$1($path, $value) {
   const {
     keypaths, key, typeofRoot
   } = parse$2($path);
-  const tree = typedObjectLiteral$j(typeofRoot);
+  const tree = typedObjectLiteral$i(typeofRoot);
   let treeNode = tree;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { treeNode[$subpath] = []; }
@@ -1320,7 +1303,7 @@ var index$3 = /*#__PURE__*/Object.freeze({
   set: set$1
 });
 
-const { typedObjectLiteral: typedObjectLiteral$i, variables: variables$3 } = index$5;
+const { typedObjectLiteral: typedObjectLiteral$h, variables: variables$3 } = index$5;
 
 function expandTree$1($root, $tree) {
   const typeofRoot = typeof $root;
@@ -1388,7 +1371,7 @@ function pathkeytree($object) {
 const {
   isPropertyDefinition,
   recursiveAssign: recursiveAssign$g, recursiveAssignConcat: recursiveAssignConcat$1, regularExpressions: regularExpressions$4, 
-  typedObjectLiteral: typedObjectLiteral$h, typeOf: typeOf$7, 
+  typedObjectLiteral: typedObjectLiteral$g, typeOf: typeOf$7, 
   variables: variables$2
 } = index$5;
 
@@ -1404,7 +1387,7 @@ var index$2 = /*#__PURE__*/Object.freeze({
   recursiveAssignConcat: recursiveAssignConcat$1,
   regularExpressions: regularExpressions$4,
   tree: index$3,
-  typedObjectLiteral: typedObjectLiteral$h,
+  typedObjectLiteral: typedObjectLiteral$g,
   variables: variables$2
 });
 
@@ -1413,10 +1396,11 @@ var Settings$6 = ($settings) => {
 };
 
 var Options$6 = ($options) => Object.assign({
+  parent: null,
+  path: null,
   enableEvents: true,
+  definition: null,
 }, $options);
-
-const { typedObjectLiteral: typedObjectLiteral$g } = index$5;
 
 const { typedObjectLiteral: typedObjectLiteral$f } = index$5;
 class MVCFrameworkCore extends Core$1 {
@@ -1426,21 +1410,28 @@ class MVCFrameworkCore extends Core$1 {
       events: $options.events || {},
       enableEvents: $options.enableEvents || false, 
       propertyDefinitions: $options.propertyDefinitions || {},
-      accessors: [($target, $property) => {
-        if($property === undefined) { return $target }
-        else { return $target[$property] }
-      }, ($target, $property) => {
-        if($property === undefined) { return $target.target }
-        else { return $target.get($property) }
-      }]
+      propertyDirectory: {
+        accessors: [function objectAccessor($target, $property) {
+          if($property === undefined) { return $target }
+          else { return $target[$property] }
+        }, function mapAccessor($target, $property) {
+          if($target instanceof Map === true) {
+            if($property === undefined) { return Object.fromEntries($target) }
+            else { return $target.get($property) }
+          }
+        }, function objectureAccessor($target, $property) {
+          if($property === undefined) { return $target.target }
+          else { return $target.target[$property] }
+        }],
+      },
     });
     const addProperties = ($properties) => {
       iteratePropertyClasses: 
       for(const $propertyClass of propertyClasses) {
-        const { administer, name, definitionValue } = $propertyClass;
-        if(!definitionValue) { continue iteratePropertyClasses }
+        const { administer, name, targetType } = $propertyClass;
+        if(!targetType) { continue iteratePropertyClasses }
         if($properties[name] === undefined) { continue iteratePropertyClasses }
-        if(definitionValue !== undefined) {
+        if(targetType !== undefined) {
           this[administer](this.settings[name]);
         }
         else if(this.settings[name] !== undefined) {
@@ -1450,20 +1441,32 @@ class MVCFrameworkCore extends Core$1 {
       return this
     };
     const propertyClasses = [];
+    let parent = null;
+    let path = null;
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent;
+        const mountPath = $mount.path;
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath;
+        if(parent) { parent.unmount(property); }
+        parent = mountParent;
+        path = mountPath;
+      } });
+    }
+    catch($err) { console.error($err); }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path;
+        delete this[$property];
+      } });
+    }
+    catch($err) { console.error($err); }
     Object.defineProperties(this, {
-      'parent': { configurable: true, get() {
-        const options = this.options;
-        const parent = (options.parent) ? options.parent : null;
-        Object.defineProperty(this, 'parent', { value: parent });
-        return parent
-      } },
-      'path': { configurable: true, get() {
-        const options = this.options;
-        let path = (options.path) ? String(options.path) : null;
-        Object.defineProperty(this, 'path', { value: path });
-        return path
-      }},
       'settings': { value: Settings$6($settings) },
+      'definition': { get() { return definition } },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
       'options': { value: Options$6($options) },
       'root': { get() {
         let root = this;
@@ -1489,7 +1492,7 @@ class MVCFrameworkCore extends Core$1 {
           : [].concat(...arguments);
         iteratePropertyClasses: 
         for(const $addPropertyClass of $addPropertyClasses) {
-          if(!$addPropertyClass.definitionValue) {
+          if(!$addPropertyClass.targetType) {
             propertyClasses.push($addPropertyClass);
             continue iteratePropertyClasses
           }
@@ -1497,19 +1500,20 @@ class MVCFrameworkCore extends Core$1 {
             name,
             administer, deadminister,
             instate, deinstate,
-            definitionValue,
+            targetType, definition,
           } = $addPropertyClass;
           Object.defineProperties(this, {
             [name]: {
-              configurable: true, enumerable: true, 
-              value: typedObjectLiteral$f(definitionValue)
+              configurable: true, enumerable: true, writable: true,
+              value: typedObjectLiteral$f(targetType)
             }, 
             [administer]: {
               configurable: true, enumerable: false, writable: false, 
               value: function($properties) {
+                if(!$this[name]) { $this[name] = typedObjectLiteral$f(targetType); }
                 for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
                   $this[name][$propertyKey] = instate(
-                    $this[name], $propertyKey, $propertyValue, $addPropertyClass
+                    $this, $propertyKey, $propertyValue, $addPropertyClass
                   );
                 }
                 return $this
@@ -1527,7 +1531,7 @@ class MVCFrameworkCore extends Core$1 {
                 }
                 for(const $propertyKey of properties) {
                   deinstate(
-                    $this[name], $propertyKey, $addPropertyClass
+                    $this, $propertyKey, $addPropertyClass
                   );
                   delete $this[name][$propertyKey];
                 }
@@ -1563,8 +1567,12 @@ class MVCFrameworkCore extends Core$1 {
     });
     if(this.options.propertyClasses) {
       this.addPropertyClasses(this.options.propertyClasses);
-      addProperties(this.settings);
     }
+    this.mount({
+      parent: this.options.parent,
+      path: this.options.path
+    });
+    addProperties(this.settings);
   }
 }
 
@@ -1763,7 +1771,7 @@ function impandTree$1($source, $property) {
 const Options$2$1 = {
   depth: 0,
   maxDepth: 10,
-  accessors: [accessors.default /*Accessors.get*/],
+  accessors: [accessors.default],
 };
 function propertyDirectory($object, $options) {
   const _propertyDirectory = [];
@@ -1772,7 +1780,8 @@ function propertyDirectory($object, $options) {
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
   for(const $accessor of options.accessors) {
-    const object = $accessor($object);
+    const accessor = $accessor.bind($object);
+    const object = accessor($object);
     if(!object) continue iterateAccessors
     for(const [$key, $value] of Object.entries(object)) {
       if(!options.values) { _propertyDirectory.push($key); }
@@ -1884,6 +1893,11 @@ var Settings$1$1 = ($settings = {}) => {
   const Settings = {
     events: {},
     enableEvents: false,
+    propertyDirectory: {
+      accessors: [accessors.default],
+      scopeKey: ':scope', 
+      maxDepth: 10,
+    },
     propertyDefinitions: {
       getEvents: 'getEvents',
       addEvents: 'addEvents',
@@ -1897,6 +1911,7 @@ var Settings$1$1 = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'propertyDefinitions':
+      case 'propertyDirectory':
         Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
         break
       default: 
@@ -2431,11 +2446,8 @@ function outmatch(pattern, options) {
 var Settings$5 = ($settings = {}) => {
   const Settings = {
     enable: false,
-    accessors: [accessors.default],
-    propertyDirectory: { scopeKey: $settings.scopeKey, maxDepth: 10 },
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
     bindListener: true,
-    scopeKey: ':scope',
     errorLog: false,
     methods: {
       assign: {
@@ -2476,13 +2488,6 @@ var Settings$5 = ($settings = {}) => {
   };
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
-      case 'propertyDirectory':
-        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
-        break
-      case 'accessors':
-        Settings[$settingKey] = $settingValue;
-        Settings.propertyDirectory[$settingKey] = $settingValue;
-        break
       case 'methods': 
         Settings[$settingKey] = recursiveAssign$f(Settings[$settingKey], $settingValue);
         break
@@ -2496,14 +2501,12 @@ var Settings$5 = ($settings = {}) => {
 };
 
 class EventDefinition {
-  #settings
   #context
-  #listener
+  // #listener
   #enable = false
-  #path
-  #assigned = []
-  #deassigned = []
-  #transsigned = []
+  // #assigned = []
+  // #deassigned = []
+  // #transsigned = []
   #nontranssigned = []
   #_targets = []
   #_assign
@@ -2511,27 +2514,35 @@ class EventDefinition {
   #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
-    this.#settings = Settings$5($settings);
+    const settings = Settings$5($settings);
+    const assigned = [];
+    const deassigned = [];
+    const transsigned = [];
+    Object.defineProperties(this, {
+      'settings': { value: settings },
+      'path': { value: settings.path },
+      'type': { value: settings.type },
+      'assigned': { value: assigned },
+      'deassigned': { value: deassigned },
+      'transsigned': { value: transsigned },
+      'listener':  { configurable: true, get() {
+        let listener; 
+        if(settings.bindListener === true) {
+          listener = settings.listener.bind(this.#context);
+        }
+        else { listener = settings.listener; }
+        Object.defineProperty(this, 'listener', { value: listener });
+        return listener
+      } }
+    });
     this.#context = $context;
     this.enable = this.settings.enable;
-  }
-  get settings() { return this.#settings }
-  get path() { return this.settings.path }
-  get type() { return this.settings.type }
-  get listener() {
-    if(this.#listener !== undefined) { return this.#listener }
-    const listener = this.settings.listener;
-    if(this.settings.bindListener === true) {
-      this.#listener = listener.bind(this.#context);
-    }
-    else { this.#listener = listener; }
-    return this.#listener
   }
   get enable() { return this.#enable }
   set enable($enable) {
     const targets = this.#targets;
-    const assigned = this.#assigned;
-    const deassigned = this.#deassigned;
+    const assigned = this.assigned;
+    const deassigned = this.deassigned;
     assigned.length = 0;
     deassigned.length = 0;
     iterateTargetElements: 
@@ -2559,8 +2570,6 @@ class EventDefinition {
     }
     this.#enable = $enable;
   }
-  get assigned() { return this.#assigned }
-  get deassigned() { return this.#deassigned }
   get #target() { return this.settings.target }
   get #targets() {
     const pretargets = this.#_targets;
@@ -2573,8 +2582,7 @@ class EventDefinition {
         if(pretargetElement !== undefined) {
           targets.push(pretargetElement);
         }
-        else if(pretargetElement === undefined) {
-          targets.push({
+        else if(pretargetElement === undefined) {ptargets.push({
             path: this.path,
             target: $target,
             enable: false,
@@ -2598,9 +2606,9 @@ class EventDefinition {
           const propertyPathMatcher = outmatch(this.path, {
             separator: '.',
           });
-          for(const $propertyPath of propertyDirectory) {
+          for(const [$propertyPath, $propertyValue] of propertyDirectory) {
             const propertyPathMatch = propertyPathMatcher($propertyPath);
-            if(propertyPathMatch === true) { targetPaths.push($propertyPath); }
+            if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
           }
           if(this.path.charAt(0) === '*') {
             targetPaths.unshift(this.#scopeKey);
@@ -2609,26 +2617,12 @@ class EventDefinition {
         else {
           targetPaths.push(this.path);
         }
-        for(const $targetPath of targetPaths) {
+        for(const [$targetPath, $targetValue] of targetPaths) {
           const pretargetElement = pretargets.find(
             ($pretarget) => $pretarget.path === $targetPath
           );
-          let target = this.#context;
+          let target = $targetValue;
           let targetElement;
-          const pathKeys = $targetPath.split('.');
-          let pathKeysIndex = 0;
-          iterateTargetPathKeys: 
-          while(pathKeysIndex < pathKeys.length) {
-            let pathKey = pathKeys[pathKeysIndex];
-            if(pathKey === this.#scopeKey) { break iterateTargetPathKeys }
-            iterateTargetAccessors: 
-            for(const $targetAccessor of this.settings.accessors) {
-              try { target = $targetAccessor(target, pathKey); }
-              catch($err) { if(this.settings.errorLog) { console.error($err); } }
-              if(target !== undefined) { break iterateTargetAccessors }
-            }
-            pathKeysIndex++;
-          }
           if(target !== undefined) {
             if(target === pretargetElement?.target) {
               targetElement = pretargetElement;
@@ -2648,7 +2642,7 @@ class EventDefinition {
     this.#_targets = targets;
     return this.#_targets
   }
-  get #scopeKey() { return this.settings.scopeKey }
+  get #scopeKey() { return this.settings.propertyDirectory.scopeKey }
   get #assign() {
     if(this.#_assign !== undefined) { return this.#_assign }
     this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
@@ -2664,17 +2658,14 @@ class EventDefinition {
     this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
     return this.#_transsign
   }
-  get #methods() { return this.settings.methods }
   get #propertyDirectory() {
     if(!this.settings.propertyDirectory) { return null }
-    const propertyDirectorySettings = ({
-      accessors: this.settings.accessors
-    }, this.settings.propertyDirectory);
+    const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
     return propertyDirectory(this.#context, propertyDirectorySettings)
   }
   emit() {
     const targets = this.#targets;
-    const transsigned = this.#transsigned;
+    const transsigned = this.transsigned;
     const nontranssigned = this.#nontranssigned;
     transsigned.length = 0;
     nontranssigned.length = 0;
@@ -2733,12 +2724,12 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents(arguments[0], settings.scopeKey);
+          let $addEvents = expandEvents(arguments[0], settings.propertyDirectory.scopeKey);
           let $enableEvents = arguments[1] || false;
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'accessors', 'assign', 'deassign', 'transsign', 'propertyDirectory'
+              'assign', 'deassign', 'transsign', 'propertyDirectory'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
@@ -5428,77 +5419,74 @@ function Assign($model, $properties, $options) {
 const { typedObjectLiteral, typeOf } = index;
 
 let Model$1 = class Model extends Core {
-  static accessors = Object.freeze([($target, $property) => {
-    if($property === undefined) { return $target.target }
-    else { return $target.get($property) }
-  }, ($target, $property) => {
-    if($property === undefined) { return $target }
-    else { return $target[$property] }
-  }])
   constructor($properties = {}, $schema = null, $options = {}) {
-    super({ accessors: Model.accessors });
+    super({ propertyDirectory: { accessors: [($target, $property) => {
+      if($property === undefined) { return $target.target }
+      else { return $target.get($property) }
+    }] } });
     const properties = ($properties instanceof Model) ? $properties.valueOf() : $properties;
-    Object.defineProperty(this, 'options', { configurable: true, get() {
-      const options = Options$5($options);
-      if(options.events) {
-        this.addEvents(options.events);
-        delete options.events;
-      }
-      if(options.enableEvents) {
-        const typeofEnableEvents = typeof options.enableEvents;
-        if(typeofEnableEvents === 'boolean') { this.enableEvents(); }
-        else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents); }
-      }
-      Object.defineProperty(this, 'options', { value: options });
-      return options
-    } });
-    Object.defineProperty(this, 'target', { configurable: true, get() {
-      const target = typedObjectLiteral(properties);
-      Object.defineProperty(this, 'target', { value: target });
-      return target
-    } });
-    Object.defineProperty(this, 'type', { configurable: true, get() {
-      const type = typeOf(this.target);
-      Object.defineProperty(this, 'type', { value: type });
-      return type
-    } });
-    Object.defineProperty(this, 'schema', { configurable: true, get() {
-      const typeOfSchema = typeOf($schema);
-      let schema;
-      if(['undefined', 'null'].includes(typeOfSchema)) { schema = null; }
-      else if($schema instanceof Schema) { schema = $schema; }
-      else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema); }
-      Object.defineProperty(this, 'schema', { value: schema });
-      return schema
-    } });
-    Object.defineProperty(this, 'parent', { configurable: true, get() {
-      const options = this.options;
-      const parent = (options.parent) ? options.parent : null;
-      Object.defineProperty(this, 'parent', { value: parent });
-      return parent
-    } });
-    Object.defineProperty(this, 'path', { configurable: true, get() {
-      const options = this.options;
-      let path = (options.path) ? String(options.path) : null;
-      Object.defineProperty(this, 'path', { value: path });
-      return path
-    } });
-    Object.defineProperty(this, 'key', { configurable: true, get() {
-      let key = (this.path) ? this.path.split('.').pop() : null;
-      Object.defineProperty(this, 'key', {
-         value: key
-      });
-      return key
-    } });
-    Object.defineProperty(this, 'root', { get() {
-      let root = this;
-      iterateParents: 
-      while(root) {
-        if([undefined, null].includes(root.parent)) { break iterateParents }
-        root = root.parent;
-      }
-      return root
-    } });
+    let parent = null;
+    let path = null;
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent;
+        const mountPath = $mount.path;
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath;
+        if(parent) { parent.unmount(property); }
+        parent = mountParent;
+        path = mountPath;
+      } });
+    }
+    catch($err) { console.error($err); }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path;
+        delete this[$property];
+      } });
+    }
+    catch($err) { console.error($err); }
+    Object.defineProperties(this, {
+      'options': { configurable: true, get() {
+        const options = Options$5($options);
+        if(options.events) {
+          this.addEvents(options.events);
+          delete options.events;
+        }
+        if(options.enableEvents) {
+          const typeofEnableEvents = typeof options.enableEvents;
+          if(typeofEnableEvents === 'boolean') { this.enableEvents(); }
+          else if(typeofEnableEvents === 'object') { this.enableEvents(options.enableEvents); }
+        }
+        Object.defineProperty(this, 'options', { value: options });
+        return options
+      } },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
+      'target': { configurable: true, get() {
+        const target = typedObjectLiteral(properties);
+        Object.defineProperty(this, 'target', { value: target });
+        return target
+      } },
+      'type': { configurable: true, get() {
+        const type = typeOf(this.target);
+        Object.defineProperty(this, 'type', { value: type });
+        return type
+      } },
+      'schema': { configurable: true, get() {
+        const typeOfSchema = typeOf($schema);
+        let schema;
+        if(['undefined', 'null'].includes(typeOfSchema)) { schema = null; }
+        else if($schema instanceof Schema) { schema = $schema; }
+        else if(['array', 'object'].includes(typeOfSchema)) { schema = new Schema($schema); }
+        Object.defineProperty(this, 'schema', { value: schema });
+        return schema
+      } },
+    });
+    this.mount({
+      parent: this.options.parent,
+      path: this.options.path
+    });
     Methods(this);
     Assign(this, properties, this.options);
   }
@@ -7228,33 +7216,66 @@ class SocketRouter extends MVCFrameworkCore {
   send() { this.webSocket.send(...arguments); }
 }
 
-function Instate($target, $property, $value, $definition) { return $value }
+function Instate($target, $property, $value, $definition) {
+  const definition = $definition;
+  const parent = $target;
+  const path = ($target?.path) ? [
+    $target.path, $definition.name, $property
+  ].join('.') : [$definition.name, $property].join('.');
+  if($value && ValidClasses.includes($value.constructor)) {
+    $value.mount({ path, parent });
+  }
+  else if(Array.isArray($value)) {
+    const { Class } = definition;
+    if(Class.constructor === Model) {
+      const [properties, schema, options] = $value;
+      Object.assign(options, {
+        definition, parent, path
+      });
+      $value = new Class(properties, schema, options);
+    }
+    else if(ValidClasses.includes(Class)) {
+      if($value.length === 2) {
+        const [settings, options] = $value;
+        Object.assign(options, {
+          definition, parent, path
+        });
+        $value = new Class(settings, options);
+      }
+      if($value.length === 1) {
+        const [settings] = $value;
+        $value = new Class(settings);
+      }
+    }
+  }
+  return $value
+}
 function Deinstate($target, $property, $definition) { return }
 class Control extends MVCFrameworkCore {
   static propertyClasses = [{
-    name: "models", definitionValue: 'Object',
+    name: "models", targetType: 'Object',
     administer: "addModels", deadminister: "removeModels",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: Model,
   }, {
-    name: "views", definitionValue: 'Object',
+    name: "views", targetType: 'Object',
     administer: "addViews", deadminister: "removeViews",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: View,
   }, {
-    name: "controls", definitionValue: 'Object',
+    name: "controls", targetType: 'Object',
     administer: "addControls", deadminister: "removeControls",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: Control,
   }, {
-    name: "locationRouters", definitionValue: 'Object',
+    name: "locationRouters", targetType: 'Object',
     administer: "addLocationRouters", deadminister: "removeLocationRouters",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: LocationRouter,
   }, {
-    name: "fetchRouters", definitionValue: 'Object',
+    name: "fetchRouters", targetType: 'Object',
     administer: "addFetchRouters", deadminister: "removeFetchRouters",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: FetchRouter,
   }, {
-    name: "socketRouters", definitionValue: 'Object',
+    name: "socketRouters", targetType: 'Object',
     administer: "addSocketRouters", deadminister: "removeSocketRouters",
-    instate: Instate, deinstate: Deinstate,
+    instate: Instate, deinstate: Deinstate, Class: SocketRouter,
   }]
   constructor($settings = {}, $options = {}) {
     super(
@@ -7265,6 +7286,7 @@ class Control extends MVCFrameworkCore {
     );
   }
 }
+const ValidClasses = [Model, View, Control, LocationRouter, FetchRouter, SocketRouter];
 
 export { Control, MVCFrameworkCore as Core, index$2 as Coutil, FetchRouter, LocationRouter, MessageAdapter, Model, SocketRouter, Validation, Validator, Verification, View };
 //# sourceMappingURL=mvc-framework.js.map
