@@ -924,11 +924,7 @@ var Settings$7 = ($settings = {}) => {
 
 let EventDefinition$1 = class EventDefinition {
   #context
-  // #listener
   #enable = false
-  // #assigned = []
-  // #deassigned = []
-  // #transsigned = []
   #nontranssigned = []
   #_targets = []
   #_assign
@@ -2502,11 +2498,7 @@ var Settings$5 = ($settings = {}) => {
 
 class EventDefinition {
   #context
-  // #listener
   #enable = false
-  // #assigned = []
-  // #deassigned = []
-  // #transsigned = []
   #nontranssigned = []
   #_targets = []
   #_assign

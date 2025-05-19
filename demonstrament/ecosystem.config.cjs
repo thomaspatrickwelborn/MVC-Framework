@@ -15,13 +15,25 @@ const EcosystemConfig = {
     {
       name: "MVC-Framework-Demonstrament-Documents",
       script: "dpm",
+      args: "--config dpm.config.documents.js",
       watch: [
         "index.js",
         "package.json",
         "dpm.config.documents.js",
-        "ecosystem.config.cjs"
+        "ecosystem.config.cjs",
+        "../node_modules/core-plex/distributement",
+        "../node_modules/objecture/distributement",
+        "../node_modules/document-process-manager/development",
+        "../distributement",
       ],
-      args: "--config dpm.config.documents.js",
+      ignoreWatch: [
+        "!../node_modules/core-plex/distributement",
+        "!../node_modules/objecture/distributement",
+        "!../node_modules/document-process-manager/development",
+      ],
+      watch_options: {
+        followSymLinks: true,
+      },
       autorestart: false,
       execMode: "fork",
     },
