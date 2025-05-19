@@ -19,11 +19,7 @@ const EcosystemConfig = {
         "index.js",
         "package.json",
         "dpm.config.documents.js",
-        "ecosystem.config.cjs",
-        "static/dependencies//mvc-framework.js",
-        "node_modules/core-plex/distributement",
-        "node_modules/document-process-manager/development",
-        "node_modules/objecture/distributement",
+        "ecosystem.config.cjs"
       ],
       args: "--config dpm.config.documents.js",
       autorestart: false,
