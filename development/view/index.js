@@ -28,7 +28,9 @@ export default class View extends Core {
       },
     })
     this.addQuerySelectors(this.settings.querySelectors)
-    const { enableQuerySelectors, enableEvents } = this.options
+    const {
+      enableQuerySelectors, enableEvents
+    } = this.options
     if(enableQuerySelectors) this.enableQuerySelectors()
     if(enableEvents) this.enableEvents()
   }
@@ -58,7 +60,7 @@ export default class View extends Core {
     this.children = this.#template.content.children
     this.parentElement.append(...this.children.values())
     this.enableQuerySelectors()
-    this.reenableEvents({ enable: true })
+    this.retroReenableEvents()
   }
   get children() {
     if(this.#children !== undefined) return this.#children
@@ -138,8 +140,8 @@ export default class View extends Core {
     }
     return this
   }
-  render($model = {}, $template = 'default') {
-    this.#template = this.templates[$template]($model)
+  render($models = {}, $template = 'default') {
+    this.#template = this.templates[$template]($models)
     return this
   }
 }

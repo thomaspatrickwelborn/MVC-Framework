@@ -5,10 +5,7 @@ import Options from './options/index.js'
 export default class MVCFrameworkCore extends Core {
   static propertyClasses = []
   constructor($settings = {}, $options = {}) {
-    super({
-      events: $options.events || {},
-      enableEvents: $options.enableEvents || false, 
-      propertyDefinitions: $options.propertyDefinitions || {},
+    super(Object.assign({}, $options, {
       propertyDirectory: {
         accessors: [function objectAccessor($target, $property) {
           if($property === undefined) { return $target }
@@ -23,8 +20,12 @@ export default class MVCFrameworkCore extends Core {
           else { return $target.target[$property] }
         }],
       },
-    })
+    }))
+    const propertyClasses = []
     const addProperties = ($properties) => {
+      const propertyClassNames = propertyClasses.map(
+        ($propertyClass) => $propertyClass.name
+      )
       iteratePropertyClasses: 
       for(const $propertyClass of propertyClasses) {
         const { administer, name, targetType } = $propertyClass
@@ -39,7 +40,6 @@ export default class MVCFrameworkCore extends Core {
       }
       return this
     }
-    const propertyClasses = []
     let parent = null
     let path = null
     try {
@@ -62,11 +62,11 @@ export default class MVCFrameworkCore extends Core {
     catch($err) { console.error($err) }
     Object.defineProperties(this, {
       'settings': { value: Settings($settings) },
+      'options': { value: Options($options) },
       'definition': { get() { return definition } },
       'parent': { get() { return parent } },
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
-      'options': { value: Options($options) },
       'root': { get() {
         let root = this
         iterateParents: 
@@ -116,6 +116,7 @@ export default class MVCFrameworkCore extends Core {
                   $this[name][$propertyKey] = instate(
                     $this, $propertyKey, $propertyValue, $addPropertyClass
                   )
+                  $this.retroReenableEvents()
                 }
                 return $this
               }
@@ -135,6 +136,7 @@ export default class MVCFrameworkCore extends Core {
                     $this, $propertyKey, $addPropertyClass
                   )
                   delete $this[name][$propertyKey]
+                  $this.retroReenableEvents()
                 }
                 return $this
               }
@@ -167,6 +169,12 @@ export default class MVCFrameworkCore extends Core {
         return this
       } },
     })
+    if(this.settings.defineProperties) {
+      Object.defineProperties(this, this.settings.defineProperties)
+    }
+    if(this.settings.assign) {
+      Object.assign(this, this.settings.assign)
+    }
     if(this.options.propertyClasses) {
       this.addPropertyClasses(this.options.propertyClasses)
     }

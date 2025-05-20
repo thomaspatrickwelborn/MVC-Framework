@@ -944,11 +944,24 @@ let EventDefinition$1 = class EventDefinition {
       'deassigned': { value: deassigned },
       'transsigned': { value: transsigned },
       'listener':  { configurable: true, get() {
+        const typeOfListener = typeOf$8(settings.listener);
         let listener; 
-        if(settings.bindListener === true) {
-          listener = settings.listener.bind(this.#context);
+        if(typeOfListener === 'string') {
+          let listenerTarget = $context;
+          iterateListenerPathKeys: 
+          for(const $pathKey of settings.listener.split('.')) {
+            const value = listenerTarget[$pathKey];
+            if(value !== undefined) { listenerTarget = listenerTarget[$pathKey]; }
+            else { break iterateListenerPathKeys }
+          }
+          if(typeOf$8(listenerTarget) === 'function') {
+            listener = listenerTarget;
+          }
         }
         else { listener = settings.listener; }
+        if(settings.bindListener === true) {
+          listener = listener.bind(this.#context);
+        }
         Object.defineProperty(this, 'listener', { value: listener });
         return listener
       } }
@@ -1147,7 +1160,7 @@ let Core$1 = class Core extends EventTarget {
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'assign', 'deassign', 'transsign', 'propertyDirectory'
+              'assign', 'deassign', 'transsign', 'propertyDirectory', 'bindListener'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
@@ -1387,25 +1400,21 @@ var index$2 = /*#__PURE__*/Object.freeze({
   variables: variables$2
 });
 
-var Settings$6 = ($settings) => {
-  return Object.assign({}, $settings)
-};
+var Settings$6 = ($settings) => Object.assign({}, $settings);
 
 var Options$6 = ($options) => Object.assign({
   parent: null,
   path: null,
   enableEvents: true,
   definition: null,
+  propertyClasses: [],
 }, $options);
 
 const { typedObjectLiteral: typedObjectLiteral$f } = index$5;
 class MVCFrameworkCore extends Core$1 {
   static propertyClasses = []
   constructor($settings = {}, $options = {}) {
-    super({
-      events: $options.events || {},
-      enableEvents: $options.enableEvents || false, 
-      propertyDefinitions: $options.propertyDefinitions || {},
+    super(Object.assign({}, $options, {
       propertyDirectory: {
         accessors: [function objectAccessor($target, $property) {
           if($property === undefined) { return $target }
@@ -1420,8 +1429,12 @@ class MVCFrameworkCore extends Core$1 {
           else { return $target.target[$property] }
         }],
       },
-    });
+    }));
+    const propertyClasses = [];
     const addProperties = ($properties) => {
+      propertyClasses.map(
+        ($propertyClass) => $propertyClass.name
+      );
       iteratePropertyClasses: 
       for(const $propertyClass of propertyClasses) {
         const { administer, name, targetType } = $propertyClass;
@@ -1436,7 +1449,6 @@ class MVCFrameworkCore extends Core$1 {
       }
       return this
     };
-    const propertyClasses = [];
     let parent = null;
     let path = null;
     try {
@@ -1459,11 +1471,11 @@ class MVCFrameworkCore extends Core$1 {
     catch($err) { console.error($err); }
     Object.defineProperties(this, {
       'settings': { value: Settings$6($settings) },
+      'options': { value: Options$6($options) },
       'definition': { get() { return definition } },
       'parent': { get() { return parent } },
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
-      'options': { value: Options$6($options) },
       'root': { get() {
         let root = this;
         iterateParents: 
@@ -1511,6 +1523,7 @@ class MVCFrameworkCore extends Core$1 {
                   $this[name][$propertyKey] = instate(
                     $this, $propertyKey, $propertyValue, $addPropertyClass
                   );
+                  $this.retroReenableEvents();
                 }
                 return $this
               }
@@ -1530,6 +1543,7 @@ class MVCFrameworkCore extends Core$1 {
                     $this, $propertyKey, $addPropertyClass
                   );
                   delete $this[name][$propertyKey];
+                  $this.retroReenableEvents();
                 }
                 return $this
               }
@@ -1561,6 +1575,12 @@ class MVCFrameworkCore extends Core$1 {
         return this
       } },
     });
+    if(this.settings.defineProperties) {
+      Object.defineProperties(this, this.settings.defineProperties);
+    }
+    if(this.settings.assign) {
+      Object.assign(this, this.settings.assign);
+    }
     if(this.options.propertyClasses) {
       this.addPropertyClasses(this.options.propertyClasses);
     }
@@ -2518,11 +2538,24 @@ class EventDefinition {
       'deassigned': { value: deassigned },
       'transsigned': { value: transsigned },
       'listener':  { configurable: true, get() {
+        const typeOfListener = typeOf$6(settings.listener);
         let listener; 
-        if(settings.bindListener === true) {
-          listener = settings.listener.bind(this.#context);
+        if(typeOfListener === 'string') {
+          let listenerTarget = $context;
+          iterateListenerPathKeys: 
+          for(const $pathKey of settings.listener.split('.')) {
+            const value = listenerTarget[$pathKey];
+            if(value !== undefined) { listenerTarget[$pathKey] = value; }
+            else { break iterateListenerPathKeys }
+          }
+          if(typeOf$6(listenerTarget) === 'function') {
+            listener = listenerTarget;
+          }
         }
         else { listener = settings.listener; }
+        if(settings.bindListener === true) {
+          listener = listener.bind(this.#context);
+        }
         Object.defineProperty(this, 'listener', { value: listener });
         return listener
       } }
@@ -2721,7 +2754,7 @@ class Core extends EventTarget {
           for(let $addEvent of $addEvents) {
             const event = {};
             for(const $settingKey of [
-              'assign', 'deassign', 'transsign', 'propertyDirectory'
+              'assign', 'deassign', 'transsign', 'propertyDirectory', 'bindListener'
             ]) {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
@@ -6027,6 +6060,7 @@ var Settings$4 = ($settings) => recursiveAssign$g({
 
 var Options$4 = ($options) => Object.assign({
   events: false,
+  eventListeners: false,
   enableEvents: true,
   enableQuerySelectors: true,
 }, $options);
@@ -6055,7 +6089,9 @@ class View extends MVCFrameworkCore {
       },
     });
     this.addQuerySelectors(this.settings.querySelectors);
-    const { enableQuerySelectors, enableEvents } = this.options;
+    const {
+      enableQuerySelectors, enableEvents
+    } = this.options;
     if(enableQuerySelectors) this.enableQuerySelectors();
     if(enableEvents) this.enableEvents();
   }
@@ -6085,7 +6121,7 @@ class View extends MVCFrameworkCore {
     this.children = this.#template.content.children;
     this.parentElement.append(...this.children.values());
     this.enableQuerySelectors();
-    this.reenableEvents({ enable: true });
+    this.retroReenableEvents();
   }
   get children() {
     if(this.#children !== undefined) return this.#children
@@ -6164,26 +6200,27 @@ class View extends MVCFrameworkCore {
     }
     return this
   }
-  render($model = {}, $template = 'default') {
-    this.#template = this.templates[$template]($model);
+  render($models = {}, $template = 'default') {
+    this.#template = this.templates[$template]($models);
     return this
   }
 }
 
 var Settings$3 = ($settings) => {
-  return Object.assign({
+  const settings = Object.assign({
     models: {},
     views: {},
     controls: {},
     fetchRouters: {},
     locationRouters: {},
-  }, $settings)
+  }, $settings);
+  return settings
 };
 
 var Options$3 = ($options) => {
   const options = Object.assign({
     events: false,
-    enableEvents: false,
+    enableEvents: true,
   }, $options);
   return options
 };
@@ -7219,8 +7256,10 @@ function Instate($target, $property, $value, $definition) {
   }
   else if(Array.isArray($value)) {
     const { Class } = definition;
-    if(Class.constructor === Model) {
-      const [properties, schema, options] = $value;
+    if(Class === Model) {
+      let [properties, schema, options] = $value;
+      schema = schema || null;
+      options = options || {};
       Object.assign(options, {
         definition, parent, path
       });
@@ -7253,10 +7292,6 @@ class Control extends MVCFrameworkCore {
     administer: "addViews", deadminister: "removeViews",
     instate: Instate, deinstate: Deinstate, Class: View,
   }, {
-    name: "controls", targetType: 'Object',
-    administer: "addControls", deadminister: "removeControls",
-    instate: Instate, deinstate: Deinstate, Class: Control,
-  }, {
     name: "locationRouters", targetType: 'Object',
     administer: "addLocationRouters", deadminister: "removeLocationRouters",
     instate: Instate, deinstate: Deinstate, Class: LocationRouter,
@@ -7268,6 +7303,10 @@ class Control extends MVCFrameworkCore {
     name: "socketRouters", targetType: 'Object',
     administer: "addSocketRouters", deadminister: "removeSocketRouters",
     instate: Instate, deinstate: Deinstate, Class: SocketRouter,
+  }, {
+    name: "controls", targetType: 'Object',
+    administer: "addControls", deadminister: "removeControls",
+    instate: Instate, deinstate: Deinstate, Class: Control,
   }]
   constructor($settings = {}, $options = {}) {
     super(

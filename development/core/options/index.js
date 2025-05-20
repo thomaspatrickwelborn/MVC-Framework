@@ -3,4 +3,5 @@ export default ($options) => Object.assign({
   path: null,
   enableEvents: true,
   definition: null,
+  propertyClasses: [],
 }, $options)

@@ -1,151 +1,44 @@
-import { Model, View, Control, SocketRouter, LocationRouter } from '/dependencies/mvc-framework.js'
-/*
-const model = new Model([{
-      id: 0,
-      name: 'Some Item',
-      price: {
-        sign: '$',
-        value: 116.16,
-        currency: 'USD',
-      },
-      quantity: 1,
-    }, {
-      id: 1,
-      name: 'Some Other Item',
-      price: {
-        sign: '$',
-        value: 333.33,
-        currency: 'USD',
-      },
-      quantity: 1,
-    }], null, {
-  events: {
-    'setProperty': function($event) { console.log($event.type, $event) }
-  },
-  enableEvents: true,
-})
-console.log(model)
-*/
+import { Control } from '/dependencies/mvc-framework.js'
 const control = new Control({
   models: {
-    default: new Model([])
-  },
-  // views: {
-  //   default: new View(),
-  // },
-}, {
-  events: {
-    'models.default.** setProperty': function($event) { console.log($event.type, $event) },
-    // 'views.default.** setProperty': function($event) { console.log($event.type, $event) }
-  },
-  enableEvents: true,
-})
-const defaultModel = control.models.default
-console.log(control.getEvents())
-console.log("defaultModel", defaultModel)
-control.models.default.set([{
-  id: 0,
-  name: 'Some Item',
-  price: {
-    sign: '$',
-    value: 116.16,
-    currency: 'USD',
-  },
-  quantity: 1,
-}, {
-  id: 1,
-  name: 'Some Other Item',
-  price: {
-    sign: '$',
-    value: 333.33,
-    currency: 'USD',
-  },
-  quantity: 1,
-}])
-/*
-const control = new Control({
-  models: {
-    default: new Model([{
-      id: 0,
-      name: 'Some Item',
-      price: {
-        sign: '$',
-        value: 116.16,
-        currency: 'USD',
-      },
-      quantity: 1,
-    }, {
-      id: 1,
-      name: 'Some Other Item',
-      price: {
-        sign: '$',
-        value: 333.33,
-        currency: 'USD',
-      },
-      quantity: 1,
-    }])
+    ui: [{
+      application: { active: false }
+    }],
+    content: [[{}]],
   },
   views: {
-    default: new View(),
+    ui: [{
+      parentElement: document.querySelector('body'),
+      scope: 'template',
+      templates: { default: function DefaultTemplate($models) {
+        return `<application></application>`
+      } }
+    }, { autorender: true }],
+    querySelectors: {
+      querySelector: {
+        'application': ':scope > application'
+      }
+    },
   },
+  assign: {
+    listeners: {
+      uiModelSetProperty: function($event) {
+        console.log($event.type, $event.detail)
+      }
+    }
+  }
 }, {
-  // events: {
-  //   'models.default.** setProperty': function($event) { console.log($event.type, $event) },
-  //   // 'views.default.** setProperty': function($event) { console.log($event.type, $event) }
+  bindListener: true,
+  events: {
+    'models.ui setProperty': 'listeners.uiModelSetProperty',
+    'models.ui.** setProperty': 'listeners.uiModelSetProperty',
+  },
+  enableEvents: true,
+  // assign: {
   // },
-  // enableEvents: true,
 })
-console.log(control.models.default)
-
-control.removePropertyClasses('models')
-console.log(control.models?.default)
-console.log(control.models)
-control.addPropertyClasses([{
-  name: "models", definitionValue: 'Object',
-  administer: "addModels", deadminister: "removeModels",
-  instate: function Instate($target, $property, $value, $definition) { return $value }, deinstate: function Deinstate($target, $property, $definition) { return },
-}])
-control.addModels({
-  default: new Model([{
-    id: 0,
-    name: 'Some Item',
-    price: {
-      sign: '$',
-      value: 116.16,
-      currency: 'USD',
-    },
-    quantity: 1,
-  }, {
-    id: 1,
-    name: 'Some Other Item',
-    price: {
-      sign: '$',
-      value: 333.33,
-      currency: 'USD',
-    },
-    quantity: 1,
-  }])
+control.models.ui.set({
+  application: {
+    active: true
+  }
 })
-console.log(control.models?.default)
-console.log(control.models)
-control.removeModels(['default'])
-console.log(control.models?.default)
-console.log(control.models)
-
-
-
-// console.log(control)
-// control.enableEvents()
-// control.models.default.set('2', {
-//   id: 2,
-//   name: 'Yet Another Other Item',
-//   price: {
-//     sign: '$',
-//     value: 666.66,
-//     currency: 'USD',
-//   },
-//   quantity: 1,
-// })
-// console.log(control.models.default.valueOf())
-// console.log(control, control.getEvents())
-*/

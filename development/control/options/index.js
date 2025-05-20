@@ -1,7 +1,7 @@
 export default ($options) => {
   const options = Object.assign({
     events: false,
-    enableEvents: false,
+    enableEvents: true,
   }, $options)
   return options
 }

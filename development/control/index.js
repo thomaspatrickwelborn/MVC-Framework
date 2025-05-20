@@ -15,8 +15,10 @@ function Instate($target, $property, $value, $definition) {
   }
   else if(Array.isArray($value)) {
     const { Class } = definition
-    if(Class.constructor === Model) {
-      const [properties, schema, options] = $value
+    if(Class === Model) {
+      let [properties, schema, options] = $value
+      schema = schema || null
+      options = options || {}
       Object.assign(options, {
         definition, parent, path
       })
@@ -49,10 +51,6 @@ class Control extends Core {
     administer: "addViews", deadminister: "removeViews",
     instate: Instate, deinstate: Deinstate, Class: View,
   }, {
-    name: "controls", targetType: 'Object',
-    administer: "addControls", deadminister: "removeControls",
-    instate: Instate, deinstate: Deinstate, Class: Control,
-  }, {
     name: "locationRouters", targetType: 'Object',
     administer: "addLocationRouters", deadminister: "removeLocationRouters",
     instate: Instate, deinstate: Deinstate, Class: LocationRouter,
@@ -64,6 +62,10 @@ class Control extends Core {
     name: "socketRouters", targetType: 'Object',
     administer: "addSocketRouters", deadminister: "removeSocketRouters",
     instate: Instate, deinstate: Deinstate, Class: SocketRouter,
+  }, {
+    name: "controls", targetType: 'Object',
+    administer: "addControls", deadminister: "removeControls",
+    instate: Instate, deinstate: Deinstate, Class: Control,
   }]
   constructor($settings = {}, $options = {}) {
     super(

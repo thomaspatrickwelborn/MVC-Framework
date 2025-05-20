@@ -1,9 +1,10 @@
 export default ($settings) => {
-  return Object.assign({
+  const settings = Object.assign({
     models: {},
     views: {},
     controls: {},
     fetchRouters: {},
     locationRouters: {},
   }, $settings)
+  return settings
 }
