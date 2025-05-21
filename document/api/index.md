@@ -1,5 +1,5 @@
 | [MVC Framework](../README.md) | *API* |
 | :-- | :-- |
 # MVC Framework API
-| [Model Class](./model/index.md) | [View Class](./view/index.md) |
-| :-- | :-- |
+| [Model](./model/index.md) | [Schema](./schema/index.md) | [View](./view/index.md) | [Routers](./router/index.md) | [Control](./viecontrol/index.md) |
+| :-- | :-- | :-- | :-- | :-- |

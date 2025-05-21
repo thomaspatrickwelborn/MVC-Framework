@@ -33,6 +33,7 @@ MVC Framework Classes may be instantiated independently or interdependently.
 | R | Router | Window location router or fetch router. | [▶](./document/api/routers/index.md) | [▶](./document/guide/routers/index.md) |
 | R<sup>L</sup> | Router (Location) | Manage window location. | [▶](./document/api/routers/location/index.md) | [▶](./document/api/guide/location/index.md) |
 | R<sup>F</sup> | Router (Fetch) | Manage AJAX connection. | [▶](./document/api/routers/fetch/index.md) | [▶](./document/api/guide/fetch/index.md) |
+| R<sup>S</sup> | Router (Socket) | Manage Socket connection. | [▶](./document/api/routers/socket/index.md) | [▶](./document/api/guide/socket/index.md) |
 | C | Control | Manage Model, View, Control, Location/fetch Routers. | [▶](./document/api/control/index.md) | [▶](./document/guide/control/index.md) |
 
 ### Interdependent Class Structures

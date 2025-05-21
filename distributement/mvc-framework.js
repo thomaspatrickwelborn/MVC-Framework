@@ -61,10 +61,10 @@ const Objects$1 = {
   'object': Object,
   'array': Array,
 };
-const ObjectKeys$2 = Object.keys(Objects$1);
+const ObjectKeys$3 = Object.keys(Objects$1);
 const ObjectValues$1 = Object.values(Objects$1);
 const Types$1 = Object.assign({}, Primitives$1, Objects$1);
-const TypeKeys$2 = Object.keys(Types$1);
+const TypeKeys$3 = Object.keys(Types$1);
 const TypeValues$1 = Object.values(Types$1);
 const TypeMethods$1 = [
  Primitives$1.String, Primitives$1.Number, Primitives$1.Boolean, 
@@ -73,30 +73,30 @@ const TypeMethods$1 = [
 
 var index$1$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  ObjectKeys: ObjectKeys$2,
+  ObjectKeys: ObjectKeys$3,
   ObjectValues: ObjectValues$1,
   Objects: Objects$1,
   PrimitiveKeys: PrimitiveKeys$1,
   PrimitiveValues: PrimitiveValues$1,
   Primitives: Primitives$1,
-  TypeKeys: TypeKeys$2,
+  TypeKeys: TypeKeys$3,
   TypeMethods: TypeMethods$1,
   TypeValues: TypeValues$1,
   Types: Types$1
 });
 
-var regularExpressions$7 = {
+var regularExpressions$8 = {
   quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
 };
 
-const typeOf$8 = ($data) => Object
+const typeOf$9 = ($data) => Object
   .prototype
   .toString
   .call($data).slice(8, -1).toLowerCase();
 
 function subpaths$2($path) {
   return $path.split(
-    new RegExp(regularExpressions$7.quotationEscape)
+    new RegExp(regularExpressions$8.quotationEscape)
   )
 }
 function keypaths$2($path) {
@@ -119,9 +119,9 @@ function parse$3($path) {
   }
 }
 
-function typedObjectLiteral$j($value) {
+function typedObjectLiteral$k($value) {
   let _typedObjectLiteral;
-  const typeOfValue = typeOf$8($value);
+  const typeOfValue = typeOf$9($value);
   if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
   else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
   else if(typeOfValue === 'string') {
@@ -133,7 +133,7 @@ function typedObjectLiteral$j($value) {
 }
 
 function get$2($path, $source) {
-  const subpaths = $path.split(new RegExp(regularExpressions$7.quotationEscape));
+  const subpaths = $path.split(new RegExp(regularExpressions$8.quotationEscape));
   const key = subpaths.pop();
   let subtarget = $source;
   for(const $subpath of subpaths) { subtarget = subtarget[$subpath]; }
@@ -143,7 +143,7 @@ function set$2($path, $source) {
   const {
     keypaths, key, typeofRoot
   } = parse$3($path);
-  const target = typedObjectLiteral$j(typeofRoot);
+  const target = typedObjectLiteral$k(typeofRoot);
   let subtarget = target;
   for(const $subpath of keypaths) {
     if(Number($subpath)) { subtarget[$subpath] = []; }
@@ -155,13 +155,13 @@ function set$2($path, $source) {
 }
 
 function expandTree$2($source, $property) {
-  const typeOfProperty = typeOf$8($property);
-  const typeOfSource = typeOf$8($source);
+  const typeOfProperty = typeOf$9($property);
+  const typeOfSource = typeOf$9($source);
   if(
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$j($source);
+  let target = typedObjectLiteral$k($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = set$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
@@ -172,32 +172,32 @@ function expandTree$2($source, $property) {
   return target
 }
 
-function impandTree$2($source, $property) {
-  const typeOfProperty = typeOf$8($property);
-  const typeOfSource = typeOf$8($source);
+function impandTree$3($source, $property) {
+  const typeOfProperty = typeOf$9($property);
+  const typeOfSource = typeOf$9($source);
   if(
     !['string', 'function'].includes(typeOfProperty) ||
     !['array', 'object'].includes(typeOfSource)
   ) { return $source }
-  let target = typedObjectLiteral$j($source);
+  let target = typedObjectLiteral$k($source);
   for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
     if(typeOfProperty === 'string') { target[$sourceKey] = get$2($property, $sourceValue); }
     else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
     if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
-      target[$sourceKey] = impandTree$2(target[$sourceKey], $property);
+      target[$sourceKey] = impandTree$3(target[$sourceKey], $property);
     }
   }
   return target
 }
 
-const Options$7 = {
+const Options$8 = {
   depth: 0,
   maxDepth: 10,
   accessors: [accessors$1.default],
 };
 function propertyDirectory$1($object, $options) {
   const _propertyDirectory = [];
-  const options = Object.assign({}, Options$7, $options);
+  const options = Object.assign({}, Options$8, $options);
   options.depth++;
   if(options.depth > options.maxDepth) { return _propertyDirectory }
   iterateAccessors: 
@@ -240,8 +240,8 @@ function recursiveAssign$h($target, ...$sources) {
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf$8($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf$8($sourcePropertyValue);
+      const typeOfTargetPropertyValue = typeOf$9($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$9($sourcePropertyValue);
       if(
         typeOfTargetPropertyValue === 'object' &&
         typeOfSourcePropertyValue === 'object'
@@ -264,8 +264,8 @@ function recursiveAssignConcat$2($target, ...$sources) {
     for(const [
       $sourcePropertyKey, $sourcePropertyValue
     ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf$8($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf$8($sourcePropertyValue);
+      const typeOfTargetPropertyValue = typeOf$9($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$9($sourcePropertyValue);
       if( 
         typeOfTargetPropertyValue === 'object' &&
         typeOfSourcePropertyValue === 'object'
@@ -286,10 +286,10 @@ function recursiveAssignConcat$2($target, ...$sources) {
   return $target
 }
 
-function recursiveFreeze$2($target) {
+function recursiveFreeze$3($target) {
   for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
     if($propertyValue && typeof $propertyValue === 'object') {
-      recursiveFreeze$2($propertyValue);
+      recursiveFreeze$3($propertyValue);
     }
   }
   return Object.freeze($target)
@@ -300,1609 +300,15 @@ var index$5 = /*#__PURE__*/Object.freeze({
   accessors: accessors$1,
   expandEvents: expandEvents$1,
   expandTree: expandTree$2,
-  impandTree: impandTree$2,
+  impandTree: impandTree$3,
   propertyDirectory: propertyDirectory$1,
   recursiveAssign: recursiveAssign$h,
   recursiveAssignConcat: recursiveAssignConcat$2,
-  recursiveFreeze: recursiveFreeze$2,
-  regularExpressions: regularExpressions$7,
-  typeOf: typeOf$8,
-  typedObjectLiteral: typedObjectLiteral$j,
+  recursiveFreeze: recursiveFreeze$3,
+  regularExpressions: regularExpressions$8,
+  typeOf: typeOf$9,
+  typedObjectLiteral: typedObjectLiteral$k,
   variables: index$1$1
-});
-
-var Settings$1$2 = ($settings = {}) => {
-  const Settings = {
-    events: {},
-    enableEvents: false,
-    propertyDirectory: {
-      accessors: [accessors$1.default],
-      scopeKey: ':scope', 
-      maxDepth: 10,
-    },
-    propertyDefinitions: {
-      getEvents: 'getEvents',
-      addEvents: 'addEvents',
-      removeEvents: 'removeEvents',
-      enableEvents: 'enableEvents',
-      disableEvents: 'disableEvents',
-      reenableEvents: 'reenableEvents',
-      emitEvents: 'emitEvents',
-    },
-  };
-  for(const [$settingKey, $settingValue] of Object.entries($settings)) {
-    switch($settingKey) {
-      case 'propertyDefinitions':
-      case 'propertyDirectory':
-        Settings[$settingKey] = Object.assign(Settings[$settingKey], $settingValue);
-        break
-      default: 
-        Settings[$settingKey] = $settingValue;
-        break
-    }
-  }
-  return Settings
-};
-
-function handleNoCommaBraces$1(span) {
-    if (span.length < 3) {
-        return "{" + span + "}";
-    }
-    var separatorI = -1;
-    for (var i = 2; i < span.length; i++) {
-        if (span[i] === '.' && span[i - 1] === '.' && (i < 2 || span[i - 2] !== '\\')) {
-            if (separatorI > -1) {
-                return "{" + span + "}";
-            }
-            separatorI = i - 1;
-        }
-    }
-    if (separatorI > -1) {
-        var rangeStart = span.substr(0, separatorI);
-        var rangeEnd = span.substr(separatorI + 2);
-        if (rangeStart.length > 0 && rangeEnd.length > 0) {
-            return "[" + span.substr(0, separatorI) + "-" + span.substr(separatorI + 2) + "]";
-        }
-    }
-    return "{" + span + "}";
-}
-function expand$1(pattern) {
-    if (typeof pattern !== 'string') {
-        throw new TypeError("A pattern must be a string, but " + typeof pattern + " given");
-    }
-    var scanning = false;
-    var openingBraces = 0;
-    var closingBraces = 0;
-    var handledUntil = -1;
-    var results = [''];
-    var alternatives = [];
-    var span;
-    for (var i = 0; i < pattern.length; i++) {
-        var char = pattern[i];
-        if (char === '\\') {
-            i++;
-            continue;
-        }
-        if (char === '{') {
-            if (scanning) {
-                openingBraces++;
-            }
-            else if (i > handledUntil && !openingBraces) {
-                span = pattern.substring(handledUntil + 1, i);
-                for (var j = 0; j < results.length; j++) {
-                    results[j] += span;
-                }
-                alternatives = [];
-                handledUntil = i;
-                scanning = true;
-                openingBraces++;
-            }
-            else {
-                openingBraces--;
-            }
-        }
-        else if (char === '}') {
-            if (scanning) {
-                closingBraces++;
-            }
-            else if (closingBraces === 1) {
-                span = pattern.substring(handledUntil + 1, i);
-                if (alternatives.length > 0) {
-                    var newResults = [];
-                    alternatives.push(expand$1(span));
-                    for (var j = 0; j < results.length; j++) {
-                        for (var k = 0; k < alternatives.length; k++) {
-                            for (var l = 0; l < alternatives[k].length; l++) {
-                                newResults.push(results[j] + alternatives[k][l]);
-                            }
-                        }
-                    }
-                    results = newResults;
-                }
-                else {
-                    span = handleNoCommaBraces$1(span);
-                    for (var j = 0; j < results.length; j++) {
-                        results[j] += span;
-                    }
-                }
-                handledUntil = i;
-                closingBraces--;
-            }
-            else {
-                closingBraces--;
-            }
-        }
-        else if (!scanning && char === ',' && closingBraces - openingBraces === 1) {
-            span = pattern.substring(handledUntil + 1, i);
-            alternatives.push(expand$1(span));
-            handledUntil = i;
-        }
-        if (scanning && (closingBraces === openingBraces || i === pattern.length - 1)) {
-            scanning = false;
-            i = handledUntil - 1;
-        }
-    }
-    if (handledUntil === -1) {
-        return [pattern];
-    }
-    var unhandledFrom = pattern[handledUntil] === '{' ? handledUntil : handledUntil + 1;
-    if (unhandledFrom < pattern.length) {
-        span = pattern.substr(unhandledFrom);
-        for (var j = 0; j < results.length; j++) {
-            results[j] += span;
-        }
-    }
-    return results;
-}
-
-function negate$1(pattern, options) {
-    var supportNegation = options['!'] !== false;
-    var supportParens = options['()'] !== false;
-    var isNegated = false;
-    var i;
-    if (supportNegation) {
-        for (i = 0; i < pattern.length && pattern[i] === '!'; i++) {
-            if (supportParens && pattern[i + 1] === '(') {
-                i--;
-                break;
-            }
-            isNegated = !isNegated;
-        }
-        if (i > 0) {
-            pattern = pattern.substr(i);
-        }
-    }
-    return { pattern: pattern, isNegated: isNegated };
-}
-
-function escapeRegExpChar$1(char) { if (char === '-' ||
-    char === '^' ||
-    char === '$' ||
-    char === '+' ||
-    char === '.' ||
-    char === '(' ||
-    char === ')' ||
-    char === '|' ||
-    char === '[' ||
-    char === ']' ||
-    char === '{' ||
-    char === '}' ||
-    char === '*' ||
-    char === '?' ||
-    char === '\\') {
-    return "\\" + char;
-}
-else {
-    return char;
-} }
-function escapeRegExpString$1(str) {
-    var result = '';
-    for (var i = 0; i < str.length; i++) {
-        result += escapeRegExpChar$1(str[i]);
-    }
-    return result;
-}
-
-function Pattern$1(source, options, excludeDot) {
-    var separator = typeof options.separator === 'undefined' ? true : options.separator;
-    var separatorSplitter = '';
-    var separatorMatcher = '';
-    var wildcard = '.';
-    if (separator === true) {
-        separatorSplitter = '/';
-        separatorMatcher = '[/\\\\]';
-        wildcard = '[^/\\\\]';
-    }
-    else if (separator) {
-        separatorSplitter = separator;
-        separatorMatcher = escapeRegExpString$1(separatorSplitter);
-        if (separatorMatcher.length > 1) {
-            separatorMatcher = "(?:" + separatorMatcher + ")";
-            wildcard = "((?!" + separatorMatcher + ").)";
-        }
-        else {
-            wildcard = "[^" + separatorMatcher + "]";
-        }
-    }
-    else {
-        wildcard = '.';
-    }
-    var requiredSeparator = separator ? separatorMatcher + "+?" : '';
-    var optionalSeparator = separator ? separatorMatcher + "*?" : '';
-    var segments = separator ? source.split(separatorSplitter) : [source];
-    var support = {
-        qMark: options['?'] !== false,
-        star: options['*'] !== false,
-        globstar: separator && options['**'] !== false,
-        brackets: options['[]'] !== false,
-        extglobs: options['()'] !== false,
-        excludeDot: excludeDot && options.excludeDot !== false,
-    };
-    return {
-        source: source,
-        segments: segments,
-        options: options,
-        separator: separator,
-        separatorSplitter: separatorSplitter,
-        separatorMatcher: separatorMatcher,
-        optionalSeparator: optionalSeparator,
-        requiredSeparator: requiredSeparator,
-        wildcard: wildcard,
-        support: support,
-    };
-}
-function Segment$1(source, pattern, isFirst, isLast) { return {
-    source: source,
-    isFirst: isFirst,
-    isLast: isLast,
-    end: source.length - 1,
-}; }
-function Result$1() {
-return {
-    match: '',
-    unmatch: '',
-    useUnmatch: false,
-}; }
-function State$1(pattern, segment, result) { return {
-    pattern: pattern,
-    segment: segment,
-    result: result,
-    openingBracket: segment.end + 1,
-    closingBracket: -1,
-    openingParens: 0,
-    closingParens: 0,
-    parensHandledUntil: -1,
-    extglobModifiers: [],
-    scanningForParens: false,
-    escapeChar: false,
-    addToMatch: true,
-    addToUnmatch: pattern.support.extglobs,
-    dotHandled: false,
-    i: -1,
-    char: '',
-    nextChar: '',
-}; }
-
-var EXCLUDE_DOT_PATTERN$1 = '(?!\\.)';
-function add$1(state, addition, excludeDot) {
-    if (state.addToUnmatch) {
-        state.result.unmatch += addition;
-    }
-    if (state.addToMatch) {
-        if (excludeDot && !state.dotHandled) {
-            addition = EXCLUDE_DOT_PATTERN$1 + addition;
-        }
-        state.dotHandled = true;
-        state.result.match += addition;
-    }
-    return state.result;
-}
-function convertSegment$1(pattern, segment, result) {
-    var support = pattern.support;
-    var state = State$1(pattern, segment, result);
-    var separatorMatcher = segment.isLast
-        ? pattern.optionalSeparator
-        : pattern.requiredSeparator;
-    if (!support.excludeDot) {
-        state.dotHandled = true;
-    }
-    if (segment.end === -1) {
-        return segment.isLast && !segment.isFirst ? result : add$1(state, separatorMatcher);
-    }
-    if (support.globstar && segment.source === '**') {
-        var prefix = !state.dotHandled ? EXCLUDE_DOT_PATTERN$1 : '';
-        var globstarSegment = prefix + pattern.wildcard + "*?" + separatorMatcher;
-        return add$1(state, "(?:" + globstarSegment + ")*?");
-    }
-    while (++state.i <= segment.end) {
-        state.char = state.segment.source[state.i];
-        state.nextChar = state.i < segment.end ? segment.source[state.i + 1] : '';
-        if (state.char === '\\') {
-            if (state.i < state.segment.end) {
-                state.escapeChar = true;
-                continue;
-            }
-            else {
-                state.char = '';
-            }
-        }
-        var pattern = state.pattern, segment = state.segment, char = state.char, i = state.i;
-        if (pattern.support.brackets && !state.scanningForParens) {
-            if (i > state.openingBracket && i <= state.closingBracket) {
-                if (state.escapeChar) {
-                    add$1(state, escapeRegExpChar$1(char));
-                }
-                else if (i === state.closingBracket) {
-                    add$1(state, ']');
-                    state.openingBracket = segment.source.length;
-                }
-                else if (char === '-' && i === state.closingBracket - 1) {
-                    add$1(state, '\\-');
-                }
-                else if (char === '!' && i === state.openingBracket + 1) {
-                    add$1(state, '^');
-                }
-                else if (char === ']') {
-                    add$1(state, '\\]');
-                }
-                else {
-                    add$1(state, char);
-                }
-                state.escapeChar = false;
-                continue;
-            }
-            if (i > state.openingBracket) {
-                if (char === ']' &&
-                    !state.escapeChar &&
-                    i > state.openingBracket + 1 &&
-                    i > state.closingBracket) {
-                    state.closingBracket = i;
-                    state.i = state.openingBracket;
-                    if (pattern.separator) {
-                        add$1(state, "(?!" + pattern.separatorMatcher + ")[", true);
-                    }
-                    else {
-                        add$1(state, '[', true);
-                    }
-                }
-                else if (i === segment.end) {
-                    add$1(state, '\\[');
-                    state.i = state.openingBracket;
-                    state.openingBracket = segment.source.length;
-                    state.closingBracket = segment.source.length;
-                }
-                state.escapeChar = false;
-                continue;
-            }
-            if (char === '[' &&
-                !state.escapeChar &&
-                i > state.closingBracket &&
-                i < segment.end) {
-                state.openingBracket = i;
-                state.escapeChar = false;
-                continue;
-            }
-        }
-        if (state.pattern.support.extglobs) {
-            var extglobModifiers = state.extglobModifiers, char = state.char, nextChar = state.nextChar, i = state.i;
-            if (nextChar === '(' &&
-                !state.escapeChar &&
-                (char === '@' || char === '?' || char === '*' || char === '+' || char === '!')) {
-                if (state.scanningForParens) {
-                    state.openingParens++;
-                }
-                else if (i > state.parensHandledUntil && !state.closingParens) {
-                    state.parensHandledUntil = i;
-                    state.scanningForParens = true;
-                    state.openingParens++;
-                }
-                else if (state.closingParens >= state.openingParens) {
-                    if (char === '!') {
-                        state.addToMatch = true;
-                        state.addToUnmatch = false;
-                        add$1(state, state.pattern.wildcard + "*?", true);
-                        state.addToMatch = false;
-                        state.addToUnmatch = true;
-                        state.result.useUnmatch = true;
-                    }
-                    extglobModifiers.push(char);
-                    add$1(state, '(?:', true);
-                    state.openingParens--;
-                    state.i++;
-                    continue;
-                }
-                else {
-                    state.openingParens--;
-                }
-            }
-            else if (char === ')' && !state.escapeChar) {
-                if (state.scanningForParens) {
-                    state.closingParens++;
-                }
-                else if (extglobModifiers.length) {
-                    var modifier_1 = extglobModifiers.pop();
-                    if (modifier_1 === '!' && extglobModifiers.indexOf('!') !== -1) {
-                        throw new Error("Nested negated extglobs aren't supported");
-                    }
-                    modifier_1 = modifier_1 === '!' || modifier_1 === '@' ? '' : modifier_1;
-                    add$1(state, ")" + modifier_1);
-                    state.addToMatch = true;
-                    state.addToUnmatch = true;
-                    state.closingParens--;
-                    continue;
-                }
-            }
-            else if (char === '|' && state.closingParens &&
-                !state.scanningForParens &&
-                !state.escapeChar) {
-                add$1(state, '|');
-                continue;
-            }
-            if (state.scanningForParens) {
-                if (state.closingParens === state.openingParens || i === state.segment.end) {
-                    state.scanningForParens = false;
-                    state.i = state.parensHandledUntil - 1;
-                }
-                state.escapeChar = false;
-                continue;
-            }
-        }
-        var pattern = state.pattern;
-        var support = pattern.support;
-        if (!state.escapeChar && support.star && state.char === '*') {
-            if (state.i === state.segment.end || state.nextChar !== '*') {
-                add$1(state, pattern.wildcard + "*?", true);
-            }
-        }
-        else if (!state.escapeChar && support.qMark && state.char === '?') {
-            add$1(state, pattern.wildcard, true);
-        }
-        else {
-            add$1(state, escapeRegExpChar$1(state.char));
-        }
-        state.escapeChar = false;
-    }
-    return add$1(state, separatorMatcher);
-}
-function convert$1(source, options, excludeDot) {
-    var pattern = Pattern$1(source, options, excludeDot);
-    var result = Result$1();
-    var segments = pattern.segments;
-    for (var i = 0; i < segments.length; i++) {
-        var segment = Segment$1(segments[i], pattern, i === 0, i === segments.length - 1);
-        convertSegment$1(pattern, segment, result);
-    }
-    if (result.useUnmatch) {
-        return "(?!^" + result.unmatch + "$)" + result.match;
-    }
-    else {
-        return result.match;
-    }
-}
-
-function flatMap$1(array, predicate) {
-    var results = [];
-    for (var i = 0; i < array.length; i++) {
-        var mappedValue = predicate(array[i]);
-        for (var j = 0; j < mappedValue.length; j++) {
-            results.push(mappedValue[j]);
-        }
-    }
-    return results;
-}
-function compile$1(patterns, options) {
-    patterns = Array.isArray(patterns) ? patterns : [patterns];
-    if (options['{}'] !== false) {
-        patterns = flatMap$1(patterns, expand$1);
-    }
-    var positiveResults = [];
-    var negativeResults = [];
-    var result = '';
-    for (var i = 0; i < patterns.length; i++) {
-        var negatedPattern = negate$1(patterns[i], options);
-        var convertedPattern = convert$1(negatedPattern.pattern, options, !negatedPattern.isNegated);
-        if (negatedPattern.isNegated) {
-            negativeResults.push(convertedPattern);
-        }
-        else {
-            positiveResults.push(convertedPattern);
-        }
-    }
-    if (negativeResults.length) {
-        result = "(?!(?:" + negativeResults.join('|') + ")$)";
-    }
-    if (positiveResults.length > 1) {
-        result += "(?:" + positiveResults.join('|') + ")";
-    }
-    else if (positiveResults.length === 1) {
-        result += positiveResults[0];
-    }
-    else if (result.length) {
-        result += convert$1('**', options, true);
-    }
-    return "^" + result + "$";
-}
-function isMatch$1(regexp, sample) { if (typeof sample !== 'string') {
-    throw new TypeError("Sample must be a string, but " + typeof sample + " given");
-} return regexp.test(sample); }
-/**
- * Compiles one or more glob patterns into a RegExp and returns an isMatch function.
- * The isMatch function takes a sample string as its only argument and returns true
- * if the string matches the pattern(s).
- *
- * ```js
- * outmatch('src/*.js')('src/index.js') //=> true
- * ```
- *
- * ```js
- * const isMatch = outmatch('*.example.com', '.')
- * isMatch('foo.example.com') //=> true
- * isMatch('foo.bar.com') //=> false
- * ```
- */
-function outmatch$1(pattern, options) {
-    if (typeof pattern !== 'string' && !Array.isArray(pattern)) {
-        throw new TypeError("The first argument must be a single pattern string or an array of patterns, but " + typeof pattern + " given");
-    }
-    if (typeof options === 'string' || typeof options === 'boolean') {
-        options = { separator: options };
-    }
-    if (arguments.length === 2 &&
-        !(typeof options === 'undefined' ||
-            (typeof options === 'object' && options !== null && !Array.isArray(options)))) {
-        throw new TypeError("The second argument must be an options object or a string/boolean separator, but " + typeof options + " given");
-    }
-    options = options || {};
-    if (options.separator === '\\') {
-        throw new Error('\\ is not a valid separator');
-    }
-    var regexpPattern = compile$1(pattern, options);
-    var regexp = new RegExp(regexpPattern, options.flags);
-    var fn = isMatch$1.bind(null, regexp);
-    fn.options = options;
-    fn.pattern = pattern;
-    fn.regexp = regexp;
-    return fn;
-}
-
-var Settings$7 = ($settings = {}) => {
-  const Settings = {
-    enable: false,
-    assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
-    bindListener: true,
-    errorLog: false,
-    methods: {
-      assign: {
-        addEventListener: function addEventListener($eventDefinition, $target) {
-          const { type, listener, settings } = $eventDefinition;
-          const { options, useCapture } = settings;
-          return $target['addEventListener'](type, listener, options || useCapture)
-        },
-        on: function on($eventDefinition, $target) {
-          const { type, listener } = $eventDefinition;
-          return $target['on'](type, listener)
-        },
-        once: function once($eventDefinition, $target) {
-          const { type, listener } = $eventDefinition;
-          return $target['once'](type, listener)
-        },
-      }, 
-      deassign: {
-        removeEventListener: function removeEventListener($eventDefinition, $target) {
-          const { type, listener, settings } = $eventDefinition;
-          const { options, useCapture } = settings;
-          return $target['removeEventListener'](type, listener, options || useCapture)
-        },
-        off: function off($eventDefinition, $target) {
-          const { type, listener } = $eventDefinition;
-          return $target['off'](type, listener)
-        },
-      },
-      transsign: {
-        dispatchEvent: function dispatchEvent($eventDefinition, $target, $event) {
-          return $target['dispatchEvent']($event)
-        },
-        emit: function emit($eventDefinition, $target, $type, ...$arguments) {
-          return $target['emit']($type, ...$arguments)
-        },
-      },
-    },
-  };
-  for(const [$settingKey, $settingValue] of Object.entries($settings)) {
-    switch($settingKey) {
-      case 'methods': 
-        Settings[$settingKey] = recursiveAssign$h(Settings[$settingKey], $settingValue);
-        break
-      case 'enableEvents': break
-      default: 
-        Settings[$settingKey] = $settingValue;
-        break
-    }
-  }
-  return Settings
-};
-
-let EventDefinition$1 = class EventDefinition {
-  #context
-  #enable = false
-  #nontranssigned = []
-  #_targets = []
-  #_assign
-  #_deassign
-  #_transsign
-  constructor($settings, $context) { 
-    if(!$settings || !$context) { return this }
-    const settings = Settings$7($settings);
-    const assigned = [];
-    const deassigned = [];
-    const transsigned = [];
-    Object.defineProperties(this, {
-      'settings': { value: settings },
-      'path': { value: settings.path },
-      'type': { value: settings.type },
-      'assigned': { value: assigned },
-      'deassigned': { value: deassigned },
-      'transsigned': { value: transsigned },
-      'listener':  { configurable: true, get() {
-        const typeOfListener = typeOf$8(settings.listener);
-        let listener; 
-        if(typeOfListener === 'string') {
-          let listenerTarget = $context;
-          iterateListenerPathKeys: 
-          for(const $pathKey of settings.listener.split('.')) {
-            const value = listenerTarget[$pathKey];
-            if(value !== undefined) { listenerTarget = listenerTarget[$pathKey]; }
-            else { break iterateListenerPathKeys }
-          }
-          if(typeOf$8(listenerTarget) === 'function') {
-            listener = listenerTarget;
-          }
-        }
-        else { listener = settings.listener; }
-        if(settings.bindListener === true) {
-          listener = listener.bind(this.#context);
-        }
-        Object.defineProperty(this, 'listener', { value: listener });
-        return listener
-      } }
-    });
-    this.#context = $context;
-    this.enable = this.settings.enable;
-  }
-  get enable() { return this.#enable }
-  set enable($enable) {
-    const targets = this.#targets;
-    const assigned = this.assigned;
-    const deassigned = this.deassigned;
-    assigned.length = 0;
-    deassigned.length = 0;
-    iterateTargetElements: 
-    for(const $targetElement of targets) {
-      const { path, target, enable } = $targetElement;
-      this.settings;
-      if(enable === $enable) { continue iterateTargetElements }
-      if($enable === true) {
-        try {
-          this.#assign(target);
-          $targetElement.enable = $enable;
-          assigned.push($targetElement);
-          
-        }
-        catch($err) { if(this.settings.errorLog) { console.error($err); } }
-      }
-      else if($enable === false) {
-        try {
-          this.#deassign(target);
-          $targetElement.enable = $enable;
-          deassigned.push($targetElement);
-        }
-        catch($err) { if(this.settings.errorLog) { console.error($err); } }
-      }
-    }
-    this.#enable = $enable;
-  }
-  get #target() { return this.settings.target }
-  get #targets() {
-    const pretargets = this.#_targets;
-    const targets = [];
-    if(this.#target) {
-      for(const $target of [].concat(this.#target)) {
-        const pretargetElement = pretargets.find(
-          ($pretarget) => $pretarget?.path === this.path
-        );
-        if(pretargetElement !== undefined) {
-          targets.push(pretargetElement);
-        }
-        else if(pretargetElement === undefined) {ptargets.push({
-            path: this.path,
-            target: $target,
-            enable: false,
-          });
-        }
-      }
-    }
-    else if(typeOf$8(this.path) === 'string') {
-      const targetPaths = [];
-      if(this.path === this.#scopeKey) {
-        const targetElement = {
-          path: this.path,
-          target: this.#context,
-          enable: false,
-        };
-        targets.push(targetElement);
-      }
-      else {
-        if(this.settings.propertyDirectory) {
-          const propertyDirectory = this.#propertyDirectory;
-          const propertyPathMatcher = outmatch$1(this.path, {
-            separator: '.',
-          });
-          for(const [$propertyPath, $propertyValue] of propertyDirectory) {
-            const propertyPathMatch = propertyPathMatcher($propertyPath);
-            if(propertyPathMatch === true) { targetPaths.push([$propertyPath, $propertyValue]); }
-          }
-          if(this.path.charAt(0) === '*') {
-            targetPaths.unshift(this.#scopeKey);
-          }
-        }
-        else {
-          targetPaths.push(this.path);
-        }
-        for(const [$targetPath, $targetValue] of targetPaths) {
-          const pretargetElement = pretargets.find(
-            ($pretarget) => $pretarget.path === $targetPath
-          );
-          let target = $targetValue;
-          let targetElement;
-          if(target !== undefined) {
-            if(target === pretargetElement?.target) {
-              targetElement = pretargetElement;
-            }
-            else if(typeof target === 'object') {
-              targetElement = {
-                path: $targetPath,
-                target: target,
-                enable: false,
-              };
-            }
-          }
-          if(targetElement !== undefined) { targets.push(targetElement); }
-        }
-      }
-    }
-    this.#_targets = targets;
-    return this.#_targets
-  }
-  get #scopeKey() { return this.settings.propertyDirectory.scopeKey }
-  get #assign() {
-    if(this.#_assign !== undefined) { return this.#_assign }
-    this.#_assign = this.settings.methods.assign[this.settings.assign].bind(null, this);
-    return this.#_assign
-  }
-  get #deassign() {
-    if(this.#_deassign !== undefined) { return this.#_deassign }
-    this.#_deassign = this.settings.methods.deassign[this.settings.deassign].bind(null, this);
-    return this.#_deassign
-  }
-  get #transsign() {
-    if(this.#_transsign !== undefined) { return this.#_transsign }
-    this.#_transsign = this.settings.methods.transsign[this.settings.transsign].bind(null, this);
-    return this.#_transsign
-  }
-  get #propertyDirectory() {
-    if(!this.settings.propertyDirectory) { return null }
-    const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
-    return propertyDirectory$1(this.#context, propertyDirectorySettings)
-  }
-  emit() {
-    const targets = this.#targets;
-    const transsigned = this.transsigned;
-    const nontranssigned = this.#nontranssigned;
-    transsigned.length = 0;
-    nontranssigned.length = 0;
-    for(const $targetElement of targets) {
-      const { target } = $targetElement;
-      try {
-        this.#transsign(target, ...arguments);
-        transsigned.push($targetElement);
-      }
-      catch($err) { nontranssigned.push($targetElement); }
-    }
-    return this
-  }
-};
-
-let Core$1 = class Core extends EventTarget {
-  static implement = function ($target, $settings) {
-    if(!$target || !$settings) { return undefined }
-    const settings = Settings$1$2($settings);
-    const events = [];
-    Object.defineProperties($target, {
-      [settings.propertyDefinitions.getEvents]: {
-        enumerable: false, writable: false, 
-        value: function getEvents() {
-          if(!arguments[0]) { return events }
-          const getEvents = [];
-          const $filterEvents = [].concat(arguments[0]);
-          for(const $filterEvent of $filterEvents) {
-            for(const $event of events) {
-              let match;
-              iterateEventFilterProperties: 
-              for(const [
-                $filterEventPropertyKey, $filterEventPropertyValue
-              ] of Object.entries($filterEvent)) {
-                let eventFilterMatch;
-                if($filterEventPropertyKey === 'listener') {
-                  eventFilterMatch = (
-                    $event.settings[$filterEventPropertyKey] === $filterEventPropertyValue
-                  );
-                }
-                else {
-                  eventFilterMatch = (
-                    $event[$filterEventPropertyKey] === $filterEventPropertyValue
-                  );
-                }
-                if(match !== false) { match = eventFilterMatch; }
-                else { break iterateEventFilterProperties }
-              }
-              if(match === true) { getEvents.push($event); }
-            }
-          }
-          return getEvents
-        }
-      },
-      [settings.propertyDefinitions.addEvents]: {
-        enumerable: false, writable: false, 
-        value: function addEvents() {
-          if(!arguments.length) { return $target }
-          let $addEvents = expandEvents$1(arguments[0], settings.propertyDirectory.scopeKey);
-          let $enableEvents = arguments[1] || false;
-          for(let $addEvent of $addEvents) {
-            const event = {};
-            for(const $settingKey of [
-              'assign', 'deassign', 'transsign', 'propertyDirectory', 'bindListener'
-            ]) {
-              const settingValue = settings[$settingKey];
-              if(settingValue !== undefined) { event[$settingKey] = settingValue; }
-            }
-            recursiveAssign$h(event, $addEvent);
-            const eventDefinition = new EventDefinition$1(event, $target);
-            if($enableEvents) { eventDefinition.enable = true; }
-            events.push(eventDefinition);
-          }
-          return $target
-        },
-      },
-      [settings.propertyDefinitions.removeEvents]: {
-        enumerable: false, writable: false, 
-        value: function removeEvents() {
-          const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
-          if($events.length === 0) return $target
-          let eventsIndex = events.length - 1;
-          while(eventsIndex > -1) {
-            const event = events[eventsIndex];
-            if($events.includes(event)) {
-              event.enable = false;
-              events.splice(eventsIndex, 1);
-            }
-            eventsIndex--;
-          }
-          return $target
-        }
-      },
-      [settings.propertyDefinitions.enableEvents]: {
-        enumerable: false, writable: false, 
-        value: function enableEvents() {
-          const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
-          if($events.length === 0) return $target
-          for(const $event of $events) { $event.enable = true; }
-          return $target
-        },
-      },
-      [settings.propertyDefinitions.disableEvents]: {
-        enumerable: false, writable: false, 
-        value: function disableEvents() {
-          const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
-          if($events.length === 0) return $target
-          for(const $event of $events) { $event.enable = false; }
-          return $target
-        },
-      },
-      [settings.propertyDefinitions.reenableEvents]: {
-        enumerable: false, writable: false, 
-        value: function reenableEvents() {
-          const $events = $target[settings.propertyDefinitions.getEvents](arguments[0]);
-          for(const $event of $events) {
-            $event.enable = false;
-            $event.enable = true;
-          }
-          return $target
-        },
-      },
-      [settings.propertyDefinitions.emitEvents]: {
-        enumerable: false, writable: false, 
-        value: function emitEvents($filterEvents, ...$eventParameters) {
-          const $events = $target[settings.propertyDefinitions.getEvents]($filterEvents);
-          for(const $event of $events) {
-            $event.emit(...$eventParameters);
-          }
-          return $target
-        },
-      },
-    });
-    if(settings.events) { $target[settings.propertyDefinitions.addEvents](settings.events); }
-    if(settings.enableEvents === true) { $target[settings.propertyDefinitions.enableEvents](); }
-    return $target
-  }
-  constructor($settings = {}) {
-    super();
-    return Core.implement(this, $settings)
-  }
-};
-
-const { regularExpressions: regularExpressions$6 } = index$5;
-function subpaths$1($path) {
-  return $path.split(
-    new RegExp(regularExpressions$6.quotationEscape)
-  )
-}
-function keypaths$1($path) {
-  const _subpaths = subpaths$1($path);
-  _subpaths.pop();
-  return _subpaths
-}
-function key$1($path) {
-  return subpaths$1($path).pop()
-}
-function root$1($path) {
-  return subpaths$1($path).shift()
-}
-function typeofRoot$1($path) {
-  return (Number(root$1($path))) ? 'array' : 'object'
-}
-function parse$2($path) {
-  return {
-    subpaths: subpaths$1($path),
-    keypaths: keypaths$1($path),
-    key: key$1($path),
-    root: root$1($path),
-    typeofRoot: typeofRoot$1($path),
-  }
-}
-
-var index$4 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  key: key$1,
-  keypaths: keypaths$1,
-  parse: parse$2,
-  root: root$1,
-  subpaths: subpaths$1,
-  typeofRoot: typeofRoot$1
-});
-
-const { regularExpressions: regularExpressions$5, typedObjectLiteral: typedObjectLiteral$i } = index$5;
-function get$1($path, $value) {
-  const subpaths = $path.split(new RegExp(regularExpressions$5.quotationEscape));
-  const key = subpaths.pop();
-  const tree = $value;
-  let treeNode = tree;
-  for(const $subpath of subpaths) {
-    treeNode = treeNode[$subpath];
-  }
-  return treeNode[key]
-}
-function set$1($path, $value) {
-  const {
-    keypaths, key, typeofRoot
-  } = parse$2($path);
-  const tree = typedObjectLiteral$i(typeofRoot);
-  let treeNode = tree;
-  for(const $subpath of keypaths) {
-    if(Number($subpath)) { treeNode[$subpath] = []; }
-    else { treeNode[$subpath] = {}; }
-    treeNode = treeNode[$subpath];
-  }
-  treeNode[key] = $value;
-  return tree
-}
-
-var index$3 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  get: get$1,
-  set: set$1
-});
-
-const { typedObjectLiteral: typedObjectLiteral$h, variables: variables$3 } = index$5;
-
-function expandTree$1($root, $tree) {
-  const typeofRoot = typeof $root;
-  const typeofTree = typeof $tree;
-  if(
-    !['string', 'function'].includes(typeofTree)
-  ) { return undefined }
-  let tree;
-  if($root && typeofRoot === 'object') {
-    for(const [$rootKey, $rootValue] of Object.entries($root)) {
-      if(typeofTree === 'string') { tree = set$1($tree, $rootValue); }
-      else if(typeofTree === 'function') { tree = $tree($rootValue); }
-    }
-  }
-  else {
-    if(typeofTree === 'string') { tree = set$1($tree, $root); }
-    else if(typeofTree === 'function') { tree = $tree($root); }
-  }
-  return tree
-}
-
-function keytree($object) {
-  const target = [];
-  for(const [$key, $value] of Object.entries($object)) {
-    if(typeof $value === 'object') {
-      target.push([$key, keytree($value)]);
-    }
-    else {
-      target.push($key);
-    }
-  }
-  return target
-}
-
-function objectCount($object) {
-  if($object && typeof $object !== 'object') return undefined 
-  let count = 1;
-  for(const [$key, $value] of Object.entries($object)) {
-    if(typeof $value === 'object') { count += objectCount($value); }
-  }
-  return count
-}
-
-function pathkeytree($object) {
-  const target = [];
-  for(const [$key, $value] of Object.entries($object)) {
-    target.push($key);
-    if(typeof $value === 'object') {
-      const subtarget = pathkeytree($value);
-      for(const $subtarget of subtarget) {
-        let path;
-        if(typeof $subtarget === 'object') {
-          path = [$key, ...$subtarget].join('.');
-        }
-        else {
-          path = [$key, $subtarget].join('.');
-        }
-        target.push(path);
-      }
-    }
-  }
-  return target
-}
-
-const {
-  isPropertyDefinition,
-  recursiveAssign: recursiveAssign$g, recursiveAssignConcat: recursiveAssignConcat$1, regularExpressions: regularExpressions$4, 
-  typedObjectLiteral: typedObjectLiteral$g, typeOf: typeOf$7, 
-  variables: variables$2
-} = index$5;
-
-var index$2 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  expandTree: expandTree$1,
-  isPropertyDefinition: isPropertyDefinition,
-  keytree: keytree,
-  objectCount: objectCount,
-  path: index$4,
-  pathkeytree: pathkeytree,
-  recursiveAssign: recursiveAssign$g,
-  recursiveAssignConcat: recursiveAssignConcat$1,
-  regularExpressions: regularExpressions$4,
-  tree: index$3,
-  typedObjectLiteral: typedObjectLiteral$g,
-  variables: variables$2
-});
-
-var Settings$6 = ($settings) => Object.assign({}, $settings);
-
-var Options$6 = ($options) => Object.assign({
-  parent: null,
-  path: null,
-  enableEvents: true,
-  definition: null,
-  propertyClasses: [],
-}, $options);
-
-const { typedObjectLiteral: typedObjectLiteral$f } = index$5;
-class MVCFrameworkCore extends Core$1 {
-  static propertyClasses = []
-  constructor($settings = {}, $options = {}) {
-    super(Object.assign({}, $options, {
-      propertyDirectory: {
-        accessors: [function objectAccessor($target, $property) {
-          if($property === undefined) { return $target }
-          else { return $target[$property] }
-        }, function mapAccessor($target, $property) {
-          if($target instanceof Map === true) {
-            if($property === undefined) { return Object.fromEntries($target) }
-            else { return $target.get($property) }
-          }
-        }, function objectureAccessor($target, $property) {
-          if($property === undefined) { return $target.target }
-          else { return $target.target[$property] }
-        }],
-      },
-    }));
-    const propertyClasses = [];
-    const addProperties = ($properties) => {
-      propertyClasses.map(
-        ($propertyClass) => $propertyClass.name
-      );
-      iteratePropertyClasses: 
-      for(const $propertyClass of propertyClasses) {
-        const { administer, name, targetType } = $propertyClass;
-        if(!targetType) { continue iteratePropertyClasses }
-        if($properties[name] === undefined) { continue iteratePropertyClasses }
-        if(targetType !== undefined) {
-          this[administer](this.settings[name]);
-        }
-        else if(this.settings[name] !== undefined) {
-          this[name] = this.settings[name];
-        }
-      }
-      return this
-    };
-    let parent = null;
-    let path = null;
-    try {
-      Object.defineProperty(this, 'mount', { value: function($mount) {
-        const mountParent = $mount.parent;
-        const mountPath = $mount.path;
-        const property = (mountPath) ? mountPath.split('.').pop() : mountPath;
-        if(parent) { parent.unmount(property); }
-        parent = mountParent;
-        path = mountPath;
-      } });
-    }
-    catch($err) { console.error($err); }
-    try {
-      Object.defineProperty(this, 'unmount', { value: function($unmount) {
-        const unmountPath = $unmount.path;
-        delete this[$property];
-      } });
-    }
-    catch($err) { console.error($err); }
-    Object.defineProperties(this, {
-      'settings': { value: Settings$6($settings) },
-      'options': { value: Options$6($options) },
-      'definition': { get() { return definition } },
-      'parent': { get() { return parent } },
-      'path': { get() { return path } },
-      'key': { get() { return (path) ? path.pop() : path } },
-      'root': { get() {
-        let root = this;
-        iterateParents: 
-        while(root) {
-          if([undefined, null].includes(root.parent)) { break iterateParents }
-          root = root.parent;
-        }
-        return root
-      } },
-      'retroReenableEvents': { value: function() {
-        let core = this;
-        while(core) {
-          core.reenableEvents({ enable: true });
-          core = core.parent;
-        }
-        return this
-      } },
-      'addPropertyClasses': { value: function() {
-        const $this = this;
-        let $addPropertyClasses = (arguments.length === 0)
-          ? this.options.propertyClasses
-          : [].concat(...arguments);
-        iteratePropertyClasses: 
-        for(const $addPropertyClass of $addPropertyClasses) {
-          if(!$addPropertyClass.targetType) {
-            propertyClasses.push($addPropertyClass);
-            continue iteratePropertyClasses
-          }
-          const {
-            name,
-            administer, deadminister,
-            instate, deinstate,
-            targetType, definition,
-          } = $addPropertyClass;
-          Object.defineProperties(this, {
-            [name]: {
-              configurable: true, enumerable: true, writable: true,
-              value: typedObjectLiteral$f(targetType)
-            }, 
-            [administer]: {
-              configurable: true, enumerable: false, writable: false, 
-              value: function($properties) {
-                if(!$this[name]) { $this[name] = typedObjectLiteral$f(targetType); }
-                for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
-                  $this[name][$propertyKey] = instate(
-                    $this, $propertyKey, $propertyValue, $addPropertyClass
-                  );
-                  $this.retroReenableEvents();
-                }
-                return $this
-              }
-            },
-            [deadminister]: {
-              configurable: true, enumerable: false, writable: false, 
-              value: function(...$arguments) {
-                let properties;
-                if($arguments.length === 0) {
-                  properties = Object.keys($this[name]).reverse();
-                }
-                else {
-                  properties = [].concat(...$arguments).reverse();
-                }
-                for(const $propertyKey of properties) {
-                  deinstate(
-                    $this, $propertyKey, $addPropertyClass
-                  );
-                  delete $this[name][$propertyKey];
-                  $this.retroReenableEvents();
-                }
-                return $this
-              }
-            },
-          });
-          propertyClasses.push($addPropertyClass);
-        }
-        return this
-      } },
-      'removePropertyClasses': { value: function(...$arguments) {
-        let $removePropertyClasses;
-        if($arguments.length === 0) {
-          $removePropertyClasses = propertyClasses.reduce(($propertyClasses, propertyClass) => {
-            $propertyClasses.push($propertyClass.name);
-            return $propertyClasses
-          }, []);
-        }
-        else {
-          $removePropertyClasses = [].concat(...$arguments);
-        }
-        for(const $removePropertyClass of $removePropertyClasses) {
-          const propertyClassIndex = propertyClasses.findIndex(
-            ($propertyClass) => $propertyClass.name === $removePropertyClass
-          );
-          const { name, deadminister } = propertyClasses.splice(propertyClassIndex, 1)[0];
-          this[deadminister]();
-          delete this[name];
-        }
-        return this
-      } },
-    });
-    if(this.settings.defineProperties) {
-      Object.defineProperties(this, this.settings.defineProperties);
-    }
-    if(this.settings.assign) {
-      Object.assign(this, this.settings.assign);
-    }
-    if(this.options.propertyClasses) {
-      this.addPropertyClasses(this.options.propertyClasses);
-    }
-    this.mount({
-      parent: this.options.parent,
-      path: this.options.path
-    });
-    addProperties(this.settings);
-  }
-}
-
-const defaultAccessor = ($target, $property) => {
-  if($property === undefined) { return $target }
-  else { return $target[$property] }
-};
-const getAccessor = ($target, $property) => {
-  if($property === undefined) { return $target }
-  else { return $target.get($property) }
-};
-var accessors = {
-  default: defaultAccessor,
-  get: getAccessor,
-};
-
-function expandEvents($propEvents, $scopeKey = ':scope') {
-  if(
-    Array.isArray($propEvents) ||
-    $propEvents === undefined
-  ) { return $propEvents }
-  const propEvents = [];
-  for(const [
-    $propEventSettings, $propEventListener
-  ] of Object.entries($propEvents)) {
-    const propEventSettings = $propEventSettings.trim().split(' ');
-    let path, type, listener;
-    if(propEventSettings.length === 1) {
-      path = $scopeKey;
-      type = propEventSettings[0];
-    }
-    else if(propEventSettings.length > 1) {
-      path = propEventSettings[0];
-      type = propEventSettings[1];
-    }
-    if(Array.isArray($propEventListener)) {
-      listener = $propEventListener[0];
-      $propEventListener[1];
-    }
-    else {
-      listener = $propEventListener;
-    }
-    const propEvent = {
-      type,
-      path,
-      listener,
-      enable: false,
-    };
-    propEvents.push(propEvent);
-  }
-  return propEvents
-}
-
-const Primitives = {
-  'string': String, 
-  'number': Number, 
-  'boolean': Boolean, 
-  'undefined': undefined,
-  'null': null,
-};
-const PrimitiveKeys = Object.keys(Primitives);
-const PrimitiveValues = Object.values(Primitives);
-const Objects = {
-  'object': Object,
-  'array': Array,
-};
-const ObjectKeys$1 = Object.keys(Objects);
-const ObjectValues = Object.values(Objects);
-const Types = Object.assign({}, Primitives, Objects);
-const TypeKeys$1 = Object.keys(Types);
-const TypeValues = Object.values(Types);
-const TypeMethods = [
- Primitives.String, Primitives.Number, Primitives.Boolean, 
- Objects.Object, Objects.Array
-];
-
-var index$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ObjectKeys: ObjectKeys$1,
-  ObjectValues: ObjectValues,
-  Objects: Objects,
-  PrimitiveKeys: PrimitiveKeys,
-  PrimitiveValues: PrimitiveValues,
-  Primitives: Primitives,
-  TypeKeys: TypeKeys$1,
-  TypeMethods: TypeMethods,
-  TypeValues: TypeValues,
-  Types: Types
-});
-
-var regularExpressions$3 = {
-  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
-};
-
-const typeOf$6 = ($data) => Object
-  .prototype
-  .toString
-  .call($data).slice(8, -1).toLowerCase();
-
-function subpaths($path) {
-  return $path.split(
-    new RegExp(regularExpressions$3.quotationEscape)
-  )
-}
-function keypaths($path) {
-  const _subpaths = subpaths($path);
-  _subpaths.pop();
-  return _subpaths
-}
-function key($path) { return subpaths($path).pop() }
-function root($path) { return subpaths($path).shift() }
-function typeofRoot($path) { return (
-  Number(root($path))
-) ? 'array' : 'object' }
-function parse$1($path) {
-  return {
-    subpaths: subpaths($path),
-    keypaths: keypaths($path),
-    key: key($path),
-    root: root($path),
-    typeofRoot: typeofRoot($path),
-  }
-}
-
-function typedObjectLiteral$e($value) {
-  let _typedObjectLiteral;
-  const typeOfValue = typeOf$6($value);
-  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
-  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
-  else if(typeOfValue === 'string') {
-    if($value?.toLowerCase() === 'object') { _typedObjectLiteral = {}; }
-    else if($value?.toLowerCase() === 'array') { _typedObjectLiteral = []; }
-  }
-  else { _typedObjectLiteral = undefined; }
-  return _typedObjectLiteral
-}
-
-function get($path, $source) {
-  const subpaths = $path.split(new RegExp(regularExpressions$3.quotationEscape));
-  const key = subpaths.pop();
-  let subtarget = $source;
-  for(const $subpath of subpaths) { subtarget = subtarget[$subpath]; }
-  return subtarget[key]
-}
-function set($path, $source) {
-  const {
-    keypaths, key, typeofRoot
-  } = parse$1($path);
-  const target = typedObjectLiteral$e(typeofRoot);
-  let subtarget = target;
-  for(const $subpath of keypaths) {
-    if(Number($subpath)) { subtarget[$subpath] = []; }
-    else { subtarget[$subpath] = {}; }
-    subtarget = subtarget[$subpath];
-  }
-  subtarget[key] = $source;
-  return target
-}
-
-function expandTree($source, $property) {
-  const typeOfProperty = typeOf$6($property);
-  const typeOfSource = typeOf$6($source);
-  if(
-    !['string', 'function'].includes(typeOfProperty) ||
-    !['array', 'object'].includes(typeOfSource)
-  ) { return $source }
-  let target = typedObjectLiteral$e($source);
-  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
-    if(typeOfProperty === 'string') { target[$sourceKey] = set($property, $sourceValue); }
-    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
-    if(target[$sourceKey][$property] && typeof target[$sourceKey][$property] === 'object') {
-      target[$sourceKey][$property] = expandTree(target[$sourceKey][$property], $property);
-    }
-  }
-  return target
-}
-
-function impandTree$1($source, $property) {
-  const typeOfProperty = typeOf$6($property);
-  const typeOfSource = typeOf$6($source);
-  if(
-    !['string', 'function'].includes(typeOfProperty) ||
-    !['array', 'object'].includes(typeOfSource)
-  ) { return $source }
-  let target = typedObjectLiteral$e($source);
-  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
-    if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
-    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
-    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
-      target[$sourceKey] = impandTree$1(target[$sourceKey], $property);
-    }
-  }
-  return target
-}
-
-const Options$2$1 = {
-  depth: 0,
-  maxDepth: 10,
-  accessors: [accessors.default],
-};
-function propertyDirectory($object, $options) {
-  const _propertyDirectory = [];
-  const options = Object.assign({}, Options$2$1, $options);
-  options.depth++;
-  if(options.depth > options.maxDepth) { return _propertyDirectory }
-  iterateAccessors: 
-  for(const $accessor of options.accessors) {
-    const accessor = $accessor.bind($object);
-    const object = accessor($object);
-    if(!object) continue iterateAccessors
-    for(const [$key, $value] of Object.entries(object)) {
-      if(!options.values) { _propertyDirectory.push($key); }
-      else if(options.values) { _propertyDirectory.push([$key, $value]); }
-      if(
-        typeof $value === 'object' &&
-        $value !== null &&
-        $value !== object
-      ) {
-        const subtargets = propertyDirectory($value, options);
-        if(!options.values) {
-          for(const $subtarget of subtargets) {
-            const path = [$key, $subtarget].join('.');
-            _propertyDirectory.push(path);
-          }
-        }
-        else if(options.values) {
-          for(const [$subtargetKey, $subtarget] of subtargets) {
-            const path = [$key, $subtargetKey].join('.');
-            _propertyDirectory.push([path, $subtarget]);
-          }
-        }
-      }
-    }
-  }
-  return _propertyDirectory
-}
-
-function recursiveAssign$f($target, ...$sources) {
-  if(!$target) { return $target}
-  iterateSources: 
-  for(const $source of $sources) {
-    if(!$source) continue iterateSources
-    for(const [
-      $sourcePropertyKey, $sourcePropertyValue
-    ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf$6($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf$6($sourcePropertyValue);
-      if(
-        typeOfTargetPropertyValue === 'object' &&
-        typeOfSourcePropertyValue === 'object'
-      ) {
-        $target[$sourcePropertyKey] = recursiveAssign$f($target[$sourcePropertyKey], $sourcePropertyValue);
-      }
-      else {
-        $target[$sourcePropertyKey] = $sourcePropertyValue;
-      }
-    }
-  }
-  return $target
-}
-
-function recursiveAssignConcat($target, ...$sources) {
-  if(!$target) { return $target}
-  iterateSources: 
-  for(const $source of $sources) {
-    if(!$source) continue iterateSources
-    for(const [
-      $sourcePropertyKey, $sourcePropertyValue
-    ] of Object.entries($source)) {
-      const typeOfTargetPropertyValue = typeOf$6($target[$sourcePropertyKey]);
-      const typeOfSourcePropertyValue = typeOf$6($sourcePropertyValue);
-      if( 
-        typeOfTargetPropertyValue === 'object' &&
-        typeOfSourcePropertyValue === 'object'
-      ) {
-        $target[$sourcePropertyKey] = recursiveAssignConcat($target[$sourcePropertyKey], $sourcePropertyValue);
-      }
-      else if(
-        typeOfTargetPropertyValue === 'array' &&
-        typeOfSourcePropertyValue === 'array'
-      ) {
-        $target[$sourcePropertyKey] = $target[$sourcePropertyKey].concat($sourcePropertyValue);
-      }
-      else {
-        $target[$sourcePropertyKey] = $sourcePropertyValue;
-      }
-    }
-  }
-  return $target
-}
-
-function recursiveFreeze$1($target) {
-  for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
-    if($propertyValue && typeof $propertyValue === 'object') {
-      recursiveFreeze$1($propertyValue);
-    }
-  }
-  return Object.freeze($target)
-}
-
-var index = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  accessors: accessors,
-  expandEvents: expandEvents,
-  expandTree: expandTree,
-  impandTree: impandTree$1,
-  propertyDirectory: propertyDirectory,
-  recursiveAssign: recursiveAssign$f,
-  recursiveAssignConcat: recursiveAssignConcat,
-  recursiveFreeze: recursiveFreeze$1,
-  regularExpressions: regularExpressions$3,
-  typeOf: typeOf$6,
-  typedObjectLiteral: typedObjectLiteral$e,
-  variables: index$1
 });
 
 var Settings$1$1 = ($settings = {}) => {
@@ -1910,7 +316,7 @@ var Settings$1$1 = ($settings = {}) => {
     events: {},
     enableEvents: false,
     propertyDirectory: {
-      accessors: [accessors.default],
+      accessors: [accessors$1.default],
       scopeKey: ':scope', 
       maxDepth: 10,
     },
@@ -2459,7 +865,7 @@ function outmatch(pattern, options) {
     return fn;
 }
 
-var Settings$5 = ($settings = {}) => {
+var Settings$6 = ($settings = {}) => {
   const Settings = {
     enable: false,
     assign: 'addEventListener', deassign: 'removeEventListener', transsign: 'dispatchEvent',
@@ -2505,7 +911,7 @@ var Settings$5 = ($settings = {}) => {
   for(const [$settingKey, $settingValue] of Object.entries($settings)) {
     switch($settingKey) {
       case 'methods': 
-        Settings[$settingKey] = recursiveAssign$f(Settings[$settingKey], $settingValue);
+        Settings[$settingKey] = recursiveAssign$h(Settings[$settingKey], $settingValue);
         break
       case 'enableEvents': break
       default: 
@@ -2526,7 +932,7 @@ class EventDefinition {
   #_transsign
   constructor($settings, $context) { 
     if(!$settings || !$context) { return this }
-    const settings = Settings$5($settings);
+    const settings = Settings$6($settings);
     const assigned = [];
     const deassigned = [];
     const transsigned = [];
@@ -2538,17 +944,17 @@ class EventDefinition {
       'deassigned': { value: deassigned },
       'transsigned': { value: transsigned },
       'listener':  { configurable: true, get() {
-        const typeOfListener = typeOf$6(settings.listener);
+        const typeOfListener = typeOf$9(settings.listener);
         let listener; 
         if(typeOfListener === 'string') {
           let listenerTarget = $context;
           iterateListenerPathKeys: 
           for(const $pathKey of settings.listener.split('.')) {
             const value = listenerTarget[$pathKey];
-            if(value !== undefined) { listenerTarget[$pathKey] = value; }
+            if(value !== undefined) { listenerTarget = listenerTarget[$pathKey]; }
             else { break iterateListenerPathKeys }
           }
-          if(typeOf$6(listenerTarget) === 'function') {
+          if(typeOf$9(listenerTarget) === 'function') {
             listener = listenerTarget;
           }
         }
@@ -2615,7 +1021,7 @@ class EventDefinition {
         }
       }
     }
-    else if(typeOf$6(this.path) === 'string') {
+    else if(typeOf$9(this.path) === 'string') {
       const targetPaths = [];
       if(this.path === this.#scopeKey) {
         const targetElement = {
@@ -2686,7 +1092,7 @@ class EventDefinition {
   get #propertyDirectory() {
     if(!this.settings.propertyDirectory) { return null }
     const propertyDirectorySettings = Object.assign(this.settings.propertyDirectory, { values: true });
-    return propertyDirectory(this.#context, propertyDirectorySettings)
+    return propertyDirectory$1(this.#context, propertyDirectorySettings)
   }
   emit() {
     const targets = this.#targets;
@@ -2749,7 +1155,7 @@ class Core extends EventTarget {
         enumerable: false, writable: false, 
         value: function addEvents() {
           if(!arguments.length) { return $target }
-          let $addEvents = expandEvents(arguments[0], settings.propertyDirectory.scopeKey);
+          let $addEvents = expandEvents$1(arguments[0], settings.propertyDirectory.scopeKey);
           let $enableEvents = arguments[1] || false;
           for(let $addEvent of $addEvents) {
             const event = {};
@@ -2759,7 +1165,7 @@ class Core extends EventTarget {
               const settingValue = settings[$settingKey];
               if(settingValue !== undefined) { event[$settingKey] = settingValue; }
             }
-            recursiveAssign$f(event, $addEvent);
+            recursiveAssign$h(event, $addEvent);
             const eventDefinition = new EventDefinition(event, $target);
             if($enableEvents) { eventDefinition.enable = true; }
             events.push(eventDefinition);
@@ -2834,7 +1240,359 @@ class Core extends EventTarget {
   }
 }
 
-class Verification extends EventTarget {
+const { regularExpressions: regularExpressions$7 } = index$5;
+function subpaths$1($path) {
+  return $path.split(
+    new RegExp(regularExpressions$7.quotationEscape)
+  )
+}
+function keypaths$1($path) {
+  const _subpaths = subpaths$1($path);
+  _subpaths.pop();
+  return _subpaths
+}
+function key$1($path) {
+  return subpaths$1($path).pop()
+}
+function root$1($path) {
+  return subpaths$1($path).shift()
+}
+function typeofRoot$1($path) {
+  return (Number(root$1($path))) ? 'array' : 'object'
+}
+function parse$2($path) {
+  return {
+    subpaths: subpaths$1($path),
+    keypaths: keypaths$1($path),
+    key: key$1($path),
+    root: root$1($path),
+    typeofRoot: typeofRoot$1($path),
+  }
+}
+
+var index$4 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  key: key$1,
+  keypaths: keypaths$1,
+  parse: parse$2,
+  root: root$1,
+  subpaths: subpaths$1,
+  typeofRoot: typeofRoot$1
+});
+
+const { regularExpressions: regularExpressions$6, typedObjectLiteral: typedObjectLiteral$j } = index$5;
+function get$1($path, $value) {
+  const subpaths = $path.split(new RegExp(regularExpressions$6.quotationEscape));
+  const key = subpaths.pop();
+  const tree = $value;
+  let treeNode = tree;
+  for(const $subpath of subpaths) {
+    treeNode = treeNode[$subpath];
+  }
+  return treeNode[key]
+}
+function set$1($path, $value) {
+  const {
+    keypaths, key, typeofRoot
+  } = parse$2($path);
+  const tree = typedObjectLiteral$j(typeofRoot);
+  let treeNode = tree;
+  for(const $subpath of keypaths) {
+    if(Number($subpath)) { treeNode[$subpath] = []; }
+    else { treeNode[$subpath] = {}; }
+    treeNode = treeNode[$subpath];
+  }
+  treeNode[key] = $value;
+  return tree
+}
+
+var index$3 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  get: get$1,
+  set: set$1
+});
+
+const { typedObjectLiteral: typedObjectLiteral$i, variables: variables$4 } = index$5;
+
+function expandTree$1($root, $tree) {
+  const typeofRoot = typeof $root;
+  const typeofTree = typeof $tree;
+  if(
+    !['string', 'function'].includes(typeofTree)
+  ) { return undefined }
+  let tree;
+  if($root && typeofRoot === 'object') {
+    for(const [$rootKey, $rootValue] of Object.entries($root)) {
+      if(typeofTree === 'string') { tree = set$1($tree, $rootValue); }
+      else if(typeofTree === 'function') { tree = $tree($rootValue); }
+    }
+  }
+  else {
+    if(typeofTree === 'string') { tree = set$1($tree, $root); }
+    else if(typeofTree === 'function') { tree = $tree($root); }
+  }
+  return tree
+}
+
+function keytree($object) {
+  const target = [];
+  for(const [$key, $value] of Object.entries($object)) {
+    if(typeof $value === 'object') {
+      target.push([$key, keytree($value)]);
+    }
+    else {
+      target.push($key);
+    }
+  }
+  return target
+}
+
+function objectCount($object) {
+  if($object && typeof $object !== 'object') return undefined 
+  let count = 1;
+  for(const [$key, $value] of Object.entries($object)) {
+    if(typeof $value === 'object') { count += objectCount($value); }
+  }
+  return count
+}
+
+function pathkeytree($object) {
+  const target = [];
+  for(const [$key, $value] of Object.entries($object)) {
+    target.push($key);
+    if(typeof $value === 'object') {
+      const subtarget = pathkeytree($value);
+      for(const $subtarget of subtarget) {
+        let path;
+        if(typeof $subtarget === 'object') {
+          path = [$key, ...$subtarget].join('.');
+        }
+        else {
+          path = [$key, $subtarget].join('.');
+        }
+        target.push(path);
+      }
+    }
+  }
+  return target
+}
+
+const {
+  isPropertyDefinition,
+  recursiveAssign: recursiveAssign$g, recursiveAssignConcat: recursiveAssignConcat$1, regularExpressions: regularExpressions$5, 
+  typedObjectLiteral: typedObjectLiteral$h, typeOf: typeOf$8, 
+  variables: variables$3
+} = index$5;
+
+var index$2 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  expandTree: expandTree$1,
+  isPropertyDefinition: isPropertyDefinition,
+  keytree: keytree,
+  objectCount: objectCount,
+  path: index$4,
+  pathkeytree: pathkeytree,
+  recursiveAssign: recursiveAssign$g,
+  recursiveAssignConcat: recursiveAssignConcat$1,
+  regularExpressions: regularExpressions$5,
+  tree: index$3,
+  typedObjectLiteral: typedObjectLiteral$h,
+  variables: variables$3
+});
+
+var Settings$5 = ($settings) => Object.assign({}, $settings);
+
+var Options$7 = ($options) => Object.assign({
+  parent: null,
+  path: null,
+  enableEvents: true,
+  definition: null,
+  propertyClasses: [],
+}, $options);
+
+const { typedObjectLiteral: typedObjectLiteral$g } = index$5;
+class MVCFrameworkCore extends Core {
+  static propertyClasses = []
+  constructor($settings = {}, $options = {}) {
+    super(Object.assign({}, $options, {
+      propertyDirectory: {
+        accessors: [function objectAccessor($target, $property) {
+          if($property === undefined) { return $target }
+          else { return $target[$property] }
+        }, function mapAccessor($target, $property) {
+          if($target instanceof Map === true) {
+            if($property === undefined) { return Object.fromEntries($target) }
+            else { return $target.get($property) }
+          }
+        }, function objectureAccessor($target, $property) {
+          if($property === undefined) { return $target.target }
+          else { return $target.target[$property] }
+        }],
+      },
+    }));
+    const propertyClasses = [];
+    const addProperties = ($properties) => {
+      propertyClasses.map(
+        ($propertyClass) => $propertyClass.name
+      );
+      iteratePropertyClasses: 
+      for(const $propertyClass of propertyClasses) {
+        const { administer, name, targetType } = $propertyClass;
+        if(!targetType) { continue iteratePropertyClasses }
+        if($properties[name] === undefined) { continue iteratePropertyClasses }
+        if(targetType !== undefined) {
+          this[administer](this.settings[name]);
+        }
+        else if(this.settings[name] !== undefined) {
+          this[name] = this.settings[name];
+        }
+      }
+      return this
+    };
+    let parent = null;
+    let path = null;
+    try {
+      Object.defineProperty(this, 'mount', { value: function($mount) {
+        const mountParent = $mount.parent;
+        const mountPath = $mount.path;
+        const property = (mountPath) ? mountPath.split('.').pop() : mountPath;
+        if(parent) { parent.unmount(property); }
+        parent = mountParent;
+        path = mountPath;
+      } });
+    }
+    catch($err) { console.error($err); }
+    try {
+      Object.defineProperty(this, 'unmount', { value: function($unmount) {
+        const unmountPath = $unmount.path;
+        delete this[$property];
+      } });
+    }
+    catch($err) { console.error($err); }
+    Object.defineProperties(this, {
+      'settings': { value: Settings$5($settings) },
+      'options': { value: Options$7($options) },
+      'definition': { get() { return definition } },
+      'parent': { get() { return parent } },
+      'path': { get() { return path } },
+      'key': { get() { return (path) ? path.pop() : path } },
+      'root': { get() {
+        let root = this;
+        iterateParents: 
+        while(root) {
+          if([undefined, null].includes(root.parent)) { break iterateParents }
+          root = root.parent;
+        }
+        return root
+      } },
+      'retroReenableEvents': { value: function() {
+        let core = this;
+        while(core) {
+          core.reenableEvents({ enable: true });
+          core = core.parent;
+        }
+        return this
+      } },
+      'addPropertyClasses': { value: function() {
+        const $this = this;
+        let $addPropertyClasses = (arguments.length === 0)
+          ? this.options.propertyClasses
+          : [].concat(...arguments);
+        iteratePropertyClasses: 
+        for(const $addPropertyClass of $addPropertyClasses) {
+          if(!$addPropertyClass.targetType) {
+            propertyClasses.push($addPropertyClass);
+            continue iteratePropertyClasses
+          }
+          const {
+            name,
+            administer, deadminister,
+            instate, deinstate,
+            targetType, definition,
+          } = $addPropertyClass;
+          Object.defineProperties(this, {
+            [name]: {
+              configurable: true, enumerable: true, writable: true,
+              value: typedObjectLiteral$g(targetType)
+            }, 
+            [administer]: {
+              configurable: true, enumerable: false, writable: false, 
+              value: function($properties) {
+                if(!$this[name]) { $this[name] = typedObjectLiteral$g(targetType); }
+                for(const [$propertyKey, $propertyValue] of Object.entries($properties)) {
+                  $this[name][$propertyKey] = instate(
+                    $this, $propertyKey, $propertyValue, $addPropertyClass
+                  );
+                  $this.retroReenableEvents();
+                }
+                return $this
+              }
+            },
+            [deadminister]: {
+              configurable: true, enumerable: false, writable: false, 
+              value: function(...$arguments) {
+                let properties;
+                if($arguments.length === 0) {
+                  properties = Object.keys($this[name]).reverse();
+                }
+                else {
+                  properties = [].concat(...$arguments).reverse();
+                }
+                for(const $propertyKey of properties) {
+                  deinstate(
+                    $this, $propertyKey, $addPropertyClass
+                  );
+                  delete $this[name][$propertyKey];
+                  $this.retroReenableEvents();
+                }
+                return $this
+              }
+            },
+          });
+          propertyClasses.push($addPropertyClass);
+        }
+        return this
+      } },
+      'removePropertyClasses': { value: function(...$arguments) {
+        let $removePropertyClasses;
+        if($arguments.length === 0) {
+          $removePropertyClasses = propertyClasses.reduce(($propertyClasses, propertyClass) => {
+            $propertyClasses.push($propertyClass.name);
+            return $propertyClasses
+          }, []);
+        }
+        else {
+          $removePropertyClasses = [].concat(...$arguments);
+        }
+        for(const $removePropertyClass of $removePropertyClasses) {
+          const propertyClassIndex = propertyClasses.findIndex(
+            ($propertyClass) => $propertyClass.name === $removePropertyClass
+          );
+          const { name, deadminister } = propertyClasses.splice(propertyClassIndex, 1)[0];
+          this[deadminister]();
+          delete this[name];
+        }
+        return this
+      } },
+    });
+    if(this.settings.defineProperties) {
+      Object.defineProperties(this, this.settings.defineProperties);
+    }
+    if(this.settings.assign) {
+      Object.assign(this, this.settings.assign);
+    }
+    if(this.options.propertyClasses) {
+      this.addPropertyClasses(this.options.propertyClasses);
+    }
+    this.mount({
+      parent: this.options.parent,
+      path: this.options.path
+    });
+    addProperties(this.settings);
+  }
+}
+
+let Verification$1 = class Verification extends EventTarget {
   constructor($settings) {
     super();
     const settings = Object.assign({}, $settings);
@@ -2857,21 +1615,21 @@ class Verification extends EventTarget {
       },
     });
   }
-}
+};
 
-const { typedObjectLiteral: typedObjectLiteral$d } = index;
-const Messages$1 = {
+const { typedObjectLiteral: typedObjectLiteral$d$1 } = index$5;
+const Messages$1$1 = {
   'true': ($validation) => `${$validation.valid}`,
   'false': ($validation) => `${$validation.valid}`,
 };
-function report($format = "expand", $prevalidation) {
+function report$1($format = "expand", $prevalidation) {
   const prevalidation = $prevalidation || this;
   const schema = prevalidation.schema;
   const validations = [].concat(
     prevalidation.advance, prevalidation.deadvance, prevalidation.unadvance
   );
   if($format === "expand") {
-    const _report = typedObjectLiteral$d(schema.type);
+    const _report = typedObjectLiteral$d$1(schema.type);
     for(const $validation of validations) {
       const verifications = [].concat(
         $validation.advance, $validation.deadvance, $validation.unadvance
@@ -2891,7 +1649,7 @@ function report($format = "expand", $prevalidation) {
   }
   if($format === "impand") {
     if(prevalidation.valid === false) { return false }
-    const _report = typedObjectLiteral$d(schema.type);
+    const _report = typedObjectLiteral$d$1(schema.type);
     for(const $validation of validations) {
       const verifications = [].concat(
         $validation.advance, $validation.deadvance, $validation.unadvance
@@ -2912,10 +1670,10 @@ function report($format = "expand", $prevalidation) {
     return _report
   }
 }
-class Validation extends EventTarget {
+let Validation$1 = class Validation extends EventTarget {
   constructor($settings = {}, $schema) {
     super();
-    const settings = Object.assign({ messages: Messages$1 }, $settings);
+    const settings = Object.assign({ messages: Messages$1$1 }, $settings);
     let valid;
     const advance = [];
     const deadvance = [];
@@ -2936,24 +1694,24 @@ class Validation extends EventTarget {
         set valid($valid) { Object.defineProperty(this, 'valid', { value: $valid }); }
       },
       'report': { configurable: true, get() {
-        const _report = report.bind(this);
+        const _report = report$1.bind(this);
         Object.defineProperty(this, 'report', { value: _report });
         return _report
       } },
     });
   }
-}
+};
 
-const { recursiveAssign: recursiveAssign$e } = index;
-const Messages = {
+const { recursiveAssign: recursiveAssign$e$1 } = index$5;
+const Messages$2 = {
   'true': ($verification) => `${$verification.pass}`,
   'false': ($verification) => `${$verification.pass}`,
 };
-class Validator extends EventTarget {
+let Validator$1 = class Validator extends EventTarget {
   constructor($definition = {}, $schema) {
     super();
     const definition = Object.freeze(
-      Object.assign({ messages: Messages }, $definition)
+      Object.assign({ messages: Messages$2 }, $definition)
     );
     Object.defineProperties(this, {
       'definition': { value: definition },
@@ -2963,11 +1721,11 @@ class Validator extends EventTarget {
       'validate': { configurable: true, get() {
         function validate($key, $value, $source, $target) {
           const { definition, messages, type } = this;
-          let verification = new Verification({
+          let verification = new Verification$1({
             type: type,
             key: $key,
             value: definition.value,
-            messages: recursiveAssign$e({}, messages, definition.messages),
+            messages: recursiveAssign$e$1({}, messages, definition.messages),
           });
           const validation = definition.validate(...arguments);
           if(typeof validation === 'object') {
@@ -2985,10 +1743,10 @@ class Validator extends EventTarget {
       } },
     });
   }
-}
+};
 
-const { recursiveAssign: recursiveAssign$d, typedObjectLiteral: typedObjectLiteral$c } = index;
-class RequiredValidator extends Validator {
+const { recursiveAssign: recursiveAssign$d$1, typedObjectLiteral: typedObjectLiteral$c$1 } = index$5;
+class RequiredValidator extends Validator$1 {
   constructor($definition, $schema) {
     super(Object.assign({}, $definition, {
       type: 'required',
@@ -2996,7 +1754,7 @@ class RequiredValidator extends Validator {
         const { requiredProperties, requiredPropertiesSize, type } = $schema;
         const corequiredProperties = Object.assign({}, requiredProperties);
         let corequiredPropertiesSize = requiredPropertiesSize;
-        Object.assign(typedObjectLiteral$c(type), $source, $target);
+        Object.assign(typedObjectLiteral$c$1(type), $source, $target);
         this.definition;
         let pass;
         if(!requiredPropertiesSize) { pass = true; }
@@ -3021,27 +1779,27 @@ class RequiredValidator extends Validator {
   }
 }
 
-const { typeOf: typeOf$5, variables: variables$1 } = index;
-const { ObjectKeys, TypeKeys } = variables$1;
-class TypeValidator extends Validator {
+const { typeOf: typeOf$5$1, variables: variables$1$1 } = index$5;
+const { ObjectKeys: ObjectKeys$2, TypeKeys: TypeKeys$2 } = variables$1$1;
+class TypeValidator extends Validator$1 {
   constructor($definition = {}, $schema) {
     super(Object.assign({}, $definition, {
       type: 'type',
       validate: ($key, $value, $source, $target) => {
         let pass;
         const definition = this.definition;
-        let typeOfDefinitionValue = typeOf$5(definition.value);
+        let typeOfDefinitionValue = typeOf$5$1(definition.value);
         if(typeOfDefinitionValue === 'function') {
-          typeOfDefinitionValue = typeOf$5(definition.value());
+          typeOfDefinitionValue = typeOf$5$1(definition.value());
         }
         else if(definition.value instanceof Schema) {
           typeOfDefinitionValue = definition.value.type;
         }
         else {
-          typeOfDefinitionValue = typeOf$5(definition.value);
+          typeOfDefinitionValue = typeOf$5$1(definition.value);
         }
-        if(TypeKeys.includes(typeOfDefinitionValue)) {
-          const typeOfValue = typeOf$5($value);
+        if(TypeKeys$2.includes(typeOfDefinitionValue)) {
+          const typeOfValue = typeOf$5$1($value);
           if(typeOfValue === 'undefined') { pass = false; }
           else if(typeOfDefinitionValue === 'undefined') { pass = true; }
           else if(definition.value instanceof Schema) {
@@ -3057,7 +1815,7 @@ class TypeValidator extends Validator {
   }
 }
 
-class RangeValidator extends Validator {
+class RangeValidator extends Validator$1 {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'range',
@@ -3081,7 +1839,7 @@ class RangeValidator extends Validator {
   }
 }
 
-class LengthValidator extends Validator {
+class LengthValidator extends Validator$1 {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'length',
@@ -3109,7 +1867,7 @@ class LengthValidator extends Validator {
   }
 }
 
-class EnumValidator extends Validator {
+class EnumValidator extends Validator$1 {
   constructor($definition = {}, $schema) {
     super(Object.assign($definition, {
       type: 'enum',
@@ -3129,7 +1887,7 @@ class EnumValidator extends Validator {
   }
 }
 
-class MatchValidator extends Validator {
+class MatchValidator extends Validator$1 {
   constructor($settings = {}, $schema) {
     super(Object.assign($settings, {
       type: 'match',
@@ -3149,7 +1907,7 @@ class MatchValidator extends Validator {
   }
 }
 
-const { recursiveAssign: recursiveAssign$c } = index;
+const { recursiveAssign: recursiveAssign$c$1 } = index$5;
 var Options$1$1 = (...$options) => Object.assign({
   required: false,
   verificationType: 'all', 
@@ -3161,14 +1919,14 @@ var Options$1$1 = (...$options) => Object.assign({
   },
 }, ...$options);
 
-const { typedObjectLiteral: typedObjectLiteral$b, typeOf: typeOf$4, variables } = index;
+const { typedObjectLiteral: typedObjectLiteral$b$1, typeOf: typeOf$4$1, variables: variables$2 } = index$5;
 
 class Schema extends EventTarget {
   constructor($properties = {}, $options = {}) {
     super();
     Object.defineProperties(this, {
       'options': { value: Options$1$1($options) },
-      'type': { value: typeOf$4($properties) },
+      'type': { value: typeOf$4$1($properties) },
       'parent': { configurable: true, get() {
         const { options } = this;
         const parent = (options.parent) ? options.parent : null;
@@ -3204,7 +1962,7 @@ class Schema extends EventTarget {
         return required
       } },
       'requiredProperties': { configurable: true, get() {
-        const requiredProperties = typedObjectLiteral$b(this.type);
+        const requiredProperties = typedObjectLiteral$b$1(this.type);
         for(const [$propertyKey, $propertyDefinition] of Object.entries(this.target)) {
           if($propertyDefinition.required?.value === true) {
             requiredProperties[$propertyKey] = $propertyDefinition;
@@ -3234,9 +1992,9 @@ class Schema extends EventTarget {
       } },
       'validate': { value: function(...$arguments) {
         let { $sourceName, $source, $target } = parseValidateArguments(...$arguments);
-        $target = $target || typedObjectLiteral$b($source);
+        $target = $target || typedObjectLiteral$b$1($source);
         const { target, path, required, type, verificationType } = this;
-        let validation = new Validation({
+        let validation = new Validation$1({
           required, verificationType,
           definition: target,
           key: $sourceName, 
@@ -3264,7 +2022,7 @@ class Schema extends EventTarget {
         let propertyDefinition;
         if(type === 'array') { propertyDefinition = target[0]; }
         else if(type === 'object') { propertyDefinition = target[$key]; }
-        const propertyValidation = new Validation({
+        const propertyValidation = new Validation$1({
           required,
           verificationType,
           definition: propertyDefinition,
@@ -3272,7 +2030,7 @@ class Schema extends EventTarget {
           value: $value,
         }, this);
         if(propertyDefinition === undefined) {
-          const verification = new Verification({
+          const verification = new Verification$1({
             type: null,
             definition: null,
             key: $key,
@@ -3326,19 +2084,19 @@ function parseValidatePropertyArguments(...$arguments) {
   return { $key, $value, $source, $target }
 }
 function parseProperties($properties, $schema) {
-  const properties = typedObjectLiteral$b($properties);
+  const properties = typedObjectLiteral$b$1($properties);
   if(_isPropertyDefinition($properties, $schema)) { return $properties }
   for(const [
     $propertyKey, $propertyValue
   ] of Object.entries($properties)) {
     let propertyDefinition = {};
-    typeOf$4($propertyValue);
+    typeOf$4$1($propertyValue);
     const isPropertyDefinition = _isPropertyDefinition($propertyValue, $schema);
-    if(variables.TypeValues.includes($propertyValue)) {
+    if(variables$2.TypeValues.includes($propertyValue)) {
       Object.assign(propertyDefinition, { type: { value: $propertyValue } });
     }
-    else if(variables.TypeKeys.includes($propertyValue)) {
-      Object.assign(propertyDefinition, { type: { value: variables.Types[$propertyValue] } });
+    else if(variables$2.TypeKeys.includes($propertyValue)) {
+      Object.assign(propertyDefinition, { type: { value: variables$2.Types[$propertyValue] } });
     }
     else if(!isPropertyDefinition) {
       const subpropertyPath = ($schema.path) ? [$schema.path, $propertyKey].join('.') : $propertyKey;
@@ -3430,9 +2188,9 @@ function _isValidatorDefinition($object, $schema) {
   return Object.hasOwn($object, valueKey)
 }
 
-const { recursiveAssign: recursiveAssign$b } = index;
-var Options$5 = ($options) => {
-  const Options = recursiveAssign$b({
+const { recursiveAssign: recursiveAssign$b$1 } = index$5;
+var Options$6 = ($options) => {
+  const Options = recursiveAssign$b$1({
     path: null, 
     parent: null, 
     enableEvents: false,
@@ -3659,11 +2417,11 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
         Object.defineProperty(this, 'path', { value: path });
         return path
       } },
-      // 'value': { configurable: true, get () {
-      //   const value = $settings.value
-      //   Object.defineProperty(this, 'value', { value: value, })
-      //   return value
-      // } },
+      'value': { configurable: true, get () {
+        const value = $settings.value;
+        Object.defineProperty(this, 'value', { value: value, });
+        return value
+      } },
       'valid': { configurable: true, get () {
         const valid = $settings.valid;
         Object.defineProperty(this, 'valid', { value: valid });
@@ -3673,7 +2431,7 @@ let ValidatorEvent$1 = class ValidatorEvent extends CustomEvent {
   }
 };
 
-const { recursiveAssign: recursiveAssign$a, typedObjectLiteral: typedObjectLiteral$a } = index;
+const { recursiveAssign: recursiveAssign$a$1, typedObjectLiteral: typedObjectLiteral$a$1 } = index$5;
 function assign($model, $options, ...$sources) {
   const options = Object.assign({}, $options);
   const assignObject = 'assign';
@@ -3729,7 +2487,7 @@ function assign($model, $options, ...$sources) {
           ? [path, $sourceKey].join('.')
           : String($sourceKey);
         if(sourceTree === false) {
-          const suboptions = recursiveAssign$a({}, options, {
+          const suboptions = recursiveAssign$a$1({}, options, {
             path: modelPath,
             parent: $model,
           });
@@ -3743,8 +2501,8 @@ function assign($model, $options, ...$sources) {
             sourceValue = target[$sourceKey];
           }
           else {
-            const subproperties = typedObjectLiteral$a($sourceValue);
-            const suboptions = recursiveAssign$a({}, options, {
+            const subproperties = typedObjectLiteral$a$1($sourceValue);
+            const suboptions = recursiveAssign$a$1({}, options, {
               path: modelPath,
               parent: $model,
             });
@@ -3827,7 +2585,7 @@ function assign($model, $options, ...$sources) {
   return $model
 }
 
-const { typedObjectLiteral: typedObjectLiteral$9 } = index;
+const { typedObjectLiteral: typedObjectLiteral$9$1 } = index$5;
 function defineProperties($model, $options, $propertyDescriptors) {
   const { path, schema } = $model;
   let {
@@ -3862,7 +2620,7 @@ function defineProperties($model, $options, $propertyDescriptors) {
   return $model
 }
 
-const { impandTree, recursiveAssign: recursiveAssign$9, typedObjectLiteral: typedObjectLiteral$8 } = index;
+const { impandTree: impandTree$2, recursiveAssign: recursiveAssign$9$1, typedObjectLiteral: typedObjectLiteral$8$1 } = index$5;
 function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   const options = Object.assign({}, $options);
   const assignObject = 'defineProperties';
@@ -3881,7 +2639,7 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
   if(schema && enableValidation) {
     const validProperty = schema.validateProperty(
       $propertyKey, 
-      impandTree(propertyValue, 'value') || propertyValue,
+      impandTree$2(propertyValue, 'value') || propertyValue,
       {},
       $model.valueOf()
     );
@@ -3920,8 +2678,8 @@ function defineProperty($model, $options, $propertyKey, $propertyDescriptor) {
         else if(schema.type === 'object') { subschema = schema.target[$propertyKey].type.value; }
         else { subschema = undefined; }
       }
-      let subtarget = typedObjectLiteral$8(propertyValue);
-      const suboptions = recursiveAssign$9({}, options, {
+      let subtarget = typedObjectLiteral$8$1(propertyValue);
+      const suboptions = recursiveAssign$9$1({}, options, {
         path: modelPath,
         parent: $model,
       });
@@ -4058,7 +2816,7 @@ var ObjectProperty = {
   seal,
 };
 
-const { typedObjectLiteral: typedObjectLiteral$7 } = index;
+const { typedObjectLiteral: typedObjectLiteral$7$1 } = index$5;
 function concat($model, $options) {
   const { target, path, schema } = $model;
   const { enableValidation, mutatorEvents, source, validationEvents } = $options;
@@ -4071,7 +2829,7 @@ function concat($model, $options) {
   for(let $value of $arguments) {
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$7(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$7$1(validatorTarget);
       const validValue = schema.validateProperty(valueIndex, $subvalue, validatorSource, validatorTarget);
       if(schema &&validationEvents) {
         let type, propertyType;
@@ -4095,7 +2853,7 @@ function concat($model, $options) {
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
       let subschema = schema?.target[0].type.value || null;
-      const submodel = typedObjectLiteral$7($value);
+      const submodel = typedObjectLiteral$7$1($value);
       let value = new $model.constructor(submodel, subschema, {
         path: modelPath,
         parent: $model,
@@ -4249,7 +3007,7 @@ function copyWithin($model, $options) {
   return $model
 }
 
-const { typedObjectLiteral: typedObjectLiteral$6 } = index;
+const { typedObjectLiteral: typedObjectLiteral$6$1 } = index$5;
 function fill($model, $options, ...$arguments) {
   const options = Object.assign({}, $options);
   const { target, path, schema } = $model;
@@ -4303,7 +3061,7 @@ function fill($model, $options, ...$arguments) {
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
       const subschema = schema?.target[0].type.value || null;
-      const subproperties = typedObjectLiteral$6($value);
+      const subproperties = typedObjectLiteral$6$1($value);
       const suboptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
@@ -4395,7 +3153,7 @@ function pop($model, $options) {
   return popElement
 }
 
-const { recursiveAssign: recursiveAssign$8, typedObjectLiteral: typedObjectLiteral$5, typeOf: typeOf$3 } = index;
+const { recursiveAssign: recursiveAssign$8$1, typedObjectLiteral: typedObjectLiteral$5$1, typeOf: typeOf$3$1 } = index$5;
 function push($model, $options, ...$elements) {
   const options = Object.assign({}, $options);
   const assignArray = 'push';
@@ -4408,7 +3166,7 @@ function push($model, $options, ...$elements) {
     let element;
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$5(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$5$1(validatorTarget);
       const validElement = schema.validateProperty(elementsIndex, $element, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -4432,7 +3190,7 @@ function push($model, $options, ...$elements) {
     if($element && typeof $element === 'object') {
       $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element;
       const subschema = schema?.target[0].type.value || null;
-      const subproperties = typedObjectLiteral$5(typeOf$3($element));
+      const subproperties = typedObjectLiteral$5$1(typeOf$3$1($element));
       const submodelOptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
@@ -4546,7 +3304,7 @@ function shift($model, $options) {
   return shiftElement
 }
 
-const { typedObjectLiteral: typedObjectLiteral$4 } = index;
+const { typedObjectLiteral: typedObjectLiteral$4$1 } = index$5;
 function splice($model, $options) {
   const options = Object.assign({}, $options);
   const assignObject = options.assignObject;
@@ -4612,7 +3370,7 @@ function splice($model, $options) {
     let addItem = $addItems[addItemsIndex];
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$4(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$4$1(validatorTarget);
       const validAddItem = schema.validateProperty(elementIndex, element, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -4637,7 +3395,7 @@ function splice($model, $options) {
     if(addItem && typeof addItem === 'object') {
       if(addItem instanceof $model.constructor) { addItem = addItem.valueOf(); }
       const subschema = schema?.target[0].type.value || null;
-      const subproperties = typedObjectLiteral$4(addItem);
+      const subproperties = typedObjectLiteral$4$1(addItem);
       const suboptions = recursiveAssign({}, options, {
         path: modelPath,
         parent: $model,
@@ -4705,7 +3463,7 @@ function splice($model, $options) {
   return deleteItems
 }
 
-const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$3, typeOf: typeOf$2 } = index;
+const { recursiveAssign: recursiveAssign$7$1, typedObjectLiteral: typedObjectLiteral$3$1, typeOf: typeOf$2$1 } = index$5;
 function unshift($model, $options, ...$elements) {
   const options = Object.assign({}, $options);
   const assignArray = 'unshift';
@@ -4718,7 +3476,7 @@ function unshift($model, $options, ...$elements) {
     let element;
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$3(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$3$1(validatorTarget);
       const validElement = schema.validateProperty(elementsIndex, $element, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -4742,7 +3500,7 @@ function unshift($model, $options, ...$elements) {
     if($element && typeof $element === 'object') {
       $element = ($element instanceof $model.constructor) ? $element.valueOf() : $element;
       const subschema = schema?.target[0].type.value || null;
-      const subproperties = typedObjectLiteral$3(typeOf$2($element));
+      const subproperties = typedObjectLiteral$3$1(typeOf$2$1($element));
       const submodelOptions = Object.assign({}, options, {
         path: modelPath,
         parent: $model,
@@ -4832,12 +3590,12 @@ function getContent($model, $options) {
   return $model
 }
 
-const { regularExpressions: regularExpressions$2} = index;
+const { regularExpressions: regularExpressions$2$1} = index$5;
 function getContentProperty($model, $options, $path) {
   const { target, path } = $model;
   const { mutatorEvents, pathkey, subpathError } = $options;
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions$2.quotationEscape));
+    const subpaths = $path.split(new RegExp(regularExpressions$2$1.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = target[propertyKey];
     if(subpaths.length) {
@@ -4878,16 +3636,16 @@ function getContentProperty($model, $options, $path) {
   }
 }
 
-const { recursiveAssign: recursiveAssign$6 } = index;
+const { recursiveAssign: recursiveAssign$6$1 } = index$5;
 function getProperty($model, $options, ...$arguments) {
   let getProperty;
   const options = $options;
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 2) { recursiveAssign$6(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$6$1(options, $arguments[1]); }
     getProperty = getContentProperty($model, options, ...$arguments);
   }
   else {
-    if($arguments.length === 1) { recursiveAssign$6(options, $arguments[0]); }
+    if($arguments.length === 1) { recursiveAssign$6$1(options, $arguments[0]); }
     getProperty = getContent($model, options, ...$arguments);
   }
   return getProperty
@@ -4915,7 +3673,7 @@ function setContent($model, $options, $properties) {
   return $model
 }
 
-const { recursiveAssign: recursiveAssign$5, regularExpressions: regularExpressions$1, typedObjectLiteral: typedObjectLiteral$2, typeOf: typeOf$1 } = index;
+const { recursiveAssign: recursiveAssign$5$1, regularExpressions: regularExpressions$1$1, typedObjectLiteral: typedObjectLiteral$2$1, typeOf: typeOf$1$1 } = index$5;
 function setContentProperty($model, $options, $path, $value) {
   const options = Object.assign({}, $options);
   const assignObject = 'set';
@@ -4927,10 +3685,10 @@ function setContentProperty($model, $options, $path, $value) {
     validationEvents, source, 
   } = options;
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions$1.quotationEscape));
+    const subpaths = $path.split(new RegExp(regularExpressions$1$1.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue;
-    const typeOfPropertyValue = typeOf$1($value);
+    const typeOfPropertyValue = typeOf$1$1($value);
     const modelPath = (path)
       ? [path, propertyKey].join('.')
       : String(propertyKey);
@@ -4947,7 +3705,7 @@ function setContentProperty($model, $options, $path, $value) {
           if(isNaN(Number(propertyKey))) { submodel = {}; }
           else { submodel = []; }
         }
-        const submodelOptions = recursiveAssign$5({}, options, {
+        const submodelOptions = recursiveAssign$5$1({}, options, {
           path: modelPath,
           parent: $model,
         });
@@ -4966,7 +3724,7 @@ function setContentProperty($model, $options, $path, $value) {
     }
     if(schema && enableValidation) {
       const validatorTarget = $model.valueOf();
-      const validatorSource = source || typedObjectLiteral$2(validatorTarget);
+      const validatorSource = source || typedObjectLiteral$2$1(validatorTarget);
       const validTargetProp = schema.validateProperty(propertyKey, $value, validatorSource, validatorTarget);
       if(validationEvents) {
         let type, propertyType;
@@ -4986,7 +3744,7 @@ function setContentProperty($model, $options, $path, $value) {
     }
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
-      const typeOfPropertyValue= typeOf$1($value);
+      const typeOfPropertyValue= typeOf$1$1($value);
       let subschema;
       let submodel;
       if(schema?.type === 'array') { subschema = schema.target[0].type.value; }
@@ -4998,7 +3756,7 @@ function setContentProperty($model, $options, $path, $value) {
         if(isNaN(Number(propertyKey))) { submodel = {}; }
         else { submodel = []; }
       }
-      const submodelOptions = recursiveAssign$5({}, options, {
+      const submodelOptions = recursiveAssign$5$1({}, options, {
         path: modelPath,
         parent: $model,
       });
@@ -5052,7 +3810,7 @@ function setContentProperty($model, $options, $path, $value) {
     let propertyKey = $path;
     if($value && typeof $value === 'object') {
       if($value instanceof $model.constructor) { $value = $value.valueOf(); }
-      const typeOfPropertyValue = typeOf$1($value);
+      const typeOfPropertyValue = typeOf$1$1($value);
       let subschema;
       let submodel;
       if(schema?.type === 'array') {
@@ -5071,7 +3829,7 @@ function setContentProperty($model, $options, $path, $value) {
       const modelPath = (path)
         ? [path, propertyKey].join('.')
         : String(propertyKey);
-      const submodelOptions = recursiveAssign$5({}, options, {
+      const submodelOptions = recursiveAssign$5$1({}, options, {
         path: modelPath,
         parent: $model,
       });
@@ -5121,16 +3879,16 @@ function setContentProperty($model, $options, $path, $value) {
   }
 }
 
-const { recursiveAssign: recursiveAssign$4 } = index;
+const { recursiveAssign: recursiveAssign$4$1 } = index$5;
 function setProperty($model, $options, ...$arguments) {
   let setProperty;
   const options = $options;
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 3) { recursiveAssign$4(options, $arguments[2]); }
+    if($arguments.length === 3) { recursiveAssign$4$1(options, $arguments[2]); }
     setProperty = setContentProperty($model, options, ...$arguments);
   }
   else {
-    if($arguments.length === 2) { recursiveAssign$4(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$4$1(options, $arguments[1]); }
     setProperty = setContent($model, options, ...$arguments);
   }
   return setProperty
@@ -5156,12 +3914,12 @@ function deleteContent($model, $options) {
   return $model
 }
 
-const { regularExpressions} = index;
+const { regularExpressions: regularExpressions$4} = index$5;
 function deleteContentProperty($model, $options, $path) {
   const { target, path, schema } = $model;
   const { mutatorEvents, pathkey, subpathError, enableValidation, validationEvents } = $options;
   if(pathkey === true) {
-    const subpaths = $path.split(new RegExp(regularExpressions.quotationEscape));
+    const subpaths = $path.split(new RegExp(regularExpressions$4.quotationEscape));
     const propertyKey = subpaths.shift();
     let propertyValue = target[propertyKey];
     if(subpaths.length) {
@@ -5290,16 +4048,16 @@ function deleteContentProperty($model, $options, $path) {
   }
 }
 
-const { recursiveAssign: recursiveAssign$3 } = index;
+const { recursiveAssign: recursiveAssign$3$1 } = index$5;
 function deleteProperty($model, $options, ...$arguments) {
   let deleteProperty;
   const options = $options;
   if(typeof $arguments[0] === 'string') {
-    if($arguments.length === 2) { recursiveAssign$3(options, $arguments[1]); }
+    if($arguments.length === 2) { recursiveAssign$3$1(options, $arguments[1]); }
     deleteProperty = deleteContentProperty($model, options, ...$arguments);
   }
   else {
-    if($arguments.length === 1) { recursiveAssign$3(options, $arguments[0]); }
+    if($arguments.length === 1) { recursiveAssign$3$1(options, $arguments[0]); }
     deleteProperty = deleteContent($model, options, ...$arguments);
   }
   return deleteProperty
@@ -5311,7 +4069,7 @@ var MapProperty = {
   delete: deleteProperty,
 };
 
-const { recursiveAssign: recursiveAssign$2, recursiveFreeze } = index;
+const { recursiveAssign: recursiveAssign$2$1, recursiveFreeze: recursiveFreeze$2 } = index$5;
 const Defaults = Object.freeze({
   object: [{
     keys: ['valueOf'],
@@ -5421,7 +4179,7 @@ function Methods($model) {
   return $model
 }
 
-const { recursiveAssign: recursiveAssign$1, typedObjectLiteral: typedObjectLiteral$1 } = index;
+const { recursiveAssign: recursiveAssign$1$1, typedObjectLiteral: typedObjectLiteral$1$1 } = index$5;
 const ValidArrayAssigmentMethods = Object.freeze(
   ['push', 'unshift']
 );
@@ -5441,7 +4199,7 @@ function Assign($model, $properties, $options) {
   return $model
 }
 
-const { typedObjectLiteral, typeOf } = index;
+const { typedObjectLiteral: typedObjectLiteral$f, typeOf: typeOf$7 } = index$5;
 
 let Model$1 = class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
@@ -5472,7 +4230,7 @@ let Model$1 = class Model extends Core {
     catch($err) { console.error($err); }
     Object.defineProperties(this, {
       'options': { configurable: true, get() {
-        const options = Options$5($options);
+        const options = Options$6($options);
         if(options.events) {
           this.addEvents(options.events);
           delete options.events;
@@ -5489,17 +4247,17 @@ let Model$1 = class Model extends Core {
       'path': { get() { return path } },
       'key': { get() { return (path) ? path.pop() : path } },
       'target': { configurable: true, get() {
-        const target = typedObjectLiteral(properties);
+        const target = typedObjectLiteral$f(properties);
         Object.defineProperty(this, 'target', { value: target });
         return target
       } },
       'type': { configurable: true, get() {
-        const type = typeOf(this.target);
+        const type = typeOf$7(this.target);
         Object.defineProperty(this, 'type', { value: type });
         return type
       } },
       'schema': { configurable: true, get() {
-        const typeOfSchema = typeOf($schema);
+        const typeOfSchema = typeOf$7($schema);
         let schema;
         if(['undefined', 'null'].includes(typeOfSchema)) { schema = null; }
         else if($schema instanceof Schema) { schema = $schema; }
@@ -5524,7 +4282,7 @@ let Model$1 = class Model extends Core {
     return this
   }
   parse($settings = { type: 'object', replacer: null, space: 0 }) {
-    let parsement = typedObjectLiteral(this.type);
+    let parsement = typedObjectLiteral$f(this.type);
     for(const [
       $propertyDescriptorName, $propertyDescriptor
     ] of Object.entries(
@@ -5893,7 +4651,7 @@ parent) {
  * @param options.recursive - Whether to parse the arguments of pseudo-classes like :is(), :has() etc. Defaults to true.
  * @param options.list - Whether this can be a selector list (A, B, C etc). Defaults to true.
  */
-function parse(selector, { recursive = true, list = true } = {}) {
+function parse$1(selector, { recursive = true, list = true } = {}) {
     const tokens = tokenize(selector);
     if (!tokens) {
         return;
@@ -5923,7 +4681,7 @@ function parse(selector, { recursive = true, list = true } = {}) {
             continue;
         }
         Object.assign(token, {
-            subtree: parse(argument, {
+            subtree: parse$1(argument, {
                 recursive: true,
                 list: true,
             }),
@@ -6003,7 +4761,7 @@ function Query($element, $queryMethod, $queryString) {
   // Define Scope Query
   const scopeQueryString = stringify(queryTokens.slice(2));
   tokenize(scopeQueryString);
-  const scopeQueryParse = parse(scopeQueryString);
+  const scopeQueryParse = parse$1(scopeQueryString);
   const children = Array.from($element.children);
   for(const [$childIndex, $child] of Object.entries(children)) {
     // Scope Query Type: Complex
@@ -6058,7 +4816,7 @@ var Settings$4 = ($settings) => recursiveAssign$g({
   querySelectors: {},
 }, $settings);
 
-var Options$4 = ($options) => Object.assign({
+var Options$5 = ($options) => Object.assign({
   events: false,
   eventListeners: false,
   enableEvents: true,
@@ -6073,7 +4831,7 @@ class View extends MVCFrameworkCore {
   #children
   // #querySelectors = {}
   constructor($settings = {}, $options = {}) {
-    super(Settings$4($settings), Options$4($options));
+    super(Settings$4($settings), Options$5($options));
     Object.defineProperties(this, {
       _querySelectors: {
         enumerable: false, writable: false, configurable: false,
@@ -6217,7 +4975,7 @@ var Settings$3 = ($settings) => {
   return settings
 };
 
-var Options$3 = ($options) => {
+var Options$4 = ($options) => {
   const options = Object.assign({
     events: false,
     enableEvents: true,
@@ -6417,7 +5175,7 @@ class FetchRoute extends EventTarget {
 
 var Settings$2 = ($settings) => Object.assign({}, $settings);
 
-var Options$2 = ($options) => Object.assign({
+var Options$3 = ($options) => Object.assign({
   enableEvents: true
 }, $options);
 
@@ -6429,7 +5187,7 @@ class FetchRouter extends MVCFrameworkCore {
   #_origin
   #routes = {}
   constructor($settings, $options) {
-    super(Settings$2($settings), Options$2($options));
+    super(Settings$2($settings), Options$3($options));
     const { scheme, domain, port, routes } = $settings;
     this.#scheme = scheme;
     this.#domain = domain;
@@ -7311,7 +6069,7 @@ class Control extends MVCFrameworkCore {
   constructor($settings = {}, $options = {}) {
     super(
       Settings$3(Object.assign({}, $settings)),
-      Options$3(Object.assign({
+      Options$4(Object.assign({
         propertyClasses: Control.propertyClasses,
       }, $options)),
     );
@@ -7319,5 +6077,515 @@ class Control extends MVCFrameworkCore {
 }
 const ValidClasses = [Model, View, Control, LocationRouter, FetchRouter, SocketRouter];
 
-export { Control, MVCFrameworkCore as Core, index$2 as Coutil, FetchRouter, LocationRouter, MessageAdapter, Model, SocketRouter, Validation, Validator, Verification, View };
+const defaultAccessor = ($target, $property) => {
+  if($property === undefined) { return $target }
+  else { return $target[$property] }
+};
+const getAccessor = ($target, $property) => {
+  if($property === undefined) { return $target }
+  else { return $target.get($property) }
+};
+var accessors = {
+  default: defaultAccessor,
+  get: getAccessor,
+};
+
+function expandEvents($propEvents, $scopeKey = ':scope') {
+  if(
+    Array.isArray($propEvents) ||
+    $propEvents === undefined
+  ) { return $propEvents }
+  const propEvents = [];
+  for(const [
+    $propEventSettings, $propEventListener
+  ] of Object.entries($propEvents)) {
+    const propEventSettings = $propEventSettings.trim().split(' ');
+    let path, type, listener;
+    if(propEventSettings.length === 1) {
+      path = $scopeKey;
+      type = propEventSettings[0];
+    }
+    else if(propEventSettings.length > 1) {
+      path = propEventSettings[0];
+      type = propEventSettings[1];
+    }
+    if(Array.isArray($propEventListener)) {
+      listener = $propEventListener[0];
+      $propEventListener[1];
+    }
+    else {
+      listener = $propEventListener;
+    }
+    const propEvent = {
+      type,
+      path,
+      listener,
+      enable: false,
+    };
+    propEvents.push(propEvent);
+  }
+  return propEvents
+}
+
+const Primitives = {
+  'string': String, 
+  'number': Number, 
+  'boolean': Boolean, 
+  'undefined': undefined,
+  'null': null,
+};
+const PrimitiveKeys = Object.keys(Primitives);
+const PrimitiveValues = Object.values(Primitives);
+const Objects = {
+  'object': Object,
+  'array': Array,
+};
+const ObjectKeys$1 = Object.keys(Objects);
+const ObjectValues = Object.values(Objects);
+const Types = Object.assign({}, Primitives, Objects);
+const TypeKeys$1 = Object.keys(Types);
+const TypeValues = Object.values(Types);
+const TypeMethods = [
+ Primitives.String, Primitives.Number, Primitives.Boolean, 
+ Objects.Object, Objects.Array
+];
+
+var index$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  ObjectKeys: ObjectKeys$1,
+  ObjectValues: ObjectValues,
+  Objects: Objects,
+  PrimitiveKeys: PrimitiveKeys,
+  PrimitiveValues: PrimitiveValues,
+  Primitives: Primitives,
+  TypeKeys: TypeKeys$1,
+  TypeMethods: TypeMethods,
+  TypeValues: TypeValues,
+  Types: Types
+});
+
+var regularExpressions$3 = {
+  quotationEscape: /\.(?=(?:[^"]*"[^"]*")*[^"]*$)/,
+};
+
+const typeOf$6 = ($data) => Object
+  .prototype
+  .toString
+  .call($data).slice(8, -1).toLowerCase();
+
+function subpaths($path) {
+  return $path.split(
+    new RegExp(regularExpressions$3.quotationEscape)
+  )
+}
+function keypaths($path) {
+  const _subpaths = subpaths($path);
+  _subpaths.pop();
+  return _subpaths
+}
+function key($path) { return subpaths($path).pop() }
+function root($path) { return subpaths($path).shift() }
+function typeofRoot($path) { return (
+  Number(root($path))
+) ? 'array' : 'object' }
+function parse($path) {
+  return {
+    subpaths: subpaths($path),
+    keypaths: keypaths($path),
+    key: key($path),
+    root: root($path),
+    typeofRoot: typeofRoot($path),
+  }
+}
+
+function typedObjectLiteral$e($value) {
+  let _typedObjectLiteral;
+  const typeOfValue = typeOf$6($value);
+  if(typeOfValue === 'object') { _typedObjectLiteral = {}; }
+  else if(typeOfValue === 'array') { _typedObjectLiteral = []; }
+  else if(typeOfValue === 'string') {
+    if($value === 'object') { _typedObjectLiteral = {}; }
+    else if($value === 'array') { _typedObjectLiteral = []; }
+  }
+  else { _typedObjectLiteral = undefined; }
+  return _typedObjectLiteral
+}
+
+function get($path, $source) {
+  const subpaths = $path.split(new RegExp(regularExpressions$3.quotationEscape));
+  const key = subpaths.pop();
+  let subtarget = $source;
+  for(const $subpath of subpaths) { subtarget = subtarget[$subpath]; }
+  return subtarget[key]
+}
+function set($path, $source) {
+  const {
+    keypaths, key, typeofRoot
+  } = parse($path);
+  const target = typedObjectLiteral$e(typeofRoot);
+  let subtarget = target;
+  for(const $subpath of keypaths) {
+    if(Number($subpath)) { subtarget[$subpath] = []; }
+    else { subtarget[$subpath] = {}; }
+    subtarget = subtarget[$subpath];
+  }
+  subtarget[key] = $source;
+  return target
+}
+
+function expandTree($source, $property) {
+  const typeOfProperty = typeOf$6($property);
+  const typeOfSource = typeOf$6($source);
+  if(
+    !['string', 'function'].includes(typeOfProperty) ||
+    !['array', 'object'].includes(typeOfSource)
+  ) { return $source }
+  let target = typedObjectLiteral$e($source);
+  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+    if(typeOfProperty === 'string') { target[$sourceKey] = set($property, $sourceValue); }
+    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
+    if(target[$sourceKey][$property] && typeof target[$sourceKey][$property] === 'object') {
+      target[$sourceKey][$property] = expandTree(target[$sourceKey][$property], $property);
+    }
+  }
+  return target
+}
+
+function impandTree$1($source, $property) {
+  const typeOfProperty = typeOf$6($property);
+  const typeOfSource = typeOf$6($source);
+  if(
+    !['string', 'function'].includes(typeOfProperty) ||
+    !['array', 'object'].includes(typeOfSource)
+  ) { return $source }
+  let target = typedObjectLiteral$e($source);
+  for(const [$sourceKey, $sourceValue] of Object.entries($source)) {
+    if(typeOfProperty === 'string') { target[$sourceKey] = get($property, $sourceValue); }
+    else if(typeOfProperty === 'function') { target[$sourceKey] = $property($sourceValue); }
+    if(target[$sourceKey] && typeof target[$sourceKey] === 'object') {
+      target[$sourceKey] = impandTree$1(target[$sourceKey], $property);
+    }
+  }
+  return target
+}
+
+const Options$2 = {
+  depth: 0,
+  maxDepth: 10,
+  accessors: [accessors.default],
+};
+function propertyDirectory($object, $options) {
+  const _propertyDirectory = [];
+  const options = Object.assign({}, Options$2, $options);
+  options.depth++;
+  if(options.depth > options.maxDepth) { return _propertyDirectory }
+  iterateAccessors: 
+  for(const $accessor of options.accessors) {
+    const object = $accessor($object);
+    if(!object) continue iterateAccessors
+    for(const [$key, $value] of Object.entries(object)) {
+      if(!options.values) { _propertyDirectory.push($key); }
+      else if(options.values) { _propertyDirectory.push([$key, $value]); }
+      if(
+        typeof $value === 'object' &&
+        $value !== null &&
+        $value !== object
+      ) {
+        const subtargets = propertyDirectory($value, options);
+        if(!options.values) {
+          for(const $subtarget of subtargets) {
+            const path = [$key, $subtarget].join('.');
+            _propertyDirectory.push(path);
+          }
+        }
+        else if(options.values) {
+          for(const [$subtargetKey, $subtarget] of subtargets) {
+            const path = [$key, $subtargetKey].join('.');
+            _propertyDirectory.push([path, $subtarget]);
+          }
+        }
+      }
+    }
+  }
+  return _propertyDirectory
+}
+
+function recursiveAssign$f($target, ...$sources) {
+  if(!$target) { return $target}
+  iterateSources: 
+  for(const $source of $sources) {
+    if(!$source) continue iterateSources
+    for(const [
+      $sourcePropertyKey, $sourcePropertyValue
+    ] of Object.entries($source)) {
+      const typeOfTargetPropertyValue = typeOf$6($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$6($sourcePropertyValue);
+      if(
+        typeOfTargetPropertyValue === 'object' &&
+        typeOfSourcePropertyValue === 'object'
+      ) {
+        $target[$sourcePropertyKey] = recursiveAssign$f($target[$sourcePropertyKey], $sourcePropertyValue);
+      }
+      else {
+        $target[$sourcePropertyKey] = $sourcePropertyValue;
+      }
+    }
+  }
+  return $target
+}
+
+function recursiveAssignConcat($target, ...$sources) {
+  if(!$target) { return $target}
+  iterateSources: 
+  for(const $source of $sources) {
+    if(!$source) continue iterateSources
+    for(const [
+      $sourcePropertyKey, $sourcePropertyValue
+    ] of Object.entries($source)) {
+      const typeOfTargetPropertyValue = typeOf$6($target[$sourcePropertyKey]);
+      const typeOfSourcePropertyValue = typeOf$6($sourcePropertyValue);
+      if( 
+        typeOfTargetPropertyValue === 'object' &&
+        typeOfSourcePropertyValue === 'object'
+      ) {
+        $target[$sourcePropertyKey] = recursiveAssignConcat($target[$sourcePropertyKey], $sourcePropertyValue);
+      }
+      else if(
+        typeOfTargetPropertyValue === 'array' &&
+        typeOfSourcePropertyValue === 'array'
+      ) {
+        $target[$sourcePropertyKey] = $target[$sourcePropertyKey].concat($sourcePropertyValue);
+      }
+      else {
+        $target[$sourcePropertyKey] = $sourcePropertyValue;
+      }
+    }
+  }
+  return $target
+}
+
+function recursiveFreeze$1($target) {
+  for(const [$propertyKey, $propertyValue] of Object.entries($target)) {
+    if($propertyValue && typeof $propertyValue === 'object') {
+      recursiveFreeze$1($propertyValue);
+    }
+  }
+  return Object.freeze($target)
+}
+
+var index = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  accessors: accessors,
+  expandEvents: expandEvents,
+  expandTree: expandTree,
+  impandTree: impandTree$1,
+  propertyDirectory: propertyDirectory,
+  recursiveAssign: recursiveAssign$f,
+  recursiveAssignConcat: recursiveAssignConcat,
+  recursiveFreeze: recursiveFreeze$1,
+  regularExpressions: regularExpressions$3,
+  typeOf: typeOf$6,
+  typedObjectLiteral: typedObjectLiteral$e,
+  variables: index$1
+});
+
+class Verification extends EventTarget {
+  constructor($settings) {
+    super();
+    const settings = Object.assign({}, $settings);
+    Object.defineProperties(this, {
+      'type': { value: settings.type },
+      'key': { value: settings.key },
+      'value': { value: settings.value },
+      'message': { configurable: true, get() {
+        let message;
+        if(this.pass !== undefined) {
+          message = settings.messages[String(this.pass)](this);
+          Object.defineProperty(this, 'message', { value: message });
+        }
+        return message
+      } },
+      'pass': { writable: true, 
+        set pass($pass) {
+          Object.defineProperty(this, 'pass', { value: $pass });
+        },
+      },
+    });
+  }
+}
+
+const { typedObjectLiteral: typedObjectLiteral$d } = index;
+const Messages$1 = {
+  'true': ($validation) => `${$validation.valid}`,
+  'false': ($validation) => `${$validation.valid}`,
+};
+function report($format = "expand", $prevalidation) {
+  const prevalidation = $prevalidation || this;
+  const schema = prevalidation.schema;
+  const validations = [].concat(
+    prevalidation.advance, prevalidation.deadvance, prevalidation.unadvance
+  );
+  if($format === "expand") {
+    const _report = typedObjectLiteral$d(schema.type);
+    for(const $validation of validations) {
+      const verifications = [].concat(
+        $validation.advance, $validation.deadvance, $validation.unadvance
+      );
+      _report[$validation.key] = {};
+      for(const $verification of verifications) {
+        _report[$validation.key][$verification.type] = {};
+        if($verification.validation) {
+          _report[$validation.key][$verification.type] = this.report($format, $verification.validation);
+        }
+        else {
+          _report[$validation.key][$verification.type] = $verification;
+        }
+      }
+    }
+    return _report
+  }
+  if($format === "impand") {
+    if(prevalidation.valid === false) { return false }
+    const _report = typedObjectLiteral$d(schema.type);
+    for(const $validation of validations) {
+      const verifications = [].concat(
+        $validation.advance, $validation.deadvance, $validation.unadvance
+      );
+      let reportValue;
+      iterateVerifications: 
+      for(const $verification of verifications) {
+        if($verification.type === 'type') {
+          if($verification.validation && $validation.valid) {
+            reportValue = this.report($format, $verification.validation);
+          }
+          break iterateVerifications
+        }
+      }
+      if(!reportValue) { reportValue = $validation.valid; }
+      _report[$validation.key] = reportValue;
+    }
+    return _report
+  }
+}
+class Validation extends EventTarget {
+  constructor($settings = {}, $schema) {
+    super();
+    const settings = Object.assign({ messages: Messages$1 }, $settings);
+    let valid;
+    const advance = [];
+    const deadvance = [];
+    const unadvance = [];
+    Object.defineProperties(this, {
+      'schema': { value: $schema },
+      'verificationType': { value: settings.verificationType },
+      'required': { value: settings.required },
+      'definition': { value: settings.definition },
+      'key': { value: settings.key },
+      'value': { value: settings.value },
+      'advance': { value: advance },
+      'deadvance': { value: deadvance },
+      'unadvance': { value: unadvance },
+      'valid': {
+        writable: true,
+        get valid() { return valid },
+        set valid($valid) { Object.defineProperty(this, 'valid', { value: $valid }); }
+      },
+      'report': { configurable: true, get() {
+        const _report = report.bind(this);
+        Object.defineProperty(this, 'report', { value: _report });
+        return _report
+      } },
+    });
+  }
+}
+
+const { recursiveAssign: recursiveAssign$e } = index;
+const Messages = {
+  'true': ($verification) => `${$verification.pass}`,
+  'false': ($verification) => `${$verification.pass}`,
+};
+class Validator extends EventTarget {
+  constructor($definition = {}, $schema) {
+    super();
+    const definition = Object.freeze(
+      Object.assign({ messages: Messages }, $definition)
+    );
+    Object.defineProperties(this, {
+      'definition': { value: definition },
+      'schema': { value: $schema },
+      'type': { value: definition.type },
+      'messages': { value: definition.messages },
+      'validate': { configurable: true, get() {
+        function validate($key, $value, $source, $target) {
+          const { definition, messages, type } = this;
+          let verification = new Verification({
+            type: type,
+            key: $key,
+            value: definition.value,
+            messages: recursiveAssign$e({}, messages, definition.messages),
+          });
+          const validation = definition.validate(...arguments);
+          if(typeof validation === 'object') {
+            verification.validation = validation;
+            verification.pass = validation.valid;
+          }
+          else { verification.pass = validation; }
+          return verification
+        }
+        const boundValidate = validate.bind(this);
+        Object.defineProperty(this, 'validate', {
+          value: boundValidate
+        });
+        return boundValidate
+      } },
+    });
+  }
+}
+
+const { recursiveAssign: recursiveAssign$d, typedObjectLiteral: typedObjectLiteral$c } = index;
+
+const { typeOf: typeOf$5, variables: variables$1 } = index;
+const { ObjectKeys, TypeKeys } = variables$1;
+
+const { recursiveAssign: recursiveAssign$c } = index;
+
+const { typedObjectLiteral: typedObjectLiteral$b, typeOf: typeOf$4, variables } = index;
+
+const { recursiveAssign: recursiveAssign$b } = index;
+
+const { recursiveAssign: recursiveAssign$a, typedObjectLiteral: typedObjectLiteral$a } = index;
+
+const { typedObjectLiteral: typedObjectLiteral$9 } = index;
+
+const { impandTree, recursiveAssign: recursiveAssign$9, typedObjectLiteral: typedObjectLiteral$8 } = index;
+
+const { typedObjectLiteral: typedObjectLiteral$7 } = index;
+
+const { typedObjectLiteral: typedObjectLiteral$6 } = index;
+
+const { recursiveAssign: recursiveAssign$8, typedObjectLiteral: typedObjectLiteral$5, typeOf: typeOf$3 } = index;
+
+const { typedObjectLiteral: typedObjectLiteral$4 } = index;
+
+const { recursiveAssign: recursiveAssign$7, typedObjectLiteral: typedObjectLiteral$3, typeOf: typeOf$2 } = index;
+
+const { regularExpressions: regularExpressions$2} = index;
+
+const { recursiveAssign: recursiveAssign$6 } = index;
+
+const { recursiveAssign: recursiveAssign$5, regularExpressions: regularExpressions$1, typedObjectLiteral: typedObjectLiteral$2, typeOf: typeOf$1 } = index;
+
+const { recursiveAssign: recursiveAssign$4 } = index;
+
+const { regularExpressions} = index;
+
+const { recursiveAssign: recursiveAssign$3 } = index;
+
+const { recursiveAssign: recursiveAssign$2, recursiveFreeze } = index;
+
+const { recursiveAssign: recursiveAssign$1, typedObjectLiteral: typedObjectLiteral$1 } = index;
+
+const { typedObjectLiteral, typeOf } = index;
+
+export { Control, MVCFrameworkCore as Core, index$2 as Coutil, FetchRouter, LocationRouter, MessageAdapter, Model, Schema, SocketRouter, Validation, Validator, Verification, View };
 //# sourceMappingURL=mvc-framework.js.map

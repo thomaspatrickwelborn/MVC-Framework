@@ -18,8 +18,9 @@
     "rollup": "^4.34.6"
   },
   "dependencies": {
-    "core-plex": "^3.0.1",
-    "objecture": "^1.8.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "core-plex": "^3.0.2",
+    "objecture": "^1.8.1",
     "parsel-js": "^1.2.1",
     "path-to-regexp": "^8.2.0"
   }

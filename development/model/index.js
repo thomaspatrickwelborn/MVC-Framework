@@ -1,4 +1,4 @@
-import { Model as ObjectureModel } from 'objecture'
+import { Model as ObjectureModel } from 'objecture/distributement/objecture.sans.core-plex.js'
 import LocalStorage from './localStorage/index.js'
 import Options from './options/index.js'
 export default class Model extends ObjectureModel {
