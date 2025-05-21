@@ -1,29 +1,13 @@
-> [!WARNING]  
-> Early Stage Development  
+# ⁜&ensp;MVC Framework
+&ensp;▴&ensp;**[PAC Framework](https://en.wikipedia.org/wiki/Presentation%E2%80%93abstraction%E2%80%93control) With [MVC Framework](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) Subpatterns**  
+&ensp;&ensp;&ensp;&ensp;▵&ensp;**Manage Simplex/Complex *Browser Applications &amp; Websites* With Familiar Plain JS Notation**  
+&ensp;&ensp;&ensp;&ensp;▵&ensp;**Mediate Model, View, Router, And Controller Events With Event-Driven Core Architecture**  
+&ensp;&ensp;&ensp;&ensp;▵&ensp;**Capture Detailed Object/Array Mutator Method Events Including Subproperty Events**  
 
-> [!CAUTION]  
-> Use At Own Risk  
+&ensp;⁘&ensp;Uses [**Core-Plex**](https://www.npmjs.com/package/core-plex) - **Event Listener Management System**  
+&ensp;❂&ensp;Uses [**Objecture**](https://www.npmjs.com/package/objecture) - **Object Watcher, Property Manager**  
 
-> [!NOTE]  
-> Interested in MVC Framework? 
-> thomas.patrick.welborn@outlook.com
-
-# MVC Framework
-Javascript implementation of the **[Presentation-Abstraction-Control (PAC) Pattern](https://en.wikipedia.org/wiki/Presentation%E2%80%93abstraction%E2%80%93control)** that also supports **[Model-View-Control (MVC) Patterns](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller)**.  
-
-**Features**  
- - Practical web component, web page, or web application use.  
- - Simplistic configuration.  
- - Versatile patterning.  
- - Familiar programming interfaces promote plain Javascript.  
- - Event management system.  
- - Modeled content property modifier events, nested events.  
- - Window Location and Fetch Routers.  
-
-## Class System
-MVC Framework Classes may be instantiated independently or interdependently.  
-
-### Independent Classes
+## ※&ensp;Independent Classes
 | SYM | NAME | DESCRIPT | API | GUIDE |
 | -----: | :--- | :------- | :--: | :--: |
 | M | Model | Manage schematized content. | [▶](./document/api/model/index.md) | [▶](./document/guide/model/index.md) |
@@ -36,7 +20,7 @@ MVC Framework Classes may be instantiated independently or interdependently.
 | R<sup>S</sup> | Router (Socket) | Manage Socket connection. | [▶](./document/api/routers/socket/index.md) | [▶](./document/api/guide/socket/index.md) |
 | C | Control | Manage Model, View, Control, Location/fetch Routers. | [▶](./document/api/control/index.md) | [▶](./document/guide/control/index.md) |
 
-### Interdependent Class Structures
+## ※&ensp;Interdependent Class Structures
 | FORMULA | NAME | ACRONYM | DESCRIPT |
 | ------: | :--- | :------ | :------- |
 |**C**<sub>MVRC<sub>\*</sub></sub> | Control (Model, View, Router, Controls) | CMVRC | Control class instances contain model, view, router, and subcontrol class instances. |
