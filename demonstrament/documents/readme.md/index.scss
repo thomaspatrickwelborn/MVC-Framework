@@ -1,3 +1,28 @@
 body {
-	background-color: blueviolet;
+	background-color: darkorange;
+}
+product {
+	display: flex;
+	flex-direction: row;
+	background-color: lightblue;
+	cursor: default;
+	user-select: none;
+	graphic, text {
+		display: flex;
+		flex-direction: column;
+		margin: 0.3em;
+	}
+	text {
+		name {
+			font-size: 2em;
+			font-weight: 500;
+		}
+		descript {
+			font-size: 1em;
+		}
+		price {
+			font-size: 1.5em;
+			font-weight: 700;
+		}
+	}
 }
