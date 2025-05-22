@@ -1,0 +1,47 @@
+@mixin layout {
+  product {
+    display: flex;
+    flex-direction: row;
+    graphic, text {
+      display: flex;
+      flex-direction: column;
+      margin: 0.3em;
+    }
+    text {
+      name {}
+      descript {}
+      price {}
+    }
+  }
+}
+@mixin style {
+  product {
+    cursor: pointer;
+    user-select: none;
+    graphic, text {}
+    text {
+      name {
+        font-size: 2em;
+        font-weight: 500;
+      }
+      descript {
+        font-size: 1em;
+      }
+      price {
+        font-size: 1.5em;
+        font-weight: 700;
+      }
+      a {
+      	color: inherit;
+      }
+    }
+  }
+  product[data-selected="true"] {
+    background-color: lightblue;
+    color: darkblue;
+  }
+  product[data-selected="false"] {
+    background-color: darkblue;
+    color: lightblue;
+  }
+}

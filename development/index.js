@@ -1,4 +1,3 @@
-import * as Coutil from './coutil/index.js'
 import Core from './core/index.js'
 import Model from './model/index.js'
 import Schema from './schema/index.js'
@@ -13,7 +12,7 @@ import {
 import MessageAdapter from './routers/socket/messageAdapter/index.js'
 
 export {
-  Core, Coutil, 
+  Core, 
   Model, Schema, View, Control, 
   LocationRouter, FetchRouter, SocketRouter, 
   Validator, Validation, Verification,

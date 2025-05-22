@@ -1,4 +1,4 @@
-import { recursiveAssign } from '../../coutil/index.js'
+import { recursiveAssign } from 'recourse'
 export default ($settings) => recursiveAssign({
   scope: 'template', // 'parent',
   templates: {},

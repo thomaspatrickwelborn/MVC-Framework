@@ -1,5 +1,5 @@
-import { Core, Coutil } from 'core-plex'
-const { typedObjectLiteral } = Coutil
+import Core from 'core-plex'
+import { typedObjectLiteral } from 'recourse'
 import Settings from './settings/index.js'
 import Options from './options/index.js'
 export default class MVCFrameworkCore extends Core {
