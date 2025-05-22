@@ -1,5 +1,5 @@
-| [MVC Framework](../../../README.md) | [API](../index.md) | *Routers* |
+| [MVC Framework](../../../README.md) | [Guide](../index.md) | *Routers* |
 | :-- | :-- | :-- |
-# MVC Framework API \| Router Classes
+# MVC Framework Guide \| Router Classes
 | [Fetch](./fetch/index.md) | [Location](./location.md) | [Socket](./socket.md) |
 | :-- | :-- | :-- |

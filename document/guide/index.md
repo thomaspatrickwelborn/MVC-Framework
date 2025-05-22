@@ -1,5 +1,5 @@
-| [MVC Framework](../../README.md) | *Guide* |
+| [MVC Framework](../README.md) | *Guide* |
 | :-- | :-- |
 # MVC Framework Guide
-| [Model Class](./model/index.md) | [Schema Class](./schema/index.md) |
-| :-- | :-- |
+| [Model](./model/index.md) | [Schema](./schema/index.md) | [View](./view/index.md) | [Routers](./router/index.md) | [Control](./control/index.md) |
+| :-- | :-- | :-- | :-- | :-- |

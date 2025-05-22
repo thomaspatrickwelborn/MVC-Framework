@@ -140,8 +140,8 @@ export default class View extends Core {
     }
     return this
   }
-  render($models = {}, $template = 'default') {
-    this.#template = this.templates[$template]($models)
+  render($model = {}, $template = 'default') {
+    this.#template = this.templates[$template]($model)
     return this
   }
 }
