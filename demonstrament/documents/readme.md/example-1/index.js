@@ -12,7 +12,7 @@ const control = new Control({
       descript: "Some product description.",
       graphic: "https://pbs.twimg.com/media/Grhfq0JaIAAPIqI?format=jpg&name=medium",
       anchor: "https://x.com/StellarManatee/status/1925394081796223237",
-    }),
+    }, null, { localStorage: true, autosave: true, autoload: true }),
   },
   views: {
     default: new View({
@@ -45,6 +45,7 @@ const control = new Control({
     },
     'views.default.qs.product click': function($event) {
       this.models.ui.set('selected', !this.models.ui.get('selected'))
+      this.models.ui.save()
     }
   },
 })

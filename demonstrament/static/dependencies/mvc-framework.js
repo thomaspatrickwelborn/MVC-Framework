@@ -1592,6 +1592,35 @@ class MVCFrameworkCore extends Core {
   }
 }
 
+class LocalStorage extends EventTarget {
+  #db = localStorage
+  #path
+  constructor($path) {
+    super();
+    this.path = $path;
+  }
+  get path() { return this.#path }
+  set path($path) {
+    if(this.#path !== undefined) return
+    this.#path = $path;
+  }
+  get() {
+    try{ return JSON.parse(this.#db.getItem(this.path)) }
+    catch($err) { console.error($err); }
+    return
+  }
+  set($$data) {
+    try { return this.#db.setItem(this.path, JSON.stringify($$data)) }
+    catch($err) { console.error($err); }
+    return
+  }
+  remove() {
+    try { return this.#db.removeItem(this.path) }
+    catch($err) { console.error($err); }
+    return
+  }
+}
+
 let Verification$1 = class Verification extends EventTarget {
   constructor($settings) {
     super();
@@ -2191,6 +2220,9 @@ function _isValidatorDefinition($object, $schema) {
 const { recursiveAssign: recursiveAssign$b$1 } = index$5;
 var Options$6 = ($options) => {
   const Options = recursiveAssign$b$1({
+    autoload: false, 
+    autosave: false, 
+    localStorage: false, 
     path: null, 
     parent: null, 
     enableEvents: false,
@@ -4189,7 +4221,8 @@ const ValidObjectAssigmentMethods = Object.freeze(
 
 function Assign($model, $properties, $options) {
   const { type } = $model;
-  const { assignObject, assignArray } = $options;
+  const { assignObject, assignArray, autoload } = $options;
+  if(autoload) { $properties = $model.load(); }
   if(type === 'array' && ValidArrayAssigmentMethods.includes(assignArray)) {
     $model[assignArray](...$properties);
   }
@@ -4201,7 +4234,7 @@ function Assign($model, $properties, $options) {
 
 const { typedObjectLiteral: typedObjectLiteral$f, typeOf: typeOf$7 } = index$5;
 
-let Model$1 = class Model extends Core {
+class Model extends Core {
   constructor($properties = {}, $schema = null, $options = {}) {
     super({ propertyDirectory: { accessors: [($target, $property) => {
       if($property === undefined) { return $target.target }
@@ -4270,6 +4303,43 @@ let Model$1 = class Model extends Core {
       parent: this.options.parent,
       path: this.options.path
     });
+    if(localStorage && this.options.localStorage) {
+      console.log(localStorage, this.options.localStorage);
+      Object.defineProperties(this, {
+        'save': { value: function save() {
+          this.localStorage.set(this.valueOf());
+          return this
+        } },
+        'load': { value: function load() {
+          const loadValue = this.localStorage.get();
+          if(loadValue) { this.localStorage.set(loadValue); }
+          return this
+        } },
+        'unload': { value: function unload() {
+          this.localStorage.remove();
+          return this
+        } },
+        'localStorage': { configurable: true, get() {
+          let localStorage;
+          if(this.options.localStorage) {
+            let path;
+            if(typeof localStorage === 'string') {
+              if(path[0] !== "/") { path = "/".concat(path); }
+              else { path = localStorage; }
+            }
+            else if(localStorage === true) {
+              path = [window.location.pathname];
+              if(this.path) { path.push(path); }
+              path = path.join('');
+            }
+            if(path !== undefined) { localStorage = new LocalStorage(path); }
+            else { localStorage = null; }
+          }
+          Object.defineProperty(this, 'localStorage', { value: localStorage});
+          return localStorage
+        } },
+      });
+    }
     Methods(this);
     Assign(this, properties, this.options);
   }
@@ -4304,80 +4374,6 @@ let Model$1 = class Model extends Core {
     if(type === 'object') { return parsement }
     else if(type === 'string') { return JSON.stringify(parsement, replacer, space) }
     else { return undefined }
-  }
-};
-
-class LocalStorage extends EventTarget {
-  #db = localStorage
-  #path
-  constructor($path) {
-    super();
-    this.path = $path;
-  }
-  get path() { return this.#path }
-  set path($path) {
-    if(this.#path !== undefined) return
-    this.#path = $path;
-  }
-  get() {
-    try{ return JSON.parse(this.#db.getItem(this.path)) }
-    catch($err) { console.error($err); }
-    return
-  }
-  set($content) {
-    try { return this.#db.setItem(this.path, JSON.stringify($content)) }
-    catch($err) { console.error($err); }
-    return
-  }
-  remove() {
-    try { return this.#db.removeItem(this.path) }
-    catch($err) { console.error($err); }
-    return
-  }
-}
-
-class Model extends Model$1 {
-  #localStorage
-  constructor($properties, $schema, $options) {
-    super(...arguments);
-  }
-  get localStorage() {
-    if(this.#localStorage !== undefined) { return this.#localStorage }
-    const { localStorage } = this.options;
-    let path;
-    if(localStorage) {
-      if(typeof localStorage === 'string') {
-        if(path[0] !== "/") { path = "/".concat(path); }
-        else { path = localStorage; }
-      }
-      else if(localStorage === true) {
-        path = [window.location.pathname];
-        if(this.path) { path.push(path); }
-        path = path.join('');
-      }
-      if(path !== undefined) { this.#localStorage = new LocalStorage(path); }
-    }
-    return this.#localStorage
-  }
-  save() {
-    if(this.localStorage) {
-      this.localStorage.set(this.content.valueOf());
-      return this.localStorage.get()
-    }
-    return null
-  }
-  load() {
-    if(this.localStorage) {
-      this.content.set(this.localStorage.get());
-      return this.localStorage.get()
-    }
-    return null
-  }
-  unload() {
-    if(this.localStorage) {
-      return this.localStorage.remove()
-    }
-    return null
   }
 }
 
