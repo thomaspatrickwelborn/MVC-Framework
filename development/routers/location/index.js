@@ -1,5 +1,5 @@
 import Core from '../../core/index.js'
-import { recursiveAssign } from 'recourse'
+import { assign as recursiveAssign } from 'recourse'
 import Route from './route/index.js'
 import RouteEvent from './routeEvent/index.js'
 import Settings from './settings/index.js' 
