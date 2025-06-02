@@ -1,7 +1,7 @@
 {
   "name": "mvc-framework",
   "author": "Thomas Patrick Welborn",
-  "version": "2.4.1",
+  "version": "2.5.1",
   "type": "module",
   "scripts": {
     "demonstrate:start": "concurrently \"npm run start --workspace development\" \"npm run start --workspace demonstrament\"",
@@ -23,10 +23,12 @@
   "license": "ISC",
   "description": " ▴ PAC Framework With MVC Framework Subpatterns\n    ▵ Manage Simplex/Complex Browser Applications & Websites With Familiar Plain JS Notation\n    ▵ Mediate Model, View, Router, And Controller Events With Event-Driven Core Architecture\n    ▵ Capture Detailed Object/Array Mutator Method Events Including Subproperty Events",
   "devDependencies": {
-    "concurrently": "^9.0.1",
-    "pm2": "^5.4.3"
+    "concurrently": "^9.0.1"
   },
   "keywords": [
-    "mvc framework", "pac framework", "model-view-control framework", "presentation-abstraction-control framework"
+    "mvc framework",
+    "pac framework",
+    "model-view-control framework",
+    "presentation-abstraction-control framework"
   ]
 }

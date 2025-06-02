@@ -1,2 +1,2 @@
-import { Schema } from 'objecture/distributement/objecture.sans.core-plex.js'
+import { Schema } from 'objecture/distributement/objecture.sans.interdependencies.js'
 export default Schema

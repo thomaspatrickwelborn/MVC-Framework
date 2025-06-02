@@ -6,7 +6,7 @@ export default class MVCFrameworkCore extends Core {
   static propertyClasses = []
   constructor($settings = {}, $options = {}) {
     super(Object.assign({}, $options, {
-      propertyDirectory: {
+      compandTree: {
         accessors: [function objectAccessor($target, $property) {
           if($property === undefined) { return $target }
           else { return $target[$property] }
